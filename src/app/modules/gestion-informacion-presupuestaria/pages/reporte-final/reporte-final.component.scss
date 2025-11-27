@@ -1,0 +1,36 @@
+// Estilos para el contenedor de la tabla
+.table-container {
+    padding: 20px;
+}
+
+.contenedor-flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.elemento {
+    padding: 10px;
+}
+
+// Estilos para el selector de periodo académico
+.periodo-academico-texto {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.periodo-academico-valor {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1b3357;
+}
+
+// Media queries para diferentes tamaños de pantalla
+@media screen and (max-width: 1023px) {
+    .contenedor-flex {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+}

@@ -1,1 +1,13 @@
-<p>proyeccion-reporte works!</p>
+<div class="col-12">
+    <p-card>
+        <app-opciones-presupuesto
+            [activeTab]="'proyeccion-reporte'"
+            (onDescargar)="descargar()">
+        </app-opciones-presupuesto>
+
+        <!-- Contenido del Reporte -->
+        <div class="table-container">
+            <p>proyeccion-reporte works!</p>
+        </div>
+    </p-card>
+</div>

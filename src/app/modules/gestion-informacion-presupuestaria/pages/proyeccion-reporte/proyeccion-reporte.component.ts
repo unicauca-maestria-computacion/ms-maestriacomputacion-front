@@ -12,4 +12,9 @@ export class ProyeccionReporteComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  descargar(): void {
+    // Implementa aquí la lógica de descarga
+    console.log('Descargando proyección reporte...');
+  }
+
 }

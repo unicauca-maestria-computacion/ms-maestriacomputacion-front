@@ -1,0 +1,23 @@
+// Estilos para el contenedor de la tabla
+.table-container {
+    padding: 20px;
+}
+
+.contenedor-flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.elemento {
+    padding: 10px;
+}
+
+// Media queries para diferentes tamaños de pantalla
+@media screen and (max-width: 1023px) {
+    .contenedor-flex {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+}

@@ -12,4 +12,9 @@ export class ReportePorGruposComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  descargar(): void {
+    // Implementa aquí la lógica de descarga
+    console.log('Descargando reporte por grupos...');
+  }
+
 }

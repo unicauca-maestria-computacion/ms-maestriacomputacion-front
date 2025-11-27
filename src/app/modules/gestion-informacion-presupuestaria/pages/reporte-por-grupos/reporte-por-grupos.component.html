@@ -1,1 +1,13 @@
-<p>reporte-por-grupos works!</p>
+<div class="col-12">
+    <p-card>
+        <app-opciones-presupuesto
+            [activeTab]="'reporte-por-grupos'"
+            (onDescargar)="descargar()">
+        </app-opciones-presupuesto>
+
+        <!-- Contenido del Reporte -->
+        <div class="table-container">
+            <p>reporte-por-grupos works!</p>
+        </div>
+    </p-card>
+</div>

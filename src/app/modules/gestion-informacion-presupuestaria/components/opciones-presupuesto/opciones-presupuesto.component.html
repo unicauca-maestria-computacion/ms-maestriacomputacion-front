@@ -1,0 +1,28 @@
+<!-- Encabezado con Tabs y Botón Descargar -->
+<div class="grid">
+    <div class="col-8">
+        <div class="flex align-items-center h-full">
+            <p-selectButton
+                [options]="tabOptions"
+                [(ngModel)]="selectedTab"
+                optionLabel="label"
+                optionValue="value"
+                (onChange)="onTabChange($event)">
+            </p-selectButton>
+        </div>
+    </div>
+
+    <div class="col-4">
+        <div class="w-full text-right">
+            <button
+                pButton
+                type="button"
+                label="Descargar"
+                icon="pi pi-download"
+                (click)="descargar()">
+            </button>
+        </div>
+    </div>
+</div>
+
+<br />

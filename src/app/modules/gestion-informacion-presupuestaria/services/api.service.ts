@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { backend } from 'src/app/core/constants/api-url';
 import { ConfiguracionReporteFinancieroDTOPeticion, ConfiguracionReporteFinancieroDTORespuesta } from '../models/configuracion-reporte-financiero.dto';
 import { ProyeccionEstudianteDTOPeticion, ProyeccionEstudianteDTORespuesta } from '../models/proyeccion-estudiante.dto';
-import { PeriodoAcademicoDTOPeticion } from '../models/periodo-academico.dto';
+import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../models/periodo-academico.dto';
 import { ReporteProyeccionEstudiantesDTORespuesta } from '../models/reporte-proyeccion-estudiantes.dto';
 import { ConfiguracionReporteGruposDTORespuesta } from '../models/configuracion-reporte-grupos.dto';
 import { PorcentajeGrupoDTOPeticion } from '../models/porcentaje-grupo.dto';
@@ -21,12 +21,12 @@ export class GestionInformacionPresupuestariaApiService {
     constructor(private http: HttpClient) { }
 
     // Gestionar Reporte Estudiantes
-    actualizarConfiguracionProyeccion(config: ConfiguracionReporteFinancieroDTOPeticion): Observable<ConfiguracionReporteFinancieroDTORespuesta> {
-        return this.http.put<ConfiguracionReporteFinancieroDTORespuesta>(backend(`${this.baseUrl}/configuracion-proyeccion`), config);
+    actualizarConfiguracionProyeccion(config: ConfiguracionReporteFinancieroDTOPeticion): Observable<ReporteProyeccionEstudiantesDTORespuesta> {
+        return this.http.put<ReporteProyeccionEstudiantesDTORespuesta>(backend(`${this.baseUrl}/configuracion-proyeccion`), config);
     }
 
-    actualizarProyeccionEstudiante(proyeccion: ProyeccionEstudianteDTOPeticion): Observable<ProyeccionEstudianteDTORespuesta> {
-        return this.http.put<ProyeccionEstudianteDTORespuesta>(backend(`${this.baseUrl}/proyeccion-estudiante`), proyeccion);
+    actualizarProyeccionEstudiante(proyeccion: ProyeccionEstudianteDTOPeticion): Observable<ReporteProyeccionEstudiantesDTORespuesta> {
+        return this.http.put<ReporteProyeccionEstudiantesDTORespuesta>(backend(`${this.baseUrl}/proyeccion-estudiante`), proyeccion);
     }
 
     obtenerReporteFinanciero(periodo: PeriodoAcademicoDTOPeticion): Observable<any> { // Replace 'any' with specific DTO if available
@@ -40,6 +40,10 @@ export class GestionInformacionPresupuestariaApiService {
     // Gestionar Reporte por Grupos
     obtenerReporteGrupos(periodo: PeriodoAcademicoDTOPeticion): Observable<ConfiguracionReporteGruposDTORespuesta> {
         return this.http.post<ConfiguracionReporteGruposDTORespuesta>(backend(`${this.baseUrl}/reporte-grupos`), periodo);
+    }
+
+    obtenerPeriodosAcademicos(): Observable<PeriodoAcademicoDTORespuesta[]> {
+        return this.http.get<PeriodoAcademicoDTORespuesta[]>(backend(`${this.baseUrl}/periodos-academicos`));
     }
 
     actualizarPorcentajeParticipacionPrimerSemestre(porcentajes: PorcentajeGrupoDTOPeticion[]): Observable<ConfiguracionReporteGruposDTORespuesta> {

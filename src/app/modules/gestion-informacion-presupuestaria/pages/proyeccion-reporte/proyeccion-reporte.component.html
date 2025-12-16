@@ -1,13 +1,241 @@
 <div class="col-12">
+    <p-toast></p-toast>
     <p-card>
-        <app-opciones-presupuesto
-            [activeTab]="'proyeccion-reporte'"
-            (onDescargar)="descargar()">
+        <app-opciones-presupuesto [activeTab]="'proyeccion-reporte'" (onDescargar)="descargar()">
         </app-opciones-presupuesto>
 
+        <!-- Periodo Académico (Read only info) -->
+        <div class="flex justify-content-center align-items-center mb-4">
+            <div class="mx-3 text-center">
+                <span class="periodo-academico-texto">Período Académico de Proyección</span>
+                <br>
+                <span class="periodo-academico-valor">{{ periodoActualTexto }}</span>
+            </div>
+        </div>
+
+        <!-- Spinner de Carga Inicial -->
+        <div *ngIf="cargando" class="flex justify-content-center align-items-center py-8">
+            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
+            </p-progressSpinner>
+            <span class="ml-3 text-lg">Cargando datos...</span>
+        </div>
+
+        <!-- Spinner de Guardado (reemplaza la tabla) -->
+        <div *ngIf="guardando" class="flex justify-content-center align-items-center py-8">
+            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
+            </p-progressSpinner>
+            <span class="ml-3 text-lg">Guardando cambios...</span>
+        </div>
+
         <!-- Contenido del Reporte -->
-        <div class="table-container">
-            <p>proyeccion-reporte works!</p>
+        <div *ngIf="!cargando && !guardando" class="table-container">
+            <!-- Encabezado con información general (Editable) -->
+            <div class="reporte-header mb-4">
+                <div class="flex justify-content-center align-items-center mb-3">
+                    <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Proyección Reporte
+                        Financiero</h2>
+                    <div class="flex align-items-center" style="position: absolute; top: 1.5rem; right: 1.5rem;">
+                        <button *ngIf="!editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
+                            class="p-button-rounded p-button-text p-button-secondary" (click)="onHeaderEditInit()"
+                            pTooltip="Editar Configuración" tooltipPosition="left"
+                            [disabled]="!!editingRowKey"></button>
+                        <div *ngIf="editandoCabecera">
+                            <button pButton pRipple type="button" icon="pi pi-check"
+                                class="p-button-rounded p-button-text p-button-success mr-2"
+                                (click)="onHeaderEditSave()" pTooltip="Guardar" tooltipPosition="left"></button>
+                            <button pButton pRipple type="button" icon="pi pi-times"
+                                class="p-button-rounded p-button-text p-button-danger" (click)="onHeaderEditCancel()"
+                                pTooltip="Cancelar" tooltipPosition="left"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="col-12 md:col-3">
+                        <div class="field">
+                            <label for="biblioteca" class="block">Biblioteca</label>
+                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.biblioteca"
+                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                                class="w-full text-center"></p-inputNumber>
+                            <input *ngIf="!editandoCabecera" id="biblioteca" type="text" pInputText
+                                [value]="formatCurrency(configuracion.biblioteca)" readonly class="w-full" />
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-3">
+                        <div class="field">
+                            <label for="recursos" class="block">Recursos Computacionales</label>
+                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.recursosComputacionales"
+                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                                class="w-full text-center"></p-inputNumber>
+                            <input *ngIf="!editandoCabecera" id="recursos" type="text" pInputText
+                                [value]="formatCurrency(configuracion.recursosComputacionales)" readonly
+                                class="w-full" />
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-3">
+                        <div class="field">
+                            <label for="matricula" class="block">Valor Matrícula (SMLV)</label>
+                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorMatricula"
+                                [minFractionDigits]="0" suffix=" SMLV" class="w-full text-center"></p-inputNumber>
+                            <input *ngIf="!editandoCabecera" id="matricula" type="text" pInputText
+                                [value]="configuracion.valorMatricula + ' SMLV'" readonly class="w-full" />
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-3">
+                        <div class="field">
+                            <label for="smlv" class="block">Valor SMLV</label>
+                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorSMLV"
+                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                                class="w-full text-center"></p-inputNumber>
+                            <input *ngIf="!editandoCabecera" id="smlv" type="text" pInputText
+                                [value]="formatCurrency(configuracion.valorSMLV)" readonly class="w-full" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de estudiantes editable -->
+            <p-table [value]="estudiantes" dataKey="codigoEstudiante" editMode="row" responsiveLayout="scroll">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th class="text-center">Pago</th>
+                        <th class="text-center">Cedula</th>
+                        <th class="text-center">Nombre Estudiante</th>
+                        <th class="text-center">Matricula</th>
+                        <th class="text-center">% Votación</th>
+                        <th class="text-center">% Beca</th>
+                        <th class="text-center">Valor Beca</th>
+                        <th class="text-center">% Egresado</th>
+                        <th class="text-center">Recursos Computacionales</th>
+                        <th class="text-center">Biblioteca</th>
+                        <th class="text-center">Grupo Investigación</th>
+                        <th class="text-center">Total Descuentos</th>
+                        <th class="text-center">Total Neto</th>
+                        <th style="width:8rem"></th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-estudiante let-editing="editing" let-ri="rowIndex">
+                    <tr [pEditableRow]="estudiante">
+                        <!-- Pago (Editable only if row editing) -->
+                        <td class="text-center">
+                            <p-cellEditor>
+                                <ng-template pTemplate="input">
+                                    <p-checkbox [(ngModel)]="estudiante.estaPago" [binary]="true"></p-checkbox>
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    <p-checkbox [(ngModel)]="estudiante.estaPago" [binary]="true" [disabled]="true">
+                                    </p-checkbox>
+                                </ng-template>
+                            </p-cellEditor>
+                        </td>
+
+                        <!-- Cedula (Read-only) -->
+                        <td class="text-center">{{ estudiante.codigoEstudiante }}</td>
+
+                        <!-- Nombre (Read-only) -->
+                        <td>{{ estudiante.nombreEstudiante }}</td>
+
+                        <!-- Matricula (Read-only) -->
+                        <td class="text-right">{{ formatCurrency(estudiante.matricula) }}</td>
+
+                        <!-- % Votación (Editable) -->
+                        <td class="text-center">
+                            <p-cellEditor>
+                                <ng-template pTemplate="input">
+                                    <input pInputText type="number" [(ngModel)]="estudiante.porcentajeVotacion" required
+                                        min="0" max="100" style="width: 100%">
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    {{ formatPercent(estudiante.porcentajeVotacion) }}
+                                </ng-template>
+                            </p-cellEditor>
+                        </td>
+
+                        <!-- % Beca (Editable) -->
+                        <td class="text-center">
+                            <p-cellEditor>
+                                <ng-template pTemplate="input">
+                                    <input pInputText type="number" [(ngModel)]="estudiante.porcentajeBeca" required
+                                        min="0" max="100" style="width: 100%">
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    {{ formatPercent(estudiante.porcentajeBeca) }}
+                                </ng-template>
+                            </p-cellEditor>
+                        </td>
+
+                        <!-- Valor Beca (Read-only, calculated) -->
+                        <td class="text-right">{{ formatCurrency(estudiante.valorBeca) }}</td>
+
+                        <!-- % Egresado (Editable) -->
+                        <td class="text-center">
+                            <p-cellEditor>
+                                <ng-template pTemplate="input">
+                                    <input pInputText type="number" [(ngModel)]="estudiante.porcentajeEgresado" required
+                                        min="0" max="100" style="width: 100%">
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    {{ formatPercent(estudiante.porcentajeEgresado) }}
+                                </ng-template>
+                            </p-cellEditor>
+                        </td>
+
+                        <!-- Recursos (Read-only) -->
+                        <td class="text-right">{{ formatCurrency(estudiante.recursosComputacionales) }}</td>
+
+                        <!-- Biblioteca (Read-only) -->
+                        <td class="text-right">{{ formatCurrency(estudiante.biblioteca) }}</td>
+
+                        <!-- Grupo Inv (Read-only) -->
+                        <td class="text-center">{{ estudiante.grupoInvestigacion }}</td>
+
+                        <!-- Total Descuentos (Read-only) -->
+                        <td class="text-right">{{ formatCurrency(estudiante.grupoDescuentos) }}</td>
+
+                        <!-- Total Neto (Read-only) -->
+                        <td class="text-right font-bold">{{ formatCurrency(estudiante.totalNeto) }}</td>
+
+                        <!-- Acciones -->
+                        <td style="text-align:center">
+                            <!-- Disable edit button if editing another row or header -->
+                            <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+                                (click)="onRowEditInit(estudiante)" class="p-button-rounded p-button-text"
+                                [disabled]="!!editingRowKey && editingRowKey !== estudiante.codigoEstudiante || editandoCabecera"></button>
+                            <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                                (click)="onRowEditSave(estudiante)"
+                                class="p-button-rounded p-button-text p-button-success mr-2"></button>
+                            <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                                (click)="onRowEditCancel(estudiante, ri)"
+                                class="p-button-rounded p-button-text p-button-danger"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="footer">
+                    <tr>
+                        <td colspan="13" class="text-right">
+                            <div class="totales-container">
+                                <div class="total-item">
+                                    <span class="total-label">Total Neto:</span>
+                                    <span class="total-value">{{ formatCurrency(configuracion.totalNeto) }}</span>
+                                </div>
+                                <div class="total-item">
+                                    <span class="total-label">Total Descuentos:</span>
+                                    <span class="total-value">{{ formatCurrency(configuracion.totalDescuentos) }}</span>
+                                </div>
+                                <div class="total-item highlight">
+                                    <span class="total-label">Ingresos Totales Después de Descuentos:</span>
+                                    <span class="total-value">{{ formatCurrency(configuracion.totalIngresos)
+                                        }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="width: 8rem;"></td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
     </p-card>
 </div>

@@ -1,19 +1,12 @@
 <div class="col-12">
     <p-card>
-        <app-opciones-presupuesto
-            [activeTab]="'reporte-final'"
-            (onDescargar)="descargar()">
+        <app-opciones-presupuesto [activeTab]="'reporte-final'" (onDescargar)="descargar()">
         </app-opciones-presupuesto>
 
         <!-- Selector de Periodo Académico -->
         <div class="flex justify-content-center align-items-center mb-4">
-            <button
-                pButton
-                type="button"
-                icon="pi pi-chevron-left"
-                class="p-button-rounded p-button-text"
-                (click)="irPeriodoAnterior()"
-                [disabled]="!hayAnterior">
+            <button pButton type="button" icon="pi pi-chevron-left" class="p-button-rounded p-button-text"
+                (click)="irPeriodoAnterior()" [disabled]="!hayAnterior">
             </button>
 
             <div class="mx-3 text-center">
@@ -22,19 +15,131 @@
                 <span class="periodo-academico-valor">{{ periodoActualTexto }}</span>
             </div>
 
-            <button
-                pButton
-                type="button"
-                icon="pi pi-chevron-right"
-                class="p-button-rounded p-button-text"
-                (click)="irPeriodoSiguiente()"
-                [disabled]="!haySiguiente">
+            <button pButton type="button" icon="pi pi-chevron-right" class="p-button-rounded p-button-text"
+                (click)="irPeriodoSiguiente()" [disabled]="!haySiguiente">
             </button>
         </div>
 
+        <!-- Spinner de Carga -->
+        <div *ngIf="cargando" class="flex justify-content-center align-items-center py-8">
+            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
+            </p-progressSpinner>
+            <span class="ml-3 text-lg">Cargando datos...</span>
+        </div>
+
         <!-- Contenido del Reporte -->
-        <div class="table-container">
-            <p>reporte-final works!</p>
+        <div *ngIf="!cargando" class="table-container">
+            <!-- Encabezado con información general (Read-only) -->
+            <div class="reporte-header mb-4">
+                <h2 class="text-center mb-3" style="color: #495057; font-weight: 600;">Reporte Financiero</h2>
+                <div class="grid">
+                    <div class="col-12 md:col-3">
+                        <div class="field">
+                            <label for="biblioteca" class="block">Biblioteca</label>
+                            <input id="biblioteca" type="text" pInputText
+                                [value]="formatCurrency(configuracion.biblioteca)" readonly class="w-full" />
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-3">
+                        <div class="field">
+                            <label for="recursos" class="block">Recursos Computacionales</label>
+                            <input id="recursos" type="text" pInputText
+                                [value]="formatCurrency(configuracion.recursosComputacionales)" readonly
+                                class="w-full" />
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-3">
+                        <div class="field">
+                            <label for="matricula" class="block">Valor Matrícula (SMLV)</label>
+                            <input id="matricula" type="text" pInputText
+                                [value]="configuracion.valorMatricula + ' SMLV'" readonly class="w-full" />
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-3">
+                        <div class="field">
+                            <label for="smlv" class="block">Valor SMLV</label>
+                            <input id="smlv" type="text" pInputText [value]="formatCurrency(configuracion.valorSMLV)"
+                                readonly class="w-full" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de estudiantes -->
+            <p-table [value]="estudiantes" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th class="text-center">Cedula</th>
+                        <th class="text-center">Nombre Estudiante</th>
+                        <th class="text-center">Matricula</th>
+                        <th class="text-center">% Votación</th>
+                        <th class="text-center">% Beca</th>
+                        <th class="text-center">Valor Beca</th>
+                        <th class="text-center">% Egresado</th>
+                        <th class="text-center">Recursos Computacionales</th>
+                        <th class="text-center">Biblioteca</th>
+                        <th class="text-center">Grupo Investigación</th>
+                        <th class="text-center">Grupo Descuentos</th>
+                        <th class="text-center">Total Neto</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th class="text-center">Cedula</th>
+                        <th class="text-center">Nombre Estudiante</th>
+                        <th class="text-center">Matricula</th>
+                        <th class="text-center">% Votación</th>
+                        <th class="text-center">% Beca</th>
+                        <th class="text-center">Valor Beca</th>
+                        <th class="text-center">% Egresado</th>
+                        <th class="text-center">Recursos Computacionales</th>
+                        <th class="text-center">Biblioteca</th>
+                        <th class="text-center">Grupo Investigación</th>
+                        <th class="text-center">Grupo Descuentos</th>
+                        <th class="text-center">Total Neto</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-estudiante>
+                    <tr>
+                        <td class="text-center">{{ estudiante.codigoEstudiante }}</td>
+                        <td>{{ estudiante.nombreEstudiante }}</td>
+                        <td class="text-right">{{ formatCurrency(estudiante.matricula) }}</td>
+                        <td class="text-center">{{ formatPercent(estudiante.porcentajeVotacion) }}</td>
+                        <td class="text-center">{{ formatPercent(estudiante.porcentajeBeca) }}</td>
+                        <td class="text-right">{{ formatCurrency(estudiante.valorBeca) }}</td>
+                        <td class="text-center">{{ formatPercent(estudiante.porcentajeEgresado) }}</td>
+                        <td class="text-right">{{ formatCurrency(estudiante.recursosComputacionales) }}</td>
+                        <td class="text-right">{{ formatCurrency(estudiante.biblioteca) }}</td>
+                        <td class="text-center">{{ estudiante.grupoInvestigacion }}</td>
+                        <td class="text-right">{{ formatCurrency(estudiante.grupoDescuentos) }}</td>
+                        <td class="text-right font-bold">{{ formatCurrency(estudiante.totalNeto) }}</td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="footer">
+                    <tr>
+                        <td colspan="12" class="text-right">
+                            <div class="totales-container">
+                                <div class="total-item">
+                                    <span class="total-label">Total Neto:</span>
+                                    <span class="total-value">{{ formatCurrency(configuracion.totalNeto) }}</span>
+                                </div>
+                                <div class="total-item">
+                                    <span class="total-label">Total Descuentos:</span>
+                                    <span class="total-value">{{ formatCurrency(configuracion.totalDescuentos) }}</span>
+                                </div>
+                                <div class="total-item highlight">
+                                    <span class="total-label">Ingresos Totales Después de Descuentos:</span>
+                                    <span class="total-value">{{ formatCurrency(configuracion.totalIngresos)
+                                        }}</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
     </p-card>
 </div>

@@ -5,13 +5,14 @@ import { GestionInformacionPresupuestariaApiService } from './api.service';
 import { ApiError } from '../models/api-error';
 import { ConfiguracionReporteFinancieroDTOPeticion } from '../models/configuracion-reporte-financiero.dto';
 import { ProyeccionEstudianteDTOPeticion } from '../models/proyeccion-estudiante.dto';
-import { PeriodoAcademicoDTOPeticion } from '../models/periodo-academico.dto';
+import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../models/periodo-academico.dto';
 import { PorcentajeGrupoDTOPeticion } from '../models/porcentaje-grupo.dto';
 import { GastoGeneralDTOPeticion } from '../models/gasto-general.dto';
 import { ItemsDTOPeticion } from '../models/items.dto';
 import { ValorGrupoDTOPeticion } from '../models/valor-grupo.dto';
 import { ReporteProyeccionEstudiantes } from '../models/domain-models';
 import { ConfiguracionReporteGrupos } from '../models/domain-models';
+import { GestionInformacionPresupuestariaFakeApiService } from './fake-api.service';
 
 @Injectable({
     providedIn: 'root'
@@ -31,7 +32,9 @@ export class GestionInformacionPresupuestariaFacadeService {
     private _reporteGrupos = new BehaviorSubject<ConfiguracionReporteGrupos | null>(null);
     public reporteGrupos$ = this._reporteGrupos.asObservable();
 
-    constructor(private apiService: GestionInformacionPresupuestariaApiService) { }
+    constructor(
+        private apiService: GestionInformacionPresupuestariaFakeApiService
+    ) { }
 
     // Methods
 
@@ -94,6 +97,18 @@ export class GestionInformacionPresupuestariaFacadeService {
         return this.apiService.obtenerReporteGrupos(periodo).pipe(
             map(dto => dto as unknown as ConfiguracionReporteGrupos),
             tap(data => this._reporteGrupos.next(data)),
+            catchError(error => {
+                this._error.next(error);
+                return throwError(() => error);
+            }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    obtenerPeriodosAcademicos(): Observable<PeriodoAcademicoDTORespuesta[]> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.obtenerPeriodosAcademicos().pipe(
             catchError(error => {
                 this._error.next(error);
                 return throwError(() => error);

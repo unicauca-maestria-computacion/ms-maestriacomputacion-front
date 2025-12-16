@@ -41,3 +41,8 @@ export const gestion_docentes_estudiantes = {
     production: true,
     api_url: 'https://apptest.unicauca.edu.co:4414/api/',
 };
+
+export const evaluacion_docente = {
+    production: true,
+    api_url: 'https://apptest.unicauca.edu.co:4415/api/',
+};

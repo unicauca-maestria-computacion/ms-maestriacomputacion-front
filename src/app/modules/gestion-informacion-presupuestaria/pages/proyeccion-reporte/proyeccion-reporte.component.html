@@ -36,10 +36,10 @@
                         Financiero</h2>
                     <div class="flex align-items-center" style="position: absolute; top: 1.5rem; right: 1.5rem;">
                         <button *ngIf="!editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
-                            class="p-button-rounded p-button-text p-button-secondary" (click)="onHeaderEditInit()"
+                            class="p-button-rounded p-button-text" (click)="onHeaderEditInit()"
                             pTooltip="Editar Configuración" tooltipPosition="left"
                             [disabled]="!!editingRowKey"></button>
-                        <div *ngIf="editandoCabecera">
+                        <div *ngIf="editandoCabecera" class="flex justify-content-center align-items-center">
                             <button pButton pRipple type="button" icon="pi pi-check"
                                 class="p-button-rounded p-button-text p-button-success mr-2"
                                 (click)="onHeaderEditSave()" pTooltip="Guardar" tooltipPosition="left"></button>
@@ -203,12 +203,14 @@
                             <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
                                 (click)="onRowEditInit(estudiante)" class="p-button-rounded p-button-text"
                                 [disabled]="!!editingRowKey && editingRowKey !== estudiante.codigoEstudiante || editandoCabecera"></button>
-                            <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
-                                (click)="onRowEditSave(estudiante)"
-                                class="p-button-rounded p-button-text p-button-success mr-2"></button>
-                            <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
-                                (click)="onRowEditCancel(estudiante, ri)"
-                                class="p-button-rounded p-button-text p-button-danger"></button>
+                            <div *ngIf="editing" class="flex justify-content-center align-items-center">
+                                <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                                    (click)="onRowEditSave(estudiante)"
+                                    class="p-button-rounded p-button-text p-button-success mr-2"></button>
+                                <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                                    (click)="onRowEditCancel(estudiante, ri)"
+                                    class="p-button-rounded p-button-text p-button-danger"></button>
+                            </div>
                         </td>
                     </tr>
                 </ng-template>

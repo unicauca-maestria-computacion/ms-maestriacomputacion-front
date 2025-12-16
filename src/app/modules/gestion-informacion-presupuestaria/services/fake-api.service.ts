@@ -256,7 +256,69 @@ export class GestionInformacionPresupuestariaFakeApiService {
     }
 
     obtenerReporteGrupos(periodo: PeriodoAcademicoDTOPeticion): Observable<ConfiguracionReporteGruposDTORespuesta> {
-        return of({} as ConfiguracionReporteGruposDTORespuesta).pipe(delay(500));
+        const mockResponse: ConfiguracionReporteGruposDTORespuesta = {
+            AUIPorcentaje: 20,
+            excedentesMaestria: 41819614,
+            AUIValor: 36674913,
+            ingresosNetos: 183374564,
+            valorADistribuir: 82512165,
+            item1: 4500000,
+            item2: 5000000,
+            imprevistos: 1200000,
+            objPeriodoAcademico: { periodo: periodo.periodo, año: periodo.año },
+            gastosGenerales: [],
+            reportePorGrupos: [
+                {
+                    objGrupo: { nombre: 'GTI' },
+                    totalNeto: 100900692,
+                    aportePrimerSemestre: 33400692,
+                    aporteSegundoSemestre: 67500000,
+                    participacionPrimerSemestre: 48.65,
+                    participacionSegundoSemestre: 58.84,
+                    participacionPorAño: 55.02,
+                    presupuestoPorGrupoItem1: 0,
+                    presupuestoPorGrupoItem2: 0,
+                    presupuestoPorGrupo: 45398193,
+                    imprevistos: 0,
+                    presupuestoPorGrupoImprevistos: 0,
+                    vigenciasAnteriores: 0,
+                    gastosGenerales: []
+                },
+                {
+                    objGrupo: { nombre: 'IDIS' },
+                    totalNeto: 60243872,
+                    aportePrimerSemestre: 27066286,
+                    aporteSegundoSemestre: 33177586,
+                    participacionPrimerSemestre: 39.42,
+                    participacionSegundoSemestre: 28.92,
+                    participacionPorAño: 32.85,
+                    presupuestoPorGrupoItem1: 0,
+                    presupuestoPorGrupoItem2: 0,
+                    presupuestoPorGrupo: 27105246,
+                    imprevistos: 0,
+                    presupuestoPorGrupoImprevistos: 0,
+                    vigenciasAnteriores: 0,
+                    gastosGenerales: []
+                },
+                {
+                    objGrupo: { nombre: 'GICO' },
+                    totalNeto: 22230000,
+                    aportePrimerSemestre: 8190000,
+                    aporteSegundoSemestre: 14040000,
+                    participacionPrimerSemestre: 11.93,
+                    participacionSegundoSemestre: 12.24,
+                    participacionPorAño: 12.12,
+                    presupuestoPorGrupoItem1: 0,
+                    presupuestoPorGrupoItem2: 0,
+                    presupuestoPorGrupo: 10008726,
+                    imprevistos: 0,
+                    presupuestoPorGrupoImprevistos: 0,
+                    vigenciasAnteriores: 0,
+                    gastosGenerales: []
+                }
+            ]
+        };
+        return of(mockResponse).pipe(delay(500));
     }
 
     actualizarPorcentajeParticipacionPrimerSemestre(porcentajes: PorcentajeGrupoDTOPeticion[]): Observable<ConfiguracionReporteGruposDTORespuesta> {

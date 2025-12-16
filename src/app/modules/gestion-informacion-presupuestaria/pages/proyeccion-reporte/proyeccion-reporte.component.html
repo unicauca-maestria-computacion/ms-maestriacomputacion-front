@@ -4,14 +4,9 @@
         <app-opciones-presupuesto [activeTab]="'proyeccion-reporte'" (onDescargar)="descargar()">
         </app-opciones-presupuesto>
 
-        <!-- Periodo Académico (Read only info) -->
-        <div class="flex justify-content-center align-items-center mb-4">
-            <div class="mx-3 text-center">
-                <span class="periodo-academico-texto">Período Académico de Proyección</span>
-                <br>
-                <span class="periodo-academico-valor">{{ periodoActualTexto }}</span>
-            </div>
-        </div>
+        <!-- Selector de Periodo Académico (Now navigable) -->
+        <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)">
+        </app-periodo-academico-selector>
 
         <!-- Spinner de Carga Inicial -->
         <div *ngIf="cargando" class="flex justify-content-center align-items-center py-8">
@@ -28,7 +23,7 @@
         </div>
 
         <!-- Contenido del Reporte -->
-        <div *ngIf="!cargando && !guardando" class="table-container">
+        <div *ngIf="!cargando && !guardando && configuracion" class="table-container">
             <!-- Encabezado con información general (Editable) -->
             <div class="reporte-header mb-4">
                 <div class="flex justify-content-center align-items-center mb-3">

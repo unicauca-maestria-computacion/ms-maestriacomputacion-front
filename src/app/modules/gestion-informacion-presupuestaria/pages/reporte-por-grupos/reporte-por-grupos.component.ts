@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { GestionInformacionPresupuestariaFakeApiService } from '../../services/fake-api.service';
+import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { ConfiguracionReporteGruposDTORespuesta } from '../../models/configuracion-reporte-grupos.dto';
 import { PeriodoAcademicoDTORespuesta } from '../../models/periodo-academico.dto';
 import { ReportePorGruposDTORespuesta } from '../../models/reporte-por-grupos.dto';
@@ -24,30 +24,41 @@ export class ReportePorGruposComponent implements OnInit {
   configuracion: ConfiguracionReporteGruposDTORespuesta;
   tableRows: TableRow[] = [];
   groupColumns: GrupoDTORespuesta[] = [];
-  loading: boolean = true;
+  loading: boolean = false;
   editingRowKey: string | null = null;
   clonedRow: { [s: string]: any } = {};
 
-  periodoActualTexto: string = '';
   basicData: any;
   basicOptions: any;
 
-  constructor(private apiService: GestionInformacionPresupuestariaFakeApiService) { }
+  constructor(private facadeService: GestionInformacionPresupuestariaFacadeService) { }
 
   ngOnInit(): void {
-    this.cargarDatos();
+    // Initial load handled by selector component
   }
 
-  cargarDatos(): void {
-    this.loading = true;
-    const periodoMock = { periodo: 2, año: 2024 }; // Should come from context or selector
-    this.periodoActualTexto = `${periodoMock.año} - ${periodoMock.periodo}`; // Format period text
+  onPeriodoChange(periodo: PeriodoAcademicoDTORespuesta): void {
+    this.cargarDatos(periodo);
+  }
 
-    this.apiService.obtenerReporteGrupos(periodoMock).subscribe(data => {
-      this.configuracion = data;
-      this.procesarDatosTabla(data);
-      this.inicializarGrafica(data);
-      this.loading = false;
+  cargarDatos(periodoObj: PeriodoAcademicoDTORespuesta): void {
+    this.loading = true;
+    const periodoMock = {
+      periodo: periodoObj.periodo,
+      año: periodoObj.año
+    };
+
+    this.facadeService.obtenerReporteGrupos(periodoMock).subscribe({
+      next: (data) => {
+        this.configuracion = data;
+        this.procesarDatosTabla(data);
+        this.inicializarGrafica(data);
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching report', err);
+        this.loading = false;
+      }
     });
   }
 

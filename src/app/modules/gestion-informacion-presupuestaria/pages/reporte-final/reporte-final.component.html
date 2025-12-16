@@ -4,21 +4,8 @@
         </app-opciones-presupuesto>
 
         <!-- Selector de Periodo Académico -->
-        <div class="flex justify-content-center align-items-center mb-4">
-            <button pButton type="button" icon="pi pi-chevron-left" class="p-button-rounded p-button-text"
-                (click)="irPeriodoAnterior()" [disabled]="!hayAnterior">
-            </button>
-
-            <div class="mx-3 text-center">
-                <span class="periodo-academico-texto">Período Académico</span>
-                <br>
-                <span class="periodo-academico-valor">{{ periodoActualTexto }}</span>
-            </div>
-
-            <button pButton type="button" icon="pi pi-chevron-right" class="p-button-rounded p-button-text"
-                (click)="irPeriodoSiguiente()" [disabled]="!haySiguiente">
-            </button>
-        </div>
+        <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)">
+        </app-periodo-academico-selector>
 
         <!-- Spinner de Carga -->
         <div *ngIf="cargando" class="flex justify-content-center align-items-center py-8">
@@ -28,7 +15,7 @@
         </div>
 
         <!-- Contenido del Reporte -->
-        <div *ngIf="!cargando" class="table-container">
+        <div *ngIf="!cargando && configuracion" class="table-container">
             <!-- Encabezado con información general (Read-only) -->
             <div class="reporte-header mb-4">
                 <h2 class="text-center mb-3" style="color: #495057; font-weight: 600;">Reporte Financiero</h2>

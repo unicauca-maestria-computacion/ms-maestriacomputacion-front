@@ -25,25 +25,10 @@ interface EstudianteReporte extends ProyeccionEstudianteDTORespuesta {
 export class ReporteFinalComponent implements OnInit {
 
   cargando: boolean = false;
-  periodoActualTexto: string = '';
-  hayAnterior: boolean = false;
-  haySiguiente: boolean = false;
 
-  periodos: PeriodoAcademicoDTORespuesta[] = [];
-  currentIndex: number = 0;
 
   // Configuración del reporte
-  configuracion: ConfiguracionReporteFinancieroDTORespuesta = {
-    esReporteFinal: false,
-    biblioteca: 0,
-    recursosComputacionales: 0,
-    valorMatricula: 0,
-    valorSMLV: 0,
-    totalNeto: 0,
-    totalDescuentos: 0,
-    totalIngresos: 0,
-    objPeriodoAcademico: { periodo: 0, año: 0 }
-  };
+  configuracion: ConfiguracionReporteFinancieroDTORespuesta | null = null;
 
   // Datos de la tabla
   estudiantes: EstudianteReporte[] = [];
@@ -53,46 +38,19 @@ export class ReporteFinalComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.cargarPeriodos();
+    // Initial load handled by selector component output
   }
 
-  cargarPeriodos(): void {
-    this.cargando = true;
-    this.facadeService.obtenerPeriodosAcademicos().subscribe({
-      next: (data) => {
-        this.periodos = data;
-        if (this.periodos.length > 0) {
-          // Select the last period by default (assuming list is ordered or we want the latest)
-          this.currentIndex = this.periodos.length - 1;
-          this.actualizarPeriodoActual();
-        }
-        this.cargando = false;
-      },
-      error: (err) => {
-        console.error('Error loading periods', err);
-        this.cargando = false;
-      }
-    });
+  onPeriodoChange(periodo: PeriodoAcademicoDTORespuesta): void {
+    this.cargarReporte(periodo);
   }
 
-  actualizarPeriodoActual(): void {
-    const periodo = this.periodos[this.currentIndex];
-    this.periodoActualTexto = `${periodo.año}-${periodo.periodo}`;
-    this.actualizarEstadoFlechas();
-    this.cargarReporte();
-  }
-
-  actualizarEstadoFlechas(): void {
-    this.hayAnterior = this.currentIndex > 0;
-    this.haySiguiente = this.currentIndex < this.periodos.length - 1;
-  }
-
-  cargarReporte(): void {
+  cargarReporte(periodoObj: PeriodoAcademicoDTORespuesta): void {
     this.cargando = true;
 
     const periodo: PeriodoAcademicoDTOPeticion = {
-      periodo: this.periodos[this.currentIndex].periodo,
-      año: this.periodos[this.currentIndex].año
+      periodo: periodoObj.periodo,
+      año: periodoObj.año
     };
 
     this.facadeService.obtenerReporteFinanciero(periodo).subscribe({
@@ -111,20 +69,6 @@ export class ReporteFinalComponent implements OnInit {
         this.cargando = false;
       }
     });
-  }
-
-  irPeriodoAnterior(): void {
-    if (this.hayAnterior) {
-      this.currentIndex--;
-      this.actualizarPeriodoActual();
-    }
-  }
-
-  irPeriodoSiguiente(): void {
-    if (this.haySiguiente) {
-      this.currentIndex++;
-      this.actualizarPeriodoActual();
-    }
   }
 
   descargar(): void {

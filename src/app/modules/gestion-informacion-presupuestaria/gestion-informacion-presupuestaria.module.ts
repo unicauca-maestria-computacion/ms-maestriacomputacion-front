@@ -7,13 +7,15 @@ import { ProyeccionReporteComponent } from './pages/proyeccion-reporte/proyeccio
 import { ReportePorGruposComponent } from './pages/reporte-por-grupos/reporte-por-grupos.component';
 import { PrimenNgModule } from '../primen-ng/primen-ng.module';
 import { OpcionesPresupuestoComponent } from './components/opciones-presupuesto/opciones-presupuesto.component';
+import { PeriodoAcademicoSelectorComponent } from './components/periodo-academico-selector/periodo-academico-selector.component';
 
 @NgModule({
     declarations: [
     ReporteFinalComponent,
     ProyeccionReporteComponent,
     ReportePorGruposComponent,
-    OpcionesPresupuestoComponent
+    OpcionesPresupuestoComponent,
+    PeriodoAcademicoSelectorComponent
   ],
     imports: [
         CommonModule,

@@ -4,7 +4,7 @@
         </app-opciones-presupuesto>
 
         <!-- Selector de Periodo Académico -->
-        <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)">
+        <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)" [excluirUltimo]="true">
         </app-periodo-academico-selector>
 
         <!-- Spinner de Carga -->

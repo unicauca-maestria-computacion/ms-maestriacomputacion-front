@@ -5,7 +5,7 @@
         </app-opciones-presupuesto>
 
         <!-- Selector de Periodo Académico (Now navigable) -->
-        <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)">
+        <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)" [mostrarSoloUltimo]="true">
         </app-periodo-academico-selector>
 
         <!-- Spinner de Carga Inicial -->

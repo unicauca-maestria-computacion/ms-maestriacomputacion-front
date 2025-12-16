@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { PeriodoAcademicoDTORespuesta } from '../../models/periodo-academico.dto';
 
@@ -9,6 +9,8 @@ import { PeriodoAcademicoDTORespuesta } from '../../models/periodo-academico.dto
 })
 export class PeriodoAcademicoSelectorComponent implements OnInit {
 
+  @Input() mostrarSoloUltimo: boolean = false;
+  @Input() excluirUltimo: boolean = false;
   @Output() periodoSeleccionado = new EventEmitter<PeriodoAcademicoDTORespuesta>();
 
   periodos: PeriodoAcademicoDTORespuesta[] = [];
@@ -28,8 +30,22 @@ export class PeriodoAcademicoSelectorComponent implements OnInit {
     this.loading = true;
     this.facadeService.obtenerPeriodosAcademicos().subscribe({
       next: (data) => {
-        this.periodos = data;
+        // Asignar datos iniciales
+        let periodosTemp = [...data];
+
+        // Lógica de filtrado según inputs
+        if (this.mostrarSoloUltimo && periodosTemp.length > 0) {
+          // Mostrar solo el último periodo
+          periodosTemp = [periodosTemp[periodosTemp.length - 1]];
+        } else if (this.excluirUltimo && periodosTemp.length > 0) {
+          // Excluir el último periodo (para Reporte Final)
+          periodosTemp.pop();
+        }
+
+        this.periodos = periodosTemp;
+
         if (this.periodos.length > 0) {
+          // Seleccionar el último disponible por defecto
           this.currentIndex = this.periodos.length - 1;
           this.actualizarPeriodoActual();
         }

@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../../models/periodo-academico.dto';
-import { ReporteEstudiantesDTORespuesta } from '../../models/reporte-estudiantes.dto';
-import { ProyeccionEstudianteDTORespuesta } from '../../models/proyeccion-estudiante.dto';
-import { ConfiguracionReporteFinancieroDTORespuesta } from '../../models/configuracion-reporte-financiero.dto';
+import { ConfiguracionReporteFinanciero, ProyeccionEstudiante } from '../../models/domain-models';
 
-interface EstudianteReporte extends ProyeccionEstudianteDTORespuesta {
+interface EstudianteReporte extends ProyeccionEstudiante {
   nombreEstudiante: string;
   matricula: number;
   valorBeca: number;
@@ -28,7 +26,7 @@ export class ReporteFinalComponent implements OnInit {
 
 
   // Configuración del reporte
-  configuracion: ConfiguracionReporteFinancieroDTORespuesta | null = null;
+  configuracion: ConfiguracionReporteFinanciero | null = null;
 
   // Datos de la tabla
   estudiantes: EstudianteReporte[] = [];

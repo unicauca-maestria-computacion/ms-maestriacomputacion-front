@@ -14,90 +14,522 @@
         </div>
 
         <div *ngIf="!loading && configuracion" class="mt-4">
+
+            <!-- Global Title -->
+            <div class="flex justify-content-center align-items-center mb-5">
+                <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Reporte Por Grupos</h2>
+            </div>
+
             <!-- Chart -->
             <div class="flex justify-content-center mb-5">
                 <p-chart type="bar" [data]="basicData" [options]="basicOptions" width="40vw" height="50vh"></p-chart>
             </div>
 
-            <!-- Header Container -->
-            <div class="reporte-header mb-4">
-                <div class="flex justify-content-center align-items-center mb-3">
-                    <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Reporte Por Grupos</h2>
+            <!-- Container 1: Detalle Financiero por Grupos (Ingresos + Main Table) -->
+            <div class="reporte-header mb-5 relative">
+                <div class="flex justify-content-center align-items-center mb-4">
+                    <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Participación y Aporte</h2>
+
+                    <!-- Edit Button -->
+                    <div class="flex align-items-center" style="position: absolute; top: 0rem; right: 0rem;">
+                        <button *ngIf="!editandoIngresos" pButton pRipple type="button" icon="pi pi-pencil"
+                            class="p-button-rounded p-button-text" (click)="onIngresosEditInit()" pTooltip="Editar"
+                            tooltipPosition="left" [disabled]="isAnyEditActive">
+                        </button>
+                        <div *ngIf="editandoIngresos" class="flex justify-content-center align-items-center">
+                            <button pButton pRipple type="button" icon="pi pi-check"
+                                class="p-button-rounded p-button-text p-button-success mr-2"
+                                (click)="onIngresosEditSave()" pTooltip="Guardar" tooltipPosition="left"></button>
+                            <button pButton pRipple type="button" icon="pi pi-times"
+                                class="p-button-rounded p-button-text p-button-danger" (click)="onIngresosEditCancel()"
+                                pTooltip="Cancelar" tooltipPosition="left"></button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="grid justify-content-center">
+                <!-- Config Ingresos -->
+                <div class="grid justify-content-center mb-4">
                     <div class="col-12 md:col-4">
                         <div class="field">
                             <label class="block">Ingresos Matrículas</label>
-                            <input pInputText [value]="formatCurrency(configuracion.ingresosNetos)" readonly
-                                class="w-full" />
+                            <p-inputNumber *ngIf="editandoIngresos" [(ngModel)]="clonedIngresos" mode="currency"
+                                currency="COP" locale="es-CO" class="w-full" [style]="{'width':'100%'}"></p-inputNumber>
+                            <input *ngIf="!editandoIngresos" pInputText
+                                [value]="formatCurrency(configuracion.ingresosNetos)" readonly class="w-full" />
                         </div>
+                    </div>
+                </div>
+
+                <!-- Main Table -->
+                <p-table [value]="tableRows" dataKey="key" editMode="row" responsiveLayout="scroll"
+                    styleClass="p-datatable-sm p-datatable-gridlines">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th class="p-3" style="white-space: nowrap; background-color: white;"></th>
+                            <th *ngFor="let group of groupColumns" class="text-center font-bold p-3"
+                                style="background-color: white;">
+                                {{ group.nombre }}
+                            </th>
+                            <th class="text-center font-bold p-3" style="background-color: white;">TOTAL</th>
+                            <th class="p-3" style="width: 8rem; background-color: white;"></th>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body" let-row let-editing="editing" let-ri="rowIndex">
+                        <tr [pEditableRow]="row">
+                            <td class="font-bold p-3" style="color: #495057;">{{ row.concept }}</td>
+
+                            <!-- Dynamic Group Columns -->
+                            <td *ngFor="let group of groupColumns" class="text-center w-10rem p-3">
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <div class="w-full" *ngIf="row.isEditable; else readOnlyCell">
+                                            <p-inputNumber [(ngModel)]="row.values[group.nombre]" mode="decimal"
+                                                [minFractionDigits]="2" [maxFractionDigits]="2" suffix=" %"
+                                                [style]="{'width':'100%'}" class="w-full text-center">
+                                            </p-inputNumber>
+                                        </div>
+                                        <ng-template #readOnlyCell>
+                                            {{ row.isPercentage ? formatPercent(row.values[group.nombre]) :
+                                            formatCurrency(row.values[group.nombre]) }}
+                                        </ng-template>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ row.isPercentage ? formatPercent(row.values[group.nombre]) :
+                                        formatCurrency(row.values[group.nombre]) }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+
+                            <!-- Total Column (Read Only) -->
+                            <td class="text-right font-bold w-10rem p-3">
+                                {{ row.isPercentage ? formatPercent(row.total) : formatCurrency(row.total) }}
+                            </td>
+
+                            <!-- Actions Column -->
+                            <td class="text-center p-3">
+                                <button *ngIf="row.isEditable && !editing" pButton pRipple type="button"
+                                    pInitEditableRow icon="pi pi-pencil" (click)="onRowEditInit(row)"
+                                    class="p-button-rounded p-button-text"
+                                    [disabled]="isAnyEditActive"></button>
+
+                                <div *ngIf="editing" class="flex justify-content-center align-items-center">
+                                    <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                                        (click)="onRowEditSave(row)"
+                                        class="p-button-rounded p-button-text p-button-success mr-2"></button>
+                                    <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                                        (click)="onRowEditCancel(row, ri)"
+                                        class="p-button-rounded p-button-text p-button-danger"></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            <!-- Container 2: Configuración de Distribución (Distribución + Summary Table) -->
+            <div class="reporte-header mb-5 relative">
+                <div class="flex justify-content-center align-items-center mb-4">
+                    <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Distribución</h2>
+
+                    <div class="flex align-items-center" style="position: absolute; top: 0rem; right: 0rem;">
+                        <button *ngIf="!editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
+                            class="p-button-rounded p-button-text" (click)="onHeaderEditInit()" pTooltip="Editar"
+                            tooltipPosition="left" [disabled]="isAnyEditActive">
+                        </button>
+                        <div *ngIf="editandoCabecera" class="flex justify-content-center align-items-center">
+                            <button pButton pRipple type="button" icon="pi pi-check"
+                                class="p-button-rounded p-button-text p-button-success mr-2"
+                                (click)="onHeaderEditSave()" pTooltip="Guardar" tooltipPosition="left"></button>
+                            <button pButton pRipple type="button" icon="pi pi-times"
+                                class="p-button-rounded p-button-text p-button-danger" (click)="onHeaderEditCancel()"
+                                pTooltip="Cancelar" tooltipPosition="left"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Config Inputs (Block Labels) -->
+                <div class="grid p-fluid mb-4">
+                    <div class="col-12 md:col-4">
+                        <div class="field">
+                            <label class="block">AUI Universidad</label>
+                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.AUIPorcentaje"
+                                suffix=" %" [min]="0" [max]="100" [minFractionDigits]="2"
+                                class="w-full"></p-inputNumber>
+                            <input *ngIf="!editandoCabecera" pInputText
+                                [value]="formatPercent(configuracion.AUIPorcentaje)" readonly class="w-full" />
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <div class="field">
+                            <label class="block">Excedentes Maestria</label>
+                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.excedentesMaestria"
+                                mode="currency" currency="COP" locale="es-CO" class="w-full"></p-inputNumber>
+                            <input *ngIf="!editandoCabecera" pInputText
+                                [value]="formatCurrency(configuracion.excedentesMaestria)" readonly class="w-full" />
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <div class="field">
+                            <label class="block">Gastos Generales</label>
+                            <div class="p-inputgroup">
+                                <input pInputText [value]="formatCurrency(totalGastosGenerales)" readonly />
+                                <button type="button" pButton icon="pi pi-pencil" class="p-button-secondary"
+                                    [disabled]="!editandoCabecera" (click)="abrirModalGastos()"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Table -->
+                <div class="grid">
+                    <div class="col-12">
+                        <p-table [value]="[1]" styleClass="p-datatable-sm p-datatable-gridlines">
+                            <ng-template pTemplate="body">
+                                <tr>
+                                    <td class="font-bold p-3">AUI Universidad</td>
+                                    <td class="text-right p-3">{{ formatCurrency(configuracion.AUIValor) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold p-3">Ingresos Netos</td>
+                                    <td class="text-right p-3">{{ formatCurrency(configuracion.ingresosNetos) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold p-3">Excedentes Maestria</td>
+                                    <td class="text-right p-3">{{ formatCurrency(configuracion.excedentesMaestria) }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold p-3">Gastos Generales</td>
+                                    <td class="text-right p-3">{{ formatCurrency(totalGastosGenerales) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold p-3">Valor a Distribuir (Ingresos-Gastos)</td>
+                                    <td class="text-right font-bold p-3">{{
+                                        formatCurrency(configuracion.valorADistribuir) }}</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
                     </div>
                 </div>
             </div>
 
-            <!-- Table -->
-            <p-table [value]="tableRows" dataKey="key" editMode="row" responsiveLayout="scroll">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th style="white-space: nowrap;"></th>
-                        <th *ngFor="let group of groupColumns" class="text-center font-bold">
-                            {{ group.nombre }}
-                        </th>
-                        <th class="text-center font-bold">TOTAL</th>
-                        <th style="width: 8rem"></th>
-                    </tr>
-                </ng-template>
+            <!-- Container 3: Presupuesto por Items -->
+            <div class="reporte-header mb-5 relative">
+                <div class="flex justify-content-center align-items-center mb-4">
+                    <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Presupuesto por Items</h2>
 
-                <ng-template pTemplate="body" let-row let-editing="editing" let-ri="rowIndex">
-                    <tr [pEditableRow]="row">
-                        <td class="font-medium bg-gray-50">{{ row.concept }}</td>
+                    <div class="flex align-items-center" style="position: absolute; top: 0rem; right: 0rem;">
+                        <button *ngIf="!editandoItems" pButton pRipple type="button" icon="pi pi-pencil"
+                            class="p-button-rounded p-button-text" (click)="onItemsEditInit()" pTooltip="Editar"
+                            tooltipPosition="left" [disabled]="isAnyEditActive">
+                        </button>
+                        <div *ngIf="editandoItems" class="flex justify-content-center align-items-center">
+                            <button pButton pRipple type="button" icon="pi pi-check"
+                                class="p-button-rounded p-button-text p-button-success mr-2" (click)="onItemsEditSave()"
+                                pTooltip="Guardar" tooltipPosition="left"></button>
+                            <button pButton pRipple type="button" icon="pi pi-times"
+                                class="p-button-rounded p-button-text p-button-danger" (click)="onItemsEditCancel()"
+                                pTooltip="Cancelar" tooltipPosition="left"></button>
+                        </div>
+                    </div>
+                </div>
 
-                        <!-- Dynamic Group Columns -->
-                        <td *ngFor="let group of groupColumns" class="text-center w-10rem">
-                            <p-cellEditor>
-                                <ng-template pTemplate="input">
-                                    <div class="w-full" *ngIf="row.isEditable; else readOnlyCell">
-                                        <p-inputNumber [(ngModel)]="row.values[group.nombre]" mode="decimal"
-                                            [minFractionDigits]="2" [maxFractionDigits]="2" suffix=" %"
-                                            [style]="{'width':'100%'}" class="w-full text-center">
+                <!-- Config Inputs (Block Labels) -->
+                <div class="grid justify-content-center mb-4">
+                    <div class="col-12 md:col-4">
+                        <div class="field">
+                            <label class="block">Item 1</label>
+                            <p-inputNumber *ngIf="editandoItems" [(ngModel)]="clonedItems.item1" suffix=" %" [min]="0"
+                                [max]="100" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                            <input *ngIf="!editandoItems" pInputText [value]="formatPercent(configuracion.item1)"
+                                readonly class="w-full" />
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <div class="field">
+                            <label class="block">Item 2</label>
+                            <p-inputNumber *ngIf="editandoItems" [(ngModel)]="clonedItems.item2" suffix=" %" [min]="0"
+                                [max]="100" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                            <input *ngIf="!editandoItems" pInputText [value]="formatPercent(configuracion.item2)"
+                                readonly class="w-full" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items Budget Table -->
+                <p-table [value]="[1, 2]" styleClass="p-datatable-sm p-datatable-gridlines">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th class="p-3" style="background-color: white;"></th>
+                            <th *ngFor="let group of groupColumns" class="text-center font-bold p-3"
+                                style="background-color: white;">
+                                {{ group.nombre }}
+                            </th>
+                            <th class="text-center font-bold p-3" style="background-color: white;">TOTAL</th>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
+                        <tr>
+                            <td class="font-bold p-3" style="color: #495057;">
+                                {{ rowIndex === 0 ? 'Presupuesto por Grupo Item 1' : 'Presupuesto por Grupo Item 2' }}
+                            </td>
+
+                            <!-- Dynamic Group Columns -->
+                            <td *ngFor="let group of groupColumns; let i = index" class="text-center p-3">
+                                {{ formatCurrency(getItemBudgetValue(i, rowIndex)) }}
+                            </td>
+
+                            <!-- Total Column -->
+                            <td class="text-right font-bold p-3">
+                                {{ formatCurrency(getItemBudgetTotal(rowIndex)) }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            <!-- Container 4: Presupuesto e Imprevistos -->
+            <div class="reporte-header mb-5 relative">
+                <div class="flex justify-content-center align-items-center mb-4">
+                    <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Presupuesto e Imprevistos</h2>
+
+                    <div class="flex align-items-center" style="position: absolute; top: 0rem; right: 0rem;">
+                        <button *ngIf="!editandoImprevistos" pButton pRipple type="button" icon="pi pi-pencil"
+                            class="p-button-rounded p-button-text" (click)="onImprevistosEditInit()" pTooltip="Editar"
+                            tooltipPosition="left" [disabled]="isAnyEditActive">
+                        </button>
+                        <div *ngIf="editandoImprevistos" class="flex justify-content-center align-items-center">
+                            <button pButton pRipple type="button" icon="pi pi-check"
+                                class="p-button-rounded p-button-text p-button-success mr-2"
+                                (click)="onImprevistosEditSave()" pTooltip="Guardar" tooltipPosition="left"></button>
+                            <button pButton pRipple type="button" icon="pi pi-times"
+                                class="p-button-rounded p-button-text p-button-danger"
+                                (click)="onImprevistosEditCancel()" pTooltip="Cancelar" tooltipPosition="left"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Config Input -->
+                <div class="grid justify-content-center mb-4">
+                    <div class="col-12 md:col-4">
+                        <div class="field">
+                            <label class="block">Imprevistos</label>
+                            <p-inputNumber *ngIf="editandoImprevistos" [(ngModel)]="clonedImprevistos" suffix=" %"
+                                [min]="0" [max]="100" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                            <input *ngIf="!editandoImprevistos" pInputText
+                                [value]="formatPercent(configuracion.imprevistos)" readonly class="w-full" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Budget and Contingencies Table -->
+                <p-table [value]="budgetTableRows" dataKey="key" editMode="row" responsiveLayout="scroll"
+                    styleClass="p-datatable-sm p-datatable-gridlines">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th class="p-3" style="background-color: white;"></th>
+                            <th *ngFor="let group of groupColumns" class="text-center font-bold p-3"
+                                style="background-color: white;">
+                                {{ group.nombre }}
+                            </th>
+                            <th class="text-center font-bold p-3" style="background-color: white;">TOTAL</th>
+                            <th class="p-3" style="width: 8rem; background-color: white;"></th>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body" let-row let-editing="editing" let-ri="rowIndex">
+                        <tr [pEditableRow]="row">
+                            <td class="font-bold p-3" style="color: #495057;">{{ row.concept }}</td>
+
+                            <!-- Dynamic Group Columns -->
+                            <td *ngFor="let group of groupColumns; let i = index" class="text-center p-3">
+                                <p-cellEditor *ngIf="row.isEditable">
+                                    <ng-template pTemplate="input">
+                                        <p-inputNumber [(ngModel)]="row.values[group.nombre]" mode="currency"
+                                            currency="USD" locale="en-US" [minFractionDigits]="0"
+                                            [maxFractionDigits]="0" [style]="{'width':'100%'}"
+                                            class="w-full text-center">
                                         </p-inputNumber>
-                                    </div>
-                                    <ng-template #readOnlyCell>
-                                        {{ row.isPercentage ? formatPercent(row.values[group.nombre]) :
-                                        formatCurrency(row.values[group.nombre]) }}
                                     </ng-template>
-                                </ng-template>
-                                <ng-template pTemplate="output">
-                                    {{ row.isPercentage ? formatPercent(row.values[group.nombre]) :
-                                    formatCurrency(row.values[group.nombre]) }}
-                                </ng-template>
-                            </p-cellEditor>
-                        </td>
+                                    <ng-template pTemplate="output">
+                                        {{ formatCurrency(row.values[group.nombre]) }}
+                                    </ng-template>
+                                </p-cellEditor>
+                                <span *ngIf="!row.isEditable">{{ formatCurrency(row.values[group.nombre]) }}</span>
+                            </td>
 
-                        <!-- Total Column (Read Only) -->
-                        <td class="text-right font-bold w-10rem">
-                            {{ row.isPercentage ? formatPercent(row.total) : formatCurrency(row.total) }}
-                        </td>
+                            <!-- Total Column (Read Only) -->
+                            <td class="text-right font-bold p-3">
+                                {{ formatCurrency(row.total) }}
+                            </td>
 
-                        <!-- Actions Column -->
-                        <td class="text-center">
-                            <button *ngIf="row.isEditable && !editing" pButton pRipple type="button" pInitEditableRow
-                                icon="pi pi-pencil" (click)="onRowEditInit(row)" class="p-button-rounded p-button-text"
-                                [disabled]="!!editingRowKey && editingRowKey !== row.key"></button>
+                            <!-- Actions Column -->
+                            <td class="text-center p-3">
+                                <button *ngIf="row.isEditable && !editing" pButton pRipple type="button"
+                                    pInitEditableRow icon="pi pi-pencil" (click)="onBudgetRowEditInit(row)"
+                                    class="p-button-rounded p-button-text"
+                                    [disabled]="isAnyEditActive"></button>
 
-                            <div *ngIf="editing" class="flex justify-content-center align-items-center">
-                                <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
-                                    (click)="onRowEditSave(row)"
-                                    class="p-button-rounded p-button-text p-button-success mr-2"></button>
-                                <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
-                                    (click)="onRowEditCancel(row, ri)"
-                                    class="p-button-rounded p-button-text p-button-danger"></button>
-                            </div>
-                        </td>
-                    </tr>
+                                <div *ngIf="editing" class="flex justify-content-center align-items-center">
+                                    <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                                        (click)="onBudgetRowEditSave(row)"
+                                        class="p-button-rounded p-button-text p-button-success mr-2"></button>
+                                    <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                                        (click)="onBudgetRowEditCancel(row, ri)"
+                                        class="p-button-rounded p-button-text p-button-danger"></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            <!-- Modal de Gestión de Gastos Generales -->
+            <p-dialog header="Gestión de Gastos Generales" [(visible)]="displayGastosModal" [modal]="true"
+                [style]="{width: '60vw'}" [draggable]="false" [resizable]="false">
+
+                <!-- Tabla editable -->
+                <p-table [value]="gastosGeneralesEditables" dataKey="idGastoGeneral" editMode="row"
+                    responsiveLayout="scroll" styleClass="p-datatable-sm p-datatable-gridlines">
+
+                    <!-- Header -->
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th class="p-3" style="background-color: white;">Categoría</th>
+                            <th class="p-3" style="background-color: white;">Descripción</th>
+                            <th class="p-3" style="background-color: white;">Monto</th>
+                            <th class="p-3" style="width: 10rem; background-color: white;">Acciones</th>
+                        </tr>
+                    </ng-template>
+
+                    <!-- Body con filas editables -->
+                    <ng-template pTemplate="body" let-gasto let-editing="editing" let-ri="rowIndex">
+                        <tr [pEditableRow]="gasto">
+                            <!-- Categoría -->
+                            <td class="p-3">
+                                <!-- Para nueva fila (ID negativo), siempre mostrar input -->
+                                <input *ngIf="gasto.idGastoGeneral < 0" pInputText [(ngModel)]="gasto.categoria"
+                                    class="w-full" [disabled]="guardandoGastos" />
+
+                                <!-- Para filas existentes, usar p-cellEditor -->
+                                <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
+                                    <ng-template pTemplate="input">
+                                        <input pInputText [(ngModel)]="gasto.categoria" class="w-full"
+                                            [disabled]="guardandoGastos" />
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ gasto.categoria }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+
+                            <!-- Descripción -->
+                            <td class="p-3">
+                                <!-- Para nueva fila (ID negativo), siempre mostrar input -->
+                                <input *ngIf="gasto.idGastoGeneral < 0" pInputText [(ngModel)]="gasto.descripcion"
+                                    class="w-full" [disabled]="guardandoGastos" />
+
+                                <!-- Para filas existentes, usar p-cellEditor -->
+                                <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
+                                    <ng-template pTemplate="input">
+                                        <input pInputText [(ngModel)]="gasto.descripcion" class="w-full"
+                                            [disabled]="guardandoGastos" />
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ gasto.descripcion }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+
+                            <!-- Monto -->
+                            <td class="p-3">
+                                <!-- Para nueva fila (ID negativo), siempre mostrar input -->
+                                <p-inputNumber *ngIf="gasto.idGastoGeneral < 0" [(ngModel)]="gasto.monto"
+                                    mode="currency" currency="COP" locale="es-CO" class="w-full"
+                                    [disabled]="guardandoGastos">
+                                </p-inputNumber>
+
+                                <!-- Para filas existentes, usar p-cellEditor -->
+                                <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
+                                    <ng-template pTemplate="input">
+                                        <p-inputNumber [(ngModel)]="gasto.monto" mode="currency" currency="COP"
+                                            locale="es-CO" class="w-full" [disabled]="guardandoGastos">
+                                        </p-inputNumber>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ formatCurrency(gasto.monto) }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+
+                            <!-- Acciones -->
+                            <td class="text-center p-3">
+                                <!-- Botón editar (para filas existentes no en edición) -->
+                                <button *ngIf="!editing && gasto.idGastoGeneral > 0" pButton pRipple type="button"
+                                    pInitEditableRow icon="pi pi-pencil" (click)="onGastoEditInit(gasto)"
+                                    class="p-button-rounded p-button-text"
+                                    [disabled]="editingGastoKey !== null || nuevoGasto !== null || guardandoGastos">
+                                </button>
+
+                                <!-- Botones guardar/cancelar/eliminar (edición de fila existente) -->
+                                <div *ngIf="editing && gasto.idGastoGeneral > 0"
+                                    class="flex justify-content-center align-items-center">
+                                    <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                                        (click)="onGastoEditSave(gasto)"
+                                        class="p-button-rounded p-button-text p-button-success mr-2"
+                                        [disabled]="guardandoGastos">
+                                    </button>
+                                    <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                                        (click)="onGastoEditCancel(gasto)"
+                                        class="p-button-rounded p-button-text p-button-danger mr-2"
+                                        [disabled]="guardandoGastos">
+                                    </button>
+                                    <button pButton pRipple type="button" icon="pi pi-trash"
+                                        (click)="confirmarEliminarGasto(gasto)"
+                                        class="p-button-rounded p-button-text p-button-warning" pTooltip="Eliminar"
+                                        tooltipPosition="left" [disabled]="guardandoGastos">
+                                    </button>
+                                </div>
+
+                                <!-- Botones para nueva fila (ID negativo) -->
+                                <div *ngIf="gasto.idGastoGeneral < 0"
+                                    class="flex justify-content-center align-items-center">
+                                    <button pButton pRipple type="button" icon="pi pi-check"
+                                        (click)="guardarNuevoGasto()"
+                                        class="p-button-rounded p-button-text p-button-success mr-2"
+                                        [disabled]="guardandoGastos">
+                                    </button>
+                                    <button pButton pRipple type="button" icon="pi pi-times"
+                                        (click)="cancelarNuevoGasto()"
+                                        class="p-button-rounded p-button-text p-button-danger"
+                                        [disabled]="guardandoGastos">
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+                <!-- Botón agregar nueva fila -->
+                <div class="mt-3 flex justify-content-center">
+                    <button pButton pRipple type="button" label="Agregar Gasto" icon="pi pi-plus"
+                        class="p-button-sm p-button-outlined" (click)="agregarNuevaFilaGasto()"
+                        [disabled]="nuevoGasto !== null || editingGastoKey !== null || guardandoGastos">
+                    </button>
+                </div>
+
+                <!-- Footer -->
+                <ng-template pTemplate="footer">
+                    <p-button icon="pi pi-times" (click)="cerrarModalGastos()" label="Cerrar"
+                        styleClass="p-button-text" [disabled]="guardandoGastos">
+                    </p-button>
                 </ng-template>
-            </p-table>
+            </p-dialog>
+
+            <!-- Confirmation Dialog -->
+            <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
         </div>
     </p-card>
 </div>

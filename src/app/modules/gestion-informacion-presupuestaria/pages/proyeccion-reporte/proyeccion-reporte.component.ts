@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
-import { ProyeccionEstudianteDTORespuesta, ProyeccionEstudianteDTOPeticion } from '../../models/proyeccion-estudiante.dto';
-import { ConfiguracionReporteFinancieroDTORespuesta, ConfiguracionReporteFinancieroDTOPeticion } from '../../models/configuracion-reporte-financiero.dto';
-import { ReporteProyeccionEstudiantesDTORespuesta } from '../../models/reporte-proyeccion-estudiantes.dto';
+import { ConfiguracionReporteFinanciero, ProyeccionEstudiante, ReporteProyeccionEstudiantes } from '../../models/domain-models';
 import { PeriodoAcademicoDTORespuesta } from '../../models/periodo-academico.dto';
+import { ProyeccionEstudianteDTOPeticion } from '../../models/proyeccion-estudiante.dto';
+import { ConfiguracionReporteFinancieroDTOPeticion } from '../../models/configuracion-reporte-financiero.dto';
 
-interface EstudianteProyeccion extends ProyeccionEstudianteDTORespuesta {
+interface EstudianteProyeccion extends ProyeccionEstudiante {
   nombreEstudiante: string;
   matricula: number;
   valorBeca: number;
@@ -31,7 +31,7 @@ export class ProyeccionReporteComponent implements OnInit {
   periodoActualTexto: string = '';
 
   // Configuración del reporte
-  configuracion: ConfiguracionReporteFinancieroDTORespuesta | null = null;
+  configuracion: ConfiguracionReporteFinanciero | null = null;
 
   // Datos de la tabla
   estudiantes: EstudianteProyeccion[] = [];
@@ -39,7 +39,7 @@ export class ProyeccionReporteComponent implements OnInit {
 
   // Estado de edición de cabecera
   editandoCabecera: boolean = false;
-  clonedCabecera: Partial<ConfiguracionReporteFinancieroDTORespuesta> = {};
+  clonedCabecera: Partial<ConfiguracionReporteFinanciero> = {};
 
   // Control de edición de filas (solo una a la vez)
   editingRowKey: string | null = null;
@@ -128,7 +128,7 @@ export class ProyeccionReporteComponent implements OnInit {
     });
   }
 
-  procesarRespuesta(data: ReporteProyeccionEstudiantesDTORespuesta) {
+  procesarRespuesta(data: ReporteProyeccionEstudiantes) {
     if (data.periodo) {
       this.periodoActualTexto = `${data.periodo.año}-${data.periodo.periodo}`;
     }

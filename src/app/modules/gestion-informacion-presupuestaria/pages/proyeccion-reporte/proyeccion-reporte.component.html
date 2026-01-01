@@ -24,75 +24,80 @@
 
         <!-- Contenido del Reporte -->
         <div *ngIf="!cargando && !guardando && configuracion" class="table-container">
-            <!-- Encabezado con información general (Editable) -->
-            <div class="reporte-header mb-4">
-                <div class="flex justify-content-center align-items-center mb-3">
-                    <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Proyección Reporte
-                        Financiero</h2>
-                    <div class="flex align-items-center" style="position: absolute; top: 1.5rem; right: 1.5rem;">
-                        <button *ngIf="!editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
-                            class="p-button-rounded p-button-text" (click)="onHeaderEditInit()"
-                            pTooltip="Editar Configuración" tooltipPosition="left"
-                            [disabled]="!!editingRowKey"></button>
-                        <div *ngIf="editandoCabecera" class="flex justify-content-center align-items-center">
-                            <button pButton pRipple type="button" icon="pi pi-check"
-                                class="p-button-rounded p-button-text p-button-success mr-2"
-                                (click)="onHeaderEditSave()" pTooltip="Guardar" tooltipPosition="left"></button>
-                            <button pButton pRipple type="button" icon="pi pi-times"
-                                class="p-button-rounded p-button-text p-button-danger" (click)="onHeaderEditCancel()"
-                                pTooltip="Cancelar" tooltipPosition="left"></button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid">
-                    <div class="col-12 md:col-3">
-                        <div class="field">
-                            <label for="biblioteca" class="block">Biblioteca</label>
-                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.biblioteca"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                                class="w-full text-center"></p-inputNumber>
-                            <input *ngIf="!editandoCabecera" id="biblioteca" type="text" pInputText
-                                [value]="formatCurrency(configuracion.biblioteca)" readonly class="w-full" />
-                        </div>
-                    </div>
-                    <div class="col-12 md:col-3">
-                        <div class="field">
-                            <label for="recursos" class="block">Recursos Computacionales</label>
-                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.recursosComputacionales"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                                class="w-full text-center"></p-inputNumber>
-                            <input *ngIf="!editandoCabecera" id="recursos" type="text" pInputText
-                                [value]="formatCurrency(configuracion.recursosComputacionales)" readonly
-                                class="w-full" />
-                        </div>
-                    </div>
-                    <div class="col-12 md:col-3">
-                        <div class="field">
-                            <label for="matricula" class="block">Valor Matrícula (SMLV)</label>
-                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorMatricula"
-                                [minFractionDigits]="0" suffix=" SMLV" class="w-full text-center"></p-inputNumber>
-                            <input *ngIf="!editandoCabecera" id="matricula" type="text" pInputText
-                                [value]="configuracion.valorMatricula + ' SMLV'" readonly class="w-full" />
-                        </div>
-                    </div>
-                    <div class="col-12 md:col-3">
-                        <div class="field">
-                            <label for="smlv" class="block">Valor SMLV</label>
-                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorSMLV"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                                class="w-full text-center"></p-inputNumber>
-                            <input *ngIf="!editandoCabecera" id="smlv" type="text" pInputText
-                                [value]="formatCurrency(configuracion.valorSMLV)" readonly class="w-full" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Tabla de estudiantes editable -->
-            <p-table [value]="estudiantes" dataKey="codigoEstudiante" editMode="row" responsiveLayout="scroll">
-
+            <p-table [value]="estudiantes" dataKey="codigoEstudiante" editMode="row" responsiveLayout="scroll" class="p-datatable-sm">
                 <ng-template pTemplate="header">
+                    <tr>
+                        <th colspan="14" class="text-center py-4 border-bottom-1 surface-border">
+                            <h2 class="m-0" style="color: #495057; font-weight: 600;">Proyección Reporte Financiero</h2>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan="14" class="py-4 px-3 border-bottom-1 surface-border">
+                            <div class="flex align-items-center justify-content-between">
+                                <div class="flex flex-wrap gap-4">
+                                    <!-- Biblioteca -->
+                                    <span class="p-float-label">
+                                        <p-inputNumber id="float-biblioteca" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.biblioteca" 
+                                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                                            class="p-inputtext-sm"></p-inputNumber>
+                                        <p-inputNumber id="float-biblioteca-view" *ngIf="!editandoCabecera" [ngModel]="configuracion.biblioteca" 
+                                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                                            [readonly]="true" class="p-inputtext-sm"></p-inputNumber>
+                                        <label for="float-biblioteca">Biblioteca</label>
+                                    </span>
+
+                                    <!-- Recursos Computacionales -->
+                                    <span class="p-float-label">
+                                        <p-inputNumber id="float-recursos" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.recursosComputacionales"
+                                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                                            class="p-inputtext-sm"></p-inputNumber>
+                                        <p-inputNumber id="float-recursos-view" *ngIf="!editandoCabecera" [ngModel]="configuracion.recursosComputacionales"
+                                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                                            [readonly]="true" class="p-inputtext-sm"></p-inputNumber>
+                                        <label for="float-recursos">Recursos Computacionales</label>
+                                    </span>
+
+                                    <!-- Valor Matrícula -->
+                                    <span class="p-float-label">
+                                        <p-inputNumber id="float-matricula" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorMatricula"
+                                            [minFractionDigits]="0" suffix=" SMLV"
+                                            class="p-inputtext-sm"></p-inputNumber>
+                                        <p-inputNumber id="float-matricula-view" *ngIf="!editandoCabecera" [ngModel]="configuracion.valorMatricula"
+                                            [minFractionDigits]="0" suffix=" SMLV"
+                                            [readonly]="true" class="p-inputtext-sm"></p-inputNumber>
+                                        <label for="float-matricula">Valor Matrícula (SMLV)</label>
+                                    </span>
+
+                                    <!-- Valor SMLV -->
+                                    <span class="p-float-label">
+                                        <p-inputNumber id="float-smlv" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorSMLV"
+                                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                                            class="p-inputtext-sm"></p-inputNumber>
+                                        <p-inputNumber id="float-smlv-view" *ngIf="!editandoCabecera" [ngModel]="configuracion.valorSMLV"
+                                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                                            [readonly]="true" class="p-inputtext-sm"></p-inputNumber>
+                                        <label for="float-smlv">Valor SMLV</label>
+                                    </span>
+                                </div>
+
+                                <div class="flex align-items-center ml-auto">
+                                    <button *ngIf="!editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
+                                        class="p-button-rounded p-button-text" (click)="onHeaderEditInit()"
+                                        pTooltip="Editar Configuración" tooltipPosition="left"
+                                        [disabled]="!!editingRowKey"></button>
+                                    <div *ngIf="editandoCabecera" class="flex justify-content-center align-items-center">
+                                        <button pButton pRipple type="button" icon="pi pi-check"
+                                            class="p-button-rounded p-button-text p-button-success mr-2"
+                                            (click)="onHeaderEditSave()" pTooltip="Guardar" tooltipPosition="left"></button>
+                                        <button pButton pRipple type="button" icon="pi pi-times"
+                                            class="p-button-rounded p-button-text p-button-danger" (click)="onHeaderEditCancel()"
+                                            pTooltip="Cancelar" tooltipPosition="left"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </th>
+                    </tr>
                     <tr>
                         <th class="text-center">Pago</th>
                         <th class="text-center">Cedula</th>

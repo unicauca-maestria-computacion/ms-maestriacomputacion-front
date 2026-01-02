@@ -1,4 +1,5 @@
 <div class="col-12">
+    <p-toast></p-toast>
     <p-card>
         <app-opciones-presupuesto [activeTab]="'reporte-final'" (onDescargar)="descargar()">
         </app-opciones-presupuesto>
@@ -7,7 +8,7 @@
         <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)" [excluirUltimo]="true">
         </app-periodo-academico-selector>
 
-        <!-- Spinner de Carga -->
+        <!-- Spinner de Carga Inicial -->
         <div *ngIf="cargando" class="flex justify-content-center align-items-center py-8">
             <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
             </p-progressSpinner>
@@ -16,92 +17,128 @@
 
         <!-- Contenido del Reporte -->
         <div *ngIf="!cargando && configuracion" class="table-container">
-            <!-- Encabezado con información general (Read-only) -->
-            <div class="reporte-header mb-4">
-                <h2 class="text-center mb-3" style="color: #495057; font-weight: 600;">Reporte Financiero</h2>
-                <div class="grid">
-                    <div class="col-12 md:col-3">
-                        <div class="field">
-                            <label for="biblioteca" class="block">Biblioteca</label>
-                            <input id="biblioteca" type="text" pInputText
-                                [value]="formatCurrency(configuracion.biblioteca)" readonly class="w-full" />
-                        </div>
-                    </div>
-                    <div class="col-12 md:col-3">
-                        <div class="field">
-                            <label for="recursos" class="block">Recursos Computacionales</label>
-                            <input id="recursos" type="text" pInputText
-                                [value]="formatCurrency(configuracion.recursosComputacionales)" readonly
-                                class="w-full" />
-                        </div>
-                    </div>
-                    <div class="col-12 md:col-3">
-                        <div class="field">
-                            <label for="matricula" class="block">Valor Matrícula (SMLV)</label>
-                            <input id="matricula" type="text" pInputText
-                                [value]="configuracion.valorMatricula + ' SMLV'" readonly class="w-full" />
-                        </div>
-                    </div>
-                    <div class="col-12 md:col-3">
-                        <div class="field">
-                            <label for="smlv" class="block">Valor SMLV</label>
-                            <input id="smlv" type="text" pInputText [value]="formatCurrency(configuracion.valorSMLV)"
-                                readonly class="w-full" />
-                        </div>
+            <!-- Panel de Configuración -->
+            <div class="mb-4 p-4">
+                <div class="text-center mb-4 border-bottom-1 surface-border pb-3">
+                    <h2 class="m-0 text-700">Reporte Financiero</h2>
+                </div>
+
+                <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3 border-bottom-1 surface-border pb-3">
+
+                    <div class="flex flex-column md:flex-row flex-wrap gap-4 w-full">
+
+                        <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
+                            <p-inputNumber id="float-biblioteca" [ngModel]="configuracion.biblioteca"
+                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" class="w-full">
+                            </p-inputNumber>
+                            <label for="float-biblioteca">Biblioteca</label>
+                        </span>
+
+                        <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
+                            <p-inputNumber id="float-recursos" [ngModel]="configuracion.recursosComputacionales"
+                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" class="w-full">
+                            </p-inputNumber>
+                            <label for="float-recursos">Recursos Comp.</label>
+                        </span>
+
+                        <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
+                            <p-inputNumber id="float-matricula" [ngModel]="configuracion.valorMatricula"
+                                [minFractionDigits]="0" suffix=" SMLV" [readonly]="true" class="w-full">
+                            </p-inputNumber>
+                            <label for="float-matricula">Matrícula (SMLV)</label>
+                        </span>
+
+                        <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
+                            <p-inputNumber id="float-smlv" [ngModel]="configuracion.valorSMLV"
+                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" class="w-full">
+                            </p-inputNumber>
+                            <label for="float-smlv">Valor SMLV</label>
+                        </span>
                     </div>
                 </div>
             </div>
 
             <!-- Tabla de estudiantes -->
-            <p-table [value]="estudiantes" responsiveLayout="scroll">
+            <div style="overflow-x: auto;">
+                <p-table [value]="estudiantes" responsiveLayout="stack" breakpoint="960px" class="p-datatable-sm">
                 <ng-template pTemplate="header">
                     <tr>
-                        <th class="text-center">Cedula</th>
-                        <th class="text-center">Nombre Estudiante</th>
-                        <th class="text-center">Matricula</th>
+                        <th class="text-center">Cédula</th>
+                        <th class="text-center">Nombre</th>
+                        <th class="text-center">Matrícula</th>
                         <th class="text-center">% Votación</th>
                         <th class="text-center">% Beca</th>
                         <th class="text-center">Valor Beca</th>
                         <th class="text-center">% Egresado</th>
-                        <th class="text-center">Recursos Computacionales</th>
+                        <th class="text-center">Rec. Comp.</th>
                         <th class="text-center">Biblioteca</th>
-                        <th class="text-center">Grupo Investigación</th>
-                        <th class="text-center">Grupo Descuentos</th>
-                        <th class="text-center">Total Neto</th>
-                    </tr>
-                </ng-template>
-
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th class="text-center">Cedula</th>
-                        <th class="text-center">Nombre Estudiante</th>
-                        <th class="text-center">Matricula</th>
-                        <th class="text-center">% Votación</th>
-                        <th class="text-center">% Beca</th>
-                        <th class="text-center">Valor Beca</th>
-                        <th class="text-center">% Egresado</th>
-                        <th class="text-center">Recursos Computacionales</th>
-                        <th class="text-center">Biblioteca</th>
-                        <th class="text-center">Grupo Investigación</th>
-                        <th class="text-center">Grupo Descuentos</th>
+                        <th class="text-center">Grupo Inv.</th>
+                        <th class="text-center">Descuentos</th>
                         <th class="text-center">Total Neto</th>
                     </tr>
                 </ng-template>
 
                 <ng-template pTemplate="body" let-estudiante>
                     <tr>
-                        <td class="text-center">{{ estudiante.codigoEstudiante }}</td>
-                        <td>{{ estudiante.nombreEstudiante }}</td>
-                        <td class="text-right">{{ formatCurrency(estudiante.matricula) }}</td>
-                        <td class="text-center">{{ formatPercent(estudiante.porcentajeVotacion) }}</td>
-                        <td class="text-center">{{ formatPercent(estudiante.porcentajeBeca) }}</td>
-                        <td class="text-right">{{ formatCurrency(estudiante.valorBeca) }}</td>
-                        <td class="text-center">{{ formatPercent(estudiante.porcentajeEgresado) }}</td>
-                        <td class="text-right">{{ formatCurrency(estudiante.recursosComputacionales) }}</td>
-                        <td class="text-right">{{ formatCurrency(estudiante.biblioteca) }}</td>
-                        <td class="text-center">{{ estudiante.grupoInvestigacion }}</td>
-                        <td class="text-right">{{ formatCurrency(estudiante.grupoDescuentos) }}</td>
-                        <td class="text-right font-bold">{{ formatCurrency(estudiante.totalNeto) }}</td>
+                        <td class="text-center">
+                            <span class="p-column-title font-bold">Cédula</span>
+                            {{ estudiante.codigoEstudiante }}
+                        </td>
+
+                        <td>
+                            <span class="p-column-title font-bold">Nombre</span>
+                            {{ estudiante.nombreEstudiante }}
+                        </td>
+
+                        <td class="text-right">
+                            <span class="p-column-title font-bold">Matrícula</span>
+                            {{ formatCurrency(estudiante.matricula) }}
+                        </td>
+
+                        <td class="text-center">
+                            <span class="p-column-title font-bold">% Votación</span>
+                            {{ formatPercent(estudiante.porcentajeVotacion) }}
+                        </td>
+
+                        <td class="text-center">
+                            <span class="p-column-title font-bold">% Beca</span>
+                            {{ formatPercent(estudiante.porcentajeBeca) }}
+                        </td>
+
+                        <td class="text-right">
+                            <span class="p-column-title font-bold">Valor Beca</span>
+                            {{ formatCurrency(estudiante.valorBeca) }}
+                        </td>
+
+                        <td class="text-center">
+                            <span class="p-column-title font-bold">% Egresado</span>
+                            {{ formatPercent(estudiante.porcentajeEgresado) }}
+                        </td>
+
+                        <td class="text-right">
+                            <span class="p-column-title font-bold">Rec. Comp.</span>
+                            {{ formatCurrency(estudiante.recursosComputacionales) }}
+                        </td>
+
+                        <td class="text-right">
+                            <span class="p-column-title font-bold">Biblioteca</span>
+                            {{ formatCurrency(estudiante.biblioteca) }}
+                        </td>
+
+                        <td class="text-center">
+                            <span class="p-column-title font-bold">Grupo Inv.</span>
+                            {{ estudiante.grupoInvestigacion }}
+                        </td>
+
+                        <td class="text-right">
+                            <span class="p-column-title font-bold">Descuentos</span>
+                            {{ formatCurrency(estudiante.grupoDescuentos) }}
+                        </td>
+
+                        <td class="text-right font-bold">
+                            <span class="p-column-title font-bold">Total Neto</span>
+                            {{ formatCurrency(estudiante.totalNeto) }}
+                        </td>
                     </tr>
                 </ng-template>
 
@@ -127,6 +164,7 @@
                     </tr>
                 </ng-template>
             </p-table>
+            </div>
         </div>
     </p-card>
 </div>

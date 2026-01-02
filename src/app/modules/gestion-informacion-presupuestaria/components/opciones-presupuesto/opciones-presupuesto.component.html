@@ -1,19 +1,17 @@
 <!-- Encabezado con Tabs y Botón Descargar -->
-<div class="grid">
-    <div class="col-8">
-        <div class="flex align-items-center h-full">
-            <p-selectButton
-                [options]="tabOptions"
-                [(ngModel)]="selectedTab"
-                optionLabel="label"
-                optionValue="value"
-                (onChange)="onTabChange($event)">
-            </p-selectButton>
-        </div>
+<div class="flex flex-column md:flex-row align-items-center justify-content-between">
+    <div class="flex align-items-center h-full">
+        <p-selectButton
+            [options]="tabOptions"
+            [(ngModel)]="selectedTab"
+            optionLabel="label"
+            optionValue="value"
+            (onChange)="onTabChange($event)">
+        </p-selectButton>
     </div>
 
-    <div class="col-4">
-        <div class="w-full text-right">
+    <div class="flex justify-content-start md:justify-content-end mt-2 md:mt-0">
+        <div class="w-full md:w-auto">
             <button
                 pButton
                 type="button"

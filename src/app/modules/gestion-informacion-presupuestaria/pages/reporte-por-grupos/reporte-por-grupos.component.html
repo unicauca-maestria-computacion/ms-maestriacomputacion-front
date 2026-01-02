@@ -1,4 +1,5 @@
 <div class="col-12">
+    <p-toast></p-toast>
     <p-card>
         <app-opciones-presupuesto [activeTab]="'reporte-por-grupos'" (onDescargar)="descargar()">
         </app-opciones-presupuesto>
@@ -7,6 +8,7 @@
         <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)">
         </app-periodo-academico-selector>
 
+        <!-- Spinner de Carga Inicial -->
         <div *ngIf="loading" class="flex justify-content-center align-items-center py-8">
             <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
             </p-progressSpinner>
@@ -27,42 +29,45 @@
 
             <!-- Container 1: Detalle Financiero por Grupos (Ingresos + Main Table) -->
             <div class="reporte-header mb-5 relative">
-                <div class="flex justify-content-center align-items-center mb-4">
-                    <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Participación y Aporte</h2>
-
-                    <!-- Edit Button -->
-                    <div class="flex align-items-center" style="position: absolute; top: 0rem; right: 0rem;">
-                        <button *ngIf="!editandoIngresos" pButton pRipple type="button" icon="pi pi-pencil"
-                            class="p-button-rounded p-button-text" (click)="onIngresosEditInit()" pTooltip="Editar"
-                            tooltipPosition="left" [disabled]="isAnyEditActive">
-                        </button>
-                        <div *ngIf="editandoIngresos" class="flex justify-content-center align-items-center">
-                            <button pButton pRipple type="button" icon="pi pi-check"
-                                class="p-button-rounded p-button-text p-button-success mr-2"
-                                (click)="onIngresosEditSave()" pTooltip="Guardar" tooltipPosition="left"></button>
-                            <button pButton pRipple type="button" icon="pi pi-times"
-                                class="p-button-rounded p-button-text p-button-danger" (click)="onIngresosEditCancel()"
-                                pTooltip="Cancelar" tooltipPosition="left"></button>
-                        </div>
+                <div class="mb-4 p-4">
+                    <div class="text-center mb-4 border-bottom-1 surface-border pb-3">
+                        <h2 class="m-0 text-700">Participación y Aporte</h2>
                     </div>
-                </div>
 
-                <!-- Config Ingresos -->
-                <div class="grid justify-content-center mb-4">
-                    <div class="col-12 md:col-4">
-                        <div class="field">
-                            <label class="block">Ingresos Matrículas</label>
-                            <p-inputNumber *ngIf="editandoIngresos" [(ngModel)]="clonedIngresos" mode="currency"
-                                currency="COP" locale="es-CO" class="w-full" [style]="{'width':'100%'}"></p-inputNumber>
-                            <input *ngIf="!editandoIngresos" pInputText
-                                [value]="formatCurrency(configuracion.ingresosNetos)" readonly class="w-full" />
+                    <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3 border-bottom-1 surface-border pb-3">
+                        <div class="flex flex-column md:flex-row flex-wrap gap-4 w-full justify-content-center">
+                            <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
+                                <p-inputNumber id="float-ingresos" *ngIf="editandoIngresos" [(ngModel)]="clonedIngresos"
+                                    mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" class="w-full">
+                                </p-inputNumber>
+                                <p-inputNumber *ngIf="!editandoIngresos" [ngModel]="configuracion.ingresosNetos"
+                                    mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" class="w-full">
+                                </p-inputNumber>
+                                <label for="float-ingresos">Ingresos Matrículas</label>
+                            </span>
+                        </div>
+
+                        <div class="flex align-items-center mt-3 md:mt-0">
+                            <button *ngIf="!editandoIngresos" pButton pRipple type="button" icon="pi pi-pencil"
+                                class="p-button-rounded p-button-text" (click)="onIngresosEditInit()"
+                                pTooltip="Editar Configuración" [disabled]="isAnyEditActive"></button>
+
+                            <div *ngIf="editandoIngresos" class="flex">
+                                <button pButton pRipple type="button" icon="pi pi-check"
+                                    class="p-button-rounded p-button-text p-button-success mr-2"
+                                    (click)="onIngresosEditSave()"></button>
+                                <button pButton pRipple type="button" icon="pi pi-times"
+                                    class="p-button-rounded p-button-text p-button-danger"
+                                    (click)="onIngresosEditCancel()"></button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Main Table -->
-                <p-table [value]="tableRows" dataKey="key" editMode="row" responsiveLayout="scroll"
-                    styleClass="p-datatable-sm p-datatable-gridlines">
+                <div style="overflow-x: auto;">
+                <p-table [value]="tableRows" dataKey="key" editMode="row" responsiveLayout="stack" breakpoint="960px"
+                    class="p-datatable-sm p-datatable-gridlines">
                     <ng-template pTemplate="header">
                         <tr>
                             <th class="p-3" style="white-space: nowrap; background-color: white;"></th>
@@ -125,57 +130,62 @@
                         </tr>
                     </ng-template>
                 </p-table>
+                </div>
             </div>
 
             <!-- Container 2: Configuración de Distribución (Distribución + Summary Table) -->
             <div class="reporte-header mb-5 relative">
-                <div class="flex justify-content-center align-items-center mb-4">
-                    <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Distribución</h2>
+                <div class="mb-4 p-4">
+                    <div class="text-center mb-4 border-bottom-1 surface-border pb-3">
+                        <h2 class="m-0 text-700">Distribución</h2>
+                    </div>
 
-                    <div class="flex align-items-center" style="position: absolute; top: 0rem; right: 0rem;">
-                        <button *ngIf="!editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
-                            class="p-button-rounded p-button-text" (click)="onHeaderEditInit()" pTooltip="Editar"
-                            tooltipPosition="left" [disabled]="isAnyEditActive">
-                        </button>
-                        <div *ngIf="editandoCabecera" class="flex justify-content-center align-items-center">
-                            <button pButton pRipple type="button" icon="pi pi-check"
-                                class="p-button-rounded p-button-text p-button-success mr-2"
-                                (click)="onHeaderEditSave()" pTooltip="Guardar" tooltipPosition="left"></button>
-                            <button pButton pRipple type="button" icon="pi pi-times"
-                                class="p-button-rounded p-button-text p-button-danger" (click)="onHeaderEditCancel()"
-                                pTooltip="Cancelar" tooltipPosition="left"></button>
-                        </div>
-                    </div>
-                </div>
+                    <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3 border-bottom-1 surface-border pb-3">
+                        <div class="flex flex-column md:flex-row flex-wrap gap-4 w-full">
+                            <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
+                                <p-inputNumber id="float-aui" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.AUIPorcentaje"
+                                    suffix=" %" [min]="0" [max]="100" [minFractionDigits]="2" class="w-full">
+                                </p-inputNumber>
+                                <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.AUIPorcentaje"
+                                    suffix=" %" [minFractionDigits]="2" [readonly]="true" class="w-full">
+                                </p-inputNumber>
+                                <label for="float-aui">AUI Universidad</label>
+                            </span>
 
-                <!-- Config Inputs (Block Labels) -->
-                <div class="grid p-fluid mb-4">
-                    <div class="col-12 md:col-4">
-                        <div class="field">
-                            <label class="block">AUI Universidad</label>
-                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.AUIPorcentaje"
-                                suffix=" %" [min]="0" [max]="100" [minFractionDigits]="2"
-                                class="w-full"></p-inputNumber>
-                            <input *ngIf="!editandoCabecera" pInputText
-                                [value]="formatPercent(configuracion.AUIPorcentaje)" readonly class="w-full" />
+                            <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
+                                <p-inputNumber id="float-excedentes" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.excedentesMaestria"
+                                    mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" class="w-full">
+                                </p-inputNumber>
+                                <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.excedentesMaestria"
+                                    mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" class="w-full">
+                                </p-inputNumber>
+                                <label for="float-excedentes">Excedentes Maestría</label>
+                            </span>
+
+                            <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
+                                <div class="p-inputgroup">
+                                    <p-inputNumber id="float-gastos" [ngModel]="totalGastosGenerales"
+                                        mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" class="w-full">
+                                    </p-inputNumber>
+                                    <button type="button" pButton icon="pi pi-pencil" class="p-button-secondary"
+                                        [disabled]="!editandoCabecera" (click)="abrirModalGastos()"></button>
+                                </div>
+                                <label for="float-gastos">Gastos Generales</label>
+                            </span>
                         </div>
-                    </div>
-                    <div class="col-12 md:col-4">
-                        <div class="field">
-                            <label class="block">Excedentes Maestria</label>
-                            <p-inputNumber *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.excedentesMaestria"
-                                mode="currency" currency="COP" locale="es-CO" class="w-full"></p-inputNumber>
-                            <input *ngIf="!editandoCabecera" pInputText
-                                [value]="formatCurrency(configuracion.excedentesMaestria)" readonly class="w-full" />
-                        </div>
-                    </div>
-                    <div class="col-12 md:col-4">
-                        <div class="field">
-                            <label class="block">Gastos Generales</label>
-                            <div class="p-inputgroup">
-                                <input pInputText [value]="formatCurrency(totalGastosGenerales)" readonly />
-                                <button type="button" pButton icon="pi pi-pencil" class="p-button-secondary"
-                                    [disabled]="!editandoCabecera" (click)="abrirModalGastos()"></button>
+
+                        <div class="flex align-items-center mt-3 md:mt-0">
+                            <button *ngIf="!editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
+                                class="p-button-rounded p-button-text" (click)="onHeaderEditInit()"
+                                pTooltip="Editar Configuración" [disabled]="isAnyEditActive"></button>
+
+                            <div *ngIf="editandoCabecera" class="flex">
+                                <button pButton pRipple type="button" icon="pi pi-check"
+                                    class="p-button-rounded p-button-text p-button-success mr-2"
+                                    (click)="onHeaderEditSave()"></button>
+                                <button pButton pRipple type="button" icon="pi pi-times"
+                                    class="p-button-rounded p-button-text p-button-danger"
+                                    (click)="onHeaderEditCancel()"></button>
                             </div>
                         </div>
                     </div>
@@ -216,43 +226,47 @@
 
             <!-- Container 3: Presupuesto por Items -->
             <div class="reporte-header mb-5 relative">
-                <div class="flex justify-content-center align-items-center mb-4">
-                    <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Presupuesto por Items</h2>
-
-                    <div class="flex align-items-center" style="position: absolute; top: 0rem; right: 0rem;">
-                        <button *ngIf="!editandoItems" pButton pRipple type="button" icon="pi pi-pencil"
-                            class="p-button-rounded p-button-text" (click)="onItemsEditInit()" pTooltip="Editar"
-                            tooltipPosition="left" [disabled]="isAnyEditActive">
-                        </button>
-                        <div *ngIf="editandoItems" class="flex justify-content-center align-items-center">
-                            <button pButton pRipple type="button" icon="pi pi-check"
-                                class="p-button-rounded p-button-text p-button-success mr-2" (click)="onItemsEditSave()"
-                                pTooltip="Guardar" tooltipPosition="left"></button>
-                            <button pButton pRipple type="button" icon="pi pi-times"
-                                class="p-button-rounded p-button-text p-button-danger" (click)="onItemsEditCancel()"
-                                pTooltip="Cancelar" tooltipPosition="left"></button>
-                        </div>
+                <div class="mb-4 p-4">
+                    <div class="text-center mb-4 border-bottom-1 surface-border pb-3">
+                        <h2 class="m-0 text-700">Presupuesto por Items</h2>
                     </div>
-                </div>
 
-                <!-- Config Inputs (Block Labels) -->
-                <div class="grid justify-content-center mb-4">
-                    <div class="col-12 md:col-4">
-                        <div class="field">
-                            <label class="block">Item 1</label>
-                            <p-inputNumber *ngIf="editandoItems" [(ngModel)]="clonedItems.item1" suffix=" %" [min]="0"
-                                [max]="100" [minFractionDigits]="2" class="w-full"></p-inputNumber>
-                            <input *ngIf="!editandoItems" pInputText [value]="formatPercent(configuracion.item1)"
-                                readonly class="w-full" />
+                    <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3 border-bottom-1 surface-border pb-3">
+                        <div class="flex flex-column md:flex-row flex-wrap gap-4 w-full justify-content-center">
+                            <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
+                                <p-inputNumber id="float-item1" *ngIf="editandoItems" [(ngModel)]="clonedItems.item1"
+                                    suffix=" %" [min]="0" [max]="100" [minFractionDigits]="2" class="w-full">
+                                </p-inputNumber>
+                                <p-inputNumber *ngIf="!editandoItems" [ngModel]="configuracion.item1"
+                                    suffix=" %" [minFractionDigits]="2" [readonly]="true" class="w-full">
+                                </p-inputNumber>
+                                <label for="float-item1">Item 1</label>
+                            </span>
+
+                            <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
+                                <p-inputNumber id="float-item2" *ngIf="editandoItems" [(ngModel)]="clonedItems.item2"
+                                    suffix=" %" [min]="0" [max]="100" [minFractionDigits]="2" class="w-full">
+                                </p-inputNumber>
+                                <p-inputNumber *ngIf="!editandoItems" [ngModel]="configuracion.item2"
+                                    suffix=" %" [minFractionDigits]="2" [readonly]="true" class="w-full">
+                                </p-inputNumber>
+                                <label for="float-item2">Item 2</label>
+                            </span>
                         </div>
-                    </div>
-                    <div class="col-12 md:col-4">
-                        <div class="field">
-                            <label class="block">Item 2</label>
-                            <p-inputNumber *ngIf="editandoItems" [(ngModel)]="clonedItems.item2" suffix=" %" [min]="0"
-                                [max]="100" [minFractionDigits]="2" class="w-full"></p-inputNumber>
-                            <input *ngIf="!editandoItems" pInputText [value]="formatPercent(configuracion.item2)"
-                                readonly class="w-full" />
+
+                        <div class="flex align-items-center mt-3 md:mt-0">
+                            <button *ngIf="!editandoItems" pButton pRipple type="button" icon="pi pi-pencil"
+                                class="p-button-rounded p-button-text" (click)="onItemsEditInit()"
+                                pTooltip="Editar Configuración" [disabled]="isAnyEditActive"></button>
+
+                            <div *ngIf="editandoItems" class="flex">
+                                <button pButton pRipple type="button" icon="pi pi-check"
+                                    class="p-button-rounded p-button-text p-button-success mr-2"
+                                    (click)="onItemsEditSave()"></button>
+                                <button pButton pRipple type="button" icon="pi pi-times"
+                                    class="p-button-rounded p-button-text p-button-danger"
+                                    (click)="onItemsEditCancel()"></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -292,41 +306,45 @@
 
             <!-- Container 4: Presupuesto e Imprevistos -->
             <div class="reporte-header mb-5 relative">
-                <div class="flex justify-content-center align-items-center mb-4">
-                    <h2 class="m-0 text-center" style="color: #495057; font-weight: 600;">Presupuesto e Imprevistos</h2>
-
-                    <div class="flex align-items-center" style="position: absolute; top: 0rem; right: 0rem;">
-                        <button *ngIf="!editandoImprevistos" pButton pRipple type="button" icon="pi pi-pencil"
-                            class="p-button-rounded p-button-text" (click)="onImprevistosEditInit()" pTooltip="Editar"
-                            tooltipPosition="left" [disabled]="isAnyEditActive">
-                        </button>
-                        <div *ngIf="editandoImprevistos" class="flex justify-content-center align-items-center">
-                            <button pButton pRipple type="button" icon="pi pi-check"
-                                class="p-button-rounded p-button-text p-button-success mr-2"
-                                (click)="onImprevistosEditSave()" pTooltip="Guardar" tooltipPosition="left"></button>
-                            <button pButton pRipple type="button" icon="pi pi-times"
-                                class="p-button-rounded p-button-text p-button-danger"
-                                (click)="onImprevistosEditCancel()" pTooltip="Cancelar" tooltipPosition="left"></button>
-                        </div>
+                <div class="mb-4 p-4">
+                    <div class="text-center mb-4 border-bottom-1 surface-border pb-3">
+                        <h2 class="m-0 text-700">Presupuesto e Imprevistos</h2>
                     </div>
-                </div>
 
-                <!-- Config Input -->
-                <div class="grid justify-content-center mb-4">
-                    <div class="col-12 md:col-4">
-                        <div class="field">
-                            <label class="block">Imprevistos</label>
-                            <p-inputNumber *ngIf="editandoImprevistos" [(ngModel)]="clonedImprevistos" suffix=" %"
-                                [min]="0" [max]="100" [minFractionDigits]="2" class="w-full"></p-inputNumber>
-                            <input *ngIf="!editandoImprevistos" pInputText
-                                [value]="formatPercent(configuracion.imprevistos)" readonly class="w-full" />
+                    <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3 border-bottom-1 surface-border pb-3">
+                        <div class="flex flex-column md:flex-row flex-wrap gap-4 w-full justify-content-center">
+                            <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
+                                <p-inputNumber id="float-imprevistos" *ngIf="editandoImprevistos" [(ngModel)]="clonedImprevistos"
+                                    suffix=" %" [min]="0" [max]="100" [minFractionDigits]="2" class="w-full">
+                                </p-inputNumber>
+                                <p-inputNumber *ngIf="!editandoImprevistos" [ngModel]="configuracion.imprevistos"
+                                    suffix=" %" [minFractionDigits]="2" [readonly]="true" class="w-full">
+                                </p-inputNumber>
+                                <label for="float-imprevistos">Imprevistos</label>
+                            </span>
+                        </div>
+
+                        <div class="flex align-items-center mt-3 md:mt-0">
+                            <button *ngIf="!editandoImprevistos" pButton pRipple type="button" icon="pi pi-pencil"
+                                class="p-button-rounded p-button-text" (click)="onImprevistosEditInit()"
+                                pTooltip="Editar Configuración" [disabled]="isAnyEditActive"></button>
+
+                            <div *ngIf="editandoImprevistos" class="flex">
+                                <button pButton pRipple type="button" icon="pi pi-check"
+                                    class="p-button-rounded p-button-text p-button-success mr-2"
+                                    (click)="onImprevistosEditSave()"></button>
+                                <button pButton pRipple type="button" icon="pi pi-times"
+                                    class="p-button-rounded p-button-text p-button-danger"
+                                    (click)="onImprevistosEditCancel()"></button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Budget and Contingencies Table -->
-                <p-table [value]="budgetTableRows" dataKey="key" editMode="row" responsiveLayout="scroll"
-                    styleClass="p-datatable-sm p-datatable-gridlines">
+                <div style="overflow-x: auto;">
+                <p-table [value]="budgetTableRows" dataKey="key" editMode="row" responsiveLayout="stack" breakpoint="960px"
+                    class="p-datatable-sm p-datatable-gridlines">
                     <ng-template pTemplate="header">
                         <tr>
                             <th class="p-3" style="background-color: white;"></th>
@@ -384,6 +402,7 @@
                         </tr>
                     </ng-template>
                 </p-table>
+                </div>
             </div>
 
             <!-- Modal de Gestión de Gastos Generales -->
@@ -391,8 +410,9 @@
                 [style]="{width: '60vw'}" [draggable]="false" [resizable]="false">
 
                 <!-- Tabla editable -->
+                <div style="overflow-x: auto;">
                 <p-table [value]="gastosGeneralesEditables" dataKey="idGastoGeneral" editMode="row"
-                    responsiveLayout="scroll" styleClass="p-datatable-sm p-datatable-gridlines">
+                    responsiveLayout="stack" breakpoint="960px" class="p-datatable-sm p-datatable-gridlines">
 
                     <!-- Header -->
                     <ng-template pTemplate="header">
@@ -511,6 +531,7 @@
                         </tr>
                     </ng-template>
                 </p-table>
+                </div>
 
                 <!-- Botón agregar nueva fila -->
                 <div class="mt-3 flex justify-content-center">

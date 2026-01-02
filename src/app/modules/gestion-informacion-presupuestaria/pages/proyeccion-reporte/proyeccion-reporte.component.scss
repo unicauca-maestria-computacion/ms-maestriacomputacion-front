@@ -10,58 +10,7 @@
     font-weight: 600;
 }
 
-.reporte-header {
-    background-color: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    position: relative;
 
-    h2 {
-        color: #495057;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .field {
-        background-color: white;
-        padding: 1rem;
-        border-radius: 6px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        height: 100%;
-
-        label {
-            display: block;
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            text-align: left;
-        }
-
-        input {
-            text-align: center;
-            font-weight: 600;
-            color: #495057;
-            border: 1px solid #ced4da;
-
-            &:read-only {
-                background-color: #fff;
-            }
-        }
-
-        ::ng-deep .p-inputnumber {
-            width: 100%;
-
-            input {
-                width: 100%;
-                text-align: center;
-                font-weight: 600;
-                color: #495057;
-            }
-        }
-    }
-}
 
 .table-container {
     margin-top: 1rem;

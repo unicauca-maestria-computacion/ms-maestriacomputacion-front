@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { ConfiguracionReporteFinanciero, ProyeccionEstudiante, ReporteProyeccionEstudiantes } from '../../models/domain-models';
-import { PeriodoAcademicoDTORespuesta } from '../../models/periodo-academico.dto';
-import { ProyeccionEstudianteDTOPeticion } from '../../models/proyeccion-estudiante.dto';
-import { ConfiguracionReporteFinancieroDTOPeticion } from '../../models/configuracion-reporte-financiero.dto';
+import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
+import { ProyeccionEstudianteDTOPeticion } from '../../dto/proyeccion-estudiante.dto';
+import { ConfiguracionReporteFinancieroDTOPeticion } from '../../dto/configuracion-reporte-financiero.dto';
 
 interface EstudianteProyeccion extends ProyeccionEstudiante {
   nombreEstudiante: string;

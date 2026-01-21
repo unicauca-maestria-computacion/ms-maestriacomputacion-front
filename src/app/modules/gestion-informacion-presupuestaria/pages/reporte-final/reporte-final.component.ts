@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
-import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../../models/periodo-academico.dto';
+import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
 import { ConfiguracionReporteFinanciero, ProyeccionEstudiante } from '../../models/domain-models';
 
 interface EstudianteReporte extends ProyeccionEstudiante {

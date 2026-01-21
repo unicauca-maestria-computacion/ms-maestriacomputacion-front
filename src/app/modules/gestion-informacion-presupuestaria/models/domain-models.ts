@@ -1,4 +1,9 @@
-import { PeriodoAcademicoDTORespuesta } from "./periodo-academico.dto";
+import { PeriodoAcademicoDTORespuesta } from "../dto/periodo-academico.dto";
+
+export interface PeriodoAcademico {
+    periodo: number;
+    año: number;
+}
 
 export interface ConfiguracionReporteFinanciero {
     esReporteFinal: boolean;
@@ -9,7 +14,7 @@ export interface ConfiguracionReporteFinanciero {
     totalNeto: number;
     totalDescuentos: number;
     totalIngresos: number;
-    objPeriodoAcademico: PeriodoAcademicoDTORespuesta;
+    objPeriodoAcademico: PeriodoAcademico;
 }
 
 export interface ProyeccionEstudiante {
@@ -23,7 +28,13 @@ export interface ProyeccionEstudiante {
 export interface ReporteProyeccionEstudiantes {
     estudiantes: ProyeccionEstudiante[];
     objConfiguracion: ConfiguracionReporteFinanciero;
-    periodo: PeriodoAcademicoDTORespuesta;
+    periodo: PeriodoAcademico;
+}
+
+export interface ReporteEstudiantes {
+    estudiantes: ProyeccionEstudiante[];
+    objConfiguracion: ConfiguracionReporteFinanciero;
+    periodo: PeriodoAcademico;
 }
 
 export interface GastoGeneral {
@@ -63,7 +74,7 @@ export interface ConfiguracionReporteGrupos {
     item1: number;
     item2: number;
     imprevistos: number;
-    objPeriodoAcademico: PeriodoAcademicoDTORespuesta;
+    objPeriodoAcademico: PeriodoAcademico;
     gastosGenerales: GastoGeneral[];
     reportePorGrupos: ReportePorGrupos[];
 }

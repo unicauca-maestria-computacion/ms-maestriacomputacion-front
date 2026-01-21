@@ -16,6 +16,16 @@ export const environment = {
     },
 };
 
+export const gestion_informacion_presupuestaria = {
+    production: false,
+    api_url: 'http://localhost:8091/api/gestion-informacion-presupuestaria/',
+};
+
+export const gestion_matricula_financiera = {
+    production: false,
+    api_url: 'http://localhost:8091/api/gestion-matricula-financiera/',
+};
+
 export const gestion_solicitudes = {
     production: false,
     api_url: 'http://localhost:8095/msmaestriac',

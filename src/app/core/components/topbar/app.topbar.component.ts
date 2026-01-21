@@ -162,19 +162,23 @@ export class AppTopBarComponent implements OnInit {
 
                 return false;
             }
-            if (item.label === 'MATRICULAS') {
-                if (user?.role.includes('ROLE_COORDINADOR')) {
-                    // Solo mostrar "Evaluación Docente" si es coordinador
-                    item.items =
-                        item.items?.filter(
-                            (subItem) => subItem.label === 'Evaluación Docente'
-                        ) || [];
-                } else {
-                    // Si no es coordinador, eliminar la propiedad items para que no muestre el icono de submenú
-                    delete item.items;
-                }
-                return true;
-            }
+            // TODO: Implementar filtrado por rol cuando salga de pruebas
+            // if (item.label === 'MATRICULAS') {
+            //     if (!user) {
+            //         return false;
+            //     } else if (user.role.includes('ROLE_COORDINADOR')) {
+            //         return true;
+            //     } else if (user.role.includes('ROLE_ESTUDIANTE')) {
+            //         item.items = item.items?.filter(
+            //             (subItem) =>
+            //                 subItem.label === 'Matrícula Académica' ||
+            //                 subItem.label === 'Matrícula Financiera'
+            //         ) || [];
+            //         return true;
+            //     } else {
+            //         return false;
+            //     }
+            // }
             if (item.label === 'EVALUACIÓN DOCENTE') {
                 // Solo mostrar si el usuario es estudiante
                 return (

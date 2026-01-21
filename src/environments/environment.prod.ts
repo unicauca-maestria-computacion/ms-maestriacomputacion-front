@@ -12,6 +12,16 @@ export const environment = {
     },
 };
 
+export const gestion_informacion_presupuestaria = {
+    production: true,
+    api_url: 'https://apptest.unicauca.edu.co:4413/api/gestion-informacion-presupuestaria/',
+};
+
+export const gestion_matricula_financiera = {
+    production: true,
+    api_url: 'https://apptest.unicauca.edu.co:4413/api/gestion-matricula-financiera/',
+};
+
 export const gestion_solicitudes = {
     production: true,
     api_url: 'https://apptest.unicauca.edu.co:4412/msmaestriac',

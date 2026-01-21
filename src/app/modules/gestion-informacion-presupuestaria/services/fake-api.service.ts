@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { PeriodoAcademicoDTORespuesta, PeriodoAcademicoDTOPeticion } from '../models/periodo-academico.dto';
+import { PeriodoAcademicoDTORespuesta, PeriodoAcademicoDTOPeticion } from '../dto/periodo-academico.dto';
 import { delay } from 'rxjs/operators';
-import { ConfiguracionReporteFinancieroDTOPeticion, ConfiguracionReporteFinancieroDTORespuesta } from '../models/configuracion-reporte-financiero.dto';
-import { ProyeccionEstudianteDTOPeticion, ProyeccionEstudianteDTORespuesta } from '../models/proyeccion-estudiante.dto';
-import { ReporteProyeccionEstudiantesDTORespuesta } from '../models/reporte-proyeccion-estudiantes.dto';
-import { ConfiguracionReporteGruposDTORespuesta } from '../models/configuracion-reporte-grupos.dto';
-import { PorcentajeGrupoDTOPeticion } from '../models/porcentaje-grupo.dto';
-import { GastoGeneralDTOPeticion, GastoGeneralDTORespuesta } from '../models/gasto-general.dto';
-import { ItemsDTOPeticion } from '../models/items.dto';
-import { ValorGrupoDTOPeticion } from '../models/valor-grupo.dto';
-import { ReporteEstudiantesDTORespuesta } from '../models/reporte-estudiantes.dto';
+import { ConfiguracionReporteFinancieroDTOPeticion, ConfiguracionReporteFinancieroDTORespuesta } from '../dto/configuracion-reporte-financiero.dto';
+import { ProyeccionEstudianteDTOPeticion, ProyeccionEstudianteDTORespuesta } from '../dto/proyeccion-estudiante.dto';
+import { ReporteProyeccionEstudiantesDTORespuesta } from '../dto/reporte-proyeccion-estudiantes.dto';
+import { ConfiguracionReporteGruposDTORespuesta } from '../dto/configuracion-reporte-grupos.dto';
+import { PorcentajeGrupoDTOPeticion } from '../dto/porcentaje-grupo.dto';
+import { GastoGeneralDTOPeticion, GastoGeneralDTORespuesta } from '../dto/gasto-general.dto';
+import { ItemsDTOPeticion } from '../dto/items.dto';
+import { ValorGrupoDTOPeticion } from '../dto/valor-grupo.dto';
+import { ReporteEstudiantesDTORespuesta } from '../dto/reporte-estudiantes.dto';
 
 @Injectable({
     providedIn: 'root'

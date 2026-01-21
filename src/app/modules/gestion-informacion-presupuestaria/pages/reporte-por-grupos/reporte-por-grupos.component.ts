@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { ConfiguracionReporteGrupos, ReportePorGrupos, Grupo, GastoGeneral } from '../../models/domain-models';
-import { PeriodoAcademicoDTORespuesta } from '../../models/periodo-academico.dto';
+import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
 import { ConfirmationService } from 'primeng/api';
 
 interface TableRow {

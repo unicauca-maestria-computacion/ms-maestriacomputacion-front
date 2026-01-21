@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
-import { PeriodoAcademicoDTORespuesta } from '../../models/periodo-academico.dto';
+import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
 
 @Component({
   selector: 'app-periodo-academico-selector',

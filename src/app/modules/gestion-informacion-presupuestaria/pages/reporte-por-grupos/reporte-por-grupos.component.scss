@@ -64,3 +64,16 @@
 .table-container {
     padding-top: 1rem;
 }
+
+.gastos-inputgroup {
+    width: auto;
+
+    @media screen and (max-width: 768px) {
+        width: 100%;
+    }
+
+    input {
+        text-align: center;
+        min-width: 180px;
+    }
+}

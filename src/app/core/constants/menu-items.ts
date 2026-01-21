@@ -89,11 +89,20 @@ export const menuItems: MenuItem[] = [
         icon: 'pi pi-fw pi-id-card',
         items: [
             {
+                label: 'Matrícula Académica',
+                icon: 'pi pi-fw pi-book',
+                routerLink: '/gestionsolicitudes/portafolio/opciones',
+            },
+            {
+                label: 'Matrícula Financiera',
+                icon: 'pi pi-fw pi-wallet',
+                routerLink: '/matricula-financiera',
+            },
+            {
                 label: 'Evaluación Docente',
-                icon: 'pi pi-fw pi-id-card',
+                icon: 'pi pi-fw pi-star',
                 routerLink: '/gestion-matricula-evaluacion',
             },
-            
         ],
     },
     {

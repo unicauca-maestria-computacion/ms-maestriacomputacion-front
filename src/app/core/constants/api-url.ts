@@ -1,12 +1,14 @@
 import {
     environment,
-    gestion_solicitudes,
+    gestion_solicitudes,                    
     gestion_autenticacion,
     gestion_expertos,
     gestion_egresados,
     gestion_trabajo_grado,
     gestion_docentes_estudiantes,
     evaluacion_docente,
+    gestion_informacion_presupuestaria,
+    gestion_matricula_financiera,
 } from 'src/environments/environment';
 
 export function backend(path: string): string {
@@ -39,4 +41,12 @@ export function backendGestionAutenticacion(path: string): string {
 
 export function backendEvalucionDocente(path: string): string {
     return evaluacion_docente.api_url.concat(path);
+}
+
+export function backendGestionInformacionPresupuestaria(path: string): string {
+    return gestion_informacion_presupuestaria.api_url.concat(path);
+}
+
+export function backendGestionMatriculaFinanciera(path: string): string {
+    return gestion_matricula_financiera.api_url.concat(path);
 }

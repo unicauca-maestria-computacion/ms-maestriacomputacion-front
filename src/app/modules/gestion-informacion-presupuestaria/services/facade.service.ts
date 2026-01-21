@@ -2,17 +2,18 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, finalize, map, tap } from 'rxjs/operators';
 import { GestionInformacionPresupuestariaApiService } from './api.service';
-import { ApiError } from '../models/api-error';
-import { ConfiguracionReporteFinancieroDTOPeticion } from '../models/configuracion-reporte-financiero.dto';
-import { ProyeccionEstudianteDTOPeticion } from '../models/proyeccion-estudiante.dto';
-import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../models/periodo-academico.dto';
-import { PorcentajeGrupoDTOPeticion } from '../models/porcentaje-grupo.dto';
-import { GastoGeneralDTOPeticion } from '../models/gasto-general.dto';
-import { ItemsDTOPeticion } from '../models/items.dto';
-import { ValorGrupoDTOPeticion } from '../models/valor-grupo.dto';
+import { ApiError } from '../dto/api-error';
+import { ConfiguracionReporteFinancieroDTOPeticion } from '../dto/configuracion-reporte-financiero.dto';
+import { ProyeccionEstudianteDTOPeticion } from '../dto/proyeccion-estudiante.dto';
+import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../dto/periodo-academico.dto';
+import { PorcentajeGrupoDTOPeticion } from '../dto/porcentaje-grupo.dto';
+import { GastoGeneralDTOPeticion } from '../dto/gasto-general.dto';
+import { ItemsDTOPeticion } from '../dto/items.dto';
+import { ValorGrupoDTOPeticion } from '../dto/valor-grupo.dto';
 import { ReporteProyeccionEstudiantes } from '../models/domain-models';
 import { ConfiguracionReporteGrupos } from '../models/domain-models';
 import { GestionInformacionPresupuestariaFakeApiService } from './fake-api.service';
+import { GestionInformacionPresupuestariaMapperService } from './mapper.service';
 
 @Injectable({
     providedIn: 'root'
@@ -33,7 +34,8 @@ export class GestionInformacionPresupuestariaFacadeService {
     public reporteGrupos$ = this._reporteGrupos.asObservable();
 
     constructor(
-        private apiService: GestionInformacionPresupuestariaFakeApiService
+        private apiService: GestionInformacionPresupuestariaFakeApiService,
+        private mapper: GestionInformacionPresupuestariaMapperService
     ) { }
 
     // Methods
@@ -81,7 +83,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.obtenerProyeccionEstudiantes().pipe(
-            map(dto => dto as unknown as ReporteProyeccionEstudiantes),
+            map(dto => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(dto)),
             tap(data => this._reporteProyeccionEstudiantes.next(data)),
             catchError(error => {
                 this._error.next(error);
@@ -95,7 +97,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.obtenerReporteGrupos(periodo).pipe(
-            map(dto => dto as unknown as ConfiguracionReporteGrupos),
+            map(dto => this.mapper.mappearDeRespuestaAConfiguracionReporteGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(error => {
                 this._error.next(error);
@@ -121,7 +123,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarPorcentajeParticipacionPrimerSemestre(porcentajes).pipe(
-            map(dto => dto as unknown as ConfiguracionReporteGrupos),
+            map(dto => this.mapper.mappearDeRespuestaAConfiguracionReporteGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(error => {
                 this._error.next(error);
@@ -135,7 +137,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarPorcentajeParticipacionSegundoSemestre(porcentajes).pipe(
-            map(dto => dto as unknown as ConfiguracionReporteGrupos),
+            map(dto => this.mapper.mappearDeRespuestaAConfiguracionReporteGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(error => {
                 this._error.next(error);
@@ -149,7 +151,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarPorcentajeAUIUniversidad(nuevoValor).pipe(
-            map(dto => dto as unknown as ConfiguracionReporteGrupos),
+            map(dto => this.mapper.mappearDeRespuestaAConfiguracionReporteGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(error => {
                 this._error.next(error);
@@ -163,7 +165,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarValorExcedentesMaestria(nuevoValor).pipe(
-            map(dto => dto as unknown as ConfiguracionReporteGrupos),
+            map(dto => this.mapper.mappearDeRespuestaAConfiguracionReporteGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(error => {
                 this._error.next(error);
@@ -222,7 +224,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarPorcentajeItems(items).pipe(
-            map(dto => dto as unknown as ConfiguracionReporteGrupos),
+            map(dto => this.mapper.mappearDeRespuestaAConfiguracionReporteGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(error => {
                 this._error.next(error);
@@ -236,7 +238,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarPorcentajeImprevistos(nuevoValor).pipe(
-            map(dto => dto as unknown as ConfiguracionReporteGrupos),
+            map(dto => this.mapper.mappearDeRespuestaAConfiguracionReporteGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(error => {
                 this._error.next(error);
@@ -250,7 +252,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarValorVigenciasAnteriores(valoresGrupo).pipe(
-            map(dto => dto as unknown as ConfiguracionReporteGrupos),
+            map(dto => this.mapper.mappearDeRespuestaAConfiguracionReporteGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(error => {
                 this._error.next(error);

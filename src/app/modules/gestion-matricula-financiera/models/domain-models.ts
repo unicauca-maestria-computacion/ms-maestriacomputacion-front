@@ -20,7 +20,7 @@ export interface MatriculaAcademica {
     materias: Materia[];
     objPeriodoAcademico: PeriodoAcademico;
 }
-
+ 
 export interface MatriculaFinanciera {
     fechaMatricula: Date;
     valorMatricula: number;

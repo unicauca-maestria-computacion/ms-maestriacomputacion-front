@@ -1,0 +1,46 @@
+<p-dialog header="Descargar" [(visible)]="display" [modal]="true" [style]="{width: '450px'}"
+    [draggable]="false" [resizable]="false" (onHide)="cerrar()" [closable]="true">
+
+    <div class="grid p-fluid mt-3">
+        <!-- Selector de Reportes -->
+        <div class="col-12 mb-4">
+            <span class="p-float-label">
+                <p-dropdown 
+                    [options]="reportOptions" 
+                    [(ngModel)]="selectedReport" 
+                    optionLabel="name" 
+                    optionValue="value"
+                    appendTo="body"
+                    inputId="dropdown-report"
+                    (onChange)="onReportChange()">
+                </p-dropdown>
+                <label for="dropdown-report">Tipo de Reporte</label>
+            </span>
+        </div>
+
+        <!-- Selector de Periodos -->
+        <div class="col-12 mb-2">
+            <span class="p-float-label">
+                <p-dropdown 
+                    [options]="periodOptions" 
+                    [(ngModel)]="selectedPeriod" 
+                    optionLabel="name" 
+                    optionValue="value"
+                    appendTo="body"
+                    inputId="dropdown-period">
+                </p-dropdown>
+                <label for="dropdown-period">Periodo Académico</label>
+            </span>
+        </div>
+    </div>
+
+    <!-- Footer con botón estilo Hug centrado -->
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center">
+            <button pButton pRipple label="Descargar Reporte" icon="pi pi-download" (click)="descargar()" 
+                class="p-button-primary" style="width: auto;"
+                [disabled]="!selectedReport || !selectedPeriod">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

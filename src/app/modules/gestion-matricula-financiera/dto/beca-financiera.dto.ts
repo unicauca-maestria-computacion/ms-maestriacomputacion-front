@@ -1,4 +1,4 @@
-export interface BecaFinancieraDTORespuesta {
+export interface BecasDTORespuesta {
     resolucion: string;
     porcentaje: number;
 }

@@ -1,0 +1,117 @@
+<p-dialog header="Gestión de Gastos Generales" [(visible)]="display" [modal]="true" [style]="{width: '60vw'}"
+    [draggable]="false" [resizable]="false" [closable]="!guardandoGastos" (onHide)="cerrar()">
+
+    <!-- Tabla editable -->
+    <div style="overflow-x: auto;">
+        <p-table [value]="gastosEditables" dataKey="idGastoGeneral" editMode="row" responsiveLayout="stack"
+            breakpoint="960px" class="p-datatable-sm p-datatable-gridlines">
+
+            <!-- Header -->
+            <ng-template pTemplate="header">
+                <tr>
+                    <th class="p-3" style="background-color: white;">Categoría</th>
+                    <th class="p-3" style="background-color: white;">Descripción</th>
+                    <th class="p-3" style="background-color: white;">Monto</th>
+                    <th class="p-3" style="width: 10rem; background-color: white;">Acciones</th>
+                </tr>
+            </ng-template>
+
+            <!-- Body con filas editables -->
+            <ng-template pTemplate="body" let-gasto let-editing="editing" let-ri="rowIndex">
+                <tr [pEditableRow]="gasto">
+                    <!-- Categoría -->
+                    <td class="p-3">
+                        <input *ngIf="gasto.idGastoGeneral < 0" pInputText [(ngModel)]="gasto.categoria" class="w-full"
+                            [disabled]="guardandoGastos" />
+
+                        <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
+                            <ng-template pTemplate="input">
+                                <input pInputText [(ngModel)]="gasto.categoria" class="w-full"
+                                    [disabled]="guardandoGastos" />
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{ gasto.categoria }}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+
+                    <!-- Descripción -->
+                    <td class="p-3">
+                        <input *ngIf="gasto.idGastoGeneral < 0" pInputText [(ngModel)]="gasto.descripcion" class="w-full"
+                            [disabled]="guardandoGastos" />
+
+                        <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
+                            <ng-template pTemplate="input">
+                                <input pInputText [(ngModel)]="gasto.descripcion" class="w-full"
+                                    [disabled]="guardandoGastos" />
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{ gasto.descripcion }}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+
+                    <!-- Monto -->
+                    <td class="p-3">
+                        <p-inputNumber *ngIf="gasto.idGastoGeneral < 0" [(ngModel)]="gasto.monto" mode="currency"
+                            currency="COP" locale="es-CO" class="w-full" [disabled]="guardandoGastos">
+                        </p-inputNumber>
+
+                        <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
+                            <ng-template pTemplate="input">
+                                <p-inputNumber [(ngModel)]="gasto.monto" mode="currency" currency="COP" locale="es-CO"
+                                    class="w-full" [disabled]="guardandoGastos">
+                                </p-inputNumber>
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{ formatCurrency(gasto.monto) }}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+
+                    <!-- Acciones -->
+                    <td class="text-center p-3">
+                        <button *ngIf="!editing && gasto.idGastoGeneral > 0" pButton pRipple type="button"
+                            pInitEditableRow icon="pi pi-pencil" (click)="onGastoEditInit(gasto)"
+                            class="p-button-rounded p-button-text"
+                            [disabled]="editingGastoKey !== null || nuevoGasto !== null || guardandoGastos">
+                        </button>
+
+                        <div *ngIf="editing && gasto.idGastoGeneral > 0" class="flex justify-content-center align-items-center">
+                            <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                                (click)="onGastoEditSave(gasto)" class="p-button-rounded p-button-text p-button-success mr-2"
+                                [disabled]="guardandoGastos">
+                            </button>
+                            <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                                (click)="onGastoEditCancel(gasto)" class="p-button-rounded p-button-text p-button-danger mr-2"
+                                [disabled]="guardandoGastos">
+                            </button>
+                            <button pButton pRipple type="button" icon="pi pi-trash" (click)="confirmarEliminarGasto(gasto)"
+                                class="p-button-rounded p-button-text p-button-warning" pTooltip="Eliminar"
+                                tooltipPosition="left" [disabled]="guardandoGastos">
+                            </button>
+                        </div>
+
+                        <div *ngIf="gasto.idGastoGeneral < 0" class="flex justify-content-center align-items-center">
+                            <button pButton pRipple type="button" icon="pi pi-check" (click)="guardarNuevoGasto()"
+                                class="p-button-rounded p-button-text p-button-success mr-2" [disabled]="guardandoGastos">
+                            </button>
+                            <button pButton pRipple type="button" icon="pi pi-times" (click)="cancelarNuevoGasto()"
+                                class="p-button-rounded p-button-text p-button-danger" [disabled]="guardandoGastos">
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <!-- Botón agregar nueva fila -->
+    <div class="mt-3 flex justify-content-center">
+        <button pButton pRipple type="button" label="Agregar Gasto" icon="pi pi-plus"
+            class="p-button-sm p-button-outlined" (click)="agregarNuevaFilaGasto()"
+            [disabled]="nuevoGasto !== null || editingGastoKey !== null || guardandoGastos">
+        </button>
+    </div>
+
+</p-dialog>

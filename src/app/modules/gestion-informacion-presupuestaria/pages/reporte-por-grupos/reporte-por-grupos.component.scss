@@ -62,7 +62,8 @@
 }
 
 .table-container {
-    padding-top: 1rem;
+    margin: 1rem auto 0 auto;
+    max-width: 1200px;
 }
 
 .gastos-inputgroup {
@@ -75,5 +76,73 @@
     input {
         text-align: center;
         min-width: 180px;
+    }
+}
+
+/* Estilos para que la tabla de distribución se vea bien en móvil */
+:host ::ng-deep .distribution-table {
+    border: none !important;
+
+    .p-datatable-tbody > tr {
+        border-bottom: none !important;
+
+        &:first-child {
+            border-top: 1px solid #dee2e6 !important;
+        }
+        &:last-child {
+            border-bottom: 1px solid #dee2e6 !important;
+        }
+
+        > td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: none !important;
+            
+            // En desktop
+            .p-column-title {
+                display: none;
+            }
+
+            .desktop-label {
+                font-weight: 600;
+                color: #495057;
+            }
+
+            .value {
+                text-align: right;
+                font-weight: 500;
+            }
+        }
+    }
+
+    // En móvil (p-table stack mode activo)
+    @media screen and (max-width: 960px) {
+        .p-datatable-tbody > tr {
+            border: none !important;
+            
+            &:first-child {
+                border-top: 1px solid #dee2e6 !important;
+            }
+            &:last-child {
+                border-bottom: 1px solid #dee2e6 !important;
+            }
+
+            > td {
+                padding: 1rem !important;
+
+                .p-column-title {
+                    display: block !important;
+                }
+
+                .desktop-label {
+                    display: none !important;
+                }
+
+                .value {
+                    font-weight: 600;
+                }
+            }
+        }
     }
 }

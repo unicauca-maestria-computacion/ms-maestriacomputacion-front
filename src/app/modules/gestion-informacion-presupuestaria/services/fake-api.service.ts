@@ -36,86 +36,61 @@ export class GestionInformacionPresupuestariaFakeApiService {
     }
 
     obtenerReporteFinanciero(periodo: PeriodoAcademicoDTOPeticion): Observable<ReporteEstudiantesDTORespuesta> {
-        const estudiantes: any[] = [ // Using any[] temporarily or strict type if imported, casting to ensure it matches
+        const estudiantes: ProyeccionEstudianteDTORespuesta[] = [
             {
                 codigoEstudiante: '1087453621',
-                nombreEstudiante: 'Laura Pérez',
+                nombre: 'Laura',
+                apellido: 'Pérez',
+                identificacion: 1087453621,
                 estaPago: true,
-                matricula: 7800000,
                 porcentajeVotacion: 0,
                 porcentajeBeca: 0,
-                valorBeca: 0,
-                porcentajeEgresado: 0,
-                valorEgresado: 0,
-                recursosComputacionales: 250000,
-                biblioteca: 250000,
                 grupoInvestigacion: 'GTI',
-                grupoDescuentos: 500000,
-                totalNeto: 7300000
+                porcentajeEgresado: 0
             },
             {
                 codigoEstudiante: '1024566421',
-                nombreEstudiante: 'María Tobar',
+                nombre: 'María',
+                apellido: 'Tobar',
+                identificacion: 1024566421,
                 estaPago: true,
-                matricula: 7800000,
                 porcentajeVotacion: 10,
                 porcentajeBeca: 10,
-                valorBeca: 780000,
-                porcentajeEgresado: 5,
-                valorEgresado: 0,
-                recursosComputacionales: 250000,
-                biblioteca: 250000,
                 grupoInvestigacion: 'IDIS',
-                grupoDescuentos: 1280000,
-                totalNeto: 6520000
+                porcentajeEgresado: 5
             },
             {
                 codigoEstudiante: '1022453221',
-                nombreEstudiante: 'Diana López',
+                nombre: 'Diana',
+                apellido: 'López',
+                identificacion: 1022453221,
                 estaPago: true,
-                matricula: 7800000,
                 porcentajeVotacion: 10,
                 porcentajeBeca: 15,
-                valorBeca: 1170000,
-                porcentajeEgresado: 5,
-                valorEgresado: 0,
-                recursosComputacionales: 250000,
-                biblioteca: 250000,
-                grupoInvestigacion: 'IDIS',
-                grupoDescuentos: 1670000,
-                totalNeto: 6130000
+                grupoInvestigacion: 'GICO',
+                porcentajeEgresado: 5
             },
             {
                 codigoEstudiante: '1007554022',
-                nombreEstudiante: 'Natalia García',
+                nombre: 'Natalia',
+                apellido: 'García',
+                identificacion: 1007554022,
                 estaPago: true,
-                matricula: 7800000,
                 porcentajeVotacion: 10,
                 porcentajeBeca: 20,
-                valorBeca: 2340000,
-                porcentajeEgresado: 5,
-                valorEgresado: 0,
-                recursosComputacionales: 250000,
-                biblioteca: 250000,
-                grupoInvestigacion: 'GICO',
-                grupoDescuentos: 2060000,
-                totalNeto: 5740000
+                grupoInvestigacion: 'GTI',
+                porcentajeEgresado: 5
             },
             {
                 codigoEstudiante: '1090733402',
-                nombreEstudiante: 'Sofía Ramírez',
+                nombre: 'Sofía',
+                apellido: 'Ramírez',
+                identificacion: 1090733402,
                 estaPago: false,
-                matricula: 1300000,
                 porcentajeVotacion: 10,
                 porcentajeBeca: 0,
-                valorBeca: 0,
-                porcentajeEgresado: 0,
-                valorEgresado: 0,
-                recursosComputacionales: 250000,
-                biblioteca: 250000,
-                grupoInvestigacion: 'GICO',
-                grupoDescuentos: 500000,
-                totalNeto: 800000
+                grupoInvestigacion: 'IDIS',
+                porcentajeEgresado: 0
             }
         ];
 
@@ -135,7 +110,7 @@ export class GestionInformacionPresupuestariaFakeApiService {
         };
 
         const response: ReporteEstudiantesDTORespuesta = {
-            estudiantes: estudiantes as any, // Cast to avoid strict check issues for now if types strictly differ
+            estudiantes: estudiantes,
             objConfiguracion: objConfiguracion,
             periodo: {
                 periodo: periodo.periodo,
@@ -150,91 +125,66 @@ export class GestionInformacionPresupuestariaFakeApiService {
 
     // Helper for mock data to avoid duplication
     private getMockProyeccionReporte(): ReporteProyeccionEstudiantesDTORespuesta {
-        const est: any[] = [
+        const est: ProyeccionEstudianteDTORespuesta[] = [
             {
                 codigoEstudiante: '1087453621',
-                nombreEstudiante: 'Laura Pérez',
+                nombre: 'Laura',
+                apellido: 'Pérez',
+                identificacion: 1087453621,
                 estaPago: true,
-                matricula: 7800000,
                 porcentajeVotacion: 0,
                 porcentajeBeca: 0,
-                valorBeca: 0,
-                porcentajeEgresado: 0,
-                valorEgresado: 0,
-                recursosComputacionales: 250000,
-                biblioteca: 250000,
                 grupoInvestigacion: 'GTI',
-                grupoDescuentos: 500000,
-                totalNeto: 7300000
+                porcentajeEgresado: 0
             },
             {
                 codigoEstudiante: '1024566421',
-                nombreEstudiante: 'María Tobar',
+                nombre: 'María',
+                apellido: 'Tobar',
+                identificacion: 1024566421,
                 estaPago: true,
-                matricula: 7800000,
                 porcentajeVotacion: 10,
                 porcentajeBeca: 10,
-                valorBeca: 780000,
-                porcentajeEgresado: 5,
-                valorEgresado: 0,
-                recursosComputacionales: 250000,
-                biblioteca: 250000,
                 grupoInvestigacion: 'IDIS',
-                grupoDescuentos: 1280000,
-                totalNeto: 6520000
+                porcentajeEgresado: 5
             },
             {
                 codigoEstudiante: '1022453221',
-                nombreEstudiante: 'Diana López',
+                nombre: 'Diana',
+                apellido: 'López',
+                identificacion: 1022453221,
                 estaPago: true,
-                matricula: 7800000,
                 porcentajeVotacion: 10,
                 porcentajeBeca: 15,
-                valorBeca: 1170000,
-                porcentajeEgresado: 5,
-                valorEgresado: 0,
-                recursosComputacionales: 250000,
-                biblioteca: 250000,
-                grupoInvestigacion: 'IDIS',
-                grupoDescuentos: 1670000,
-                totalNeto: 6130000
+                grupoInvestigacion: 'GICO',
+                porcentajeEgresado: 5
             },
             {
                 codigoEstudiante: '1007554022',
-                nombreEstudiante: 'Natalia García',
+                nombre: 'Natalia',
+                apellido: 'García',
+                identificacion: 1007554022,
                 estaPago: true,
-                matricula: 7800000,
                 porcentajeVotacion: 10,
                 porcentajeBeca: 20,
-                valorBeca: 2340000,
-                porcentajeEgresado: 5,
-                valorEgresado: 0,
-                recursosComputacionales: 250000,
-                biblioteca: 250000,
-                grupoInvestigacion: 'GICO',
-                grupoDescuentos: 2060000,
-                totalNeto: 5740000
+                grupoInvestigacion: 'GTI',
+                porcentajeEgresado: 5
             },
             {
                 codigoEstudiante: '1090733402',
-                nombreEstudiante: 'Sofía Ramírez',
+                nombre: 'Sofía',
+                apellido: 'Ramírez',
+                identificacion: 1090733402,
                 estaPago: false,
-                matricula: 1300000,
                 porcentajeVotacion: 10,
                 porcentajeBeca: 0,
-                valorBeca: 0,
-                porcentajeEgresado: 0,
-                valorEgresado: 0,
-                recursosComputacionales: 250000,
-                biblioteca: 250000,
-                grupoInvestigacion: 'GICO',
-                grupoDescuentos: 500000,
-                totalNeto: 800000
+                grupoInvestigacion: 'IDIS',
+                porcentajeEgresado: 0
             }
         ];
 
         return {
-            estudiantes: est as any,
+            estudiantes: est,
             objConfiguracion: {
                 esReporteFinal: false,
                 biblioteca: 250000,

@@ -1,7 +1,7 @@
 <div class="col-12">
     <p-toast></p-toast>
     <p-card>
-        <app-opciones-presupuesto [activeTab]="'reporte-por-grupos'" (onDescargar)="descargar()">
+        <app-opciones-presupuesto [activeTab]="'reporte-por-grupos'" [currentPeriod]="periodoSeleccionado" (onDescargar)="descargar()">
         </app-opciones-presupuesto>
 
         <!-- Selector de Periodo Académico -->
@@ -15,7 +15,7 @@
             <span class="ml-3 text-lg">Cargando reporte...</span>
         </div>
 
-        <div *ngIf="!loading && configuracion" class="mt-4">
+        <div *ngIf="!loading && configuracion" class="mt-4 table-container">
 
             <!-- Global Title -->
             <div class="flex justify-content-center align-items-center mb-5">
@@ -67,7 +67,7 @@
                 <!-- Main Table -->
                 <div style="overflow-x: auto;">
                 <p-table [value]="tableRows" dataKey="key" editMode="row" responsiveLayout="stack" breakpoint="960px"
-                    class="p-datatable-sm p-datatable-gridlines">
+                    class="p-datatable-sm">
                     <ng-template pTemplate="header">
                         <tr>
                             <th class="p-3" style="white-space: nowrap; background-color: white;"></th>
@@ -82,10 +82,14 @@
 
                     <ng-template pTemplate="body" let-row let-editing="editing" let-ri="rowIndex">
                         <tr [pEditableRow]="row">
-                            <td class="font-bold p-3" style="color: #495057;">{{ row.concept }}</td>
+                            <td class="font-bold p-3" style="color: #495057;">
+                                <span class="p-column-title font-bold"></span>
+                                {{ row.concept }}
+                            </td>
 
                             <!-- Dynamic Group Columns -->
                             <td *ngFor="let group of groupColumns" class="text-center w-10rem p-3">
+                                <span class="p-column-title font-bold">{{ group.nombre }}</span>
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
                                         <div class="w-full" *ngIf="row.isEditable; else readOnlyCell">
@@ -108,6 +112,7 @@
 
                             <!-- Total Column (Read Only) -->
                             <td class="text-right font-bold w-10rem p-3">
+                                <span class="p-column-title font-bold">TOTAL</span>
                                 {{ row.isPercentage ? formatPercent(row.total) : formatCurrency(row.total) }}
                             </td>
 
@@ -194,29 +199,14 @@
                 <!-- Summary Table -->
                 <div class="grid">
                     <div class="col-12">
-                        <p-table [value]="[1]" styleClass="p-datatable-sm p-datatable-gridlines">
-                            <ng-template pTemplate="body">
+                        <p-table [value]="distributionSummary" responsiveLayout="stack" breakpoint="960px" styleClass="p-datatable-sm distribution-table">
+                            <ng-template pTemplate="body" let-item>
                                 <tr>
-                                    <td class="font-bold p-3">AUI Universidad</td>
-                                    <td class="text-right p-3">{{ formatCurrency(configuracion.AUIValor) }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="font-bold p-3">Ingresos Netos</td>
-                                    <td class="text-right p-3">{{ formatCurrency(configuracion.ingresosNetos) }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="font-bold p-3">Excedentes Maestria</td>
-                                    <td class="text-right p-3">{{ formatCurrency(configuracion.excedentesMaestria) }}
+                                    <td [class.font-bold]="item.isBold" class="p-3">
+                                        <span class="p-column-title font-bold">{{ item.label }}</span>
+                                        <span class="desktop-label">{{ item.label }}</span>
+                                        <span class="value">{{ formatCurrency(item.value) }}</span>
                                     </td>
-                                </tr>
-                                <tr>
-                                    <td class="font-bold p-3">Gastos Generales</td>
-                                    <td class="text-right p-3">{{ formatCurrency(totalGastosGenerales) }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="font-bold p-3">Valor a Distribuir (Ingresos-Gastos)</td>
-                                    <td class="text-right font-bold p-3">{{
-                                        formatCurrency(configuracion.valorADistribuir) }}</td>
                                 </tr>
                             </ng-template>
                         </p-table>
@@ -272,7 +262,7 @@
                 </div>
 
                 <!-- Items Budget Table -->
-                <p-table [value]="[1, 2]" styleClass="p-datatable-sm p-datatable-gridlines">
+                <p-table [value]="[1, 2]" responsiveLayout="stack" breakpoint="960px" styleClass="p-datatable-sm">
                     <ng-template pTemplate="header">
                         <tr>
                             <th class="p-3" style="background-color: white;"></th>
@@ -287,16 +277,19 @@
                     <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
                         <tr>
                             <td class="font-bold p-3" style="color: #495057;">
+                                <span class="p-column-title font-bold"></span>
                                 {{ rowIndex === 0 ? 'Presupuesto por Grupo Item 1' : 'Presupuesto por Grupo Item 2' }}
                             </td>
 
                             <!-- Dynamic Group Columns -->
                             <td *ngFor="let group of groupColumns; let i = index" class="text-center p-3">
+                                <span class="p-column-title font-bold">{{ group.nombre }}</span>
                                 {{ formatCurrency(getItemBudgetValue(i, rowIndex)) }}
                             </td>
 
                             <!-- Total Column -->
                             <td class="text-right font-bold p-3">
+                                <span class="p-column-title font-bold">TOTAL</span>
                                 {{ formatCurrency(getItemBudgetTotal(rowIndex)) }}
                             </td>
                         </tr>
@@ -344,7 +337,7 @@
                 <!-- Budget and Contingencies Table -->
                 <div style="overflow-x: auto;">
                 <p-table [value]="budgetTableRows" dataKey="key" editMode="row" responsiveLayout="stack" breakpoint="960px"
-                    class="p-datatable-sm p-datatable-gridlines">
+                    class="p-datatable-sm">
                     <ng-template pTemplate="header">
                         <tr>
                             <th class="p-3" style="background-color: white;"></th>
@@ -359,10 +352,14 @@
 
                     <ng-template pTemplate="body" let-row let-editing="editing" let-ri="rowIndex">
                         <tr [pEditableRow]="row">
-                            <td class="font-bold p-3" style="color: #495057;">{{ row.concept }}</td>
+                            <td class="font-bold p-3" style="color: #495057;">
+                                <span class="p-column-title font-bold"></span>
+                                {{ row.concept }}
+                            </td>
 
                             <!-- Dynamic Group Columns -->
                             <td *ngFor="let group of groupColumns; let i = index" class="text-center p-3">
+                                <span class="p-column-title font-bold">{{ group.nombre }}</span>
                                 <p-cellEditor *ngIf="row.isEditable">
                                     <ng-template pTemplate="input">
                                         <p-inputNumber [(ngModel)]="row.values[group.nombre]" mode="currency"
@@ -380,6 +377,7 @@
 
                             <!-- Total Column (Read Only) -->
                             <td class="text-right font-bold p-3">
+                                <span class="p-column-title font-bold">TOTAL</span>
                                 {{ formatCurrency(row.total) }}
                             </td>
 
@@ -405,149 +403,12 @@
                 </div>
             </div>
 
-            <!-- Modal de Gestión de Gastos Generales -->
-            <p-dialog header="Gestión de Gastos Generales" [(visible)]="displayGastosModal" [modal]="true"
-                [style]="{width: '60vw'}" [draggable]="false" [resizable]="false">
-
-                <!-- Tabla editable -->
-                <div style="overflow-x: auto;">
-                <p-table [value]="gastosGeneralesEditables" dataKey="idGastoGeneral" editMode="row"
-                    responsiveLayout="stack" breakpoint="960px" class="p-datatable-sm p-datatable-gridlines">
-
-                    <!-- Header -->
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th class="p-3" style="background-color: white;">Categoría</th>
-                            <th class="p-3" style="background-color: white;">Descripción</th>
-                            <th class="p-3" style="background-color: white;">Monto</th>
-                            <th class="p-3" style="width: 10rem; background-color: white;">Acciones</th>
-                        </tr>
-                    </ng-template>
-
-                    <!-- Body con filas editables -->
-                    <ng-template pTemplate="body" let-gasto let-editing="editing" let-ri="rowIndex">
-                        <tr [pEditableRow]="gasto">
-                            <!-- Categoría -->
-                            <td class="p-3">
-                                <!-- Para nueva fila (ID negativo), siempre mostrar input -->
-                                <input *ngIf="gasto.idGastoGeneral < 0" pInputText [(ngModel)]="gasto.categoria"
-                                    class="w-full" [disabled]="guardandoGastos" />
-
-                                <!-- Para filas existentes, usar p-cellEditor -->
-                                <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
-                                    <ng-template pTemplate="input">
-                                        <input pInputText [(ngModel)]="gasto.categoria" class="w-full"
-                                            [disabled]="guardandoGastos" />
-                                    </ng-template>
-                                    <ng-template pTemplate="output">
-                                        {{ gasto.categoria }}
-                                    </ng-template>
-                                </p-cellEditor>
-                            </td>
-
-                            <!-- Descripción -->
-                            <td class="p-3">
-                                <!-- Para nueva fila (ID negativo), siempre mostrar input -->
-                                <input *ngIf="gasto.idGastoGeneral < 0" pInputText [(ngModel)]="gasto.descripcion"
-                                    class="w-full" [disabled]="guardandoGastos" />
-
-                                <!-- Para filas existentes, usar p-cellEditor -->
-                                <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
-                                    <ng-template pTemplate="input">
-                                        <input pInputText [(ngModel)]="gasto.descripcion" class="w-full"
-                                            [disabled]="guardandoGastos" />
-                                    </ng-template>
-                                    <ng-template pTemplate="output">
-                                        {{ gasto.descripcion }}
-                                    </ng-template>
-                                </p-cellEditor>
-                            </td>
-
-                            <!-- Monto -->
-                            <td class="p-3">
-                                <!-- Para nueva fila (ID negativo), siempre mostrar input -->
-                                <p-inputNumber *ngIf="gasto.idGastoGeneral < 0" [(ngModel)]="gasto.monto"
-                                    mode="currency" currency="COP" locale="es-CO" class="w-full"
-                                    [disabled]="guardandoGastos">
-                                </p-inputNumber>
-
-                                <!-- Para filas existentes, usar p-cellEditor -->
-                                <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
-                                    <ng-template pTemplate="input">
-                                        <p-inputNumber [(ngModel)]="gasto.monto" mode="currency" currency="COP"
-                                            locale="es-CO" class="w-full" [disabled]="guardandoGastos">
-                                        </p-inputNumber>
-                                    </ng-template>
-                                    <ng-template pTemplate="output">
-                                        {{ formatCurrency(gasto.monto) }}
-                                    </ng-template>
-                                </p-cellEditor>
-                            </td>
-
-                            <!-- Acciones -->
-                            <td class="text-center p-3">
-                                <!-- Botón editar (para filas existentes no en edición) -->
-                                <button *ngIf="!editing && gasto.idGastoGeneral > 0" pButton pRipple type="button"
-                                    pInitEditableRow icon="pi pi-pencil" (click)="onGastoEditInit(gasto)"
-                                    class="p-button-rounded p-button-text"
-                                    [disabled]="editingGastoKey !== null || nuevoGasto !== null || guardandoGastos">
-                                </button>
-
-                                <!-- Botones guardar/cancelar/eliminar (edición de fila existente) -->
-                                <div *ngIf="editing && gasto.idGastoGeneral > 0"
-                                    class="flex justify-content-center align-items-center">
-                                    <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
-                                        (click)="onGastoEditSave(gasto)"
-                                        class="p-button-rounded p-button-text p-button-success mr-2"
-                                        [disabled]="guardandoGastos">
-                                    </button>
-                                    <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
-                                        (click)="onGastoEditCancel(gasto)"
-                                        class="p-button-rounded p-button-text p-button-danger mr-2"
-                                        [disabled]="guardandoGastos">
-                                    </button>
-                                    <button pButton pRipple type="button" icon="pi pi-trash"
-                                        (click)="confirmarEliminarGasto(gasto)"
-                                        class="p-button-rounded p-button-text p-button-warning" pTooltip="Eliminar"
-                                        tooltipPosition="left" [disabled]="guardandoGastos">
-                                    </button>
-                                </div>
-
-                                <!-- Botones para nueva fila (ID negativo) -->
-                                <div *ngIf="gasto.idGastoGeneral < 0"
-                                    class="flex justify-content-center align-items-center">
-                                    <button pButton pRipple type="button" icon="pi pi-check"
-                                        (click)="guardarNuevoGasto()"
-                                        class="p-button-rounded p-button-text p-button-success mr-2"
-                                        [disabled]="guardandoGastos">
-                                    </button>
-                                    <button pButton pRipple type="button" icon="pi pi-times"
-                                        (click)="cancelarNuevoGasto()"
-                                        class="p-button-rounded p-button-text p-button-danger"
-                                        [disabled]="guardandoGastos">
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-                </div>
-
-                <!-- Botón agregar nueva fila -->
-                <div class="mt-3 flex justify-content-center">
-                    <button pButton pRipple type="button" label="Agregar Gasto" icon="pi pi-plus"
-                        class="p-button-sm p-button-outlined" (click)="agregarNuevaFilaGasto()"
-                        [disabled]="nuevoGasto !== null || editingGastoKey !== null || guardandoGastos">
-                    </button>
-                </div>
-
-                <!-- Footer -->
-                <ng-template pTemplate="footer">
-                    <p-button icon="pi pi-times" (click)="cerrarModalGastos()" label="Cerrar"
-                        styleClass="p-button-text" [disabled]="guardandoGastos">
-                    </p-button>
-                </ng-template>
-            </p-dialog>
+            <!-- Modal de Gestión de Gastos Generales (Refactorizado como componente) -->
+            <app-gastos-generales-dialog 
+                [(display)]="displayGastosModal" 
+                [gastos]="configuracion.gastosGenerales"
+                (onCambio)="onGastosChange()">
+            </app-gastos-generales-dialog>
 
             <!-- Confirmation Dialog -->
             <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

@@ -28,6 +28,7 @@ export class ProyeccionReporteComponent implements OnInit {
 
   cargando: boolean = false;
   guardando: boolean = false; // Used for global saving spinner
+  periodoSeleccionado: PeriodoAcademicoDTORespuesta | null = null;
   periodoActualTexto: string = '';
 
   // Configuración del reporte
@@ -54,6 +55,7 @@ export class ProyeccionReporteComponent implements OnInit {
   }
 
   onPeriodoChange(periodo: PeriodoAcademicoDTORespuesta): void {
+    this.periodoSeleccionado = periodo;
     // Logic to reload data with new period if API supports it.
     // Currently `actualizarConfiguracionProyeccion` doesn't seem to take period param directly in this component's usage?
     // Wait, checking `obtenerProyeccionEstudiantes`.
@@ -135,8 +137,27 @@ export class ProyeccionReporteComponent implements OnInit {
     if (data.objConfiguracion) {
       this.configuracion = data.objConfiguracion;
     }
-    if (data.estudiantes) {
-      this.estudiantes = data.estudiantes as unknown as EstudianteProyeccion[];
+    if (data.estudiantes && this.configuracion) {
+      this.estudiantes = data.estudiantes.map(e => {
+        const matricula = this.configuracion!.valorMatricula * this.configuracion!.valorSMLV;
+        const valorBeca = matricula * (e.porcentajeBeca / 100);
+        const valorEgresado = matricula * (e.porcentajeEgresado / 100);
+        const valorVotacion = matricula * (e.porcentajeVotacion / 100);
+        const grupoDescuentos = valorBeca + valorEgresado + valorVotacion;
+        const totalNeto = matricula + this.configuracion!.recursosComputacionales + this.configuracion!.biblioteca - grupoDescuentos;
+
+        return {
+          ...e,
+          nombreEstudiante: `${e.nombre} ${e.apellido}`,
+          matricula: matricula,
+          valorBeca: valorBeca,
+          valorEgresado: valorEgresado,
+          recursosComputacionales: this.configuracion!.recursosComputacionales,
+          biblioteca: this.configuracion!.biblioteca,
+          grupoDescuentos: grupoDescuentos,
+          totalNeto: totalNeto
+        } as EstudianteProyeccion;
+      });
     }
   }
 

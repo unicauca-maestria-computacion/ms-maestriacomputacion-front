@@ -1,4 +1,4 @@
-export interface DescuentoFinancieraDTORespuesta {
+export interface DescuentosDTORespuesta {
     tipoDescuento: string;
     porcentaje: number;
 }

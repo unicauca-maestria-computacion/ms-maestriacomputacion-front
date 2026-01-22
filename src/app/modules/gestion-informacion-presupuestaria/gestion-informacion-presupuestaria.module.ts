@@ -8,6 +8,8 @@ import { ReportePorGruposComponent } from './pages/reporte-por-grupos/reporte-po
 import { PrimenNgModule } from '../primen-ng/primen-ng.module';
 import { OpcionesPresupuestoComponent } from './components/opciones-presupuesto/opciones-presupuesto.component';
 import { PeriodoAcademicoSelectorComponent } from './components/periodo-academico-selector/periodo-academico-selector.component';
+import { GastosGeneralesDialogComponent } from './components/gastos-generales-dialog/gastos-generales-dialog.component';
+import { DescargarReporteDialogComponent } from './components/descargar-reporte-dialog/descargar-reporte-dialog.component';
 
 @NgModule({
     declarations: [
@@ -15,7 +17,9 @@ import { PeriodoAcademicoSelectorComponent } from './components/periodo-academic
     ProyeccionReporteComponent,
     ReportePorGruposComponent,
     OpcionesPresupuestoComponent,
-    PeriodoAcademicoSelectorComponent
+    PeriodoAcademicoSelectorComponent,
+    GastosGeneralesDialogComponent,
+    DescargarReporteDialogComponent
   ],
     imports: [
         CommonModule,

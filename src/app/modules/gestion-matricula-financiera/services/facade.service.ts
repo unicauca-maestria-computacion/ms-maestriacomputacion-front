@@ -23,6 +23,9 @@ export class GestionMatriculaFinancieraFacadeService {
     private _estudianteSeleccionado = new BehaviorSubject<Estudiante | null>(null);
     public estudianteSeleccionado$ = this._estudianteSeleccionado.asObservable();
 
+    private _periodos = new BehaviorSubject<PeriodoAcademico[]>([]);
+    public periodos$ = this._periodos.asObservable();
+
     constructor(
         private apiService: GestionMatriculaFinancieraFakeApiService,
         private mapper: GestionMatriculaFinancieraMapperService
@@ -62,8 +65,23 @@ export class GestionMatriculaFinancieraFacadeService {
     iniciarNuevaMatriculaFinanciera(): Observable<boolean> {
         this._loading.next(true);
         this._error.next(null);
-        
+
         return this.apiService.iniciarNuevaMatriculaFinanciera().pipe(
+            catchError(error => {
+                this._error.next(error);
+                return throwError(() => error);
+            }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    obtenerPeriodosAcademicos(): Observable<PeriodoAcademico[]> {
+        this._loading.next(true);
+        this._error.next(null);
+
+        return this.apiService.obtenerPeriodosAcademicos().pipe(
+            map(dtos => this.mapper.mappearDeListaRespuestaAPeriodoAcademico(dtos)),
+            tap(periodos => this._periodos.next(periodos)),
             catchError(error => {
                 this._error.next(error);
                 return throwError(() => error);

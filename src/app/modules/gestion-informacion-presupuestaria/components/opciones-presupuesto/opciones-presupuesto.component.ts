@@ -15,7 +15,10 @@ interface TabOption {
 export class OpcionesPresupuestoComponent implements OnInit {
 
   @Input() activeTab: string = 'reporte-final';
+  @Input() currentPeriod: any = null;
   @Output() onDescargar = new EventEmitter<void>();
+
+  displayDescargarModal: boolean = false;
 
   selectedTab: string = 'reporte-final';
 
@@ -43,6 +46,7 @@ export class OpcionesPresupuestoComponent implements OnInit {
   }
 
   descargar(): void {
+    this.displayDescargarModal = true;
     this.onDescargar.emit();
   }
 

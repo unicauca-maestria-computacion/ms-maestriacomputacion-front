@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { backendGestionMatriculaFinanciera } from 'src/app/core/constants/api-url';
-import { PeriodoAcademicoDTOPeticion } from '../dto/periodo-academico.dto';
+import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../dto/periodo-academico.dto';
 import { EstudianteDTORespuesta } from '../dto/estudiante.dto';
 
 @Injectable({
@@ -20,7 +20,7 @@ export class GestionMatriculaFinancieraApiService {
         return this.http.get<EstudianteDTORespuesta>(backendGestionMatriculaFinanciera(`obtener-estudiante/${codigo}`));
     }
 
-    iniciarNuevaMatriculaFinanciera(): Observable<boolean> {
-        return this.http.post<boolean>(backendGestionMatriculaFinanciera('iniciar-nueva-matricula-financiera'), {});
+    obtenerPeriodosAcademicos(): Observable<PeriodoAcademicoDTORespuesta[]> {
+        return this.http.get<PeriodoAcademicoDTORespuesta[]>(backendGestionMatriculaFinanciera('periodos-academicos'));
     }
 }

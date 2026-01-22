@@ -123,7 +123,7 @@ export class GestionInformacionPresupuestariaMapperService {
 
     // --- ProyeccionEstudiante ---
 
-    mappearDePeticionAProyeccionEstudiante(dto: ProyeccionEstudianteDTOPeticion): ProyeccionEstudiante {
+    mappearDePeticionAProyeccionEstudiante(dto: ProyeccionEstudianteDTOPeticion): Partial<ProyeccionEstudiante> {
         return {
             codigoEstudiante: dto.codigoEstudiante,
             estaPago: dto.estaPago,
@@ -136,9 +136,13 @@ export class GestionInformacionPresupuestariaMapperService {
     mappearDeRespuestaAProyeccionEstudiante(dto: ProyeccionEstudianteDTORespuesta): ProyeccionEstudiante {
         return {
             codigoEstudiante: dto.codigoEstudiante,
+            nombre: dto.nombre,
+            apellido: dto.apellido,
+            identificacion: dto.identificacion,
             estaPago: dto.estaPago,
             porcentajeVotacion: dto.porcentajeVotacion,
             porcentajeBeca: dto.porcentajeBeca,
+            grupoInvestigacion: dto.grupoInvestigacion,
             porcentajeEgresado: dto.porcentajeEgresado
         };
     }
@@ -146,9 +150,13 @@ export class GestionInformacionPresupuestariaMapperService {
     mappearDeProyeccionEstudianteARespuesta(domain: ProyeccionEstudiante): ProyeccionEstudianteDTORespuesta {
         return {
             codigoEstudiante: domain.codigoEstudiante,
+            nombre: domain.nombre,
+            apellido: domain.apellido,
+            identificacion: domain.identificacion,
             estaPago: domain.estaPago,
             porcentajeVotacion: domain.porcentajeVotacion,
             porcentajeBeca: domain.porcentajeBeca,
+            grupoInvestigacion: domain.grupoInvestigacion,
             porcentajeEgresado: domain.porcentajeEgresado
         };
     }

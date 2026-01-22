@@ -39,6 +39,9 @@ export interface DescuentoFinanciero {
 
 export interface Estudiante {
     codigo: number;
+    nombre: string;
+    apellido: string;
+    identificacion: number;
     cohorte: string;
     periodoIngreso: string;
     semestreFinanciero: number;

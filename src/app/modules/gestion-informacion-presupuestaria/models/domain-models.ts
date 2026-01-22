@@ -19,9 +19,13 @@ export interface ConfiguracionReporteFinanciero {
 
 export interface ProyeccionEstudiante {
     codigoEstudiante: string;
+    nombre: string;
+    identificacion: number;
+    apellido: string;
     estaPago: boolean;
     porcentajeVotacion: number;
     porcentajeBeca: number;
+    grupoInvestigacion: string;
     porcentajeEgresado: number;
 }
 

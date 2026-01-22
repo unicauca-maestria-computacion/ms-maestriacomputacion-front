@@ -14,8 +14,8 @@ import { MatriculaFinancieraDTORespuesta } from '../dto/matricula-financiera.dto
 import { MatriculaAcademicaDTORespuesta } from '../dto/matricula-academica.dto';
 import { MateriaDTORespuesta } from '../dto/materia.dto';
 import { DocenteDTORespuesta } from '../dto/docente.dto';
-import { BecaFinancieraDTORespuesta } from '../dto/beca-financiera.dto';
-import { DescuentoFinancieraDTORespuesta } from '../dto/descuento-financiero.dto';
+import { BecasDTORespuesta } from '../dto/beca-financiera.dto';
+import { DescuentosDTORespuesta } from '../dto/descuento-financiero.dto';
 import { PeriodoAcademicoDTORespuesta, PeriodoAcademicoDTOPeticion } from '../dto/periodo-academico.dto';
 
 @Injectable({
@@ -122,14 +122,14 @@ export class GestionMatriculaFinancieraMapperService {
 
     // --- BecaFinanciera ---
 
-    mappearDeRespuestaABecaFinanciera(dto: BecaFinancieraDTORespuesta): BecaFinanciera {
+    mappearDeRespuestaABecaFinanciera(dto: BecasDTORespuesta): BecaFinanciera {
         return {
             resolucion: dto.resolucion,
             porcentaje: dto.porcentaje
         };
     }
 
-    mappearDeBecaFinancieraARespuesta(domain: BecaFinanciera): BecaFinancieraDTORespuesta {
+    mappearDeBecaFinancieraARespuesta(domain: BecaFinanciera): BecasDTORespuesta {
         return {
             resolucion: domain.resolucion,
             porcentaje: domain.porcentaje
@@ -138,14 +138,14 @@ export class GestionMatriculaFinancieraMapperService {
 
     // --- DescuentoFinanciero ---
 
-    mappearDeRespuestaADescuentoFinanciero(dto: DescuentoFinancieraDTORespuesta): DescuentoFinanciero {
+    mappearDeRespuestaADescuentoFinanciero(dto: DescuentosDTORespuesta): DescuentoFinanciero {
         return {
             tipoDescuento: dto.tipoDescuento,
             porcentaje: dto.porcentaje
         };
     }
 
-    mappearDeDescuentoFinancieroARespuesta(domain: DescuentoFinanciero): DescuentoFinancieraDTORespuesta {
+    mappearDeDescuentoFinancieroARespuesta(domain: DescuentoFinanciero): DescuentosDTORespuesta {
         return {
             tipoDescuento: domain.tipoDescuento,
             porcentaje: domain.porcentaje
@@ -157,6 +157,9 @@ export class GestionMatriculaFinancieraMapperService {
     mappearDeRespuestaAEstudiante(dto: EstudianteDTORespuesta): Estudiante {
         return {
             codigo: dto.codigo,
+            nombre: dto.nombre,
+            apellido: dto.apellido,
+            identificacion: dto.identificacion,
             cohorte: dto.cohorte,
             periodoIngreso: dto.periodoIngreso,
             semestreFinanciero: dto.semestreFinanciero,
@@ -170,6 +173,9 @@ export class GestionMatriculaFinancieraMapperService {
     mappearDeEstudianteARespuesta(domain: Estudiante): EstudianteDTORespuesta {
         return {
             codigo: domain.codigo,
+            nombre: domain.nombre,
+            apellido: domain.apellido,
+            identificacion: domain.identificacion,
             cohorte: domain.cohorte,
             periodoIngreso: domain.periodoIngreso,
             semestreFinanciero: domain.semestreFinanciero,
@@ -186,5 +192,9 @@ export class GestionMatriculaFinancieraMapperService {
 
     mappearDeListaRespuestaAEstudiante(dtos: EstudianteDTORespuesta[]): Estudiante[] {
         return dtos.map(dto => this.mappearDeRespuestaAEstudiante(dto));
+    }
+
+    mappearDeListaRespuestaAPeriodoAcademico(dtos: PeriodoAcademicoDTORespuesta[]): PeriodoAcademico[] {
+        return dtos.map(dto => this.mappearDeRespuestaAPeriodoAcademico(dto));
     }
 }

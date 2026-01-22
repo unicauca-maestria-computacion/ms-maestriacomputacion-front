@@ -23,6 +23,7 @@ interface EstudianteReporte extends ProyeccionEstudiante {
 export class ReporteFinalComponent implements OnInit {
 
   cargando: boolean = false;
+  periodoSeleccionado: PeriodoAcademicoDTORespuesta | null = null;
 
 
   // Configuración del reporte
@@ -40,6 +41,7 @@ export class ReporteFinalComponent implements OnInit {
   }
 
   onPeriodoChange(periodo: PeriodoAcademicoDTORespuesta): void {
+    this.periodoSeleccionado = periodo;
     this.cargarReporte(periodo);
   }
 
@@ -53,11 +55,32 @@ export class ReporteFinalComponent implements OnInit {
 
     this.facadeService.obtenerReporteFinanciero(periodo).subscribe({
       next: (data) => {
-        this.estudiantes = data.estudiantes as unknown as EstudianteReporte[];
-
         // Asignar configuración del reporte desde el servicio
         if (data.objConfiguracion) {
           this.configuracion = data.objConfiguracion;
+        }
+
+        if (data.estudiantes && this.configuracion) {
+          this.estudiantes = data.estudiantes.map(e => {
+            const matricula = this.configuracion!.valorMatricula * this.configuracion!.valorSMLV;
+            const valorBeca = matricula * (e.porcentajeBeca / 100);
+            const valorEgresado = matricula * (e.porcentajeEgresado / 100);
+            const valorVotacion = matricula * (e.porcentajeVotacion / 100);
+            const grupoDescuentos = valorBeca + valorEgresado + valorVotacion;
+            const totalNeto = matricula + this.configuracion!.recursosComputacionales + this.configuracion!.biblioteca - grupoDescuentos;
+
+            return {
+              ...e,
+              nombreEstudiante: `${e.nombre} ${e.apellido}`,
+              matricula: matricula,
+              valorBeca: valorBeca,
+              valorEgresado: valorEgresado,
+              recursosComputacionales: this.configuracion!.recursosComputacionales,
+              biblioteca: this.configuracion!.biblioteca,
+              grupoDescuentos: grupoDescuentos,
+              totalNeto: totalNeto
+            } as EstudianteReporte;
+          });
         }
 
         this.cargando = false;

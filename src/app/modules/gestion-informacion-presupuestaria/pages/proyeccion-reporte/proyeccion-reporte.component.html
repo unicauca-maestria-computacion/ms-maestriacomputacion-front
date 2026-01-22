@@ -1,7 +1,7 @@
 <div class="col-12">
     <p-toast></p-toast>
     <p-card>
-        <app-opciones-presupuesto [activeTab]="'proyeccion-reporte'" (onDescargar)="descargar()">
+        <app-opciones-presupuesto [activeTab]="'proyeccion-reporte'" [currentPeriod]="periodoSeleccionado" (onDescargar)="descargar()">
         </app-opciones-presupuesto>
 
         <!-- Selector de Periodo Académico (Now navigable) -->

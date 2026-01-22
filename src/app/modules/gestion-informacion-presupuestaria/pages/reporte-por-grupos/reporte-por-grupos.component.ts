@@ -23,8 +23,10 @@ export class ReportePorGruposComponent implements OnInit {
   configuracion: ConfiguracionReporteGrupos | null = null;
   tableRows: TableRow[] = [];
   budgetTableRows: TableRow[] = []; // New table for budget and contingencies
+  distributionSummary: { label: string, value: number, isBold?: boolean }[] = [];
   groupColumns: Grupo[] = [];
   loading: boolean = false;
+  periodoSeleccionado: PeriodoAcademicoDTORespuesta | null = null;
   editingRowKey: string | null = null;
   editingBudgetRowKey: string | null = null; // For budget table
   clonedRow: { [s: string]: any } = {};
@@ -43,6 +45,7 @@ export class ReportePorGruposComponent implements OnInit {
   }
 
   onPeriodoChange(periodo: PeriodoAcademicoDTORespuesta): void {
+    this.periodoSeleccionado = periodo;
     this.cargarDatos(periodo);
   }
 
@@ -57,6 +60,7 @@ export class ReportePorGruposComponent implements OnInit {
       next: (data) => {
         this.configuracion = data;
         this.procesarDatosTabla(data);
+        this.procesarDistribucion(data);
         this.inicializarGrafica(data);
         this.loading = false;
       },
@@ -105,6 +109,16 @@ export class ReportePorGruposComponent implements OnInit {
 
     // Process budget table
     this.procesarDatosTablaBudget(data);
+  }
+
+  procesarDistribucion(data: ConfiguracionReporteGrupos): void {
+    this.distributionSummary = [
+      { label: 'AUI Universidad', value: data.AUIValor },
+      { label: 'Ingresos Netos', value: data.ingresosNetos },
+      { label: 'Excedentes Maestria', value: data.excedentesMaestria },
+      { label: 'Gastos Generales', value: data.gastosGenerales.reduce((sum, g) => sum + g.monto, 0) },
+      { label: 'Valor a Distribuir (Ingresos-Gastos)', value: data.valorADistribuir, isBold: true }
+    ];
   }
 
   procesarDatosTablaBudget(data: ConfiguracionReporteGrupos): void {
@@ -261,10 +275,6 @@ export class ReportePorGruposComponent implements OnInit {
 
   // --- Modal Gastos ---
   displayGastosModal: boolean = false;
-  gastosGeneralesEditables: GastoGeneral[] = [];
-  editingGastoKey: number | null = null;
-  clonedGasto: { [id: number]: GastoGeneral } = {};
-  nuevoGasto: GastoGeneral | null = null;
   guardandoGastos: boolean = false;
 
   // --- Control de Edición Global ---
@@ -379,222 +389,15 @@ export class ReportePorGruposComponent implements OnInit {
   }
 
   abrirModalGastos() {
-    // Clonar la lista de gastos generales
-    this.gastosGeneralesEditables = this.configuracion.gastosGenerales
-      ? [...this.configuracion.gastosGenerales]
-      : [];
-    // Resetear estados de edición
-    this.editingGastoKey = null;
-    this.clonedGasto = {};
-    this.nuevoGasto = null;
-    this.guardandoGastos = false;
-    // Abrir modal
     this.displayGastosModal = true;
   }
 
-  cerrarModalGastos() {
-    this.displayGastosModal = false;
-    this.gastosGeneralesEditables = [];
-    this.editingGastoKey = null;
-    this.clonedGasto = {};
-    this.nuevoGasto = null;
-  }
-
-  // --- Métodos para agregar nueva fila de gasto ---
-  agregarNuevaFilaGasto() {
-    if (this.nuevoGasto !== null || this.editingGastoKey !== null) return;
-
-    // Crear objeto temporal con ID negativo
-    this.nuevoGasto = {
-      idGastoGeneral: -1,
-      categoria: '',
-      descripcion: '',
-      monto: 0
-    };
-    this.gastosGeneralesEditables.push(this.nuevoGasto);
-  }
-
-  guardarNuevoGasto() {
-    if (!this.nuevoGasto) return;
-
-    // Validar campos
-    if (!this.nuevoGasto.categoria || !this.nuevoGasto.descripcion || this.nuevoGasto.monto <= 0) {
-      console.error('Todos los campos son requeridos y el monto debe ser mayor a 0');
-      return;
+  onGastosChange() {
+    if (this.periodoSeleccionado) {
+      this.cargarDatos(this.periodoSeleccionado);
     }
-
-    this.guardandoGastos = true;
-
-    // Preparar DTO para crear
-    const gastoDTO = {
-      idGastoGeneral: 0, // Se ignorará en el backend
-      categoria: this.nuevoGasto.categoria,
-      descripcion: this.nuevoGasto.descripcion,
-      monto: this.nuevoGasto.monto
-    };
-
-    this.facadeService.crearGastoGeneral(gastoDTO).subscribe({
-      next: (gastoCreado) => {
-        // Reemplazar objeto temporal con el retornado
-        const index = this.gastosGeneralesEditables.findIndex(g => g.idGastoGeneral === -1);
-        if (index !== -1) {
-          this.gastosGeneralesEditables[index] = gastoCreado;
-        }
-
-        // Actualizar configuracion
-        if (!this.configuracion.gastosGenerales) {
-          this.configuracion.gastosGenerales = [];
-        }
-        this.configuracion.gastosGenerales.push(gastoCreado);
-
-        // Recalcular tablas
-        this.procesarDatosTabla(this.configuracion);
-
-        // Limpiar estado
-        this.nuevoGasto = null;
-        this.guardandoGastos = false;
-      },
-      error: (err) => {
-        console.error('Error al crear gasto general', err);
-        this.guardandoGastos = false;
-      }
-    });
   }
 
-  cancelarNuevoGasto() {
-    if (!this.nuevoGasto) return;
-
-    // Remover la fila temporal
-    const index = this.gastosGeneralesEditables.findIndex(g => g.idGastoGeneral === -1);
-    if (index !== -1) {
-      this.gastosGeneralesEditables.splice(index, 1);
-    }
-    this.nuevoGasto = null;
-  }
-
-  // --- Métodos para editar filas existentes ---
-  onGastoEditInit(gasto: GastoGeneral) {
-    if (this.editingGastoKey !== null || this.nuevoGasto !== null) return;
-
-    this.editingGastoKey = gasto.idGastoGeneral;
-    this.clonedGasto[gasto.idGastoGeneral] = { ...gasto };
-  }
-
-  onGastoEditSave(gasto: GastoGeneral) {
-    // Validar campos
-    if (!gasto.categoria || !gasto.descripcion || gasto.monto <= 0) {
-      console.error('Todos los campos son requeridos y el monto debe ser mayor a 0');
-      return;
-    }
-
-    this.guardandoGastos = true;
-
-    // Preparar DTO para actualizar
-    const gastoDTO = {
-      idGastoGeneral: gasto.idGastoGeneral,
-      categoria: gasto.categoria,
-      descripcion: gasto.descripcion,
-      monto: gasto.monto
-    };
-
-    this.facadeService.actualizarGastoGeneral(gastoDTO).subscribe({
-      next: (gastoActualizado) => {
-        // Actualizar en la lista editable
-        const indexEditable = this.gastosGeneralesEditables.findIndex(
-          g => g.idGastoGeneral === gastoActualizado.idGastoGeneral
-        );
-        if (indexEditable !== -1) {
-          this.gastosGeneralesEditables[indexEditable] = gastoActualizado;
-        }
-
-        // Actualizar en configuracion
-        const indexConfig = this.configuracion.gastosGenerales.findIndex(
-          g => g.idGastoGeneral === gastoActualizado.idGastoGeneral
-        );
-        if (indexConfig !== -1) {
-          this.configuracion.gastosGenerales[indexConfig] = gastoActualizado;
-        }
-
-        // Recalcular tablas
-        this.procesarDatosTabla(this.configuracion);
-
-        // Limpiar estado
-        delete this.clonedGasto[gasto.idGastoGeneral];
-        this.editingGastoKey = null;
-        this.guardandoGastos = false;
-      },
-      error: (err) => {
-        console.error('Error al actualizar gasto general', err);
-        // Revertir a valores clonados
-        this.onGastoEditCancel(gasto);
-        this.guardandoGastos = false;
-      }
-    });
-  }
-
-  onGastoEditCancel(gasto: GastoGeneral) {
-    // Revertir a valores clonados
-    if (this.clonedGasto[gasto.idGastoGeneral]) {
-      const index = this.gastosGeneralesEditables.findIndex(
-        g => g.idGastoGeneral === gasto.idGastoGeneral
-      );
-      if (index !== -1) {
-        this.gastosGeneralesEditables[index] = { ...this.clonedGasto[gasto.idGastoGeneral] };
-      }
-      delete this.clonedGasto[gasto.idGastoGeneral];
-    }
-    this.editingGastoKey = null;
-  }
-
-  // --- Método para eliminar con confirmación ---
-  confirmarEliminarGasto(gasto: GastoGeneral) {
-    this.confirmationService.confirm({
-      message: '¿Está seguro de que desea eliminar este gasto?',
-      header: 'Confirmar Eliminación',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.eliminarGasto(gasto);
-      }
-    });
-  }
-
-  eliminarGasto(gasto: GastoGeneral) {
-    this.guardandoGastos = true;
-
-    this.facadeService.eliminarGastoGeneral(gasto.idGastoGeneral).subscribe({
-      next: (success) => {
-        if (success) {
-          // Remover de la lista editable
-          const indexEditable = this.gastosGeneralesEditables.findIndex(
-            g => g.idGastoGeneral === gasto.idGastoGeneral
-          );
-          if (indexEditable !== -1) {
-            this.gastosGeneralesEditables.splice(indexEditable, 1);
-          }
-
-          // Remover de configuracion
-          const indexConfig = this.configuracion.gastosGenerales.findIndex(
-            g => g.idGastoGeneral === gasto.idGastoGeneral
-          );
-          if (indexConfig !== -1) {
-            this.configuracion.gastosGenerales.splice(indexConfig, 1);
-          }
-
-          // Recalcular tablas
-          this.procesarDatosTabla(this.configuracion);
-
-          // Limpiar estado
-          this.editingGastoKey = null;
-          delete this.clonedGasto[gasto.idGastoGeneral];
-        }
-        this.guardandoGastos = false;
-      },
-      error: (err) => {
-        console.error('Error al eliminar gasto general', err);
-        this.guardandoGastos = false;
-      }
-    });
-  }
 
   getItemBudgetValue(groupIndex: number, itemIndex: number): number {
     if (!this.configuracion || !this.configuracion.reportePorGrupos) return 0;

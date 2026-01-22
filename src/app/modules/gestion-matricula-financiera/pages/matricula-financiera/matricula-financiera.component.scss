@@ -1,0 +1,29 @@
+.table-container {
+    margin: 1rem auto 0 auto;
+    max-width: 1200px;
+}
+
+.py-8 {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+:host ::ng-deep {
+    .p-card .p-card-body {
+        padding: 1.5rem;
+    }
+
+    /* Asegurar que el dropdown del paginador se vea bien en PrimeNG 13 */
+    .p-paginator .p-dropdown {
+        min-width: 4rem;
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+    }
+
+    .p-datatable {
+        .p-paginator {
+            justify-content: flex-end;
+            padding: 1rem;
+        }
+    }
+}

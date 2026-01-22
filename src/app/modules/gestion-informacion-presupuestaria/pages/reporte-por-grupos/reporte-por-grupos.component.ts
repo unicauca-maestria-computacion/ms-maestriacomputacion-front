@@ -181,6 +181,8 @@ export class ReportePorGruposComponent implements OnInit {
     };
 
     this.basicOptions = {
+      responsive: true,
+      maintainAspectRatio: true,
       plugins: {
         legend: {
           display: false, // Hide legend since bars are distinct groups

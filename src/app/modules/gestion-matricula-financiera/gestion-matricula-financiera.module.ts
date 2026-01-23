@@ -7,11 +7,15 @@ import { MessageService } from 'primeng/api';
 
 import { MatriculaFinancieraComponent } from './pages/matricula-financiera/matricula-financiera.component';
 import { DetalleEstudianteComponent } from './pages/detalle-estudiante/detalle-estudiante.component';
+import { ResumenMatriculaEstudianteComponent } from './pages/resumen-matricula-estudiante/resumen-matricula-estudiante.component';
+import { TablaMatriculaEstudianteComponent } from './components/tabla-matricula-estudiante/tabla-matricula-estudiante.component';
 
 @NgModule({
     declarations: [
         MatriculaFinancieraComponent,
-        DetalleEstudianteComponent
+        DetalleEstudianteComponent,
+        ResumenMatriculaEstudianteComponent,
+        TablaMatriculaEstudianteComponent
     ],
     imports: [
         CommonModule,

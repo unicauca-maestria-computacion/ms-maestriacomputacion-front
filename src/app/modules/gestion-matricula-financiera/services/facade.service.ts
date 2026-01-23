@@ -26,6 +26,16 @@ export class GestionMatriculaFinancieraFacadeService {
     private _periodos = new BehaviorSubject<PeriodoAcademico[]>([]);
     public periodos$ = this._periodos.asObservable();
 
+    // Filtros persistentes
+    private _periodoSeleccionadoFiltro = new BehaviorSubject<PeriodoAcademico | null>(null);
+    public periodoSeleccionadoFiltro$ = this._periodoSeleccionadoFiltro.asObservable();
+
+    private _semestreSeleccionadoFiltro = new BehaviorSubject<number | null>(0);
+    public semestreSeleccionadoFiltro$ = this._semestreSeleccionadoFiltro.asObservable();
+
+    private _fechaSeleccionadaFiltro = new BehaviorSubject<Date | null>(null);
+    public fechaSeleccionadaFiltro$ = this._fechaSeleccionadaFiltro.asObservable();
+
     constructor(
         private apiService: GestionMatriculaFinancieraFakeApiService,
         private mapper: GestionMatriculaFinancieraMapperService
@@ -88,5 +98,30 @@ export class GestionMatriculaFinancieraFacadeService {
             }),
             finalize(() => this._loading.next(false))
         );
+    }
+
+    // Getters / Setters para filtros
+    setPeriodoFiltro(periodo: PeriodoAcademico | null): void {
+        this._periodoSeleccionadoFiltro.next(periodo);
+    }
+
+    getPeriodoFiltro(): PeriodoAcademico | null {
+        return this._periodoSeleccionadoFiltro.value;
+    }
+
+    setSemestreFiltro(semestre: number | null): void {
+        this._semestreSeleccionadoFiltro.next(semestre);
+    }
+
+    getSemestreFiltro(): number | null {
+        return this._semestreSeleccionadoFiltro.value;
+    }
+
+    setFechaFiltro(fecha: Date | null): void {
+        this._fechaSeleccionadaFiltro.next(fecha);
+    }
+
+    getFechaFiltro(): Date | null {
+        return this._fechaSeleccionadaFiltro.value;
     }
 }

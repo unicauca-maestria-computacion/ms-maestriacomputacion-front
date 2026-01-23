@@ -1,18 +1,21 @@
 <p-card>
     <div *ngIf="loading" class="flex flex-column align-items-center justify-content-center" style="height: 200px;">
         <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s"></p-progressSpinner>
-        <span class="mt-3 text-lg">Cargando información del estudiante...</span>
+        <span class="mt-3 text-lg">Cargando su información de matrícula...</span>
     </div>
 
     <div *ngIf="!loading && estudiante">
-        <!-- Botón Atras -->
-        <div class="mb-4">
-            <button pButton type="button" label="Atras" icon="pi pi-arrow-left" 
-                (click)="volver()">
-            </button>
-        </div>
-
+        
         <!-- Tabla Compartida -->
         <app-tabla-matricula-estudiante [estudiante]="estudiante"></app-tabla-matricula-estudiante>
+
+        <!-- Botón Solicitar Revisión (Estilo igual al de Atras) -->
+        <div class="mt-5 flex justify-content-center">
+            <button pButton type="button" 
+                label="Solicitar Revisión" 
+                icon="pi pi-send" 
+                (click)="solicitarRevision()">
+            </button>
+        </div>
     </div>
 </p-card>

@@ -1,10 +1,4 @@
 
-.no-card-shadow {
-    box-shadow: none !important;
-    background: transparent !important;
-    border: none !important;
-}
-
 .table-container {
     background-color: white;
     max-width: 1100px;
@@ -55,13 +49,13 @@ th {
 @media screen and (min-width: 961px) {
     .main-title {
         border: 1px solid #000;
-        border-bottom: none; /* Let table cells provide the bottom line */
+        border-bottom: none; 
     }
 
     .middle-section-top {
         border-left: 1px solid #000;
         border-right: 1px solid #000;
-        border-top: none; /* Let table above provide top line */
+        border-top: none; 
     }
 
     .middle-section-bottom {
@@ -107,7 +101,7 @@ th {
 @media screen and (max-width: 960px) {
     .main-title, .middle-section-top {
         border: none !important;
-        font-size: 1.1rem; /* Matched sizes */
+        font-size: 1.1rem; 
         padding-bottom: 0.5rem;
         padding-top: 1.5rem;
         font-weight: bold;
@@ -146,11 +140,11 @@ th {
             display: block;
             width: 100%;
             margin-bottom: 0;
-            border: 1px solid #000 !important; /* Card frame */
-            border-top: none !important; /* Avoid double lines between rows */
+            border: 1px solid #000 !important; 
+            border-top: none !important; 
 
             &:first-child {
-                border-top: 1px solid #000 !important; /* Restore for the very first item */
+                border-top: 1px solid #000 !important; 
             }
             
             td {

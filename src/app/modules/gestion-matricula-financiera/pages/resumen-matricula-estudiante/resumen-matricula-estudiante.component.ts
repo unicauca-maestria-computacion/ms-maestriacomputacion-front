@@ -1,22 +1,23 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Estudiante } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
-  selector: 'app-detalle-estudiante',
-  templateUrl: './detalle-estudiante.component.html',
-  styleUrls: ['./detalle-estudiante.component.scss']
+  selector: 'app-resumen-matricula-estudiante',
+  templateUrl: './resumen-matricula-estudiante.component.html',
+  styleUrls: ['./resumen-matricula-estudiante.component.scss']
 })
-export class DetalleEstudianteComponent implements OnInit {
+export class ResumenMatriculaEstudianteComponent implements OnInit {
 
   estudiante: Estudiante | null = null;
   loading: boolean = false;
   
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
-    private facadeService: GestionMatriculaFinancieraFacadeService
+    private facadeService: GestionMatriculaFinancieraFacadeService,
+    private messageService: MessageService
   ) { }
 
   ngOnInit(): void {
@@ -24,6 +25,9 @@ export class DetalleEstudianteComponent implements OnInit {
         const id = params.get('id');
         if (id) {
             this.cargarEstudiante(Number(id));
+        } else {
+            // Mock default
+            this.cargarEstudiante(1); 
         }
     });
   }
@@ -42,7 +46,11 @@ export class DetalleEstudianteComponent implements OnInit {
       });
   }
 
-  volver(): void {
-      this.router.navigate(['/matricula-financiera']);
+  solicitarRevision(): void {
+      this.messageService.add({
+          severity: 'info', 
+          summary: 'Solicitud Enviada', 
+          detail: 'Se ha enviado su solicitud de revisión al coordinador.'
+      });
   }
 }

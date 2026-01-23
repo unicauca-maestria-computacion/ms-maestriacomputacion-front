@@ -6,10 +6,12 @@ import { PrimenNgModule } from '../primen-ng/primen-ng.module';
 import { MessageService } from 'primeng/api';
 
 import { MatriculaFinancieraComponent } from './pages/matricula-financiera/matricula-financiera.component';
+import { DetalleEstudianteComponent } from './pages/detalle-estudiante/detalle-estudiante.component';
 
 @NgModule({
     declarations: [
-        MatriculaFinancieraComponent
+        MatriculaFinancieraComponent,
+        DetalleEstudianteComponent
     ],
     imports: [
         CommonModule,

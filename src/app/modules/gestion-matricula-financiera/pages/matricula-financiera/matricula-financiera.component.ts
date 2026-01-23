@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.service';
 import { Estudiante, PeriodoAcademico } from '../../models/domain-models';
@@ -28,7 +29,9 @@ export class MatriculaFinancieraComponent implements OnInit {
 
     constructor(
         private facadeService: GestionMatriculaFinancieraFacadeService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private router: Router,
+        private route: ActivatedRoute
     ) {}
 
     ngOnInit(): void {
@@ -139,7 +142,7 @@ export class MatriculaFinancieraComponent implements OnInit {
     }
 
     verDetalle(estudiante: Estudiante): void {
-        console.log('Ver detalle de:', estudiante);
+        this.router.navigate(['detalle', estudiante.codigo], { relativeTo: this.route });
     }
 
 }

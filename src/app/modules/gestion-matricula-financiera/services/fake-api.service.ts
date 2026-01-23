@@ -164,10 +164,48 @@ export class GestionMatriculaFinancieraFakeApiService {
             cohorte: '2024.1',
             periodoIngreso: '2024.1',
             semestreFinanciero: 1,
-            matriculasFinancieras: [],
-            descuentos: [],
-            becas: [],
-            matriculasAcademicas: []
+            matriculasFinancieras: [
+                {
+                    fechaMatricula: new Date(),
+                    valorMatricula: 9500000,
+                    objPeriodoAcademico: { periodo: 1, año: 2024 }
+                }
+            ],
+            descuentos: [
+                { tipoDescuento: 'Votación', porcentaje: 10 }
+            ],
+            becas: [
+                 { resolucion: 'RES-2024-001', porcentaje: 50 }
+            ],
+            matriculasAcademicas: [
+                {
+                    semestre: 1,
+                    objPeriodoAcademico: { periodo: 1, año: 2024 },
+                    materias: [
+                        {
+                            codigo_oid: 'SIS-501',
+                            materia: 'Ingeniería de Software Avanzada',
+                            grupoClase: 'A',
+                            semestreAcademico: 1,
+                            objDocente: { nombre: 'Dr. Juan Pérez' }
+                        },
+                        {
+                            codigo_oid: 'SIS-502',
+                            materia: 'Arquitectura de Software',
+                            grupoClase: 'A',
+                            semestreAcademico: 1,
+                            objDocente: { nombre: 'Dra. María Rodriguez' }
+                        },
+                         {
+                            codigo_oid: 'SIS-503',
+                            materia: 'Gestión de Proyectos TI',
+                            grupoClase: 'B',
+                            semestreAcademico: 1,
+                            objDocente: { nombre: 'MSc. Carlos Lopez' }
+                        }
+                    ]
+                }
+            ]
         };
         return of(mockEstudiante).pipe(delay(500));
     }

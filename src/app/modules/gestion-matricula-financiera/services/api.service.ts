@@ -23,4 +23,12 @@ export class GestionMatriculaFinancieraApiService {
     obtenerPeriodosAcademicos(): Observable<PeriodoAcademicoDTORespuesta[]> {
         return this.http.get<PeriodoAcademicoDTORespuesta[]>(backendGestionMatriculaFinanciera('periodos-academicos'));
     }
+
+    iniciarNuevaMatriculaFinanciera(): Observable<boolean> {
+        // TODO: Implement actual endpoint when available
+        return new Observable(observer => {
+             observer.next(true);
+             observer.complete();
+        });
+    }
 }

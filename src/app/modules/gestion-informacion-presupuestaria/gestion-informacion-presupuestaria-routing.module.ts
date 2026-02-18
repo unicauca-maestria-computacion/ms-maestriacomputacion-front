@@ -5,11 +5,28 @@ import { ReporteFinalComponent } from './pages/reporte-final/reporte-final.compo
 import { ProyeccionReporteComponent } from './pages/proyeccion-reporte/proyeccion-reporte.component';
 import { ReportePorGruposComponent } from './pages/reporte-por-grupos/reporte-por-grupos.component';
 
+import { RoleGuard } from '../gestion-autenticacion/guards/role.guard';
+
 const routes: Routes = [
     { path: '', redirectTo: 'reporte-final', pathMatch: 'full' },
-    { path: 'reporte-final', component: ReporteFinalComponent },
-    { path: 'proyeccion-reporte', component: ProyeccionReporteComponent },
-    { path: 'reporte-por-grupos', component: ReportePorGruposComponent }
+    { 
+        path: 'reporte-final', 
+        component: ReporteFinalComponent,
+        canActivate: [RoleGuard],
+        data: { expectedRole: ['ROLE_COORDINADOR'] }
+    },
+    { 
+        path: 'proyeccion-reporte', 
+        component: ProyeccionReporteComponent,
+        canActivate: [RoleGuard],
+        data: { expectedRole: ['ROLE_COORDINADOR'] }
+    },
+    { 
+        path: 'reporte-por-grupos', 
+        component: ReportePorGruposComponent,
+        canActivate: [RoleGuard],
+        data: { expectedRole: ['ROLE_COORDINADOR'] }
+    }
 ];
 
 @NgModule({

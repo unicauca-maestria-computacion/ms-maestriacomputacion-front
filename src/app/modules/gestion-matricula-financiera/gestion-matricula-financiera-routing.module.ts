@@ -4,11 +4,33 @@ import { MatriculaFinancieraComponent } from './pages/matricula-financiera/matri
 import { DetalleEstudianteComponent } from './pages/detalle-estudiante/detalle-estudiante.component';
 import { ResumenMatriculaEstudianteComponent } from './pages/resumen-matricula-estudiante/resumen-matricula-estudiante.component';
 
+import { RoleGuard } from '../gestion-autenticacion/guards/role.guard';
+
 const routes: Routes = [
-    { path: '', component: MatriculaFinancieraComponent },
-    { path: 'detalle/:id', component: DetalleEstudianteComponent },
-    { path: 'resumen', component: ResumenMatriculaEstudianteComponent },
-    { path: 'resumen/:id', component: ResumenMatriculaEstudianteComponent }
+    {
+        path: '',
+        component: MatriculaFinancieraComponent,
+        canActivate: [RoleGuard],
+        data: { expectedRole: ['ROLE_COORDINADOR'] }
+    },
+    {
+        path: 'detalle/:id',
+        component: DetalleEstudianteComponent,
+        canActivate: [RoleGuard],
+        data: { expectedRole: ['ROLE_COORDINADOR'] }
+    },
+    { 
+        path: 'resumen', 
+        component: ResumenMatriculaEstudianteComponent,
+        canActivate: [RoleGuard],
+        data: { expectedRole: ['ROLE_ESTUDIANTE'] }
+    },
+    { 
+        path: 'resumen/:id', 
+        component: ResumenMatriculaEstudianteComponent,
+        canActivate: [RoleGuard],
+        data: { expectedRole: ['ROLE_ESTUDIANTE'] }
+    }
 ];
 
 @NgModule({

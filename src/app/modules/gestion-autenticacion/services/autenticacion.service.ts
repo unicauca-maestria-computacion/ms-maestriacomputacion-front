@@ -47,6 +47,9 @@ export class AutenticacionService {
 
         // Suscribirse al estado de autenticación sin sobrescribir loggedInUser
         this.afAuth.authState.subscribe((user) => {
+            if (this.isMockAuthEnabled()) {
+                return;
+            }
             if (user && user.email?.endsWith('@unicauca.edu.co')) {
                 this.isLoggedInStatus = true;
 
@@ -156,11 +159,16 @@ export class AutenticacionService {
             localStorage.removeItem('token');
             localStorage.removeItem('est');
             localStorage.removeItem('estEgresado');
+            localStorage.removeItem('mockAuth');
             this.router.navigate(['']);
 
             // Emitir evento de logout
             this.logoutSuccess$.emit();
         });
+    }
+
+    isMockAuthEnabled(): boolean {
+        return localStorage.getItem('mockAuth') === 'true';
     }
 
     isLoggedIn(): boolean {

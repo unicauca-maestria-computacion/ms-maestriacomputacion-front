@@ -37,9 +37,12 @@
     <!-- Footer con botón estilo Hug centrado -->
     <ng-template pTemplate="footer">
         <div class="flex justify-content-center">
-            <button pButton pRipple label="Descargar Reporte" icon="pi pi-download" (click)="descargar()" 
+            <button pButton pRipple
+                [label]="loadingDownload ? 'Generando...' : 'Descargar Reporte'"
+                [icon]="loadingDownload ? 'pi pi-spin pi-spinner' : 'pi pi-download'"
+                (click)="descargar()"
                 class="p-button-primary" style="width: auto;"
-                [disabled]="!selectedReport || !selectedPeriod">
+                [disabled]="!selectedReport || !selectedPeriod || loadingDownload">
             </button>
         </div>
     </ng-template>

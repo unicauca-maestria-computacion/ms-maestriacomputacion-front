@@ -53,7 +53,7 @@ export class ReporteFinalComponent implements OnInit {
       año: periodoObj.año
     };
 
-    this.facadeService.obtenerReporteFinanciero(periodo).subscribe({
+    this.facadeService.obtenerReporteFinanciero(periodo.periodo, periodo.año).subscribe({
       next: (data) => {
         // Asignar configuración del reporte desde el servicio
         if (data.objConfiguracion) {
@@ -62,12 +62,17 @@ export class ReporteFinalComponent implements OnInit {
 
         if (data.estudiantes && this.configuracion) {
           this.estudiantes = data.estudiantes.map(e => {
-            const matricula = this.configuracion!.valorMatricula * this.configuracion!.valorSMLV;
-            const valorBeca = matricula * (e.porcentajeBeca / 100);
-            const valorEgresado = matricula * (e.porcentajeEgresado / 100);
-            const valorVotacion = matricula * (e.porcentajeVotacion / 100);
+            // valorMatricula ya está en COP; biblioteca y recursosComputacionales
+            // son ratios decimales (0.09 = 9%) que se aplican sobre la matrícula.
+            // porcentajeBeca/Votacion/Egresado también son ratios decimales (0.20 = 20%).
+            const matricula = this.configuracion!.valorMatricula;
+            const recursosCompCOP = matricula * this.configuracion!.recursosComputacionales;
+            const bibliotecaCOP = matricula * this.configuracion!.biblioteca;
+            const valorBeca = matricula * e.porcentajeBeca;
+            const valorEgresado = matricula * e.porcentajeEgresado;
+            const valorVotacion = matricula * e.porcentajeVotacion;
             const grupoDescuentos = valorBeca + valorEgresado + valorVotacion;
-            const totalNeto = matricula + this.configuracion!.recursosComputacionales + this.configuracion!.biblioteca - grupoDescuentos;
+            const totalNeto = matricula + recursosCompCOP + bibliotecaCOP - grupoDescuentos;
 
             return {
               ...e,
@@ -75,8 +80,8 @@ export class ReporteFinalComponent implements OnInit {
               matricula: matricula,
               valorBeca: valorBeca,
               valorEgresado: valorEgresado,
-              recursosComputacionales: this.configuracion!.recursosComputacionales,
-              biblioteca: this.configuracion!.biblioteca,
+              recursosComputacionales: recursosCompCOP,
+              biblioteca: bibliotecaCOP,
               grupoDescuentos: grupoDescuentos,
               totalNeto: totalNeto
             } as EstudianteReporte;

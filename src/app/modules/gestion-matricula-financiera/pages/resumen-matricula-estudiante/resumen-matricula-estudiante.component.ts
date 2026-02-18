@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Estudiante } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.service';
-import { MessageService } from 'primeng/api';
+import { RadicarService } from '../../../gestion-solicitudes/services/radicar.service';
 
 @Component({
   selector: 'app-resumen-matricula-estudiante',
@@ -13,11 +13,12 @@ export class ResumenMatriculaEstudianteComponent implements OnInit {
 
   estudiante: Estudiante | null = null;
   loading: boolean = false;
-  
+
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private facadeService: GestionMatriculaFinancieraFacadeService,
-    private messageService: MessageService
+    private radicarService: RadicarService
   ) { }
 
   ngOnInit(): void {
@@ -47,10 +48,11 @@ export class ResumenMatriculaEstudianteComponent implements OnInit {
   }
 
   solicitarRevision(): void {
-      this.messageService.add({
-          severity: 'info', 
-          summary: 'Solicitud Enviada', 
-          detail: 'Se ha enviado su solicitud de revisión al coordinador.'
-      });
+      // Limpiar datos previos del servicio radicar
+      this.radicarService.restrablecerValores();
+      // Pre-seleccionar "Revisión de Matrícula"
+      this.radicarService.codigoSolicitudPreseleccionado = 'RE_MATR';
+      // Navegar a radicar solicitud
+      this.router.navigate(['/gestionsolicitudes/portafolio/radicar']);
   }
 }

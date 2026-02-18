@@ -99,6 +99,11 @@ export const menuItems: MenuItem[] = [
                 routerLink: '/matricula-financiera',
             },
             {
+                label: 'Resumen Matrícula',
+                icon: 'pi pi-fw pi-file',
+                routerLink: '/matricula-financiera/resumen',
+            },
+            {
                 label: 'Evaluación Docente',
                 icon: 'pi pi-fw pi-star',
                 routerLink: '/gestion-matricula-evaluacion',

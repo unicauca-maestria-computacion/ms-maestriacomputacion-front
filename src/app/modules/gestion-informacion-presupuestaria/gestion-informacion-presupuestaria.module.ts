@@ -10,6 +10,7 @@ import { OpcionesPresupuestoComponent } from './components/opciones-presupuesto/
 import { PeriodoAcademicoSelectorComponent } from './components/periodo-academico-selector/periodo-academico-selector.component';
 import { GastosGeneralesDialogComponent } from './components/gastos-generales-dialog/gastos-generales-dialog.component';
 import { DescargarReporteDialogComponent } from './components/descargar-reporte-dialog/descargar-reporte-dialog.component';
+import { MessageService } from 'primeng/api';
 
 @NgModule({
     declarations: [
@@ -26,6 +27,9 @@ import { DescargarReporteDialogComponent } from './components/descargar-reporte-
         FormsModule,
         GestionInformacionPresupuestariaRoutingModule,
         PrimenNgModule
+    ],
+    providers: [
+        MessageService
     ]
 })
 export class GestionInformacionPresupuestariaModule { }

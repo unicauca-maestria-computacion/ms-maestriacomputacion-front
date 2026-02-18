@@ -162,23 +162,29 @@ export class AppTopBarComponent implements OnInit {
 
                 return false;
             }
-            // TODO: Implementar filtrado por rol cuando salga de pruebas
-            // if (item.label === 'MATRICULAS') {
-            //     if (!user) {
-            //         return false;
-            //     } else if (user.role.includes('ROLE_COORDINADOR')) {
-            //         return true;
-            //     } else if (user.role.includes('ROLE_ESTUDIANTE')) {
-            //         item.items = item.items?.filter(
-            //             (subItem) =>
-            //                 subItem.label === 'Matrícula Académica' ||
-            //                 subItem.label === 'Matrícula Financiera'
-            //         ) || [];
-            //         return true;
-            //     } else {
-            //         return false;
-            //     }
-            // }
+            if (item.label === 'MATRICULAS') {
+                if (user?.role.includes('ROLE_COORDINADOR')) {
+                    // Mostrar "Evaluación Docente" y "Matrícula Financiera" si es coordinador
+                    item.items =
+                        item.items?.filter(
+                            (subItem) =>
+                                subItem.label === 'Evaluación Docente' ||
+                                subItem.label === 'Matrícula Financiera'
+                        ) || [];
+                } else if (user?.role.includes('ROLE_ESTUDIANTE')) {
+                    // Mostrar "Matrícula Académica" y "Resumen Matrícula" si es estudiante
+                    item.items =
+                        item.items?.filter(
+                            (subItem) =>
+                                subItem.label === 'Matrícula Académica' ||
+                                subItem.label === 'Resumen Matrícula'
+                        ) || [];
+                } else {
+                    // Si no es coordinador ni estudiante, eliminar la propiedad items
+                    delete item.items;
+                }
+                return true;
+            }
             if (item.label === 'EVALUACIÓN DOCENTE') {
                 // Solo mostrar si el usuario es estudiante
                 return (

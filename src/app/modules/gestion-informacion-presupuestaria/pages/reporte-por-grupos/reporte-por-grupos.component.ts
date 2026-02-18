@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
-import { ConfiguracionReporteGrupos, ReportePorGrupos, Grupo, GastoGeneral } from '../../models/domain-models';
+import { ConfiguracionReporteGrupos, ReportePorGrupos, GastoGeneral } from '../../models/domain-models';
 import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
 import { ConfirmationService } from 'primeng/api';
+
+interface GroupColumn { nombre: string; }
 
 interface TableRow {
   concept: string;
@@ -20,17 +22,17 @@ interface TableRow {
 })
 export class ReportePorGruposComponent implements OnInit {
 
-  configuracion: ConfiguracionReporteGrupos | null = null;
+  configuracion: ReportePorGrupos | null = null;
   tableRows: TableRow[] = [];
-  budgetTableRows: TableRow[] = []; // New table for budget and contingencies
+  budgetTableRows: TableRow[] = [];
   distributionSummary: { label: string, value: number, isBold?: boolean }[] = [];
-  groupColumns: Grupo[] = [];
+  groupColumns: GroupColumn[] = [];
   loading: boolean = false;
   periodoSeleccionado: PeriodoAcademicoDTORespuesta | null = null;
   editingRowKey: string | null = null;
-  editingBudgetRowKey: string | null = null; // For budget table
+  editingBudgetRowKey: string | null = null;
   clonedRow: { [s: string]: any } = {};
-  clonedBudgetRow: { [s: string]: any } = {}; // For budget table
+  clonedBudgetRow: { [s: string]: any } = {};
 
   basicData: any;
   basicOptions: any;
@@ -51,12 +53,8 @@ export class ReportePorGruposComponent implements OnInit {
 
   cargarDatos(periodoObj: PeriodoAcademicoDTORespuesta): void {
     this.loading = true;
-    const periodoMock = {
-      periodo: periodoObj.periodo,
-      año: periodoObj.año
-    };
 
-    this.facadeService.obtenerReporteGrupos(periodoMock).subscribe({
+    this.facadeService.obtenerReporteGrupos(periodoObj.periodo, periodoObj.año).subscribe({
       next: (data) => {
         this.configuracion = data;
         this.procesarDatosTabla(data);
@@ -71,10 +69,9 @@ export class ReportePorGruposComponent implements OnInit {
     });
   }
 
-  procesarDatosTabla(data: ConfiguracionReporteGrupos): void {
-    if (!data.reportePorGrupos || data.reportePorGrupos.length === 0) return;
-
-    this.groupColumns = data.reportePorGrupos.map(r => r.objGrupo);
+  procesarDatosTabla(data: ReportePorGrupos): void {
+    // Use a single aggregate column since the API returns one report object
+    this.groupColumns = [{ nombre: 'Total' }];
 
     const concepts: { label: string, key: keyof ReportePorGrupos, isPercentage: boolean, isEditable: boolean }[] = [
       { label: 'Total Neto', key: 'totalNeto', isPercentage: false, isEditable: false },
@@ -86,44 +83,33 @@ export class ReportePorGruposComponent implements OnInit {
     ];
 
     this.tableRows = concepts.map(concept => {
+      const value = data[concept.key] as number;
       const row: TableRow = {
         concept: concept.label,
         key: concept.key,
         isPercentage: concept.isPercentage,
         isEditable: concept.isEditable,
-        total: 0,
-        values: {}
+        total: value,
+        values: { 'Total': value }
       };
-
-      let totalSum = 0;
-      data.reportePorGrupos.forEach(grupoReport => {
-        const value = grupoReport[concept.key] as number;
-        row.values[grupoReport.objGrupo.nombre] = value;
-        totalSum += value;
-      });
-
-      row.total = totalSum;
-
       return row;
     });
 
-    // Process budget table
     this.procesarDatosTablaBudget(data);
   }
 
-  procesarDistribucion(data: ConfiguracionReporteGrupos): void {
+  procesarDistribucion(data: ReportePorGrupos): void {
+    const config = data.objConfiguracionReporteGrupos;
     this.distributionSummary = [
-      { label: 'AUI Universidad', value: data.AUIValor },
-      { label: 'Ingresos Netos', value: data.ingresosNetos },
-      { label: 'Excedentes Maestria', value: data.excedentesMaestria },
-      { label: 'Gastos Generales', value: data.gastosGenerales.reduce((sum, g) => sum + g.monto, 0) },
-      { label: 'Valor a Distribuir (Ingresos-Gastos)', value: data.valorADistribuir, isBold: true }
+      { label: 'AUI Universidad', value: config.aUIValor },
+      { label: 'Ingresos Netos', value: config.ingresosNetos },
+      { label: 'Excedentes Maestria', value: config.excedentesMaestria },
+      { label: 'Gastos Generales', value: config.gastosGenerales.reduce((sum, g) => sum + g.monto, 0) },
+      { label: 'Valor a Distribuir (Ingresos-Gastos)', value: config.valorADistribuir, isBold: true }
     ];
   }
 
-  procesarDatosTablaBudget(data: ConfiguracionReporteGrupos): void {
-    if (!data.reportePorGrupos || data.reportePorGrupos.length === 0) return;
-
+  procesarDatosTablaBudget(data: ReportePorGrupos): void {
     const budgetConcepts: { label: string, key: keyof ReportePorGrupos, isEditable: boolean }[] = [
       { label: 'Presupuesto por grupo', key: 'presupuestoPorGrupo', isEditable: false },
       { label: 'Imprevistos', key: 'imprevistos', isEditable: false },
@@ -132,50 +118,29 @@ export class ReportePorGruposComponent implements OnInit {
     ];
 
     this.budgetTableRows = budgetConcepts.map(concept => {
-      const row: TableRow = {
+      const value = data[concept.key] as number;
+      return {
         concept: concept.label,
         key: concept.key,
         isPercentage: false,
         isEditable: concept.isEditable,
-        total: 0,
-        values: {}
+        total: value,
+        values: { 'Total': value }
       };
-
-      let totalSum = 0;
-      data.reportePorGrupos.forEach(grupoReport => {
-        const value = grupoReport[concept.key] as number;
-        row.values[grupoReport.objGrupo.nombre] = value;
-        totalSum += value;
-      });
-
-      row.total = totalSum;
-
-      return row;
     });
   }
 
-  inicializarGrafica(data: ConfiguracionReporteGrupos): void {
-    if (!data.reportePorGrupos) return;
-
-    const labels = data.reportePorGrupos.map(g => g.objGrupo.nombre);
-    const values = data.reportePorGrupos.map(g => g.totalNeto); // Using Total Neto for the chart
-
-    // Assign specific colors if names match, otherwise default
-    const colors = data.reportePorGrupos.map(g => {
-      const name = g.objGrupo.nombre.toUpperCase();
-      if (name.includes('GTI')) return '#FF6384'; // Pink
-      if (name.includes('IDIS')) return '#FFCE56'; // Yellow
-      if (name.includes('GICO')) return '#36A2EB'; // Blue
-      return '#4BC0C0'; // Default Teal
-    });
+  inicializarGrafica(data: ReportePorGrupos): void {
+    const config = data.objConfiguracionReporteGrupos;
+    const label = `Periodo ${config.objPeriodoAcademico.periodo}-${config.objPeriodoAcademico.año}`;
 
     this.basicData = {
-      labels: labels,
+      labels: [label],
       datasets: [
         {
           label: 'Total por Grupo',
-          backgroundColor: colors,
-          data: values
+          backgroundColor: ['#36A2EB'],
+          data: [data.totalNeto]
         }
       ]
     };
@@ -185,41 +150,24 @@ export class ReportePorGruposComponent implements OnInit {
       maintainAspectRatio: true,
       plugins: {
         legend: {
-          display: false, // Hide legend since bars are distinct groups
-          labels: {
-            color: '#495057'
-          }
-        },
-        tooltips: {
-          callbacks: {
-            label: function (tooltipItem: any) {
-              return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(tooltipItem.raw);
-            }
-          }
+          display: false,
+          labels: { color: '#495057' }
         }
       },
       scales: {
         x: {
-          ticks: {
-            color: '#495057'
-          },
-          grid: {
-            color: '#ebedef',
-            display: false
-          }
+          ticks: { color: '#495057' },
+          grid: { color: '#ebedef', display: false }
         },
         y: {
           ticks: {
             color: '#495057',
             callback: function (value: any) {
-              // Format large numbers to Millions if appropriate, or just currency
               if (value >= 1000000) return (value / 1000000) + ' M';
               return value;
             }
           },
-          grid: {
-            color: '#ebedef'
-          }
+          grid: { color: '#ebedef' }
         }
       }
     };
@@ -244,10 +192,6 @@ export class ReportePorGruposComponent implements OnInit {
   }
 
   onRowEditSave(row: TableRow) {
-    // Here we would call the API service to update the values
-    // Example: this.apiService.updateParticipation(...)
-
-    // Update local total
     let newTotal = 0;
     Object.keys(row.values).forEach(key => {
       newTotal += row.values[key];
@@ -265,6 +209,7 @@ export class ReportePorGruposComponent implements OnInit {
     this.editingRowKey = null;
     this.clonedRow = {};
   }
+
   // --- Configuración y Edición de Distribución (Cabecera 2) ---
   editandoCabecera: boolean = false;
   clonedCabecera: Partial<ConfiguracionReporteGrupos> = {};
@@ -295,44 +240,27 @@ export class ReportePorGruposComponent implements OnInit {
   guardandoItems: boolean = false;
 
   get totalGastosGenerales(): number {
-    if (!this.configuracion || !this.configuracion.gastosGenerales) return 0;
-    return this.configuracion.gastosGenerales.reduce((sum, g) => sum + g.monto, 0);
+    if (!this.configuracion || !this.configuracion.objConfiguracionReporteGrupos.gastosGenerales) return 0;
+    return this.configuracion.objConfiguracionReporteGrupos.gastosGenerales.reduce((sum, g) => sum + g.monto, 0);
   }
 
   // Métodos Distribución
   onHeaderEditInit() {
     if (this.isAnyEditActive) return;
     this.editandoCabecera = true;
-    this.clonedCabecera = { ...this.configuracion };
+    this.clonedCabecera = { ...this.configuracion?.objConfiguracionReporteGrupos };
   }
 
   onHeaderEditSave() {
     this.guardandoCabecera = true;
     this.editandoCabecera = false;
 
-    // In a real scenario, we might want to forkJoin these if they are separate endpoints
-    // or use a single update endpoint if available.
-    // For now, I'll simulate saving or call one by one.
-    // Given the facade has specific methods, I should probably use them.
-    // However, for simplicity in this step, I'll update the local object (mocking success)
-    // or just log it since the Facade update might be complex to wire up in one go without a specific bulk endpoint.
-    // Actually, I should try to call them.
-
-    // Example implementation assuming we want to save AUI and Excedentes:
-    // this.facadeService.actualizarPorcentajeAUIUniversidad(...)
-    // this.facadeService.actualizarValorExcedentesMaestria(...)
-
-    // Since I can't easily chain them without RxJS imports (concatMap/forkJoin) and I don't want to break existing imports too much:
-    // I'll just update the local state to reflect UI changes immediately for the demo satisfaction,
-    // but ideally, this should trigger the proper service calls.
-
-    if (this.clonedCabecera.AUIPorcentaje !== undefined) {
-      this.configuracion.AUIPorcentaje = this.clonedCabecera.AUIPorcentaje;
-      // Call Facade in background?
-      this.facadeService.actualizarPorcentajeAUIUniversidad(this.clonedCabecera.AUIPorcentaje).subscribe();
+    if (this.clonedCabecera.aUIPorcentaje !== undefined) {
+      this.configuracion!.objConfiguracionReporteGrupos.aUIPorcentaje = this.clonedCabecera.aUIPorcentaje;
+      this.facadeService.actualizarPorcentajeAUIUniversidad(this.clonedCabecera.aUIPorcentaje).subscribe();
     }
     if (this.clonedCabecera.excedentesMaestria !== undefined) {
-      this.configuracion.excedentesMaestria = this.clonedCabecera.excedentesMaestria;
+      this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = this.clonedCabecera.excedentesMaestria;
       this.facadeService.actualizarValorExcedentesMaestria(this.clonedCabecera.excedentesMaestria).subscribe();
     }
 
@@ -349,14 +277,13 @@ export class ReportePorGruposComponent implements OnInit {
   onIngresosEditInit() {
     if (this.isAnyEditActive) return;
     this.editandoIngresos = true;
-    this.clonedIngresos = this.configuracion.ingresosNetos;
+    this.clonedIngresos = this.configuracion!.objConfiguracionReporteGrupos.ingresosNetos;
   }
 
   onIngresosEditSave() {
     this.guardandoIngresos = true;
     this.editandoIngresos = false;
-    this.configuracion.ingresosNetos = this.clonedIngresos;
-    // Add facade call if exists, otherwise local update
+    this.configuracion!.objConfiguracionReporteGrupos.ingresosNetos = this.clonedIngresos;
     this.guardandoIngresos = false;
   }
 
@@ -370,17 +297,16 @@ export class ReportePorGruposComponent implements OnInit {
     if (this.isAnyEditActive) return;
     this.editandoItems = true;
     this.clonedItems = {
-      item1: this.configuracion.item1,
-      item2: this.configuracion.item2
+      item1: this.configuracion!.objConfiguracionReporteGrupos.item1,
+      item2: this.configuracion!.objConfiguracionReporteGrupos.item2
     };
   }
 
   onItemsEditSave() {
     this.guardandoItems = true;
     this.editandoItems = false;
-    this.configuracion.item1 = this.clonedItems.item1!;
-    this.configuracion.item2 = this.clonedItems.item2!;
-    // Add facade call if exists
+    this.configuracion!.objConfiguracionReporteGrupos.item1 = this.clonedItems.item1!;
+    this.configuracion!.objConfiguracionReporteGrupos.item2 = this.clonedItems.item2!;
     this.guardandoItems = false;
     this.clonedItems = {};
   }
@@ -400,20 +326,18 @@ export class ReportePorGruposComponent implements OnInit {
     }
   }
 
-
   getItemBudgetValue(groupIndex: number, itemIndex: number): number {
-    if (!this.configuracion || !this.configuracion.reportePorGrupos) return 0;
-    const grupo = this.configuracion.reportePorGrupos[groupIndex];
-    if (!grupo) return 0;
-    return itemIndex === 0 ? grupo.presupuestoPorGrupoItem1 : grupo.presupuestoPorGrupoItem2;
+    if (!this.configuracion) return 0;
+    return itemIndex === 0
+      ? this.configuracion.presupuestoPorGrupoItem1
+      : this.configuracion.presupuestoPorGrupoItem2;
   }
 
   getItemBudgetTotal(itemIndex: number): number {
-    if (!this.configuracion || !this.configuracion.reportePorGrupos) return 0;
-    return this.configuracion.reportePorGrupos.reduce((sum, grupo) => {
-      const value = itemIndex === 0 ? grupo.presupuestoPorGrupoItem1 : grupo.presupuestoPorGrupoItem2;
-      return sum + value;
-    }, 0);
+    if (!this.configuracion) return 0;
+    return itemIndex === 0
+      ? this.configuracion.presupuestoPorGrupoItem1
+      : this.configuracion.presupuestoPorGrupoItem2;
   }
 
   // --- Configuración Imprevistos (Cabecera 4) ---
@@ -424,14 +348,13 @@ export class ReportePorGruposComponent implements OnInit {
   onImprevistosEditInit() {
     if (this.isAnyEditActive) return;
     this.editandoImprevistos = true;
-    this.clonedImprevistos = this.configuracion!.imprevistos;
+    this.clonedImprevistos = this.configuracion!.objConfiguracionReporteGrupos.imprevistos;
   }
 
   onImprevistosEditSave() {
     this.guardandoImprevistos = true;
     this.editandoImprevistos = false;
-    this.configuracion!.imprevistos = this.clonedImprevistos;
-    // Add facade call: facadeService.actualizarPorcentajeImprevistos
+    this.configuracion!.objConfiguracionReporteGrupos.imprevistos = this.clonedImprevistos;
     this.guardandoImprevistos = false;
   }
 
@@ -450,13 +373,12 @@ export class ReportePorGruposComponent implements OnInit {
   onBudgetRowEditSave(row: TableRow) {
     if (!this.configuracion) return;
 
-    // Update configuracion with new values
     const valoresGrupo = this.groupColumns.map(grupo => ({
+      idGrupo: '',
       nombreGrupo: grupo.nombre,
       valor: row.values[grupo.nombre]
     }));
 
-    // Call facade service to update vigencias anteriores
     this.facadeService.actualizarValorVigenciasAnteriores(valoresGrupo).subscribe({
       next: (data) => {
         this.configuracion = data;

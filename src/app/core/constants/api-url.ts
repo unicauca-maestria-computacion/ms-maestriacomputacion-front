@@ -43,8 +43,16 @@ export function backendEvalucionDocente(path: string): string {
     return evaluacion_docente.api_url.concat(path);
 }
 
-export function backendGestionInformacionPresupuestaria(path: string): string {
-    return gestion_informacion_presupuestaria.api_url.concat(path);
+export function backendReportesEstudiantes(path: string): string {
+    return gestion_informacion_presupuestaria.api_url.concat('reportes-estudiantes/' + path);
+}
+
+export function backendReportesGrupos(path: string): string {
+    return gestion_informacion_presupuestaria.api_url.concat('reportes-grupos/' + path);
+}
+
+export function backendPeriodosAcademicos(): string {
+    return gestion_informacion_presupuestaria.api_url.concat('periodos-academicos');
 }
 
 export function backendGestionMatriculaFinanciera(path: string): string {

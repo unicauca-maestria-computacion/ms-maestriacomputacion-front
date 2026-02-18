@@ -8,7 +8,6 @@ import {
     ConfiguracionReporteFinanciero,
     ConfiguracionReporteGrupos,
     GastoGeneral,
-    Grupo,
     PeriodoAcademico,
     ProyeccionEstudiante,
     ReportePorGrupos,
@@ -16,7 +15,6 @@ import {
     ReporteEstudiantes
 } from '../models/domain-models';
 import { GastoGeneralDTOPeticion, GastoGeneralDTORespuesta } from '../dto/gasto-general.dto';
-import { GrupoDTORespuesta } from '../dto/grupo.dto';
 import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../dto/periodo-academico.dto';
 import { ProyeccionEstudianteDTOPeticion, ProyeccionEstudianteDTORespuesta } from '../dto/proyeccion-estudiante.dto';
 import { ReportePorGruposDTORespuesta } from '../dto/reporte-por-grupos.dto';
@@ -37,6 +35,7 @@ export class GestionInformacionPresupuestariaMapperService {
 
     mappearDePeticionAConfiguracionReporteFinanciero(dto: ConfiguracionReporteFinancieroDTOPeticion): ConfiguracionReporteFinanciero {
         return {
+            id: dto.id || 0,
             esReporteFinal: false,
             biblioteca: dto.biblioteca,
             recursosComputacionales: dto.recursosComputacionales,
@@ -51,6 +50,7 @@ export class GestionInformacionPresupuestariaMapperService {
 
     mappearDeRespuestaAConfiguracionReporteFinanciero(dto: ConfiguracionReporteFinancieroDTORespuesta): ConfiguracionReporteFinanciero {
         return {
+            id: dto.id,
             esReporteFinal: dto.esReporteFinal,
             biblioteca: dto.biblioteca,
             recursosComputacionales: dto.recursosComputacionales,
@@ -65,6 +65,7 @@ export class GestionInformacionPresupuestariaMapperService {
 
     mappearDeConfiguracionReporteFinancieroARespuesta(domain: ConfiguracionReporteFinanciero): ConfiguracionReporteFinancieroDTORespuesta {
         return {
+            id: domain.id,
             esReporteFinal: domain.esReporteFinal,
             biblioteca: domain.biblioteca,
             recursosComputacionales: domain.recursosComputacionales,
@@ -192,33 +193,16 @@ export class GestionInformacionPresupuestariaMapperService {
 
     mappearDeRespuestaAConfiguracionReporteGrupos(dto: ConfiguracionReporteGruposDTORespuesta): ConfiguracionReporteGrupos {
         return {
-            AUIPorcentaje: dto.AUIPorcentaje,
+            aUIPorcentaje: dto.aUIPorcentaje,
             excedentesMaestria: dto.excedentesMaestria,
-            AUIValor: dto.AUIValor,
+            aUIValor: dto.aUIValor,
             ingresosNetos: dto.ingresosNetos,
             valorADistribuir: dto.valorADistribuir,
             item1: dto.item1,
             item2: dto.item2,
             imprevistos: dto.imprevistos,
             objPeriodoAcademico: this.mappearDeRespuestaAPeriodoAcademico(dto.objPeriodoAcademico),
-            gastosGenerales: dto.gastosGenerales.map(g => this.mappearDeRespuestaAGastoGeneral(g)),
-            reportePorGrupos: dto.reportePorGrupos.map(r => this.mappearDeRespuestaAReportePorGrupos(r))
-        };
-    }
-
-    mappearDeConfiguracionReporteGruposARespuesta(domain: ConfiguracionReporteGrupos): ConfiguracionReporteGruposDTORespuesta {
-        return {
-            AUIPorcentaje: domain.AUIPorcentaje,
-            excedentesMaestria: domain.excedentesMaestria,
-            AUIValor: domain.AUIValor,
-            ingresosNetos: domain.ingresosNetos,
-            valorADistribuir: domain.valorADistribuir,
-            item1: domain.item1,
-            item2: domain.item2,
-            imprevistos: domain.imprevistos,
-            objPeriodoAcademico: this.mappearDePeriodoAcademicoARespuesta(domain.objPeriodoAcademico),
-            gastosGenerales: domain.gastosGenerales.map(g => this.mappearDeGastoGeneralARespuesta(g)),
-            reportePorGrupos: domain.reportePorGrupos.map(r => this.mappearDeReportePorGruposARespuesta(r))
+            gastosGenerales: dto.gastosGenerales.map(g => this.mappearDeRespuestaAGastoGeneral(g))
         };
     }
 
@@ -268,40 +252,7 @@ export class GestionInformacionPresupuestariaMapperService {
             presupuestoPorGrupoImprevistos: dto.presupuestoPorGrupoImprevistos,
             vigenciasAnteriores: dto.vigenciasAnteriores,
             gastosGenerales: dto.gastosGenerales.map(g => this.mappearDeRespuestaAGastoGeneral(g)),
-            objGrupo: this.mappearDeRespuestaAGrupo(dto.objGrupo)
-        };
-    }
-
-    mappearDeReportePorGruposARespuesta(domain: ReportePorGrupos): ReportePorGruposDTORespuesta {
-        return {
-            totalNeto: domain.totalNeto,
-            aportePrimerSemestre: domain.aportePrimerSemestre,
-            aporteSegundoSemestre: domain.aporteSegundoSemestre,
-            participacionPrimerSemestre: domain.participacionPrimerSemestre,
-            participacionSegundoSemestre: domain.participacionSegundoSemestre,
-            participacionPorAño: domain.participacionPorAño,
-            presupuestoPorGrupoItem1: domain.presupuestoPorGrupoItem1,
-            presupuestoPorGrupoItem2: domain.presupuestoPorGrupoItem2,
-            presupuestoPorGrupo: domain.presupuestoPorGrupo,
-            imprevistos: domain.imprevistos,
-            presupuestoPorGrupoImprevistos: domain.presupuestoPorGrupoImprevistos,
-            vigenciasAnteriores: domain.vigenciasAnteriores,
-            gastosGenerales: domain.gastosGenerales.map(g => this.mappearDeGastoGeneralARespuesta(g)),
-            objGrupo: this.mappearDeGrupoARespuesta(domain.objGrupo)
-        };
-    }
-
-    // --- Grupo ---
-
-    mappearDeRespuestaAGrupo(dto: GrupoDTORespuesta): Grupo {
-        return {
-            nombre: dto.nombre
-        };
-    }
-
-    mappearDeGrupoARespuesta(domain: Grupo): GrupoDTORespuesta {
-        return {
-            nombre: domain.nombre
+            objConfiguracionReporteGrupos: this.mappearDeRespuestaAConfiguracionReporteGrupos(dto.objConfiguracionReporteGrupos)
         };
     }
 }

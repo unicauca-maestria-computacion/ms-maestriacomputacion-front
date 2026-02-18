@@ -1,11 +1,10 @@
 import { PeriodoAcademicoDTORespuesta } from "./periodo-academico.dto";
 import { GastoGeneralDTORespuesta } from "./gasto-general.dto";
-import { ReportePorGruposDTORespuesta } from "./reporte-por-grupos.dto";
 
 export interface ConfiguracionReporteGruposDTORespuesta {
-    AUIPorcentaje: number;
+    aUIPorcentaje: number;
     excedentesMaestria: number;
-    AUIValor: number;
+    aUIValor: number;
     ingresosNetos: number;
     valorADistribuir: number;
     item1: number;
@@ -13,5 +12,4 @@ export interface ConfiguracionReporteGruposDTORespuesta {
     imprevistos: number;
     objPeriodoAcademico: PeriodoAcademicoDTORespuesta;
     gastosGenerales: GastoGeneralDTORespuesta[];
-    reportePorGrupos: ReportePorGruposDTORespuesta[];
 }

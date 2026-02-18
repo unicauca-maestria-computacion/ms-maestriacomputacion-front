@@ -18,7 +18,7 @@ export const environment = {
 
 export const gestion_informacion_presupuestaria = {
     production: false,
-    api_url: 'http://localhost:8091/api/gestion-informacion-presupuestaria/',
+    api_url: 'http://localhost:8091/api/',
 };
 
 export const gestion_matricula_financiera = {

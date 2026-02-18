@@ -1,5 +1,5 @@
 import { GastoGeneralDTORespuesta } from "./gasto-general.dto";
-import { GrupoDTORespuesta } from "./grupo.dto";
+import { ConfiguracionReporteGruposDTORespuesta } from "./configuracion-reporte-grupos.dto";
 
 export interface ReportePorGruposDTORespuesta {
     totalNeto: number;
@@ -15,5 +15,5 @@ export interface ReportePorGruposDTORespuesta {
     presupuestoPorGrupoImprevistos: number;
     vigenciasAnteriores: number;
     gastosGenerales: GastoGeneralDTORespuesta[];
-    objGrupo: GrupoDTORespuesta;
+    objConfiguracionReporteGrupos: ConfiguracionReporteGruposDTORespuesta;
 }

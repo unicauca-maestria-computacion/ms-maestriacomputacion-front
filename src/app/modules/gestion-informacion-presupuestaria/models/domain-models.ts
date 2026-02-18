@@ -1,11 +1,10 @@
-import { PeriodoAcademicoDTORespuesta } from "../dto/periodo-academico.dto";
-
 export interface PeriodoAcademico {
     periodo: number;
     año: number;
 }
 
 export interface ConfiguracionReporteFinanciero {
+    id: number;
     esReporteFinal: boolean;
     biblioteca: number;
     recursosComputacionales: number;
@@ -48,8 +47,17 @@ export interface GastoGeneral {
     monto: number;
 }
 
-export interface Grupo {
-    nombre: string;
+export interface ConfiguracionReporteGrupos {
+    aUIPorcentaje: number;
+    excedentesMaestria: number;
+    aUIValor: number;
+    ingresosNetos: number;
+    valorADistribuir: number;
+    item1: number;
+    item2: number;
+    imprevistos: number;
+    objPeriodoAcademico: PeriodoAcademico;
+    gastosGenerales: GastoGeneral[];
 }
 
 export interface ReportePorGrupos {
@@ -66,29 +74,17 @@ export interface ReportePorGrupos {
     presupuestoPorGrupoImprevistos: number;
     vigenciasAnteriores: number;
     gastosGenerales: GastoGeneral[];
-    objGrupo: Grupo;
-}
-
-export interface ConfiguracionReporteGrupos {
-    AUIPorcentaje: number;
-    excedentesMaestria: number;
-    AUIValor: number;
-    ingresosNetos: number;
-    valorADistribuir: number;
-    item1: number;
-    item2: number;
-    imprevistos: number;
-    objPeriodoAcademico: PeriodoAcademico;
-    gastosGenerales: GastoGeneral[];
-    reportePorGrupos: ReportePorGrupos[];
+    objConfiguracionReporteGrupos: ConfiguracionReporteGrupos;
 }
 
 export interface PorcentajeGrupo {
+    idGrupo: string;
     nombreGrupo: string;
     porcentaje: number;
 }
 
 export interface ValorGrupo {
+    idGrupo: string;
     nombreGrupo: string;
     valor: number;
 }

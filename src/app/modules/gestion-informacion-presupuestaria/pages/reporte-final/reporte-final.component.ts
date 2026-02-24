@@ -62,17 +62,17 @@ export class ReporteFinalComponent implements OnInit {
 
         if (data.estudiantes && this.configuracion) {
           this.estudiantes = data.estudiantes.map(e => {
-            // valorMatricula ya está en COP; biblioteca y recursosComputacionales
-            // son ratios decimales (0.09 = 9%) que se aplican sobre la matrícula.
-            // porcentajeBeca/Votacion/Egresado también son ratios decimales (0.20 = 20%).
-            const matricula = this.configuracion!.valorMatricula;
-            const recursosCompCOP = matricula * this.configuracion!.recursosComputacionales;
-            const bibliotecaCOP = matricula * this.configuracion!.biblioteca;
+            // valorMatricula = nº de SMLVs; la matrícula en COP = valorMatricula × valorSMLV.
+            // biblioteca y recursosComputacionales vienen en COP directamente.
+            // porcentajeBeca/Votacion/Egresado son ratios decimales (0.20 = 20%).
+            const matricula = this.configuracion!.valorMatricula * this.configuracion!.valorSMLV;
+            const recursosComp = this.configuracion!.recursosComputacionales;
+            const biblioteca = this.configuracion!.biblioteca;
             const valorBeca = matricula * e.porcentajeBeca;
             const valorEgresado = matricula * e.porcentajeEgresado;
             const valorVotacion = matricula * e.porcentajeVotacion;
             const grupoDescuentos = valorBeca + valorEgresado + valorVotacion;
-            const totalNeto = matricula + recursosCompCOP + bibliotecaCOP - grupoDescuentos;
+            const totalNeto = matricula + recursosComp + biblioteca - grupoDescuentos;
 
             return {
               ...e,
@@ -80,8 +80,8 @@ export class ReporteFinalComponent implements OnInit {
               matricula: matricula,
               valorBeca: valorBeca,
               valorEgresado: valorEgresado,
-              recursosComputacionales: recursosCompCOP,
-              biblioteca: bibliotecaCOP,
+              recursosComputacionales: recursosComp,
+              biblioteca: biblioteca,
               grupoDescuentos: grupoDescuentos,
               totalNeto: totalNeto
             } as EstudianteReporte;
@@ -95,6 +95,20 @@ export class ReporteFinalComponent implements OnInit {
         this.cargando = false;
       }
     });
+  }
+
+  get totalBruto(): number {
+    return this.estudiantes.reduce(
+      (acc, e) => acc + e.matricula + e.recursosComputacionales + e.biblioteca, 0
+    );
+  }
+
+  get totalDescuentosCalculado(): number {
+    return this.estudiantes.reduce((acc, e) => acc + e.grupoDescuentos, 0);
+  }
+
+  get totalIngresosNetos(): number {
+    return this.estudiantes.reduce((acc, e) => acc + e.totalNeto, 0);
   }
 
   descargar(): void {
@@ -111,7 +125,7 @@ export class ReporteFinalComponent implements OnInit {
   }
 
   formatPercent(value: number): string {
-    return `${value} %`;
+    return `${(value * 100).toFixed(0)} %`;
   }
 
 }

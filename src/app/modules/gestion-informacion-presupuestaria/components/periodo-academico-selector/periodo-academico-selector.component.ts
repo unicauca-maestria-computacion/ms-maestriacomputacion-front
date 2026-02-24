@@ -19,6 +19,7 @@ export class PeriodoAcademicoSelectorComponent implements OnInit {
   hayAnterior: boolean = false;
   haySiguiente: boolean = false;
   loading: boolean = false;
+  errorCarga: string | null = null;
 
   constructor(private facadeService: GestionInformacionPresupuestariaFacadeService) { }
 
@@ -53,6 +54,7 @@ export class PeriodoAcademicoSelectorComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading periods', err);
+        this.errorCarga = 'No se pudo cargar los períodos académicos. Verifique la conexión con el servidor.';
         this.loading = false;
       }
     });

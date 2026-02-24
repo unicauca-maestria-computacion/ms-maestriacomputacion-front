@@ -17,3 +17,7 @@
 <div *ngIf="loading" class="flex justify-content-center align-items-center mb-5">
     <p-skeleton width="300px" height="60px"></p-skeleton>
 </div>
+
+<div *ngIf="errorCarga" class="flex justify-content-center mb-5">
+    <p-message severity="error" [text]="errorCarga"></p-message>
+</div>

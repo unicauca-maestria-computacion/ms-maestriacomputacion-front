@@ -32,7 +32,7 @@ export class ExcelService {
             ['Período Académico', `${periodo.año}-${periodo.periodo}`],
             [''],
             ['CONFIGURACIÓN'],
-            ['Valor Matrícula (SMLV)', config.valorMatricula],
+            ['Valor Matrícula (SMLV)', `${config.valorMatricula} SMLV`],
             ['Valor SMLV', this.formatCurrency(config.valorSMLV)],
             ['Recursos Computacionales', this.formatCurrency(config.recursosComputacionales)],
             ['Biblioteca', this.formatCurrency(config.biblioteca)],
@@ -57,9 +57,9 @@ export class ExcelService {
             est.nombre,
             est.apellido,
             est.grupoInvestigacion,
-            `${est.porcentajeVotacion}%`,
-            `${est.porcentajeBeca}%`,
-            `${est.porcentajeEgresado}%`,
+            `${(est.porcentajeVotacion * 100).toFixed(0)}%`,
+            `${(est.porcentajeBeca * 100).toFixed(0)}%`,
+            `${(est.porcentajeEgresado * 100).toFixed(0)}%`,
             est.estaPago ? 'Pagado' : 'Pendiente'
         ]);
 
@@ -87,7 +87,7 @@ export class ExcelService {
             ['Período Académico', `${periodo.año}-${periodo.periodo}`],
             [''],
             ['CONFIGURACIÓN'],
-            ['Valor Matrícula (SMLV)', config.valorMatricula],
+            ['Valor Matrícula (SMLV)', `${config.valorMatricula} SMLV`],
             ['Valor SMLV', this.formatCurrency(config.valorSMLV)],
             ['Recursos Computacionales', this.formatCurrency(config.recursosComputacionales)],
             ['Biblioteca', this.formatCurrency(config.biblioteca)],
@@ -112,9 +112,9 @@ export class ExcelService {
             est.nombre,
             est.apellido,
             est.grupoInvestigacion,
-            `${est.porcentajeVotacion}%`,
-            `${est.porcentajeBeca}%`,
-            `${est.porcentajeEgresado}%`,
+            `${(est.porcentajeVotacion * 100).toFixed(0)}%`,
+            `${(est.porcentajeBeca * 100).toFixed(0)}%`,
+            `${(est.porcentajeEgresado * 100).toFixed(0)}%`,
             est.estaPago ? 'Pagado' : 'Pendiente'
         ]);
 

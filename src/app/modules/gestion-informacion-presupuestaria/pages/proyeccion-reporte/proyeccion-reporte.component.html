@@ -38,8 +38,8 @@
                             <p-inputNumber id="float-biblioteca" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.biblioteca" 
                                 mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" class="w-full">
                             </p-inputNumber>
-                            <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.biblioteca" 
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" class="w-full">
+                            <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.biblioteca"
+                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" [disabled]="true" class="w-full">
                             </p-inputNumber>
                             <label for="float-biblioteca">Biblioteca</label>
                         </span>
@@ -49,7 +49,7 @@
                                 mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" class="w-full">
                             </p-inputNumber>
                             <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.recursosComputacionales"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" class="w-full">
+                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" [disabled]="true" class="w-full">
                             </p-inputNumber>
                             <label for="float-recursos">Recursos Comp.</label>
                         </span>
@@ -59,7 +59,7 @@
                                 [minFractionDigits]="0" suffix=" SMLV" class="w-full">
                             </p-inputNumber>
                             <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.valorMatricula"
-                                [minFractionDigits]="0" suffix=" SMLV" [readonly]="true" class="w-full">
+                                [minFractionDigits]="0" suffix=" SMLV" [readonly]="true" [disabled]="true" class="w-full">
                             </p-inputNumber>
                             <label for="float-matricula">Matrícula (SMLV)</label>
                         </span>
@@ -69,7 +69,7 @@
                                 mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" class="w-full">
                             </p-inputNumber>
                             <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.valorSMLV"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" class="w-full">
+                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" [disabled]="true" class="w-full">
                             </p-inputNumber>
                             <label for="float-smlv">Valor SMLV</label>
                         </span>

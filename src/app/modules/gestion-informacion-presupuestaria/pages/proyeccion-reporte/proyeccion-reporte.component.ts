@@ -11,6 +11,7 @@ interface EstudianteProyeccion extends ProyeccionEstudiante {
   matricula: number;
   valorBeca: number;
   valorEgresado: number;
+  valorVotacion: number;
   recursosComputacionales: number;
   biblioteca: number;
   grupoInvestigacion: string;
@@ -138,27 +139,56 @@ export class ProyeccionReporteComponent implements OnInit {
       this.configuracion = data.objConfiguracion;
     }
     if (data.estudiantes && this.configuracion) {
-      this.estudiantes = data.estudiantes.map(e => {
-        const matricula = this.configuracion!.valorMatricula * this.configuracion!.valorSMLV;
-        const valorBeca = matricula * (e.porcentajeBeca / 100);
-        const valorEgresado = matricula * (e.porcentajeEgresado / 100);
-        const valorVotacion = matricula * (e.porcentajeVotacion / 100);
-        const grupoDescuentos = valorBeca + valorEgresado + valorVotacion;
-        const totalNeto = matricula + this.configuracion!.recursosComputacionales + this.configuracion!.biblioteca - grupoDescuentos;
-
-        return {
-          ...e,
-          nombreEstudiante: `${e.nombre} ${e.apellido}`,
-          matricula: matricula,
-          valorBeca: valorBeca,
-          valorEgresado: valorEgresado,
-          recursosComputacionales: this.configuracion!.recursosComputacionales,
-          biblioteca: this.configuracion!.biblioteca,
-          grupoDescuentos: grupoDescuentos,
-          totalNeto: totalNeto
-        } as EstudianteProyeccion;
-      });
+      this.estudiantes = data.estudiantes.map(e => this.mapearEstudianteProyeccion(e));
     }
+  }
+
+  /**
+   * Actualiza solo la(s) fila(s) devuelta(s) por el backend (p. ej. 1 estudiante al guardar edición).
+   * No reemplaza toda la lista: busca por codigoEstudiante y actualiza solo esas filas.
+   */
+  actualizarSoloFilaModificada(data: ReporteProyeccionEstudiantes): void {
+    if (data.objConfiguracion) {
+      this.configuracion = data.objConfiguracion;
+    }
+    if (data.periodo) {
+      this.periodoActualTexto = `${data.periodo.año}-${data.periodo.periodo}`;
+    }
+    if (!data.estudiantes || !this.configuracion || data.estudiantes.length === 0) return;
+    for (const e of data.estudiantes) {
+      const actualizado = this.mapearEstudianteProyeccion(e);
+      const index = this.findIndexById(e.codigoEstudiante);
+      if (index >= 0) {
+        this.estudiantes[index] = actualizado;
+      }
+    }
+  }
+
+  private mapearEstudianteProyeccion(e: ProyeccionEstudiante): EstudianteProyeccion {
+    const matricula = this.configuracion!.valorMatricula * this.configuracion!.valorSMLV;
+    const ratioBeca = this.toRatio(e.porcentajeBeca);
+    const ratioEgresado = this.toRatio(e.porcentajeEgresado);
+    const ratioVotacion = this.toRatio(e.porcentajeVotacion);
+    const valorBeca = matricula * ratioBeca;
+    const valorEgresado = matricula * ratioEgresado;
+    const valorVotacion = matricula * ratioVotacion;
+    const grupoDescuentos = valorBeca + valorEgresado + valorVotacion;
+    const totalNeto = matricula + this.configuracion!.recursosComputacionales + this.configuracion!.biblioteca - grupoDescuentos;
+    return {
+      ...e,
+      porcentajeVotacion: this.toPercent(e.porcentajeVotacion),
+      porcentajeBeca: this.toPercent(e.porcentajeBeca),
+      porcentajeEgresado: this.toPercent(e.porcentajeEgresado),
+      nombreEstudiante: [e.nombre, e.apellido].filter(Boolean).join(' ') || e.codigoEstudiante,
+      matricula,
+      valorBeca,
+      valorEgresado,
+      valorVotacion,
+      recursosComputacionales: this.configuracion!.recursosComputacionales,
+      biblioteca: this.configuracion!.biblioteca,
+      grupoDescuentos,
+      totalNeto
+    } as EstudianteProyeccion;
   }
 
   // --- Lógica de Edición de Cabecera (Configuración) ---
@@ -226,11 +256,15 @@ export class ProyeccionReporteComponent implements OnInit {
   }
 
   onRowEditSave(estudiante: EstudianteProyeccion) {
-    // Validaciones básicas
+    this.normalizarPorcentajesFila(estudiante);
     if (estudiante.porcentajeVotacion < 0 || estudiante.porcentajeBeca < 0 || estudiante.porcentajeEgresado < 0) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Los porcentajes no pueden ser negativos' });
-      // Revertir cambios locales para esa fila
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Los porcentajes no pueden ser negativos.' });
       this.onRowEditCancel(estudiante, this.findIndexById(estudiante.codigoEstudiante));
+      return;
+    }
+    const sumaPorcentajes = estudiante.porcentajeVotacion + estudiante.porcentajeBeca + estudiante.porcentajeEgresado;
+    if (sumaPorcentajes > 100) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'La suma de % Votación, % Beca y % Egresado no puede superar 100 %.' });
       return;
     }
 
@@ -240,14 +274,14 @@ export class ProyeccionReporteComponent implements OnInit {
     const proyeccionUpdate: ProyeccionEstudianteDTOPeticion = {
       codigoEstudiante: estudiante.codigoEstudiante,
       estaPago: estudiante.estaPago,
-      porcentajeVotacion: estudiante.porcentajeVotacion,
-      porcentajeBeca: estudiante.porcentajeBeca,
-      porcentajeEgresado: estudiante.porcentajeEgresado
+      porcentajeVotacion: this.toRatio(estudiante.porcentajeVotacion),
+      porcentajeBeca: this.toRatio(estudiante.porcentajeBeca),
+      porcentajeEgresado: this.toRatio(estudiante.porcentajeEgresado)
     };
 
     this.facadeService.actualizarProyeccionEstudiante(proyeccionUpdate).subscribe({
       next: (data) => {
-        this.procesarRespuesta(data);
+        this.actualizarSoloFilaModificada(data);
         delete this.clonedEstudiantes[estudiante.codigoEstudiante];
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estudiante actualizado correctamente' });
         this.guardando = false;
@@ -280,6 +314,75 @@ export class ProyeccionReporteComponent implements OnInit {
     return index;
   }
 
+  /** Convierte a ratio 0-1 para enviar al backend (ej. 22 → 0.22). */
+  private toRatio(value: number | null | undefined): number {
+    if (value == null) return 0;
+    return value > 1 ? value / 100 : value;
+  }
+
+  /** Convierte ratio 0-1 del backend a 0-100 para mostrar y editar en la UI (ej. 0.22 → 22). */
+  private toPercent(value: number | null | undefined): number {
+    if (value == null) return 0;
+    return value <= 1 ? value * 100 : value;
+  }
+
+  /**
+   * Recalcula valorBeca, valorEgresado, valorVotacion, grupoDescuentos y totalNeto de una fila
+   * cuando el usuario modifica % votación, % beca o % egresado.
+   * Reglas: no negativos, los tres porcentajes no pueden superar 100 % en total (si superan, se escalan a 100 %).
+   */
+  recalcularFila(estudiante: EstudianteProyeccion): void {
+    if (!this.configuracion) return;
+    this.normalizarPorcentajesFila(estudiante);
+    const matricula = this.configuracion.valorMatricula * this.configuracion.valorSMLV;
+    const ratioBeca = this.toRatio(estudiante.porcentajeBeca);
+    const ratioEgresado = this.toRatio(estudiante.porcentajeEgresado);
+    const ratioVotacion = this.toRatio(estudiante.porcentajeVotacion);
+    estudiante.valorBeca = matricula * ratioBeca;
+    estudiante.valorEgresado = matricula * ratioEgresado;
+    estudiante.valorVotacion = matricula * ratioVotacion;
+    estudiante.grupoDescuentos = estudiante.valorBeca + estudiante.valorEgresado + estudiante.valorVotacion;
+    estudiante.totalNeto = matricula + this.configuracion.recursosComputacionales + this.configuracion.biblioteca - estudiante.grupoDescuentos;
+  }
+
+  /**
+   * Aplica reglas a los tres porcentajes de la fila:
+   * - No negativos (mínimo 0).
+   * - Cada uno máximo 100.
+   * - La suma de los tres no puede superar 100 %; si supera, se escalan proporcionalmente para que sumen 100 %.
+   */
+  private normalizarPorcentajesFila(estudiante: EstudianteProyeccion): void {
+    const clamp = (v: number | null | undefined) => {
+      if (v == null || isNaN(v)) return 0;
+      return Math.max(0, Math.min(100, v));
+    };
+    estudiante.porcentajeVotacion = clamp(estudiante.porcentajeVotacion);
+    estudiante.porcentajeBeca = clamp(estudiante.porcentajeBeca);
+    estudiante.porcentajeEgresado = clamp(estudiante.porcentajeEgresado);
+    const suma = estudiante.porcentajeVotacion + estudiante.porcentajeBeca + estudiante.porcentajeEgresado;
+    if (suma > 100) {
+      const factor = 100 / suma;
+      estudiante.porcentajeVotacion = Math.round(estudiante.porcentajeVotacion * factor * 10) / 10;
+      estudiante.porcentajeBeca = Math.round(estudiante.porcentajeBeca * factor * 10) / 10;
+      estudiante.porcentajeEgresado = Math.round(estudiante.porcentajeEgresado * factor * 10) / 10;
+      // Ajuste por redondeo para que sumen exactamente 100
+      const nuevaSuma = estudiante.porcentajeVotacion + estudiante.porcentajeBeca + estudiante.porcentajeEgresado;
+      if (nuevaSuma !== 100) {
+        estudiante.porcentajeEgresado = Math.round((100 - estudiante.porcentajeVotacion - estudiante.porcentajeBeca) * 10) / 10;
+      }
+    }
+  }
+
+  /** Total Neto: suma de totalNeto de cada estudiante (coherente con la tabla). */
+  get totalNetoCalculado(): number {
+    return this.estudiantes.reduce((acc, e) => acc + e.totalNeto, 0);
+  }
+
+  /** Total Descuentos: suma de grupoDescuentos (beca + egresado + votación) de cada estudiante. */
+  get totalDescuentosCalculado(): number {
+    return this.estudiantes.reduce((acc, e) => acc + e.grupoDescuentos, 0);
+  }
+
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -288,8 +391,10 @@ export class ProyeccionReporteComponent implements OnInit {
     }).format(value);
   }
 
+  /** Muestra el porcentaje: si el valor está en ratio 0-1 (ej. 0.20) lo convierte a 20 %. */
   formatPercent(value: number): string {
-    return `${value} %`;
+    const pct = value != null && value <= 1 && value >= 0 ? value * 100 : value;
+    return `${Number(pct).toFixed(1)} %`;
   }
 
   descargar(): void {

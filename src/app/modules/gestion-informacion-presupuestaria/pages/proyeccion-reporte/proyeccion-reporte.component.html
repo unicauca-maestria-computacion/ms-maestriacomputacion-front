@@ -148,7 +148,11 @@
                             <span class="p-column-title font-bold">% Votación</span>
                             <p-cellEditor>
                                 <ng-template pTemplate="input">
-                                    <input pInputText type="number" [(ngModel)]="estudiante.porcentajeVotacion" required min="0" max="100" class="w-full">
+                                    <div class="flex align-items-center gap-1">
+                                        <input pInputText type="number" [(ngModel)]="estudiante.porcentajeVotacion" required min="0" max="100" step="0.1" class="w-full"
+                                            (ngModelChange)="recalcularFila(estudiante)">
+                                        <span class="percent-suffix">%</span>
+                                    </div>
                                 </ng-template>
                                 <ng-template pTemplate="output">
                                     {{ formatPercent(estudiante.porcentajeVotacion) }}
@@ -160,8 +164,12 @@
                             <span class="p-column-title font-bold">% Beca</span>
                             <p-cellEditor>
                                 <ng-template pTemplate="input">
-                                    <input pInputText type="number" [(ngModel)]="estudiante.porcentajeBeca" required
-                                        min="0" max="100" class="w-full">
+                                    <div class="flex align-items-center gap-1">
+                                        <input pInputText type="number" [(ngModel)]="estudiante.porcentajeBeca" required
+                                            min="0" max="100" step="0.1" class="w-full"
+                                            (ngModelChange)="recalcularFila(estudiante)">
+                                        <span class="percent-suffix">%</span>
+                                    </div>
                                 </ng-template>
                                 <ng-template pTemplate="output">
                                     {{ formatPercent(estudiante.porcentajeBeca) }}
@@ -178,8 +186,12 @@
                             <span class="p-column-title font-bold">% Egresado</span>
                             <p-cellEditor>
                                 <ng-template pTemplate="input">
-                                    <input pInputText type="number" [(ngModel)]="estudiante.porcentajeEgresado" required
-                                        min="0" max="100" class="w-full">
+                                    <div class="flex align-items-center gap-1">
+                                        <input pInputText type="number" [(ngModel)]="estudiante.porcentajeEgresado" required
+                                            min="0" max="100" step="0.1" class="w-full"
+                                            (ngModelChange)="recalcularFila(estudiante)">
+                                        <span class="percent-suffix">%</span>
+                                    </div>
                                 </ng-template>
                                 <ng-template pTemplate="output">
                                     {{ formatPercent(estudiante.porcentajeEgresado) }}
@@ -233,16 +245,15 @@
                             <div class="totales-container">
                                 <div class="total-item">
                                     <span class="total-label">Total Neto:</span>
-                                    <span class="total-value">{{ formatCurrency(configuracion.totalNeto) }}</span>
+                                    <span class="total-value">{{ formatCurrency(totalNetoCalculado) }}</span>
                                 </div>
                                 <div class="total-item">
                                     <span class="total-label">Total Descuentos:</span>
-                                    <span class="total-value">{{ formatCurrency(configuracion.totalDescuentos) }}</span>
+                                    <span class="total-value">{{ formatCurrency(totalDescuentosCalculado) }}</span>
                                 </div>
                                 <div class="total-item highlight">
                                     <span class="total-label">Ingresos Totales Después de Descuentos:</span>
-                                    <span class="total-value">{{ formatCurrency(configuracion.totalIngresos)
-                                        }}</span>
+                                    <span class="total-value">{{ formatCurrency(totalNetoCalculado) }}</span>
                                 </div>
                             </div>
                         </td>

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { ConfiguracionReporteGrupos, ReportePorGrupos, GastoGeneral } from '../../models/domain-models';
 import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 interface GroupColumn { nombre: string; }
 
@@ -39,7 +39,8 @@ export class ReportePorGruposComponent implements OnInit {
 
   constructor(
     private facadeService: GestionInformacionPresupuestariaFacadeService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService
   ) { }
 
   ngOnInit(): void {
@@ -57,16 +58,42 @@ export class ReportePorGruposComponent implements OnInit {
     this.facadeService.obtenerReporteGrupos(periodoObj.periodo, periodoObj.año).subscribe({
       next: (data) => {
         this.configuracion = data;
-        this.procesarDatosTabla(data);
-        this.procesarDistribucion(data);
-        this.inicializarGrafica(data);
+        this.normalizarPorcentajesParaDisplay(this.configuracion);
+        this.procesarDatosTabla(this.configuracion);
+        this.procesarDistribucion(this.configuracion);
+        this.inicializarGrafica(this.configuracion);
         this.loading = false;
       },
       error: (err) => {
         console.error('Error fetching report', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar el reporte por grupos.' });
         this.loading = false;
       }
     });
+  }
+
+  /** Convierte valor en escala 0-100 (UI) a ratio 0-1 para el backend. */
+  private toRatio(value: number | null | undefined): number {
+    if (value == null) return 0;
+    return value > 1 ? value / 100 : value;
+  }
+
+  /** AUI Universidad: muestra auiporcentaje del API (ratio 0-1 o ya 0-100). Para vista se normaliza a 0-100. */
+  get aUIPorcentajeDisplay(): number | null {
+    const c = this.configuracion?.objConfiguracionReporteGrupos as unknown as Record<string, unknown> | undefined;
+    if (!c) return null;
+    const v = c['aUIPorcentaje'] ?? c['auiporcentaje'];
+    if (typeof v !== 'number') return null;
+    return v > 1 ? v : v * 100;
+  }
+
+  /** Si el backend envía porcentajes en ratio 0-1, los convierte a 0-100 para mostrar en la UI. */
+  private normalizarPorcentajesParaDisplay(data: ReportePorGrupos): void {
+    const config = data.objConfiguracionReporteGrupos;
+    if (config.aUIPorcentaje != null && config.aUIPorcentaje <= 1) config.aUIPorcentaje = config.aUIPorcentaje * 100;
+    if (config.item1 != null && config.item1 <= 1) config.item1 = config.item1 * 100;
+    if (config.item2 != null && config.item2 <= 1) config.item2 = config.item2 * 100;
+    if (config.imprevistos != null && config.imprevistos <= 1) config.imprevistos = config.imprevistos * 100;
   }
 
   procesarDatosTabla(data: ReportePorGrupos): void {
@@ -100,8 +127,10 @@ export class ReportePorGruposComponent implements OnInit {
 
   procesarDistribucion(data: ReportePorGrupos): void {
     const config = data.objConfiguracionReporteGrupos;
+    const configAny = config as unknown as Record<string, unknown>;
+    const auiValor = (configAny['aUIValor'] ?? configAny['auivalor']) as number | undefined;
     this.distributionSummary = [
-      { label: 'AUI Universidad', value: config.aUIValor },
+      { label: 'AUI Universidad', value: auiValor ?? 0 },
       { label: 'Ingresos Netos', value: config.ingresosNetos },
       { label: 'Excedentes Maestria', value: config.excedentesMaestria },
       { label: 'Gastos Generales', value: config.gastosGenerales.reduce((sum, g) => sum + g.monto, 0) },
@@ -174,15 +203,19 @@ export class ReportePorGruposComponent implements OnInit {
   }
 
   descargar(): void {
-    console.log('Descargando reporte por grupos...');
+    // La descarga se abre desde opciones-presupuesto (app-descargar-reporte-dialog) con activeTab 'reporte-por-grupos'.
   }
 
-  formatCurrency(value: number): string {
+  formatCurrency(value: number | null | undefined): string {
+    if (value == null || typeof value !== 'number') return '–';
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value);
   }
 
-  formatPercent(value: number): string {
-    return `${value.toFixed(2)} %`;
+  /** Muestra porcentaje con 2 decimales. Si el valor viene en ratio (0-1), se muestra como 0-100 (ej. 0.18 → 18.00 %). */
+  formatPercent(value: number | null | undefined): string {
+    if (value == null || typeof value !== 'number') return '–';
+    const pct = value > 1 ? value : value * 100;
+    return `${pct.toFixed(2)} %`;
   }
 
   onRowEditInit(row: TableRow) {
@@ -254,18 +287,49 @@ export class ReportePorGruposComponent implements OnInit {
   onHeaderEditSave() {
     this.guardandoCabecera = true;
     this.editandoCabecera = false;
+    const aui = this.clonedCabecera.aUIPorcentaje;
+    const excedentes = this.clonedCabecera.excedentesMaestria;
 
-    if (this.clonedCabecera.aUIPorcentaje !== undefined) {
-      this.configuracion!.objConfiguracionReporteGrupos.aUIPorcentaje = this.clonedCabecera.aUIPorcentaje;
-      this.facadeService.actualizarPorcentajeAUIUniversidad(this.clonedCabecera.aUIPorcentaje).subscribe();
-    }
-    if (this.clonedCabecera.excedentesMaestria !== undefined) {
-      this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = this.clonedCabecera.excedentesMaestria;
-      this.facadeService.actualizarValorExcedentesMaestria(this.clonedCabecera.excedentesMaestria).subscribe();
-    }
+    const finish = (data: ReportePorGrupos) => {
+      this.configuracion = data;
+      this.normalizarPorcentajesParaDisplay(this.configuracion);
+      this.procesarDistribucion(this.configuracion);
+      this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Distribución actualizada correctamente.' });
+      this.guardandoCabecera = false;
+      this.clonedCabecera = {};
+    };
+    const onError = (msg: string) => {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
+      this.guardandoCabecera = false;
+      this.clonedCabecera = {};
+    };
 
-    this.guardandoCabecera = false;
-    this.clonedCabecera = {};
+    if (aui !== undefined) {
+      this.configuracion!.objConfiguracionReporteGrupos.aUIPorcentaje = aui;
+      this.facadeService.actualizarPorcentajeAUIUniversidad(this.toRatio(aui)).subscribe({
+        next: (data) => {
+          if (excedentes !== undefined) {
+            this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
+            this.facadeService.actualizarValorExcedentesMaestria(excedentes).subscribe({
+              next: (d) => finish(d),
+              error: () => onError('No se pudo actualizar excedentes.')
+            });
+          } else {
+            finish(data);
+          }
+        },
+        error: () => onError('No se pudo actualizar AUI.')
+      });
+    } else if (excedentes !== undefined) {
+      this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
+      this.facadeService.actualizarValorExcedentesMaestria(excedentes).subscribe({
+        next: (data) => finish(data),
+        error: () => onError('No se pudo actualizar excedentes.')
+      });
+    } else {
+      this.guardandoCabecera = false;
+      this.clonedCabecera = {};
+    }
   }
 
   onHeaderEditCancel() {
@@ -305,10 +369,26 @@ export class ReportePorGruposComponent implements OnInit {
   onItemsEditSave() {
     this.guardandoItems = true;
     this.editandoItems = false;
-    this.configuracion!.objConfiguracionReporteGrupos.item1 = this.clonedItems.item1!;
-    this.configuracion!.objConfiguracionReporteGrupos.item2 = this.clonedItems.item2!;
-    this.guardandoItems = false;
-    this.clonedItems = {};
+    const item1 = this.clonedItems.item1 ?? 0;
+    const item2 = this.clonedItems.item2 ?? 0;
+    this.facadeService.actualizarPorcentajeItems({
+      item1: this.toRatio(item1),
+      item2: this.toRatio(item2)
+    }).subscribe({
+      next: (data) => {
+        this.configuracion = data;
+        this.normalizarPorcentajesParaDisplay(this.configuracion);
+        this.procesarDatosTabla(this.configuracion);
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Items actualizados correctamente.' });
+        this.guardandoItems = false;
+        this.clonedItems = {};
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron actualizar los items.' });
+        this.editandoItems = true;
+        this.guardandoItems = false;
+      }
+    });
   }
 
   onItemsEditCancel() {
@@ -354,8 +434,21 @@ export class ReportePorGruposComponent implements OnInit {
   onImprevistosEditSave() {
     this.guardandoImprevistos = true;
     this.editandoImprevistos = false;
-    this.configuracion!.objConfiguracionReporteGrupos.imprevistos = this.clonedImprevistos;
-    this.guardandoImprevistos = false;
+    const valor = this.clonedImprevistos;
+    this.facadeService.actualizarPorcentajeImprevistos(this.toRatio(valor)).subscribe({
+      next: (data) => {
+        this.configuracion = data;
+        this.normalizarPorcentajesParaDisplay(this.configuracion);
+        this.procesarDatosTabla(this.configuracion);
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Imprevistos actualizados correctamente.' });
+        this.guardandoImprevistos = false;
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron actualizar los imprevistos.' });
+        this.editandoImprevistos = true;
+        this.guardandoImprevistos = false;
+      }
+    });
   }
 
   onImprevistosEditCancel() {
@@ -382,12 +475,15 @@ export class ReportePorGruposComponent implements OnInit {
     this.facadeService.actualizarValorVigenciasAnteriores(valoresGrupo).subscribe({
       next: (data) => {
         this.configuracion = data;
+        this.normalizarPorcentajesParaDisplay(this.configuracion);
         this.procesarDatosTabla(data);
         delete this.clonedBudgetRow[row.key];
         this.editingBudgetRowKey = null;
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Vigencias anteriores actualizadas.' });
       },
       error: (err) => {
         console.error('Error updating vigencias anteriores', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron actualizar las vigencias anteriores.' });
       }
     });
   }

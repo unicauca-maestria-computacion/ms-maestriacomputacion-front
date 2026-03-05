@@ -192,10 +192,11 @@ export class GestionInformacionPresupuestariaMapperService {
     // --- ConfiguracionReporteGrupos ---
 
     mappearDeRespuestaAConfiguracionReporteGrupos(dto: ConfiguracionReporteGruposDTORespuesta): ConfiguracionReporteGrupos {
+        const dtoAny = dto as unknown as Record<string, unknown>;
         return {
-            aUIPorcentaje: dto.aUIPorcentaje,
+            aUIPorcentaje: (dto.aUIPorcentaje ?? dtoAny['auiporcentaje']) as number,
             excedentesMaestria: dto.excedentesMaestria,
-            aUIValor: dto.aUIValor,
+            aUIValor: (dto.aUIValor ?? dtoAny['auivalor']) as number,
             ingresosNetos: dto.ingresosNetos,
             valorADistribuir: dto.valorADistribuir,
             item1: dto.item1,

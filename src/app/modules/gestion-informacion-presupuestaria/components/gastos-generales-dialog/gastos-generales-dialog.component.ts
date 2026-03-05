@@ -11,6 +11,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 export class GastosGeneralesDialogComponent implements OnInit, OnChanges {
   @Input() display: boolean = false;
   @Input() gastos: GastoGeneral[] = [];
+  /** ID de la configuración de reporte por grupos actual (periodo seleccionado). Se envía al crear un gasto. */
+  @Input() idConfiguracionReporteGrupos: number | null = null;
   @Output() displayChange = new EventEmitter<boolean>();
   @Output() onCambio = new EventEmitter<void>();
 
@@ -62,6 +64,10 @@ export class GastosGeneralesDialogComponent implements OnInit, OnChanges {
   guardarNuevoGasto() {
     if (!this.nuevoGasto) return;
 
+    if (this.idConfiguracionReporteGrupos == null) {
+      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'No se puede crear el gasto: no hay configuración de reporte seleccionada.' });
+      return;
+    }
     if (!this.nuevoGasto.categoria || !this.nuevoGasto.descripcion || this.nuevoGasto.monto <= 0) {
       this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'Todos los campos son requeridos y el monto debe ser mayor a 0' });
       return;
@@ -71,6 +77,7 @@ export class GastosGeneralesDialogComponent implements OnInit, OnChanges {
 
     const gastoDTO = {
       idGastoGeneral: 0,
+      idConfiguracionReporteGrupos: this.idConfiguracionReporteGrupos ?? undefined,
       categoria: this.nuevoGasto.categoria,
       descripcion: this.nuevoGasto.descripcion,
       monto: this.nuevoGasto.monto

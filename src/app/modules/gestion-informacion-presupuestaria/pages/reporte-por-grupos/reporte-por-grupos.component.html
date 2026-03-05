@@ -167,8 +167,8 @@
                             </span>
 
                             <div class="p-inputgroup gastos-inputgroup mt-3 md:mt-0">
-                                <span class="p-inputgroup-addon" [style.cursor]="editandoCabecera ? 'pointer' : 'not-allowed'"
-                                    [style.opacity]="editandoCabecera ? '1' : '0.5'" (click)="editandoCabecera && abrirModalGastos()">
+                                <span class="p-inputgroup-addon gastos-edit-addon" style="cursor: pointer;" (click)="abrirModalGastos()"
+                                    pTooltip="Ver y gestionar gastos generales">
                                     <i class="pi pi-pencil"></i>
                                 </span>
                                 <span class="p-float-label">
@@ -406,6 +406,7 @@
             <app-gastos-generales-dialog 
                 [(display)]="displayGastosModal" 
                 [gastos]="configuracion.objConfiguracionReporteGrupos.gastosGenerales"
+                [idConfiguracionReporteGrupos]="configuracion?.objConfiguracionReporteGrupos?.id ?? null"
                 (onCambio)="onGastosChange()">
             </app-gastos-generales-dialog>
 

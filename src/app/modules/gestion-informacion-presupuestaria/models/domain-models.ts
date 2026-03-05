@@ -48,6 +48,7 @@ export interface GastoGeneral {
 }
 
 export interface ConfiguracionReporteGrupos {
+    id?: number;
     aUIPorcentaje: number;
     excedentesMaestria: number;
     aUIValor: number;

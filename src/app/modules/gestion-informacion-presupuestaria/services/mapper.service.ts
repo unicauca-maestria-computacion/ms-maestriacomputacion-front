@@ -193,7 +193,9 @@ export class GestionInformacionPresupuestariaMapperService {
 
     mappearDeRespuestaAConfiguracionReporteGrupos(dto: ConfiguracionReporteGruposDTORespuesta): ConfiguracionReporteGrupos {
         const dtoAny = dto as unknown as Record<string, unknown>;
+        const id = dto.idConfiguracionReporteGrupos ?? dtoAny['idConfiguracionReporteGrupos'];
         return {
+            id: id != null ? Number(id) : undefined,
             aUIPorcentaje: (dto.aUIPorcentaje ?? dtoAny['auiporcentaje']) as number,
             excedentesMaestria: dto.excedentesMaestria,
             aUIValor: (dto.aUIValor ?? dtoAny['auivalor']) as number,

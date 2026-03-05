@@ -7,6 +7,7 @@ export interface GastoGeneralDTORespuesta {
 
 export interface GastoGeneralDTOPeticion {
     idGastoGeneral: number;
+    idConfiguracionReporteGrupos?: number;
     categoria: string;
     descripcion: string;
     monto: number;

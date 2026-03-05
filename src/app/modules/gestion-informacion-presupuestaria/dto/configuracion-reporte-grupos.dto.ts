@@ -2,6 +2,7 @@ import { PeriodoAcademicoDTORespuesta } from "./periodo-academico.dto";
 import { GastoGeneralDTORespuesta } from "./gasto-general.dto";
 
 export interface ConfiguracionReporteGruposDTORespuesta {
+    idConfiguracionReporteGrupos?: number;
     aUIPorcentaje: number;
     excedentesMaestria: number;
     aUIValor: number;

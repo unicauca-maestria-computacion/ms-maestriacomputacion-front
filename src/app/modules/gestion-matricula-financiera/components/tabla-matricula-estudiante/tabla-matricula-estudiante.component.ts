@@ -11,7 +11,7 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
   @Input() estudiante: Estudiante | null = null;
   
   // Helpers para mostrar en la tabla (calculados internamente)
-  becaResolucion: string = 'Pendiente: Si aún no cuenta con No. Resolución';
+  becaResolucion: string = '-';
   becaPorcentaje: string = '';
   descuentoVoto: string = 'NO';
   descuentoEgresado: string = 'NO';
@@ -27,7 +27,7 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
       if (!this.estudiante) return;
 
       // Reset de valores
-      this.becaResolucion = 'Pendiente: Si aún no cuenta con No. Resolución';
+      this.becaResolucion = '-';
       this.becaPorcentaje = '';
       this.descuentoVoto = 'NO';
       this.descuentoEgresado = 'NO';
@@ -47,7 +47,7 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
       }
 
       if (this.estudiante.becas && this.estudiante.becas.length > 0) {
-          this.becaResolucion = this.estudiante.becas[0].resolucion || 'Pendiente: Si aún no cuenta con No. Resolución';
+          this.becaResolucion = this.estudiante.becas[0].resolucion || '-';
           this.becaPorcentaje = this.estudiante.becas[0].porcentaje ? `${this.estudiante.becas[0].porcentaje}%` : '';
       }
   }

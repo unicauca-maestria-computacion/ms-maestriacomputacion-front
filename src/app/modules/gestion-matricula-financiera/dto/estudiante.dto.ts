@@ -4,7 +4,7 @@ import { BecasDTORespuesta } from "./beca-financiera.dto";
 import { MatriculaAcademicaDTORespuesta } from "./matricula-academica.dto";
 
 export interface EstudianteDTORespuesta {
-    codigo: number;
+    codigo: string;
     nombre: string;
     apellido: string;
     identificacion: number;

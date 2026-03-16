@@ -241,21 +241,54 @@ export class GestionInformacionPresupuestariaMapperService {
     // --- ReportePorGrupos ---
 
     mappearDeRespuestaAReportePorGrupos(dto: ReportePorGruposDTORespuesta): ReportePorGrupos {
+        const filas = dto.reportesPorGrupos ?? [];
+        const gastos = (dto.gastosGenerales ?? []).map(g => this.mappearDeRespuestaAGastoGeneral(g));
+        const sum = (key: keyof typeof filas[0]) => filas.reduce((acc, f) => acc + ((f[key] as number) ?? 0), 0);
+        const filasPorGrupo = filas.map((f, i) => ({
+            nombreGrupo: f.grupo?.nombre ?? `Grupo ${i + 1}`,
+            totalNeto: f.totalNeto ?? 0,
+            aportePrimerSemestre: f.aportePrimerSemestre ?? 0,
+            aporteSegundoSemestre: f.aporteSegundoSemestre ?? 0,
+            participacionPrimerSemestre: f.participacionPrimerSemestre ?? 0,
+            participacionSegundoSemestre: f.participacionSegundoSemestre ?? 0,
+            participacionPorAño: f.participacionPorAño ?? 0,
+            presupuestoPorGrupoItem1: f.presupuestoPorGrupoItem1 ?? 0,
+            presupuestoPorGrupoItem2: f.presupuestoPorGrupoItem2 ?? 0,
+            presupuestoPorGrupo: f.presupuestoPorGrupo ?? 0,
+            imprevistos: f.imprevistos ?? 0,
+            presupuestoPorGrupoImprevistos: f.presupuestoPorGrupoImprevistos ?? 0,
+            vigenciasAnteriores: f.vigenciasAnteriores ?? 0
+        }));
         return {
-            totalNeto: dto.totalNeto,
-            aportePrimerSemestre: dto.aportePrimerSemestre,
-            aporteSegundoSemestre: dto.aporteSegundoSemestre,
-            participacionPrimerSemestre: dto.participacionPrimerSemestre,
-            participacionSegundoSemestre: dto.participacionSegundoSemestre,
-            participacionPorAño: dto.participacionPorAño,
-            presupuestoPorGrupoItem1: dto.presupuestoPorGrupoItem1,
-            presupuestoPorGrupoItem2: dto.presupuestoPorGrupoItem2,
-            presupuestoPorGrupo: dto.presupuestoPorGrupo,
-            imprevistos: dto.imprevistos,
-            presupuestoPorGrupoImprevistos: dto.presupuestoPorGrupoImprevistos,
-            vigenciasAnteriores: dto.vigenciasAnteriores,
-            gastosGenerales: dto.gastosGenerales.map(g => this.mappearDeRespuestaAGastoGeneral(g)),
-            objConfiguracionReporteGrupos: this.mappearDeRespuestaAConfiguracionReporteGrupos(dto.objConfiguracionReporteGrupos)
+            totalNeto: sum('totalNeto'),
+            aportePrimerSemestre: sum('aportePrimerSemestre'),
+            aporteSegundoSemestre: sum('aporteSegundoSemestre'),
+            participacionPrimerSemestre: sum('participacionPrimerSemestre'),
+            participacionSegundoSemestre: sum('participacionSegundoSemestre'),
+            participacionPorAño: sum('participacionPorAño'),
+            presupuestoPorGrupoItem1: sum('presupuestoPorGrupoItem1'),
+            presupuestoPorGrupoItem2: sum('presupuestoPorGrupoItem2'),
+            presupuestoPorGrupo: sum('presupuestoPorGrupo'),
+            imprevistos: sum('imprevistos'),
+            presupuestoPorGrupoImprevistos: sum('presupuestoPorGrupoImprevistos'),
+            vigenciasAnteriores: sum('vigenciasAnteriores'),
+            gastosGenerales: gastos,
+            filasPorGrupo,
+            objConfiguracionReporteGrupos: {
+                id: dto.idConfiguracionReporteGrupos != null ? Number(dto.idConfiguracionReporteGrupos) : undefined,
+                aUIPorcentaje: dto.auiporcentaje ?? 0,
+                aUIValor: dto.auivalor ?? 0,
+                excedentesMaestria: dto.excedentesMaestria ?? 0,
+                ingresosNetos: dto.ingresosNetos ?? 0,
+                valorADistribuir: dto.valorADistribuir ?? 0,
+                item1: dto.item1 ?? 0,
+                item2: dto.item2 ?? 0,
+                imprevistos: dto.imprevistos ?? 0,
+                objPeriodoAcademico: dto.objPeriodoAcademico
+                    ? this.mappearDeRespuestaAPeriodoAcademico(dto.objPeriodoAcademico)
+                    : { periodo: 0, año: 0 },
+                gastosGenerales: gastos
+            }
         };
     }
 }

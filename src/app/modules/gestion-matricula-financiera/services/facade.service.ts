@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, finalize, map, tap } from 'rxjs/operators';
-import { GestionMatriculaFinancieraFakeApiService } from './fake-api.service';
+import { GestionMatriculaFinancieraApiService } from './api.service';
 import { GestionMatriculaFinancieraMapperService } from './mapper.service';
 import { Estudiante, PeriodoAcademico } from '../models/domain-models';
 import { ApiError } from '../../gestion-informacion-presupuestaria/dto/api-error';
@@ -37,7 +37,7 @@ export class GestionMatriculaFinancieraFacadeService {
     public fechaSeleccionadaFiltro$ = this._fechaSeleccionadaFiltro.asObservable();
 
     constructor(
-        private apiService: GestionMatriculaFinancieraFakeApiService,
+        private apiService: GestionMatriculaFinancieraApiService,
         private mapper: GestionMatriculaFinancieraMapperService
     ) { }
 
@@ -57,7 +57,7 @@ export class GestionMatriculaFinancieraFacadeService {
         );
     }
 
-    obtenerEstudiante(codigo: number): Observable<Estudiante> {
+    obtenerEstudiante(codigo: string): Observable<Estudiante> {
         this._loading.next(true);
         this._error.next(null);
         

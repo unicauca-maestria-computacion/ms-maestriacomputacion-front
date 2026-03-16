@@ -25,15 +25,12 @@ export class ResumenMatriculaEstudianteComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
         const id = params.get('id');
         if (id) {
-            this.cargarEstudiante(Number(id));
-        } else {
-            // Mock default
-            this.cargarEstudiante(1); 
+            this.cargarEstudiante(id);
         }
     });
   }
 
-  cargarEstudiante(id: number): void {
+  cargarEstudiante(id: string): void {
       this.loading = true;
       this.facadeService.obtenerEstudiante(id).subscribe({
           next: (data) => {

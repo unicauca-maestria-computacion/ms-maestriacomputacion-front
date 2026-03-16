@@ -16,7 +16,7 @@ export class GestionMatriculaFinancieraApiService {
         return this.http.post<EstudianteDTORespuesta[]>(backendGestionMatriculaFinanciera('obtener-estudiantes'), periodo);
     }
 
-    obtenerEstudiante(codigo: number): Observable<EstudianteDTORespuesta> {
+    obtenerEstudiante(codigo: string): Observable<EstudianteDTORespuesta> {
         return this.http.get<EstudianteDTORespuesta>(backendGestionMatriculaFinanciera(`obtener-estudiante/${codigo}`));
     }
 
@@ -25,10 +25,6 @@ export class GestionMatriculaFinancieraApiService {
     }
 
     iniciarNuevaMatriculaFinanciera(): Observable<boolean> {
-        // TODO: Implement actual endpoint when available
-        return new Observable(observer => {
-             observer.next(true);
-             observer.complete();
-        });
+        return this.http.post<boolean>(backendGestionMatriculaFinanciera('iniciar'), {});
     }
 }

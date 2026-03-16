@@ -99,9 +99,15 @@ th {
 }
 
 @media screen and (max-width: 960px) {
+    .table-container {
+        overflow-x: hidden;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
     .main-title, .middle-section-top {
         border: none !important;
-        font-size: 1.1rem; 
+        font-size: 1.1rem;
         padding-bottom: 0.5rem;
         padding-top: 1.5rem;
         font-weight: bold;
@@ -129,6 +135,7 @@ th {
     .responsive-table {
         display: block;
         width: 100%;
+        box-sizing: border-box;
         border: none !important;
 
         tbody {
@@ -139,24 +146,27 @@ th {
         .responsive-row {
             display: block;
             width: 100%;
+            box-sizing: border-box;
             margin-bottom: 0;
-            border: 1px solid #000 !important; 
-            border-top: none !important; 
+            border: 1px solid #000 !important;
+            border-top: none !important;
 
             &:first-child {
-                border-top: 1px solid #000 !important; 
+                border-top: 1px solid #000 !important;
             }
-            
+
             td {
                 display: flex !important;
                 justify-content: space-between;
                 align-items: center;
                 text-align: right !important;
                 width: 100% !important;
+                box-sizing: border-box;
                 border: none !important;
                 border-bottom: 1px solid #eee !important;
-                padding: 0.75rem !important;
-                
+                padding: 0.5rem 0.75rem !important;
+                min-height: 2.5rem;
+
                 &:last-child {
                     border-bottom: none !important;
                 }
@@ -166,6 +176,8 @@ th {
                     text-align: left;
                     font-size: 0.85rem;
                     color: #666;
+                    flex-shrink: 0;
+                    margin-right: 0.5rem;
                 }
             }
         }

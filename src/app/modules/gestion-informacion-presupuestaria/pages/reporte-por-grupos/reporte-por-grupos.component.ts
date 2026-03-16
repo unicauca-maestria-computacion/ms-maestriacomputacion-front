@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
-import { ConfiguracionReporteGrupos, ReportePorGrupos, GastoGeneral } from '../../models/domain-models';
+import { ConfiguracionReporteGrupos, ReportePorGrupos, ReportePorGrupoFila, GastoGeneral } from '../../models/domain-models';
 import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
@@ -97,10 +97,12 @@ export class ReportePorGruposComponent implements OnInit {
   }
 
   procesarDatosTabla(data: ReportePorGrupos): void {
-    // Use a single aggregate column since the API returns one report object
-    this.groupColumns = [{ nombre: 'Total' }];
+    const grupos = data.filasPorGrupo ?? [];
+    this.groupColumns = grupos.length > 0
+      ? grupos.map(g => ({ nombre: g.nombreGrupo }))
+      : [{ nombre: 'Total' }];
 
-    const concepts: { label: string, key: keyof ReportePorGrupos, isPercentage: boolean, isEditable: boolean }[] = [
+    const concepts: { label: string, key: keyof ReportePorGrupoFila, isPercentage: boolean, isEditable: boolean }[] = [
       { label: 'Total Neto', key: 'totalNeto', isPercentage: false, isEditable: false },
       { label: 'Aporte grupo primer semestre', key: 'aportePrimerSemestre', isPercentage: false, isEditable: false },
       { label: 'Aporte grupo segundo semestre', key: 'aporteSegundoSemestre', isPercentage: false, isEditable: false },
@@ -110,16 +112,21 @@ export class ReportePorGruposComponent implements OnInit {
     ];
 
     this.tableRows = concepts.map(concept => {
-      const value = data[concept.key] as number;
-      const row: TableRow = {
+      const values: { [groupName: string]: number } = {};
+      if (grupos.length > 0) {
+        grupos.forEach(g => { values[g.nombreGrupo] = (g[concept.key] as number) ?? 0; });
+      } else {
+        values['Total'] = (data[concept.key as keyof ReportePorGrupos] as number) ?? 0;
+      }
+      const total = Object.values(values).reduce((a, b) => a + b, 0);
+      return {
         concept: concept.label,
-        key: concept.key,
+        key: concept.key as keyof ReportePorGrupos,
         isPercentage: concept.isPercentage,
         isEditable: concept.isEditable,
-        total: value,
-        values: { 'Total': value }
+        total,
+        values
       };
-      return row;
     });
 
     this.procesarDatosTablaBudget(data);
@@ -139,7 +146,8 @@ export class ReportePorGruposComponent implements OnInit {
   }
 
   procesarDatosTablaBudget(data: ReportePorGrupos): void {
-    const budgetConcepts: { label: string, key: keyof ReportePorGrupos, isEditable: boolean }[] = [
+    const grupos = data.filasPorGrupo ?? [];
+    const budgetConcepts: { label: string, key: keyof ReportePorGrupoFila, isEditable: boolean }[] = [
       { label: 'Presupuesto por grupo', key: 'presupuestoPorGrupo', isEditable: false },
       { label: 'Imprevistos', key: 'imprevistos', isEditable: false },
       { label: 'Presupuesto por grupo imprevistos', key: 'presupuestoPorGrupoImprevistos', isEditable: false },
@@ -147,54 +155,68 @@ export class ReportePorGruposComponent implements OnInit {
     ];
 
     this.budgetTableRows = budgetConcepts.map(concept => {
-      const value = data[concept.key] as number;
+      const values: { [groupName: string]: number } = {};
+      if (grupos.length > 0) {
+        grupos.forEach(g => { values[g.nombreGrupo] = (g[concept.key] as number) ?? 0; });
+      } else {
+        values['Total'] = (data[concept.key as keyof ReportePorGrupos] as number) ?? 0;
+      }
+      const total = Object.values(values).reduce((a, b) => a + b, 0);
       return {
         concept: concept.label,
-        key: concept.key,
+        key: concept.key as keyof ReportePorGrupos,
         isPercentage: false,
         isEditable: concept.isEditable,
-        total: value,
-        values: { 'Total': value }
+        total,
+        values
       };
     });
   }
 
   inicializarGrafica(data: ReportePorGrupos): void {
-    const config = data.objConfiguracionReporteGrupos;
-    const label = `Periodo ${config.objPeriodoAcademico.periodo}-${config.objPeriodoAcademico.año}`;
+    const grupos = data.filasPorGrupo ?? [];
+    const colors = ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
 
-    this.basicData = {
-      labels: [label],
-      datasets: [
-        {
-          label: 'Total por Grupo',
-          backgroundColor: ['#36A2EB'],
-          data: [data.totalNeto]
-        }
-      ]
-    };
+    if (grupos.length > 0) {
+      this.basicData = {
+        labels: grupos.map(g => g.nombreGrupo),
+        datasets: [
+          {
+            label: 'Participación por Año (%)',
+            backgroundColor: grupos.map((_, i) => colors[i % colors.length]),
+            data: grupos.map(g => {
+              const v = g.participacionPorAño ?? 0;
+              return v > 1 ? v : v * 100;
+            })
+          }
+        ]
+      };
+    } else {
+      const config = data.objConfiguracionReporteGrupos;
+      const label = `Periodo ${config.objPeriodoAcademico.periodo}-${config.objPeriodoAcademico.año}`;
+      this.basicData = {
+        labels: [label],
+        datasets: [{ label: 'Total Neto', backgroundColor: ['#36A2EB'], data: [data.totalNeto] }]
+      };
+    }
 
     this.basicOptions = {
       responsive: true,
       maintainAspectRatio: true,
       plugins: {
-        legend: {
-          display: false,
-          labels: { color: '#495057' }
+        legend: { display: false, labels: { color: '#495057' } },
+        tooltip: {
+          callbacks: {
+            label: (ctx: any) => `${ctx.parsed.y.toFixed(2)} %`
+          }
         }
       },
       scales: {
-        x: {
-          ticks: { color: '#495057' },
-          grid: { color: '#ebedef', display: false }
-        },
+        x: { ticks: { color: '#495057' }, grid: { color: '#ebedef', display: false } },
         y: {
           ticks: {
             color: '#495057',
-            callback: function (value: any) {
-              if (value >= 1000000) return (value / 1000000) + ' M';
-              return value;
-            }
+            callback: (value: any) => `${value} %`
           },
           grid: { color: '#ebedef' }
         }
@@ -408,9 +430,11 @@ export class ReportePorGruposComponent implements OnInit {
 
   getItemBudgetValue(groupIndex: number, itemIndex: number): number {
     if (!this.configuracion) return 0;
-    return itemIndex === 0
-      ? this.configuracion.presupuestoPorGrupoItem1
-      : this.configuracion.presupuestoPorGrupoItem2;
+    const grupos = this.configuracion.filasPorGrupo ?? [];
+    if (grupos.length > groupIndex) {
+      return itemIndex === 0 ? grupos[groupIndex].presupuestoPorGrupoItem1 : grupos[groupIndex].presupuestoPorGrupoItem2;
+    }
+    return itemIndex === 0 ? this.configuracion.presupuestoPorGrupoItem1 : this.configuracion.presupuestoPorGrupoItem2;
   }
 
   getItemBudgetTotal(itemIndex: number): number {

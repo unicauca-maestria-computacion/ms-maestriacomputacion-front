@@ -61,6 +61,22 @@ export interface ConfiguracionReporteGrupos {
     gastosGenerales: GastoGeneral[];
 }
 
+export interface ReportePorGrupoFila {
+    nombreGrupo: string;
+    totalNeto: number;
+    aportePrimerSemestre: number;
+    aporteSegundoSemestre: number;
+    participacionPrimerSemestre: number;
+    participacionSegundoSemestre: number;
+    participacionPorAño: number;
+    presupuestoPorGrupoItem1: number;
+    presupuestoPorGrupoItem2: number;
+    presupuestoPorGrupo: number;
+    imprevistos: number;
+    presupuestoPorGrupoImprevistos: number;
+    vigenciasAnteriores: number;
+}
+
 export interface ReportePorGrupos {
     totalNeto: number;
     aportePrimerSemestre: number;
@@ -76,6 +92,7 @@ export interface ReportePorGrupos {
     vigenciasAnteriores: number;
     gastosGenerales: GastoGeneral[];
     objConfiguracionReporteGrupos: ConfiguracionReporteGrupos;
+    filasPorGrupo: ReportePorGrupoFila[];
 }
 
 export interface PorcentajeGrupo {

@@ -1,0 +1,32 @@
+localStorage.setItem('mockAuth', 'true');
+localStorage.setItem('loggedInUser', JSON.stringify({
+  username: 'Dev User',
+  email: 'dev@unicauca.edu.co',
+  role: ['ROLE_COORDINADOR'],
+  firstName: 'COORDINADOR',
+  lastName: 'PRUEBA',
+  idType: 'CC',
+  idNumber: '123456',
+  academicCode: 'COORD001' // Puedes poner un código de ejemplo
+}));
+console.log("Configurado como COORDINADOR. Ahora haz clic en el botón LOGIN.");
+
+
+localStorage.setItem('mockAuth', 'true');
+localStorage.setItem('loggedInUser', JSON.stringify({
+  role: ['ROLE_ESTUDIANTE'],
+  firstName: 'ESTUDIANTE',
+  lastName: 'PRUEBA',
+  academicCode: '104615010000',
+  idNumber: '1061700000'
+}));
+console.log("Datos de prueba configurados. Ahora pulsa el botón LOGIN en la web.");
+
+
+const token = localStorage.getItem('token');
+if (token && token.startsWith('ey')) {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    console.log("Datos oficiales dentro del Token:", payload);
+} else {
+    console.warn("No hay un token real. Asegúrate de haber pulsado LOGIN.");
+}

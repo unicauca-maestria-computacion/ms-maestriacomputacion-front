@@ -1,18 +1,61 @@
-<p-card>
-    <div *ngIf="loading" class="flex flex-column align-items-center justify-content-center" style="height: 200px;">
-        <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s"></p-progressSpinner>
-        <span class="mt-3 text-lg">Cargando información del estudiante...</span>
-    </div>
+<div class="col-12">
+    <p-card>
 
-    <div *ngIf="!loading && estudiante">
-        <!-- Botón Atras -->
-        <div class="mb-4">
-            <button pButton type="button" label="Atras" icon="pi pi-arrow-left" 
-                (click)="volver()">
-            </button>
+        <!-- Spinner de Carga -->
+        <div *ngIf="loading" class="flex flex-column align-items-center justify-content-center py-8">
+            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
+            </p-progressSpinner>
+            <span class="mt-3 text-lg">Cargando información del estudiante...</span>
         </div>
 
-        <!-- Tabla Compartida -->
-        <app-tabla-matricula-estudiante [estudiante]="estudiante"></app-tabla-matricula-estudiante>
-    </div>
-</p-card>
+        <!-- Contenido Principal -->
+        <div *ngIf="!loading && estudiante">
+
+            <!-- Header: Botón Volver + Título del estudiante + Exportar Excel -->
+            <div class="flex flex-column md:flex-row align-items-start md:align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom-1 surface-border">
+                <div class="flex align-items-center gap-3">
+                    <button pButton pRipple
+                        type="button"
+                        label="Volver"
+                        icon="pi pi-arrow-left"
+                        class="p-button-outlined p-button-secondary"
+                        (click)="volver()">
+                    </button>
+                    <div>
+                        <h2 class="m-0 text-700">Detalle de Matrícula Financiera</h2>
+                        <span class="text-500 text-sm">Información completa del estudiante</span>
+                    </div>
+                </div>
+                <div class="flex align-items-center gap-2">
+                    <p-button
+                        icon="pi pi-file-excel"
+                        label="Exportar Excel"
+                        (click)="descargarExcelDetalle()"
+                        styleClass="p-button-success p-button-outlined">
+                    </p-button>
+                </div>
+            </div>
+
+            <!-- Tabla Compartida de Matrícula -->
+            <app-tabla-matricula-estudiante [estudiante]="estudiante"></app-tabla-matricula-estudiante>
+
+        </div>
+
+        <!-- Estado vacío si no se encontró el estudiante -->
+        <div *ngIf="!loading && !estudiante">
+            <div class="flex flex-column align-items-center justify-content-center py-8 text-400">
+                <i class="pi pi-exclamation-triangle text-5xl mb-3 text-yellow-500"></i>
+                <span class="text-lg font-medium text-700">No se encontró la información del estudiante</span>
+                <span class="text-sm mt-1 mb-4">El registro solicitado no está disponible</span>
+                <button pButton pRipple
+                    type="button"
+                    label="Volver al listado"
+                    icon="pi pi-arrow-left"
+                    class="p-button-outlined"
+                    (click)="volver()">
+                </button>
+            </div>
+        </div>
+
+    </p-card>
+</div>

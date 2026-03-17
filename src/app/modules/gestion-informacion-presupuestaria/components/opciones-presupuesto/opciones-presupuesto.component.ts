@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 
 interface TabOption {
@@ -12,7 +12,7 @@ interface TabOption {
   templateUrl: './opciones-presupuesto.component.html',
   styleUrls: ['./opciones-presupuesto.component.scss']
 })
-export class OpcionesPresupuestoComponent implements OnInit {
+export class OpcionesPresupuestoComponent implements OnInit, OnChanges {
 
   @Input() activeTab: string = 'reporte-final';
   @Input() currentPeriod: any = null;

@@ -21,7 +21,7 @@ export class GestionMatriculaFinancieraFakeApiService {
 
         const mockEstudiantes: EstudianteDTORespuesta[] = [
             {
-                codigo: 1087453621,
+                codigo: '1087453621',
                 nombre: 'Laura',
                 apellido: 'Pérez',
                 identificacion: 1087453621,
@@ -34,7 +34,7 @@ export class GestionMatriculaFinancieraFakeApiService {
                 matriculasAcademicas: []
             },
             {
-                codigo: 1024566421,
+                codigo: '1024566421',
                 nombre: 'María',
                 apellido: 'Tobar',
                 identificacion: 1024566421,
@@ -47,7 +47,7 @@ export class GestionMatriculaFinancieraFakeApiService {
                 matriculasAcademicas: []
             },
             {
-                codigo: 1022453221,
+                codigo: '1022453221',
                 nombre: 'Diana',
                 apellido: 'López',
                 identificacion: 1022453221,
@@ -60,7 +60,7 @@ export class GestionMatriculaFinancieraFakeApiService {
                 matriculasAcademicas: []
             },
             {
-                codigo: 1007554022,
+                codigo: '1007554022',
                 nombre: 'Natalia',
                 apellido: 'García',
                 identificacion: 1007554022,
@@ -73,7 +73,7 @@ export class GestionMatriculaFinancieraFakeApiService {
                 matriculasAcademicas: []
             },
             {
-                codigo: 1090733402,
+                codigo: '1090733402',
                 nombre: 'Sofía',
                 apellido: 'Ramírez',
                 identificacion: 1090733402,
@@ -85,9 +85,8 @@ export class GestionMatriculaFinancieraFakeApiService {
                 becas: [],
                 matriculasAcademicas: []
             },
-            // --- Nuevas 5 personas ---
             {
-                codigo: 1045678123,
+                codigo: '1045678123',
                 nombre: 'Carlos',
                 apellido: 'Mendoza',
                 identificacion: 1045678123,
@@ -100,7 +99,7 @@ export class GestionMatriculaFinancieraFakeApiService {
                 matriculasAcademicas: []
             },
             {
-                codigo: 1056789456,
+                codigo: '1056789456',
                 nombre: 'Andrés',
                 apellido: 'Castro',
                 identificacion: 1056789456,
@@ -113,7 +112,7 @@ export class GestionMatriculaFinancieraFakeApiService {
                 matriculasAcademicas: []
             },
             {
-                codigo: 1067890789,
+                codigo: '1067890789',
                 nombre: 'Valentina',
                 apellido: 'Ruiz',
                 identificacion: 1067890789,
@@ -126,7 +125,7 @@ export class GestionMatriculaFinancieraFakeApiService {
                 matriculasAcademicas: []
             },
             {
-                codigo: 1078901012,
+                codigo: '1078901012',
                 nombre: 'Andrés',
                 apellido: 'Gómez',
                 identificacion: 1078901012,
@@ -139,7 +138,7 @@ export class GestionMatriculaFinancieraFakeApiService {
                 matriculasAcademicas: []
             },
             {
-                codigo: 1089012345,
+                codigo: '1089012345',
                 nombre: 'Juliana',
                 apellido: 'Sánchez',
                 identificacion: 1089012345,
@@ -155,12 +154,12 @@ export class GestionMatriculaFinancieraFakeApiService {
         return of(mockEstudiantes).pipe(delay(1000));
     }
 
-    obtenerEstudiante(codigo: number): Observable<EstudianteDTORespuesta> {
+    obtenerEstudiante(codigo: string): Observable<EstudianteDTORespuesta> {
         const mockEstudiante: EstudianteDTORespuesta = {
             codigo: codigo,
             nombre: 'Estudiante',
             apellido: 'Prueba',
-            identificacion: codigo,
+            identificacion: Number(codigo),
             cohorte: '2024.1',
             periodoIngreso: '2024.1',
             semestreFinanciero: 1,

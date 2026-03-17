@@ -1,4 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
 
@@ -7,7 +9,9 @@ import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
   templateUrl: './periodo-academico-selector.component.html',
   styleUrls: ['./periodo-academico-selector.component.scss']
 })
-export class PeriodoAcademicoSelectorComponent implements OnInit {
+export class PeriodoAcademicoSelectorComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   @Input() mostrarSoloUltimo: boolean = false;
   @Input() excluirUltimo: boolean = false;
@@ -29,7 +33,7 @@ export class PeriodoAcademicoSelectorComponent implements OnInit {
 
   cargarPeriodos(): void {
     this.loading = true;
-    this.facadeService.obtenerPeriodosAcademicos().subscribe({
+    this.facadeService.obtenerPeriodosAcademicos().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         // Asignar datos iniciales
         let periodosTemp = [...data];
@@ -84,6 +88,11 @@ export class PeriodoAcademicoSelectorComponent implements OnInit {
       this.currentIndex++;
       this.actualizarPeriodoActual();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }

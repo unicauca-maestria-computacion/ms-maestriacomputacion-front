@@ -1,6 +1,6 @@
 <!-- Encabezado con Tabs y Botón Descargar -->
-<div class="flex flex-column md:flex-row align-items-center justify-content-between">
-    <div class="flex align-items-center h-full">
+<div class="flex flex-column md:flex-row align-items-start md:align-items-center justify-content-between gap-3 mb-3">
+    <div class="flex align-items-center">
         <p-selectButton
             [options]="tabOptions"
             [(ngModel)]="selectedTab"
@@ -10,16 +10,18 @@
         </p-selectButton>
     </div>
 
-    <div class="flex justify-content-start md:justify-content-end mt-2 md:mt-0">
-        <div class="w-full md:w-auto">
-            <button
-                pButton
-                type="button"
-                label="Descargar"
-                icon="pi pi-download"
-                (click)="descargar()">
-            </button>
-        </div>
+    <div class="flex justify-content-start md:justify-content-end">
+        <button
+            pButton
+            pRipple
+            type="button"
+            label="Descargar"
+            icon="pi pi-download"
+            class="p-button-outlined"
+            pTooltip="Descargar reporte en Excel"
+            tooltipPosition="left"
+            (click)="descargar()">
+        </button>
     </div>
 </div>
 
@@ -28,5 +30,3 @@
     [activeReportCode]="activeTab"
     [activePeriod]="currentPeriod">
 </app-descargar-reporte-dialog>
-
-<br />

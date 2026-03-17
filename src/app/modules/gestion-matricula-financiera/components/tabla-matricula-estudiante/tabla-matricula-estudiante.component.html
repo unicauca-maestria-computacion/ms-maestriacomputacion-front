@@ -1,85 +1,153 @@
 <div class="table-container" *ngIf="estudiante">
+
     <!-- Header Principal -->
     <div class="main-title text-center font-bold">
-        Matricula Financiera &nbsp;&nbsp;-&nbsp;&nbsp; ESTUDIANTE
+        Matrícula Financiera &nbsp;&mdash;&nbsp; Estudiante
     </div>
 
     <!-- Tabla Financiera -->
     <table class="w-full responsive-table">
         <colgroup class="desktop-only">
-            <col style="width: 10%"> <col style="width: 20%"> <col style="width: 10%"> <col style="width: 8%"> 
-            <col style="width: 10%"> <col style="width: 12%"> <col style="width: 20%"> <col style="width: 10%"> 
+            <col style="width: 10%">
+            <col style="width: 20%">
+            <col style="width: 12%">
+            <col style="width: 8%">
+            <col style="width: 10%">
+            <col style="width: 12%">
+            <col style="width: 18%">
+            <col style="width: 10%">
         </colgroup>
         <thead class="desktop-only">
             <tr class="header-row bg-gray-100">
                 <th rowspan="2">Identificación</th>
                 <th rowspan="2">Nombres Completos<br>Del Estudiante</th>
-                <th rowspan="2">Valor de<br>Matrícula<br>en SMMLV</th>
-                <th rowspan="2">SEM<br>FINAN</th>
-                <th rowspan="2">¿Aplica<br>Descuento<br>de Voto?</th>
-                <th rowspan="2">Descuento<br>por Egresado<br>(UNICAUCA)</th>
+                <th rowspan="2">Valor de<br>Matrícula<br>(SMMLV)</th>
+                <th rowspan="2">Sem.<br>Finan.</th>
+                <th rowspan="2">¿Descuento<br>de Voto?</th>
+                <th rowspan="2">Descuento<br>Egresado<br>(UNICAUCA)</th>
                 <th>No. Res.<br>de Beca</th>
                 <th>% Beca</th>
             </tr>
             <tr class="header-row bg-gray-100">
-                 <th colspan="2" class="text-xs font-normal">-</th>
+                <th colspan="2" class="text-xs font-normal text-400">—</th>
             </tr>
         </thead>
         <tbody>
             <tr class="responsive-row">
-                <td><span class="p-column-title">Identificación</span>{{ estudiante.identificacion }}</td>
-                <td><span class="p-column-title">Nombre Estudiante</span>{{ getNombreCompleto() | uppercase }}</td>
-                <td><span class="p-column-title">Valor Matrícula</span>{{ valorMatricula | currency }}</td>
-                <td><span class="p-column-title">SEM FINAN</span>{{ estudiante.semestreFinanciero }}</td>
-                <td><span class="p-column-title">¿Descuento Voto?</span>{{ descuentoVoto }}</td>
-                <td><span class="p-column-title">Descuento Egresado</span>{{ descuentoEgresado }}</td>
-                <td><span class="p-column-title">No. Res. Beca</span>{{ becaResolucion }}</td>
-                <td><span class="p-column-title">% Beca</span>{{ becaPorcentaje || '-' }}</td>
+                <td>
+                    <span class="p-column-title">Identificación</span>
+                    {{ estudiante.identificacion }}
+                </td>
+                <td>
+                    <span class="p-column-title">Nombre Estudiante</span>
+                    {{ getNombreCompleto() | uppercase }}
+                </td>
+                <td class="text-right font-semibold">
+                    <span class="p-column-title">Valor Matrícula</span>
+                    {{ valorMatricula | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+                </td>
+                <td class="text-center">
+                    <span class="p-column-title">Sem. Finan.</span>
+                    {{ estudiante.semestreFinanciero }}
+                </td>
+                <td class="text-center">
+                    <span class="p-column-title">¿Descuento Voto?</span>
+                    <p-tag [value]="descuentoVoto"
+                        [severity]="descuentoVoto === 'SI' ? 'success' : 'secondary'">
+                    </p-tag>
+                </td>
+                <td class="text-center">
+                    <span class="p-column-title">Descuento Egresado</span>
+                    <p-tag [value]="descuentoEgresado"
+                        [severity]="descuentoEgresado === 'SI' ? 'success' : 'secondary'">
+                    </p-tag>
+                </td>
+                <td class="text-center">
+                    <span class="p-column-title">No. Res. Beca</span>
+                    {{ becaResolucion }}
+                </td>
+                <td class="text-center">
+                    <span class="p-column-title">% Beca</span>
+                    {{ becaPorcentaje || '—' }}
+                </td>
             </tr>
         </tbody>
     </table>
 
-    <!-- Sección Media -->
+    <p-divider styleClass="my-0"></p-divider>
+
+    <!-- Sección Media: Matrícula Académica -->
     <div class="middle-section-top font-bold">
-        Matricula Académica
+        Matrícula Académica
     </div>
     <div class="middle-section-bottom">
-        Semestre: <span class="semestre-value font-normal">{{ estudiante.matriculasAcademicas[0]?.semestre || '____' }}</span>
+        Semestre:
+        <span class="semestre-value font-normal">
+            {{ estudiante.matriculasAcademicas[0]?.semestre || '____' }}
+        </span>
     </div>
 
     <!-- Tabla Académica -->
     <table class="w-full responsive-table academic-table">
         <colgroup class="desktop-only">
-            <col style="width: 5%"> <col style="width: 10%"> <col style="width: 25%"> 
-            <col style="width: 50%"> <col style="width: 10%"> 
+            <col style="width: 5%">
+            <col style="width: 10%">
+            <col style="width: 30%">
+            <col style="width: 45%">
+            <col style="width: 10%">
         </colgroup>
         <thead class="desktop-only">
             <tr class="header-row bg-gray-100">
-                <th rowspan="2" class="p-0"><div class="vertical-text py-2">SEM ACAD</div></th>
+                <th rowspan="2" class="p-0">
+                    <div class="vertical-text py-2">Sem. Acad.</div>
+                </th>
                 <th colspan="2">Materias a Matricular</th>
                 <th rowspan="2">Docente Encargado</th>
                 <th rowspan="2">Grupo</th>
             </tr>
             <tr class="header-row bg-gray-100">
-                <th>Código_OID</th>
+                <th>Código OID</th>
                 <th>Materia</th>
             </tr>
         </thead>
         <tbody>
             <ng-container *ngIf="estudiante.matriculasAcademicas?.length; else noMaterias">
-                <ng-container *ngFor="let matricula of estudiante.matriculasAcademicas">
-                    <tr *ngFor="let materia of matricula.materias" class="responsive-row">
-                        <td><span class="p-column-title">SEM ACAD</span>{{ matricula.semestre }}</td>
-                        <td><span class="p-column-title">Código</span>{{ materia.codigo_oid }}</td>
-                        <td><span class="p-column-title">Materia</span>{{ materia.materia }}</td>
-                        <td><span class="p-column-title">Docente</span>{{ materia.objDocente?.nombre || '-' }}</td>
-                        <td><span class="p-column-title">Grupo</span>{{ materia.grupoClase }}</td>
+                <ng-container *ngFor="let matricula of estudiante.matriculasAcademicas; trackBy: trackByMatricula">
+                    <tr *ngFor="let materia of matricula.materias; trackBy: trackByMateria" class="responsive-row">
+                        <td class="text-center">
+                            <span class="p-column-title">Sem. Acad.</span>
+                            {{ matricula.semestre }}
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">Código</span>
+                            {{ materia.codigo_oid }}
+                        </td>
+                        <td>
+                            <span class="p-column-title">Materia</span>
+                            {{ materia.materia }}
+                        </td>
+                        <td>
+                            <span class="p-column-title">Docente</span>
+                            {{ materia.objDocente?.nombre || '—' }}
+                        </td>
+                        <td class="text-center">
+                            <span class="p-column-title">Grupo</span>
+                            {{ materia.grupoClase }}
+                        </td>
                     </tr>
                 </ng-container>
             </ng-container>
             <ng-template #noMaterias>
-                <tr><td colspan="5" class="p-4 text-center">No hay materias registradas</td></tr>
+                <tr>
+                    <td colspan="5">
+                        <div class="flex flex-column align-items-center justify-content-center py-5 text-400">
+                            <i class="pi pi-book text-4xl mb-2"></i>
+                            <span class="text-base">No hay materias registradas para este período</span>
+                        </div>
+                    </td>
+                </tr>
             </ng-template>
         </tbody>
     </table>
+
 </div>

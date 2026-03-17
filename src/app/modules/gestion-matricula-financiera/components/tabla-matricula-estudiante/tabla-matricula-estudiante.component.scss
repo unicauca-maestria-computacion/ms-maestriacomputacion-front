@@ -1,9 +1,8 @@
-
 .table-container {
-    background-color: white;
+    background-color: var(--surface-card, white);
     max-width: 1100px;
     margin: 0 auto;
-    padding: 0; 
+    padding: 0;
 }
 
 /* Reset basic table styles */
@@ -27,6 +26,13 @@ th {
     font-weight: bold;
 }
 
+/* Monetary values aligned right */
+td.text-right {
+    text-align: right !important;
+    padding-right: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
 .header-row {
     font-weight: bold;
     text-transform: uppercase;
@@ -38,24 +44,25 @@ th {
 
 /* Titles and Middle Section - Shared Styles */
 .main-title, .middle-section-top {
-    font-size: 1.25rem; /* text-xl equivalence */
-    padding: 1rem;
-    background: white;
+    font-size: 1.15rem;
+    padding: 0.85rem 1rem;
+    background: #f8f9fa;
     text-align: center;
     font-weight: bold;
+    letter-spacing: 0.02em;
 }
 
 /* NORMAL MODE BORDERS */
 @media screen and (min-width: 961px) {
     .main-title {
         border: 1px solid #000;
-        border-bottom: none; 
+        border-bottom: none;
     }
 
     .middle-section-top {
         border-left: 1px solid #000;
         border-right: 1px solid #000;
-        border-top: none; 
+        border-top: none;
     }
 
     .middle-section-bottom {
@@ -82,14 +89,14 @@ th {
 }
 
 .vertical-text {
-    writing-mode: vertical-rl; 
-    text-orientation: upright; 
+    writing-mode: vertical-rl;
+    text-orientation: upright;
     white-space: nowrap;
     margin: 0 auto;
 }
 
 /* -------------------------------------------------------------------------- */
-/* Responsive Logic (Stack Mode)                                             */
+/* Responsive Logic (Stack Mode)                                               */
 /* -------------------------------------------------------------------------- */
 
 .p-column-title {
@@ -111,6 +118,7 @@ th {
         padding-bottom: 0.5rem;
         padding-top: 1.5rem;
         font-weight: bold;
+        background: white;
     }
 
     .middle-section-bottom {
@@ -167,6 +175,10 @@ th {
                 padding: 0.5rem 0.75rem !important;
                 min-height: 2.5rem;
 
+                &.text-right {
+                    text-align: right !important;
+                }
+
                 &:last-child {
                     border-bottom: none !important;
                 }
@@ -175,7 +187,7 @@ th {
                     display: block;
                     text-align: left;
                     font-size: 0.85rem;
-                    color: #666;
+                    color: var(--text-color-secondary, #6c757d);
                     flex-shrink: 0;
                     margin-right: 0.5rem;
                 }

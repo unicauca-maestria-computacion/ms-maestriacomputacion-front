@@ -1,58 +1,82 @@
-.periodo-academico-texto {
-    font-size: 0.9rem;
-    color: #6c757d;
-    font-weight: 500;
+.page-content {
+    max-width: 1400px;
+    margin: 0 auto;
 }
-
-.periodo-academico-valor {
-    font-size: 1.3rem;
-    color: #495057;
-    font-weight: 600;
-}
-
-
 
 .table-container {
     margin: 1rem auto 0 auto;
-    max-width: 1600px;
-    background: white;
+    max-width: 1400px;
+}
+
+
+.config-panel {
+    background-color: var(--surface-ground, #f8f9fa);
+    padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    padding: 1rem;
+    border: 1px solid var(--surface-border, #dee2e6);
+}
 
-    :host ::v-deep {
-        .p-datatable {
-            .p-datatable-thead > tr > th {
-                background: white;
-                color: #495057;
-                border-bottom: 1px solid #dee2e6;
-            }
+/* Layout del panel de configuración: una sola fila flex */
+.config-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 2.5rem;
+    align-items: flex-end;
+    padding-top: 1.5rem;  /* espacio para el label flotante */
+    justify-content: center;
+}
 
-            .p-float-label {
-                label {
-                    left: 0.75rem;
-                }
-            }
+.config-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;  /* empuja los botones al extremo derecho */
+    flex-shrink: 0;
+}
 
-            .p-inputnumber-input {
-                width: 170px;
-                text-align: right;
-                border: 1px solid #ced4da;
-                border-radius: 4px;
-            }
+
+:host ::ng-deep {
+    .p-float-label {
+        width: 180px;
+        display: inline-block;
+
+        p-inputnumber, 
+        .p-inputnumber {
+            width: 100% !important;
+            display: inline-block;
+        }
+
+        .p-inputnumber-input {
+            width: 100% !important;
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-color, #495057);
+            background-color: var(--surface-card, #ffffff);
         }
     }
 }
 
-.border-none {
-    border: none !important;
+
+
+.percent-input {
+    width: 70px;
+    text-align: right;
+    border: 1px solid var(--surface-border, #ced4da);
+    border-radius: 4px;
+    padding: 0.4rem 0.5rem;
+}
+
+.percent-suffix {
+    font-weight: 600;
+    color: var(--text-color-secondary, #6c757d);
+    flex-shrink: 0;
 }
 
 .totales-container {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    padding: 0.5rem 0;
+    padding: 0.75rem 0;
 
     .total-item {
         display: flex;
@@ -62,40 +86,50 @@
 
         .total-label {
             font-weight: 600;
-            color: #495057;
+            color: var(--text-color-secondary, #6c757d);
         }
 
         .total-value {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            color: #212529;
-            min-width: 150px;
+            color: var(--text-color, #495057);
+            min-width: 160px;
             text-align: right;
         }
 
         &.highlight {
-            padding-top: 0.5rem;
-            border-top: 2px solid #495057;
+            padding-top: 0.75rem;
+            border-top: 2px solid var(--surface-border, #dee2e6);
 
             .total-label {
-                color: #0d6efd;
+                color: var(--primary-color, #3b82f6);
+                font-weight: 700;
             }
 
             .total-value {
-                color: #0d6efd;
-                font-size: 1.2rem;
+                color: var(--primary-color, #3b82f6);
+                font-size: 1.15rem;
             }
         }
     }
 }
 
-.py-8 {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
+:host ::ng-deep {
+    .p-card .p-card-body {
+        padding: 1.5rem;
+    }
+
+    .p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
+        background-color: var(--surface-ground, #f8f9fa);
+    }
+
+    .p-datatable-gridlines .p-datatable-thead > tr > th,
+    .p-datatable-gridlines .p-datatable-tbody > tr > td {
+        border: 1px solid var(--surface-border, #dee2e6) !important;
+    }
+
+    .p-datatable .p-datatable-tbody > tr > td {
+        border-bottom: 1px solid var(--surface-border, #dee2e6);
+    }
 }
 
-.percent-suffix {
-    font-weight: 600;
-    color: #495057;
-    flex-shrink: 0;
-}

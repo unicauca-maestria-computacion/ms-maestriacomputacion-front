@@ -7,10 +7,13 @@ import { ConfiguracionReporteFinancieroDTOPeticion } from '../dto/configuracion-
 import { ProyeccionEstudianteDTOPeticion } from '../dto/proyeccion-estudiante.dto';
 import { PeriodoAcademicoDTORespuesta } from '../dto/periodo-academico.dto';
 import { PorcentajeGrupoDTOPeticion } from '../dto/porcentaje-grupo.dto';
-import { GastoGeneralDTOPeticion } from '../dto/gasto-general.dto';
+import { GastoGeneralDTOPeticion, GastoGeneralDTORespuesta } from '../dto/gasto-general.dto';
 import { ItemsDTOPeticion } from '../dto/items.dto';
 import { ValorGrupoDTOPeticion } from '../dto/valor-grupo.dto';
 import { ReporteProyeccionEstudiantes, ReportePorGrupos } from '../models/domain-models';
+import { ConfiguracionReporteFinancieroDTORespuesta } from '../dto/configuracion-reporte-financiero.dto';
+import { ReporteProyeccionEstudiantesDTORespuesta } from '../dto/reporte-proyeccion-estudiantes.dto';
+import { ReporteEstudiantesDTORespuesta } from '../dto/reporte-estudiantes.dto';
 import { GestionInformacionPresupuestariaMapperService } from './mapper.service';
 
 @Injectable({
@@ -38,13 +41,10 @@ export class GestionInformacionPresupuestariaFacadeService {
 
     // Methods
 
-    actualizarConfiguracionProyeccion(config: ConfiguracionReporteFinancieroDTOPeticion): Observable<any> {
+    actualizarConfiguracionProyeccion(config: ConfiguracionReporteFinancieroDTOPeticion): Observable<ConfiguracionReporteFinancieroDTORespuesta> {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarConfiguracionProyeccion(config).pipe(
-            tap(() => {
-                // Update local state if necessary or reload data
-            }),
             catchError(error => {
                 this._error.next(error);
                 return throwError(() => error);
@@ -53,7 +53,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         );
     }
 
-    actualizarProyeccionEstudiante(proyeccion: ProyeccionEstudianteDTOPeticion): Observable<any> {
+    actualizarProyeccionEstudiante(proyeccion: ProyeccionEstudianteDTOPeticion): Observable<ReporteProyeccionEstudiantesDTORespuesta> {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarProyeccionEstudiante(proyeccion).pipe(
@@ -65,7 +65,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         );
     }
 
-    obtenerReporteFinanciero(periodo: number, anio: number): Observable<any> {
+    obtenerReporteFinanciero(periodo: number, anio: number): Observable<ReporteEstudiantesDTORespuesta> {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.obtenerReporteFinanciero(periodo, anio).pipe(
@@ -173,13 +173,10 @@ export class GestionInformacionPresupuestariaFacadeService {
         );
     }
 
-    actualizarGastoGeneral(gasto: GastoGeneralDTOPeticion): Observable<any> {
+    actualizarGastoGeneral(gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta> {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarGastoGeneral(gasto).pipe(
-            tap(() => {
-                // Ideally reload reporteGrupos or update local state
-            }),
             catchError(error => {
                 this._error.next(error);
                 return throwError(() => error);
@@ -188,13 +185,10 @@ export class GestionInformacionPresupuestariaFacadeService {
         );
     }
 
-    crearGastoGeneral(gasto: GastoGeneralDTOPeticion): Observable<any> {
+    crearGastoGeneral(gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta> {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.crearGastoGeneral(gasto).pipe(
-            tap(() => {
-                // Ideally reload reporteGrupos or update local state
-            }),
             catchError(error => {
                 this._error.next(error);
                 return throwError(() => error);
@@ -207,9 +201,6 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.eliminarGastoGeneral(idGastoGeneral).pipe(
-            tap(() => {
-                // Ideally reload reporteGrupos or update local state
-            }),
             catchError(error => {
                 this._error.next(error);
                 return throwError(() => error);

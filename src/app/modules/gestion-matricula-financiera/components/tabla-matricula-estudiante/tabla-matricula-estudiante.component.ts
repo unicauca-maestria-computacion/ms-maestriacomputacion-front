@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { Estudiante } from '../../models/domain-models';
+import { Estudiante, MatriculaAcademica, Materia } from '../../models/domain-models';
 
 @Component({
   selector: 'app-tabla-matricula-estudiante',
@@ -54,5 +54,13 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
 
   getNombreCompleto(): string {
       return this.estudiante ? `${this.estudiante.nombre} ${this.estudiante.apellido}` : '';
+  }
+
+  trackByMatricula(_index: number, matricula: MatriculaAcademica): number {
+      return matricula.semestre;
+  }
+
+  trackByMateria(_index: number, materia: Materia): string {
+      return materia.codigo_oid;
   }
 }

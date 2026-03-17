@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { MessageService } from 'primeng/api';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { ConfiguracionReporteFinanciero, ProyeccionEstudiante, ReporteProyeccionEstudiantes } from '../../models/domain-models';
@@ -25,7 +27,9 @@ interface EstudianteProyeccion extends ProyeccionEstudiante {
   styleUrls: ['./proyeccion-reporte.component.scss'],
   providers: [MessageService]
 })
-export class ProyeccionReporteComponent implements OnInit {
+export class ProyeccionReporteComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   cargando: boolean = false;
   guardando: boolean = false; // Used for global saving spinner
@@ -50,6 +54,11 @@ export class ProyeccionReporteComponent implements OnInit {
     private messageService: MessageService,
     private facadeService: GestionInformacionPresupuestariaFacadeService
   ) { }
+
+  // --- Control de Edición Global ---
+  get isAnyEditActive(): boolean {
+    return this.editandoCabecera || this.editingRowKey !== null;
+  }
 
   ngOnInit(): void {
     // Initial load handled by selector component
@@ -116,7 +125,7 @@ export class ProyeccionReporteComponent implements OnInit {
     // I'll stick to just reloading for now without arguments to avoid breaking signature if I'm not sure.
     // AND I will update `periodoActualTexto` from data.
 
-    this.facadeService.obtenerProyeccionEstudiantes().subscribe({
+    this.facadeService.obtenerProyeccionEstudiantes().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.procesarRespuesta(data);
         this.cargando = false;
@@ -222,12 +231,12 @@ export class ProyeccionReporteComponent implements OnInit {
       objPeriodoAcademico: this.configuracion.objPeriodoAcademico
     };
 
-    this.facadeService.actualizarConfiguracionProyeccion(configUpdate).subscribe({
-      next: (data) => {
-        this.procesarRespuesta(data);
+    this.facadeService.actualizarConfiguracionProyeccion(configUpdate).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (_data) => {
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Configuración actualizada correctamente' });
         this.guardando = false;
         this.clonedCabecera = {};
+        this.cargarProyeccion(this.periodoSeleccionado ?? undefined);
       },
       error: (err) => {
         console.error('Error update config', err);
@@ -279,7 +288,7 @@ export class ProyeccionReporteComponent implements OnInit {
       porcentajeEgresado: this.toRatio(estudiante.porcentajeEgresado)
     };
 
-    this.facadeService.actualizarProyeccionEstudiante(proyeccionUpdate).subscribe({
+    this.facadeService.actualizarProyeccionEstudiante(proyeccionUpdate).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.actualizarSoloFilaModificada(data);
         delete this.clonedEstudiantes[estudiante.codigoEstudiante];
@@ -395,6 +404,11 @@ export class ProyeccionReporteComponent implements OnInit {
   formatPercent(value: number): string {
     const pct = value != null && value <= 1 && value >= 0 ? value * 100 : value;
     return `${Number(pct).toFixed(1)} %`;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   descargar(): void {

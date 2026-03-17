@@ -1,45 +1,93 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { Estudiante } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.service';
+import { GestionMatriculaFinancieraExcelService } from '../../services/excel.service';
 
 @Component({
   selector: 'app-detalle-estudiante',
   templateUrl: './detalle-estudiante.component.html',
-  styleUrls: ['./detalle-estudiante.component.scss']
+  styleUrls: ['./detalle-estudiante.component.scss'],
+  providers: [MessageService]
 })
-export class DetalleEstudianteComponent implements OnInit {
+export class DetalleEstudianteComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   estudiante: Estudiante | null = null;
   loading: boolean = false;
-  
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private facadeService: GestionMatriculaFinancieraFacadeService
+    private facadeService: GestionMatriculaFinancieraFacadeService,
+    private excelService: GestionMatriculaFinancieraExcelService,
+    private messageService: MessageService
   ) { }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
         const id = params.get('id');
-        if (id) {
-            this.cargarEstudiante(id);
+        if (!id || id.trim() === '') {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'El identificador del estudiante no es válido.'
+            });
+            this.router.navigate(['/gestion-matricula-financiera']);
+            return;
         }
+        this.cargarEstudiante(id);
     });
   }
 
   cargarEstudiante(id: string): void {
       this.loading = true;
-      this.facadeService.obtenerEstudiante(id).subscribe({
+      this.facadeService.obtenerEstudiante(id).pipe(takeUntil(this.destroy$)).subscribe({
           next: (data) => {
+              if (!data) {
+                  this.messageService.add({
+                      severity: 'error',
+                      summary: 'Error',
+                      detail: 'No se encontró información para el estudiante solicitado.'
+                  });
+                  this.router.navigate(['/gestion-matricula-financiera']);
+                  return;
+              }
               this.estudiante = data;
               this.loading = false;
           },
           error: (err) => {
               console.error('Error cargando estudiante', err);
+              this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: 'No se pudo cargar la información del estudiante. Volviendo a la lista.'
+              });
               this.loading = false;
+              this.router.navigate(['/gestion-matricula-financiera']);
           }
       });
+  }
+
+  ngOnDestroy(): void {
+      this.destroy$.next();
+      this.destroy$.complete();
+  }
+
+  descargarExcelDetalle(): void {
+      if (!this.estudiante) {
+          this.messageService.add({
+              severity: 'warn',
+              summary: 'Sin datos',
+              detail: 'No hay información del estudiante para exportar.'
+          });
+          return;
+      }
+      this.excelService.generarExcelDetalleEstudiante(this.estudiante);
   }
 
   volver(): void {

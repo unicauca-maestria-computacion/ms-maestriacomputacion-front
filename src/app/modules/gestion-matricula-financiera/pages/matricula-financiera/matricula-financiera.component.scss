@@ -1,6 +1,6 @@
 .table-container {
     margin: 1rem auto 0 auto;
-    max-width: 1200px;
+    max-width: 1400px;
 }
 
 .py-8 {
@@ -13,7 +13,7 @@
         padding: 1.5rem;
     }
 
-    /* Asegurar que el dropdown del paginador se vea bien en PrimeNG 13 */
+    /* Paginador */
     .p-paginator .p-dropdown {
         min-width: 4rem;
         margin-left: 0.5rem;
@@ -25,5 +25,11 @@
             justify-content: flex-end;
             padding: 1rem;
         }
+    }
+
+    /* Botón de acción en tabla */
+    .p-datatable .p-button-sm {
+        font-size: 0.85rem;
+        white-space: nowrap;
     }
 }

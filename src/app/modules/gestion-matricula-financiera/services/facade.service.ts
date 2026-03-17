@@ -4,7 +4,7 @@ import { catchError, finalize, map, tap } from 'rxjs/operators';
 import { GestionMatriculaFinancieraApiService } from './api.service';
 import { GestionMatriculaFinancieraMapperService } from './mapper.service';
 import { Estudiante, PeriodoAcademico } from '../models/domain-models';
-import { ApiError } from '../../gestion-informacion-presupuestaria/dto/api-error';
+import { ApiError } from '../dto/api-error';
 
 @Injectable({
     providedIn: 'root'

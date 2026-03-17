@@ -1,21 +1,53 @@
-<p-card>
-    <div *ngIf="loading" class="flex flex-column align-items-center justify-content-center" style="height: 200px;">
-        <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s"></p-progressSpinner>
-        <span class="mt-3 text-lg">Cargando su información de matrícula...</span>
-    </div>
+<p-toast></p-toast>
+<div class="col-12">
+    <p-card>
 
-    <div *ngIf="!loading && estudiante">
-        
-        <!-- Tabla Compartida -->
-        <app-tabla-matricula-estudiante [estudiante]="estudiante"></app-tabla-matricula-estudiante>
-
-        <!-- Botón Solicitar Revisión (Estilo igual al de Atras) -->
-        <div class="mt-5 flex justify-content-center">
-            <button pButton type="button" 
-                label="Solicitar Revisión" 
-                icon="pi pi-send" 
-                (click)="solicitarRevision()">
-            </button>
+        <!-- Spinner de Carga -->
+        <div *ngIf="loading" class="flex flex-column align-items-center justify-content-center py-8">
+            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
+            </p-progressSpinner>
+            <span class="mt-3 text-lg">Cargando su información de matrícula...</span>
         </div>
-    </div>
-</p-card>
+
+        <!-- Contenido Principal -->
+        <div *ngIf="!loading && estudiante">
+
+            <!-- Header con nombre del estudiante -->
+            <div class="mb-4 pb-3 border-bottom-1 surface-border">
+                <h2 class="m-0 text-700">Mi Matrícula Financiera</h2>
+                <span class="text-500 text-sm">Consulta el estado y detalle de tu matrícula</span>
+            </div>
+
+            <!-- Tabla Compartida de Matrícula -->
+            <app-tabla-matricula-estudiante [estudiante]="estudiante"></app-tabla-matricula-estudiante>
+
+            <p-divider></p-divider>
+
+            <!-- Acción: Solicitar Revisión -->
+            <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3 mt-3">
+                <div class="flex align-items-center gap-2 text-500">
+                    <i class="pi pi-info-circle"></i>
+                    <span class="text-sm">Si encuentras algún inconveniente con tu matrícula, puedes solicitar una revisión.</span>
+                </div>
+                <button pButton pRipple
+                    type="button"
+                    label="Solicitar Revisión"
+                    icon="pi pi-send"
+                    class="p-button-outlined flex-shrink-0"
+                    (click)="solicitarRevision()">
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Estado vacío -->
+        <div *ngIf="!loading && !estudiante">
+            <div class="flex flex-column align-items-center justify-content-center py-8 text-400">
+                <i class="pi pi-inbox text-5xl mb-3"></i>
+                <span class="text-lg font-medium text-700">No se encontró información de matrícula</span>
+                <span class="text-sm mt-1">Si crees que esto es un error, contacta a la coordinación</span>
+            </div>
+        </div>
+
+    </p-card>
+</div>

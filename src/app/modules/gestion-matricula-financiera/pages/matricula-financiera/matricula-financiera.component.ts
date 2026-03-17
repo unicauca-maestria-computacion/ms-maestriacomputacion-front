@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.service';
+import { GestionMatriculaFinancieraExcelService } from '../../services/excel.service';
 import { Estudiante, PeriodoAcademico } from '../../models/domain-models';
 
 @Component({
@@ -9,7 +12,9 @@ import { Estudiante, PeriodoAcademico } from '../../models/domain-models';
     templateUrl: './matricula-financiera.component.html',
     styleUrls: ['./matricula-financiera.component.scss']
 })
-export class MatriculaFinancieraComponent implements OnInit {
+export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
+
+    private destroy$ = new Subject<void>();
 
     estudiantes: Estudiante[] = [];
     estudiantesFiltrados: Estudiante[] = [];
@@ -17,11 +22,11 @@ export class MatriculaFinancieraComponent implements OnInit {
 
     // Períodos
     periodos: PeriodoAcademico[] = [];
-    periodosDropdown: any[] = [];
+    periodosDropdown: { label: string; value: PeriodoAcademico }[] = [];
     periodoSeleccionado: PeriodoAcademico | null = null;
 
     // Semestres Financieros
-    semestres: any[] = [];
+    semestres: { label: string; value: number }[] = [];
     semestreSeleccionado: number | null = null; // null representará "Todos"
 
     // Fecha de Matrícula
@@ -29,6 +34,7 @@ export class MatriculaFinancieraComponent implements OnInit {
 
     constructor(
         private facadeService: GestionMatriculaFinancieraFacadeService,
+        private excelService: GestionMatriculaFinancieraExcelService,
         private messageService: MessageService,
         private router: Router,
         private route: ActivatedRoute
@@ -41,7 +47,7 @@ export class MatriculaFinancieraComponent implements OnInit {
 
     cargarPeriodos(): void {
         this.loading = true;
-        this.facadeService.obtenerPeriodosAcademicos().subscribe({
+        this.facadeService.obtenerPeriodosAcademicos().pipe(takeUntil(this.destroy$)).subscribe({
             next: (periodos) => {
                 this.periodos = periodos;
                 this.periodosDropdown = periodos.map(p => ({
@@ -80,7 +86,7 @@ export class MatriculaFinancieraComponent implements OnInit {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'No se pudieron cargar los períodos académicos'
+                    detail: 'No se pudieron cargar los períodos académicos. Intente nuevamente más tarde.'
                 });
                 this.loading = false;
             }
@@ -91,9 +97,9 @@ export class MatriculaFinancieraComponent implements OnInit {
         if (!this.periodoSeleccionado) return;
 
         this.loading = true;
-        this.facadeService.obtenerEstudiantes(this.periodoSeleccionado).subscribe({
+        this.facadeService.obtenerEstudiantes(this.periodoSeleccionado).pipe(takeUntil(this.destroy$)).subscribe({
             next: (estudiantes) => {
-                this.estudiantes = estudiantes;
+                this.estudiantes = estudiantes ?? [];
                 this.extraerSemestres();
                 this.aplicarFiltros();
                 this.loading = false;
@@ -102,7 +108,7 @@ export class MatriculaFinancieraComponent implements OnInit {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'No se pudieron cargar los estudiantes'
+                    detail: 'No se pudieron cargar los estudiantes. Intente nuevamente más tarde.'
                 });
                 this.loading = false;
             }
@@ -170,6 +176,35 @@ export class MatriculaFinancieraComponent implements OnInit {
 
     verDetalle(estudiante: Estudiante): void {
         this.router.navigate(['detalle', estudiante.codigo], { relativeTo: this.route });
+    }
+
+    descargarExcel(): void {
+        if (!this.periodoSeleccionado) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'Seleccione un período académico antes de exportar.'
+            });
+            return;
+        }
+        if (!this.estudiantesFiltrados?.length) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Sin datos',
+                detail: 'No hay estudiantes para exportar con los filtros actuales.'
+            });
+            return;
+        }
+        this.excelService.generarExcelListaEstudiantes(this.estudiantesFiltrados, this.periodoSeleccionado);
+    }
+
+    getInputValue(event: Event): string {
+        return (event.target as HTMLInputElement).value;
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
 }

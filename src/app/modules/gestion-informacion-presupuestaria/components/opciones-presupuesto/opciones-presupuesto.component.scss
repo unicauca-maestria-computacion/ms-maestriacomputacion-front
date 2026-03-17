@@ -1,9 +1,9 @@
-// Prevent tabs from wrapping and keep them horizontal
-.p-selectbutton .p-buttonset {
-  flex-wrap: nowrap;
+// Evitar wrap de los botones del selectButton
+:host ::ng-deep .p-selectbutton .p-button {
+    white-space: nowrap;
 }
 
-// Ensure the active tab has borders on all sides
-.p-selectbutton .p-button.p-highlight {
-  border-right: 1px solid #d1d5db;
+// Borde completo en tab activo
+:host ::ng-deep .p-selectbutton .p-button.p-highlight {
+    border-right: 1px solid var(--surface-border, #d1d5db);
 }

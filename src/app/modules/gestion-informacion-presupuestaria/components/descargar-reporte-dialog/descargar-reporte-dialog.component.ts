@@ -1,4 +1,6 @@
-import { Component, EventEmitter, Input, Output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { ExcelService } from '../../services/excel.service';
@@ -9,7 +11,9 @@ import { MessageService } from 'primeng/api';
   templateUrl: './descargar-reporte-dialog.component.html',
   styleUrls: ['./descargar-reporte-dialog.component.scss']
 })
-export class DescargarReporteDialogComponent implements OnInit, OnChanges {
+export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnChanges {
+  private destroy$ = new Subject<void>();
+
   @Input() display: boolean = false;
   @Input() activeReportCode: string = '';
   @Input() activePeriod: PeriodoAcademicoDTORespuesta | null = null;
@@ -22,10 +26,10 @@ export class DescargarReporteDialogComponent implements OnInit, OnChanges {
     { name: 'Reporte por Grupos', value: 'reporte-por-grupos' }
   ];
 
-  periodOptions: any[] = [];
-  allPeriodOptions: any[] = []; // Guardamos todos para filtrar según el reporte
+  periodOptions: { name: string; value: PeriodoAcademicoDTORespuesta }[] = [];
+  allPeriodOptions: { name: string; value: PeriodoAcademicoDTORespuesta }[] = [];
   selectedReport: string = '';
-  selectedPeriod: any = null;
+  selectedPeriod: PeriodoAcademicoDTORespuesta | null = null;
   loadingPeriods: boolean = false;
   loadingDownload: boolean = false;
 
@@ -47,7 +51,7 @@ export class DescargarReporteDialogComponent implements OnInit, OnChanges {
 
   cargarPeriodos() {
     this.loadingPeriods = true;
-    this.facadeService.obtenerPeriodosAcademicos().subscribe({
+    this.facadeService.obtenerPeriodosAcademicos().pipe(takeUntil(this.destroy$)).subscribe({
       next: (periodos) => {
         this.allPeriodOptions = periodos.map(p => ({
           name: `${p.año}-${p.periodo}`,
@@ -59,6 +63,11 @@ export class DescargarReporteDialogComponent implements OnInit, OnChanges {
       },
       error: () => {
         this.loadingPeriods = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar los períodos académicos. Intente nuevamente más tarde.'
+        });
       }
     });
   }
@@ -115,7 +124,14 @@ export class DescargarReporteDialogComponent implements OnInit, OnChanges {
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   cerrar() {
+    // Resetear estado del formulario al cerrar el dialog
+    this.loadingDownload = false;
     this.displayChange.emit(false);
   }
 
@@ -153,8 +169,17 @@ export class DescargarReporteDialogComponent implements OnInit, OnChanges {
   }
 
   private descargarReporteFinal(periodo: { año: number; periodo: number }) {
-    this.facadeService.obtenerReporteFinanciero(periodo.periodo, periodo.año).subscribe({
+    this.facadeService.obtenerReporteFinanciero(periodo.periodo, periodo.año).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
+        if (!data || !data.estudiantes || data.estudiantes.length === 0) {
+          this.loadingDownload = false;
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Sin datos',
+            detail: 'No hay registros disponibles para exportar en el período seleccionado.'
+          });
+          return;
+        }
         this.excelService.generarExcelReporteFinal(data);
         this.loadingDownload = false;
         this.messageService.add({
@@ -177,8 +202,17 @@ export class DescargarReporteDialogComponent implements OnInit, OnChanges {
   }
 
   private descargarProyeccionReporte() {
-    this.facadeService.obtenerProyeccionEstudiantes().subscribe({
+    this.facadeService.obtenerProyeccionEstudiantes().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
+        if (!data || !data.estudiantes || data.estudiantes.length === 0) {
+          this.loadingDownload = false;
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Sin datos',
+            detail: 'No hay registros disponibles para exportar en la proyección actual.'
+          });
+          return;
+        }
         this.excelService.generarExcelProyeccionReporte(data);
         this.loadingDownload = false;
         this.messageService.add({
@@ -201,8 +235,17 @@ export class DescargarReporteDialogComponent implements OnInit, OnChanges {
   }
 
   private descargarReportePorGrupos(periodo: { año: number; periodo: number }) {
-    this.facadeService.obtenerReporteGrupos(periodo.periodo, periodo.año).subscribe({
+    this.facadeService.obtenerReporteGrupos(periodo.periodo, periodo.año).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
+        if (!data || !data.objConfiguracionReporteGrupos) {
+          this.loadingDownload = false;
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Sin datos',
+            detail: 'No hay registros disponibles para exportar en el período seleccionado.'
+          });
+          return;
+        }
         this.excelService.generarExcelReportePorGrupos(data);
         this.loadingDownload = false;
         this.messageService.add({

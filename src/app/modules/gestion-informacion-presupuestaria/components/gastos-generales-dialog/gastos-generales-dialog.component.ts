@@ -1,4 +1,6 @@
-import { Component, EventEmitter, Input, Output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { GastoGeneral } from '../../models/domain-models';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -8,7 +10,9 @@ import { ConfirmationService, MessageService } from 'primeng/api';
   templateUrl: './gastos-generales-dialog.component.html',
   styleUrls: ['./gastos-generales-dialog.component.scss']
 })
-export class GastosGeneralesDialogComponent implements OnInit, OnChanges {
+export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChanges {
+  private destroy$ = new Subject<void>();
+
   @Input() display: boolean = false;
   @Input() gastos: GastoGeneral[] = [];
   /** ID de la configuración de reporte por grupos actual (periodo seleccionado). Se envía al crear un gasto. */
@@ -31,6 +35,11 @@ export class GastosGeneralesDialogComponent implements OnInit, OnChanges {
   ngOnInit(): void {
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['display']?.currentValue === true) {
       this.prepararGastos();
@@ -46,6 +55,11 @@ export class GastosGeneralesDialogComponent implements OnInit, OnChanges {
   }
 
   cerrar() {
+    // Resetear estado del formulario al cerrar el dialog
+    this.editingGastoKey = null;
+    this.clonedGasto = {};
+    this.nuevoGasto = null;
+    this.guardandoGastos = false;
     this.displayChange.emit(false);
   }
 
@@ -83,7 +97,7 @@ export class GastosGeneralesDialogComponent implements OnInit, OnChanges {
       monto: this.nuevoGasto.monto
     };
 
-    this.facadeService.crearGastoGeneral(gastoDTO).subscribe({
+    this.facadeService.crearGastoGeneral(gastoDTO).pipe(takeUntil(this.destroy$)).subscribe({
       next: (gastoCreado) => {
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto creado correctamente' });
         this.onCambio.emit();
@@ -129,7 +143,7 @@ export class GastosGeneralesDialogComponent implements OnInit, OnChanges {
       monto: gasto.monto
     };
 
-    this.facadeService.actualizarGastoGeneral(gastoDTO).subscribe({
+    this.facadeService.actualizarGastoGeneral(gastoDTO).pipe(takeUntil(this.destroy$)).subscribe({
       next: (gastoActualizado) => {
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto actualizado correctamente' });
         this.onCambio.emit();
@@ -171,7 +185,7 @@ export class GastosGeneralesDialogComponent implements OnInit, OnChanges {
 
   eliminarGasto(gasto: GastoGeneral) {
     this.guardandoGastos = true;
-    this.facadeService.eliminarGastoGeneral(gasto.idGastoGeneral).subscribe({
+    this.facadeService.eliminarGastoGeneral(gasto.idGastoGeneral).pipe(takeUntil(this.destroy$)).subscribe({
       next: (success) => {
         if (success) {
           this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto eliminado correctamente' });

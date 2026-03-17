@@ -88,8 +88,8 @@ export class GestionMatriculaFinancieraMapperService {
 
     mappearDeRespuestaAMatriculaAcademica(dto: MatriculaAcademicaDTORespuesta): MatriculaAcademica {
         return {
-            semestre: dto.semestre,
-            materias: dto.materias.map(m => this.mappearDeRespuestaAMateria(m)),
+            semestre: dto.semestre || 0,
+            materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m)),
             objPeriodoAcademico: this.mappearDeRespuestaAPeriodoAcademico(dto.objPeriodoAcademico)
         };
     }
@@ -107,7 +107,7 @@ export class GestionMatriculaFinancieraMapperService {
     mappearDeRespuestaAMatriculaFinanciera(dto: MatriculaFinancieraDTORespuesta): MatriculaFinanciera {
         return {
             fechaMatricula: dto.fechaMatricula,
-            valorMatricula: dto.valorMatricula,
+            valorMatricula: dto.valorMatricula || 0,
             objPeriodoAcademico: this.mappearDeRespuestaAPeriodoAcademico(dto.objPeriodoAcademico)
         };
     }
@@ -125,7 +125,7 @@ export class GestionMatriculaFinancieraMapperService {
     mappearDeRespuestaABecaFinanciera(dto: BecasDTORespuesta): BecaFinanciera {
         return {
             resolucion: dto.resolucion,
-            porcentaje: dto.porcentaje
+            porcentaje: dto.porcentaje || 0
         };
     }
 
@@ -141,7 +141,7 @@ export class GestionMatriculaFinancieraMapperService {
     mappearDeRespuestaADescuentoFinanciero(dto: DescuentosDTORespuesta): DescuentoFinanciero {
         return {
             tipoDescuento: dto.tipoDescuento,
-            porcentaje: dto.porcentaje
+            porcentaje: dto.porcentaje || 0
         };
     }
 
@@ -162,11 +162,11 @@ export class GestionMatriculaFinancieraMapperService {
             identificacion: dto.identificacion,
             cohorte: dto.cohorte,
             periodoIngreso: dto.periodoIngreso,
-            semestreFinanciero: dto.semestreFinanciero,
-            matriculasFinancieras: dto.matriculasFinancieras.map(mf => this.mappearDeRespuestaAMatriculaFinanciera(mf)),
-            descuentos: dto.descuentos.map(d => this.mappearDeRespuestaADescuentoFinanciero(d)),
-            becas: dto.becas.map(b => this.mappearDeRespuestaABecaFinanciera(b)),
-            matriculasAcademicas: dto.matriculasAcademicas.map(ma => this.mappearDeRespuestaAMatriculaAcademica(ma))
+            semestreFinanciero: dto.semestreFinanciero || 0,
+            matriculasFinancieras: (dto.matriculasFinancieras ?? []).map(mf => this.mappearDeRespuestaAMatriculaFinanciera(mf)),
+            descuentos: (dto.descuentos ?? []).map(d => this.mappearDeRespuestaADescuentoFinanciero(d)),
+            becas: (dto.becas ?? []).map(b => this.mappearDeRespuestaABecaFinanciera(b)),
+            matriculasAcademicas: (dto.matriculasAcademicas ?? []).map(ma => this.mappearDeRespuestaAMatriculaAcademica(ma))
         };
     }
 

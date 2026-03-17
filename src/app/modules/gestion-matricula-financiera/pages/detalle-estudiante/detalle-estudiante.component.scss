@@ -1,3 +1,13 @@
+.py-8 {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+:host ::ng-deep {
+    .p-card .p-card-body {
+        padding: 1.5rem;
+    }
+}
 
 .no-card-shadow {
     box-shadow: none !important;
@@ -6,10 +16,10 @@
 }
 
 .table-container {
-    background-color: white;
+    background-color: var(--surface-card, white);
     max-width: 1100px;
     margin: 0 auto;
-    padding: 0; 
+    padding: 0;
 }
 
 /* Reset basic table styles */
@@ -44,7 +54,7 @@ th {
 
 /* Titles and Middle Section - Shared Styles */
 .main-title, .middle-section-top {
-    font-size: 1.25rem; /* text-xl equivalence */
+    font-size: 1.25rem;
     padding: 1rem;
     background: white;
     text-align: center;
@@ -55,13 +65,13 @@ th {
 @media screen and (min-width: 961px) {
     .main-title {
         border: 1px solid #000;
-        border-bottom: none; /* Let table cells provide the bottom line */
+        border-bottom: none;
     }
 
     .middle-section-top {
         border-left: 1px solid #000;
         border-right: 1px solid #000;
-        border-top: none; /* Let table above provide top line */
+        border-top: none;
     }
 
     .middle-section-bottom {
@@ -88,14 +98,14 @@ th {
 }
 
 .vertical-text {
-    writing-mode: vertical-rl; 
-    text-orientation: upright; 
+    writing-mode: vertical-rl;
+    text-orientation: upright;
     white-space: nowrap;
     margin: 0 auto;
 }
 
 /* -------------------------------------------------------------------------- */
-/* Responsive Logic (Stack Mode)                                             */
+/* Responsive Logic (Stack Mode)                                               */
 /* -------------------------------------------------------------------------- */
 
 .p-column-title {
@@ -107,7 +117,7 @@ th {
 @media screen and (max-width: 960px) {
     .main-title, .middle-section-top {
         border: none !important;
-        font-size: 1.1rem; /* Matched sizes */
+        font-size: 1.1rem;
         padding-bottom: 0.5rem;
         padding-top: 1.5rem;
         font-weight: bold;
@@ -146,13 +156,13 @@ th {
             display: block;
             width: 100%;
             margin-bottom: 0;
-            border: 1px solid #000 !important; /* Card frame */
-            border-top: none !important; /* Avoid double lines between rows */
+            border: 1px solid #000 !important;
+            border-top: none !important;
 
             &:first-child {
-                border-top: 1px solid #000 !important; /* Restore for the very first item */
+                border-top: 1px solid #000 !important;
             }
-            
+
             td {
                 display: flex !important;
                 justify-content: space-between;
@@ -162,7 +172,7 @@ th {
                 border: none !important;
                 border-bottom: 1px solid #eee !important;
                 padding: 0.75rem !important;
-                
+
                 &:last-child {
                     border-bottom: none !important;
                 }
@@ -171,7 +181,7 @@ th {
                     display: block;
                     text-align: left;
                     font-size: 0.85rem;
-                    color: #666;
+                    color: var(--text-color-secondary, #6c757d);
                 }
             }
         }

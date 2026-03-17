@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { ConfiguracionReporteGrupos, ReportePorGrupos, ReportePorGrupoFila, GastoGeneral } from '../../models/domain-models';
 import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
@@ -20,7 +22,9 @@ interface TableRow {
   templateUrl: './reporte-por-grupos.component.html',
   styleUrls: ['./reporte-por-grupos.component.scss']
 })
-export class ReportePorGruposComponent implements OnInit {
+export class ReportePorGruposComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   configuracion: ReportePorGrupos | null = null;
   tableRows: TableRow[] = [];
@@ -31,11 +35,11 @@ export class ReportePorGruposComponent implements OnInit {
   periodoSeleccionado: PeriodoAcademicoDTORespuesta | null = null;
   editingRowKey: string | null = null;
   editingBudgetRowKey: string | null = null;
-  clonedRow: { [s: string]: any } = {};
-  clonedBudgetRow: { [s: string]: any } = {};
+  clonedRow: { [s: string]: number } = {};
+  clonedBudgetRow: { [s: string]: { [groupName: string]: number } } = {};
 
-  basicData: any;
-  basicOptions: any;
+  basicData: object = {};
+  basicOptions: object = {};
 
   constructor(
     private facadeService: GestionInformacionPresupuestariaFacadeService,
@@ -55,7 +59,7 @@ export class ReportePorGruposComponent implements OnInit {
   cargarDatos(periodoObj: PeriodoAcademicoDTORespuesta): void {
     this.loading = true;
 
-    this.facadeService.obtenerReporteGrupos(periodoObj.periodo, periodoObj.año).subscribe({
+    this.facadeService.obtenerReporteGrupos(periodoObj.periodo, periodoObj.año).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
         this.normalizarPorcentajesParaDisplay(this.configuracion);
@@ -256,7 +260,38 @@ export class ReportePorGruposComponent implements OnInit {
     this.editingRowKey = null;
     this.clonedRow = {};
 
-    console.log('Saved row:', row);
+    // Persist participation percentage changes to the backend
+    const porcentajes = this.groupColumns.map(grupo => ({
+      idGrupo: '',
+      nombreGrupo: grupo.nombre,
+      porcentaje: this.toRatio(row.values[grupo.nombre] ?? 0)
+    }));
+
+    if (row.key === 'participacionPrimerSemestre') {
+      this.facadeService.actualizarPorcentajeParticipacionPrimerSemestre(porcentajes).pipe(takeUntil(this.destroy$)).subscribe({
+        next: (data) => {
+          this.configuracion = data;
+          this.normalizarPorcentajesParaDisplay(this.configuracion);
+          this.procesarDatosTabla(this.configuracion);
+          this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Participación 1er semestre actualizada.' });
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar la participación del 1er semestre.' });
+        }
+      });
+    } else if (row.key === 'participacionSegundoSemestre') {
+      this.facadeService.actualizarPorcentajeParticipacionSegundoSemestre(porcentajes).pipe(takeUntil(this.destroy$)).subscribe({
+        next: (data) => {
+          this.configuracion = data;
+          this.normalizarPorcentajesParaDisplay(this.configuracion);
+          this.procesarDatosTabla(this.configuracion);
+          this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Participación 2do semestre actualizada.' });
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar la participación del 2do semestre.' });
+        }
+      });
+    }
   }
 
   onRowEditCancel(row: TableRow, index: number) {
@@ -328,11 +363,11 @@ export class ReportePorGruposComponent implements OnInit {
 
     if (aui !== undefined) {
       this.configuracion!.objConfiguracionReporteGrupos.aUIPorcentaje = aui;
-      this.facadeService.actualizarPorcentajeAUIUniversidad(this.toRatio(aui)).subscribe({
+      this.facadeService.actualizarPorcentajeAUIUniversidad(this.toRatio(aui)).pipe(takeUntil(this.destroy$)).subscribe({
         next: (data) => {
           if (excedentes !== undefined) {
             this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
-            this.facadeService.actualizarValorExcedentesMaestria(excedentes).subscribe({
+            this.facadeService.actualizarValorExcedentesMaestria(excedentes).pipe(takeUntil(this.destroy$)).subscribe({
               next: (d) => finish(d),
               error: () => onError('No se pudo actualizar excedentes.')
             });
@@ -344,7 +379,7 @@ export class ReportePorGruposComponent implements OnInit {
       });
     } else if (excedentes !== undefined) {
       this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
-      this.facadeService.actualizarValorExcedentesMaestria(excedentes).subscribe({
+      this.facadeService.actualizarValorExcedentesMaestria(excedentes).pipe(takeUntil(this.destroy$)).subscribe({
         next: (data) => finish(data),
         error: () => onError('No se pudo actualizar excedentes.')
       });
@@ -396,7 +431,7 @@ export class ReportePorGruposComponent implements OnInit {
     this.facadeService.actualizarPorcentajeItems({
       item1: this.toRatio(item1),
       item2: this.toRatio(item2)
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
         this.normalizarPorcentajesParaDisplay(this.configuracion);
@@ -459,7 +494,7 @@ export class ReportePorGruposComponent implements OnInit {
     this.guardandoImprevistos = true;
     this.editandoImprevistos = false;
     const valor = this.clonedImprevistos;
-    this.facadeService.actualizarPorcentajeImprevistos(this.toRatio(valor)).subscribe({
+    this.facadeService.actualizarPorcentajeImprevistos(this.toRatio(valor)).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
         this.normalizarPorcentajesParaDisplay(this.configuracion);
@@ -496,7 +531,7 @@ export class ReportePorGruposComponent implements OnInit {
       valor: row.values[grupo.nombre]
     }));
 
-    this.facadeService.actualizarValorVigenciasAnteriores(valoresGrupo).subscribe({
+    this.facadeService.actualizarValorVigenciasAnteriores(valoresGrupo).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
         this.normalizarPorcentajesParaDisplay(this.configuracion);
@@ -516,6 +551,15 @@ export class ReportePorGruposComponent implements OnInit {
     row.values = this.clonedBudgetRow[row.key];
     delete this.clonedBudgetRow[row.key];
     this.editingBudgetRowKey = null;
+  }
+
+  trackByGroupNombre(_index: number, group: GroupColumn): string {
+    return group.nombre;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // --- Fin Lógica Cabecera ---

@@ -1,8 +1,13 @@
-.periodo-academico-texto {
-    font-size: 0.9rem;
-    color: #6c757d;
-    font-weight: 500;
+.page-content {
+    max-width: 1400px;
+    margin: 0 auto;
 }
+
+.table-container {
+    margin: 1rem auto 0 auto;
+    max-width: 1400px;
+}
+
 
 .chart-container {
     width: 100%;
@@ -10,156 +15,191 @@
     margin: 0 auto;
 }
 
-.periodo-academico-valor {
-    font-size: 1.3rem;
-    color: #495057;
-    font-weight: 600;
-}
-
-:host ::ng-deep .p-inputnumber {
-    width: 100%;
-
-    input {
-        width: 100% !important;
-        text-align: center;
-    }
-}
-
-.reporte-header {
-    background-color: #f8f9fa;
+.config-panel {
+    background-color: var(--surface-ground, #f8f9fa);
     padding: 1.5rem;
     border-radius: 8px;
-    margin-bottom: 1.5rem;
-    position: relative;
-
-    h2 {
-        color: #495057;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .field {
-        background-color: white;
-        padding: 1rem;
-        border-radius: 6px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        height: 100%;
-
-        label {
-            display: block;
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            text-align: left;
-        }
-
-        input {
-            text-align: center;
-            font-weight: 600;
-            color: #495057;
-            border: 1px solid #ced4da;
-
-            &:read-only {
-                background-color: #fff;
-            }
-        }
-    }
+    border: 1px solid var(--surface-border, #dee2e6);
 }
 
-.table-container {
-    margin: 1rem auto 0 auto;
-    max-width: 1200px;
+/* Layout del panel de configuración: una sola fila flex */
+.config-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 2.5rem;
+    align-items: flex-end;
+    padding-top: 1.5rem;  /* espacio para el label flotante */
+    justify-content: center;
+}
+
+.config-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;  /* empuja los botones al extremo derecho */
+    flex-shrink: 0;
+}
+
+
+.section-block {
+    border-radius: 8px;
+    overflow: visible;
+}
+
+:host ::ng-deep {
+    .p-float-label {
+        width: 180px;
+        display: inline-block;
+
+        p-inputnumber, 
+        .p-inputnumber {
+            width: 100% !important;
+            display: inline-block;
+        }
+
+        .p-inputnumber-input {
+            width: 100% !important;
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-color, #495057);
+            background-color: var(--surface-card, #ffffff);
+        }
+    }
 }
 
 .gastos-inputgroup {
-    width: auto;
+    width: 180px;
 
     @media screen and (max-width: 768px) {
         width: 100%;
     }
 
     input {
-        text-align: center;
-        min-width: 180px;
+        width: 100% !important;
+        text-align: right;
+        font-weight: 600;
+        color: var(--text-color, #495057);
+        background-color: var(--surface-card, #ffffff);
+    }
+    
+    :host ::ng-deep .p-inputtext {
+        width: 100% !important;
     }
 }
 
-/* Botón lápiz de Gastos Generales: fondo blanco e ícono azul como los demás botones de editar */
-:host ::ng-deep .gastos-inputgroup .gastos-edit-addon {
-    background-color: #fff !important;
-    border-color: #ced4da;
-    color: var(--p-primary-color, #3b82f6);
 
-    .pi-pencil {
-        color: var(--p-primary-color, #3b82f6);
+
+:host ::ng-deep .gastos-inputgroup {
+    .gastos-edit-button {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        border-right: none !important;
+        height: 38.08px !important;
+        background-color: var(--primary-color, #3b82f6) !important;
+        border: 1px solid var(--primary-color, #3b82f6) !important;
+        color: #ffffff !important;
+        transition: background-color 0.2s, box-shadow 0.2s, filter 0.2s;
+
+        &:enabled:hover {
+            background-color: var(--primary-color, #3b82f6) !important;
+            border-color: var(--primary-color, #3b82f6) !important;
+            filter: brightness(0.85); /* Standard PrimeNG-like darkening effect */
+        }
+
+        &:enabled:active {
+            filter: brightness(0.7);
+        }
+    }
+
+
+    .p-float-label .p-inputtext {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+        border-left: 1px solid var(--surface-border, #ced4da) !important;
+
+        &:disabled {
+            opacity: 0.6; /* Standard disabled look */
+            cursor: default;
+        }
     }
 }
 
-/* Estilos para que la tabla de distribución se vea bien en móvil */
-:host ::ng-deep .distribution-table {
-    border: none !important;
 
-    .p-datatable-tbody > tr {
-        border-bottom: none !important;
 
-        &:first-child {
-            border-top: 1px solid #dee2e6 !important;
-        }
-        &:last-child {
-            border-bottom: 1px solid #dee2e6 !important;
-        }
 
-        > td {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: none !important;
-            
-            // En desktop
-            .p-column-title {
-                display: none;
-            }
 
-            .desktop-label {
-                font-weight: 600;
-                color: #495057;
-            }
-
-            .value {
-                text-align: right;
-                font-weight: 500;
-            }
-        }
+:host ::ng-deep {
+    .p-card .p-card-body {
+        padding: 1.5rem;
     }
 
-    // En móvil (p-table stack mode activo)
-    @media screen and (max-width: 960px) {
+    .p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
+        background-color: var(--surface-ground, #f8f9fa);
+    }
+
+    .p-datatable .p-datatable-thead > tr > th {
+        background-color: var(--surface-section, #f8f9fa);
+        color: var(--text-color, #495057);
+        font-weight: 700;
+        border-bottom: 2px solid var(--surface-border, #dee2e6);
+    }
+
+    /* Tabla de distribución */
+    .distribution-table {
+        border: 1px solid var(--surface-border, #dee2e6) !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 4px;
+        overflow: hidden;
+
         .p-datatable-tbody > tr {
-            border: none !important;
-            
-            &:first-child {
-                border-top: 1px solid #dee2e6 !important;
-            }
+            border-bottom: 1px solid var(--surface-border, #dee2e6) !important;
+
             &:last-child {
-                border-bottom: 1px solid #dee2e6 !important;
+                border-bottom: none !important;
             }
 
             > td {
-                padding: 1rem !important;
+                border: none !important; /* Remove individual cell borders to avoid double lines */
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 1rem !important;
 
                 .p-column-title {
-                    display: block !important;
+                    display: none;
                 }
 
                 .desktop-label {
-                    display: none !important;
+                    font-weight: 600;
+                    color: var(--text-color, #495057);
                 }
 
                 .value {
-                    font-weight: 600;
+                    text-align: right;
+                    font-weight: 500;
+                }
+            }
+        }
+
+        @media screen and (max-width: 960px) {
+            .p-datatable-tbody > tr {
+                > td {
+                    .p-column-title {
+                        display: block !important;
+                    }
+
+                    .desktop-label {
+                        display: none !important;
+                    }
+
+                    .value {
+                        font-weight: 600;
+                    }
                 }
             }
         }
     }
 }
+
+

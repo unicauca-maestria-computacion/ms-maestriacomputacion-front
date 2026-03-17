@@ -1,266 +1,306 @@
 <div class="col-12">
     <p-toast></p-toast>
     <p-card>
-        <app-opciones-presupuesto [activeTab]="'proyeccion-reporte'" [currentPeriod]="periodoSeleccionado" (onDescargar)="descargar()">
-        </app-opciones-presupuesto>
+        <div class="page-content">
+            <app-opciones-presupuesto [activeTab]="'proyeccion-reporte'" [currentPeriod]="periodoSeleccionado" (onDescargar)="descargar()">
+            </app-opciones-presupuesto>
+    
+            <!-- Selector de Periodo Académico -->
+            <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)" [mostrarSoloUltimo]="true">
+            </app-periodo-academico-selector>
+        </div>
 
-        <!-- Selector de Periodo Académico (Now navigable) -->
-        <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)" [mostrarSoloUltimo]="true">
-        </app-periodo-academico-selector>
+
 
         <!-- Spinner de Carga Inicial -->
         <div *ngIf="cargando" class="flex justify-content-center align-items-center py-8">
             <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
             </p-progressSpinner>
-            <span class="ml-3 text-lg">Cargando datos...</span>
+            <span class="ml-3 text-lg text-600">Cargando datos...</span>
         </div>
 
-        <!-- Spinner de Guardado (reemplaza la tabla) -->
+        <!-- Spinner de Guardado -->
         <div *ngIf="guardando" class="flex justify-content-center align-items-center py-8">
             <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
             </p-progressSpinner>
-            <span class="ml-3 text-lg">Guardando cambios...</span>
+            <span class="ml-3 text-lg text-600">Guardando cambios...</span>
+        </div>
+
+        <!-- Sin datos -->
+        <div *ngIf="!cargando && !guardando && !configuracion" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
+            <i class="pi pi-inbox text-4xl text-400"></i>
+            <span class="text-600 text-lg">Seleccione un período académico para cargar la proyección.</span>
         </div>
 
         <!-- Contenido del Reporte -->
         <div *ngIf="!cargando && !guardando && configuracion" class="table-container">
+
             <!-- Panel de Configuración -->
-            <div class="mb-4 p-4">
+            <div class="config-panel mb-4">
                 <div class="text-center mb-4 border-bottom-1 surface-border pb-3">
-                    <h2 class="m-0 text-700">Proyección Reporte Financiero</h2>
+                    <h2 class="m-0 text-700 text-xl">Proyección Reporte Financiero</h2>
+                    <span class="text-500 text-sm">Configure los valores del período en curso</span>
                 </div>
+                <div class="config-row">
 
-                <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3 border-bottom-1 surface-border pb-3">
-                    
-                    <div class="flex flex-column md:flex-row flex-wrap gap-4 w-full">
-                        
-                        <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
-                            <p-inputNumber id="float-biblioteca" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.biblioteca" 
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" class="w-full">
-                            </p-inputNumber>
-                            <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.biblioteca"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" [disabled]="true" class="w-full">
-                            </p-inputNumber>
-                            <label for="float-biblioteca">Biblioteca</label>
-                        </span>
+                    <span class="p-float-label">
+                        <p-inputNumber id="float-biblioteca" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.biblioteca"
+                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" styleClass="config-input">
+                        </p-inputNumber>
+                        <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.biblioteca"
+                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                            [readonly]="true" [disabled]="true" styleClass="config-input">
+                        </p-inputNumber>
+                        <label for="float-biblioteca">Biblioteca</label>
+                    </span>
 
-                        <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
-                            <p-inputNumber id="float-recursos" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.recursosComputacionales"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" class="w-full">
-                            </p-inputNumber>
-                            <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.recursosComputacionales"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" [disabled]="true" class="w-full">
-                            </p-inputNumber>
-                            <label for="float-recursos">Recursos Comp.</label>
-                        </span>
+                    <span class="p-float-label">
+                        <p-inputNumber id="float-recursos" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.recursosComputacionales"
+                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" styleClass="config-input">
+                        </p-inputNumber>
+                        <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.recursosComputacionales"
+                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                            [readonly]="true" [disabled]="true" styleClass="config-input">
+                        </p-inputNumber>
+                        <label for="float-recursos">Recursos Computacionales</label>
+                    </span>
 
-                        <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
-                            <p-inputNumber id="float-matricula" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorMatricula"
-                                [minFractionDigits]="0" suffix=" SMLV" class="w-full">
-                            </p-inputNumber>
-                            <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.valorMatricula"
-                                [minFractionDigits]="0" suffix=" SMLV" [readonly]="true" [disabled]="true" class="w-full">
-                            </p-inputNumber>
-                            <label for="float-matricula">Matrícula (SMLV)</label>
-                        </span>
+                    <span class="p-float-label">
+                        <p-inputNumber id="float-matricula" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorMatricula"
+                            [minFractionDigits]="2" suffix=" SMLV" styleClass="config-input">
+                        </p-inputNumber>
+                        <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.valorMatricula"
+                            [minFractionDigits]="2" suffix=" SMLV"
+                            [readonly]="true" [disabled]="true" styleClass="config-input">
+                        </p-inputNumber>
+                        <label for="float-matricula">Matrícula (SMLV)</label>
+                    </span>
 
-                        <span class="p-float-label mt-3 md:mt-0 w-full md:w-auto">
-                            <p-inputNumber id="float-smlv" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorSMLV"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" class="w-full">
-                            </p-inputNumber>
-                            <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.valorSMLV"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [readonly]="true" [disabled]="true" class="w-full">
-                            </p-inputNumber>
-                            <label for="float-smlv">Valor SMLV</label>
-                        </span>
-                    </div>
+                    <span class="p-float-label">
+                        <p-inputNumber id="float-smlv" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorSMLV"
+                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" styleClass="config-input">
+                        </p-inputNumber>
+                        <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.valorSMLV"
+                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                            [readonly]="true" [disabled]="true" styleClass="config-input">
+                        </p-inputNumber>
+                        <label for="float-smlv">Valor SMLV</label>
+                    </span>
 
-                    <div class="flex align-items-center mt-3 md:mt-0">
+
+                    <!-- Controles de Edición de Cabecera -->
+                    <div class="config-row-actions">
                         <button *ngIf="!editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
-                            class="p-button-rounded p-button-text" (click)="onHeaderEditInit()"
-                            pTooltip="Editar Configuración" [disabled]="!!editingRowKey"></button>
-                        
-                        <div *ngIf="editandoCabecera" class="flex">
+                            class="p-button-rounded p-button-text p-button-secondary"
+                            pTooltip="Editar configuración" tooltipPosition="top"
+                            (click)="onHeaderEditInit()" [disabled]="isAnyEditActive">
+                        </button>
+                        <ng-container *ngIf="editandoCabecera">
                             <button pButton pRipple type="button" icon="pi pi-check"
-                                class="p-button-rounded p-button-text p-button-success mr-2"
-                                (click)="onHeaderEditSave()"></button>
+                                class="p-button-rounded p-button-text p-button-success"
+                                pTooltip="Guardar cambios" tooltipPosition="top"
+                                (click)="onHeaderEditSave()">
+                            </button>
                             <button pButton pRipple type="button" icon="pi pi-times"
-                                class="p-button-rounded p-button-text p-button-danger" 
-                                (click)="onHeaderEditCancel()"></button>
-                        </div>
+                                class="p-button-rounded p-button-text p-button-danger"
+                                pTooltip="Cancelar" tooltipPosition="top"
+                                (click)="onHeaderEditCancel()">
+                            </button>
+                        </ng-container>
                     </div>
                 </div>
+
             </div>
 
             <!-- Tabla de estudiantes editable -->
             <div style="overflow-x: auto;">
                 <p-table [value]="estudiantes" dataKey="codigoEstudiante" editMode="row"
-                    responsiveLayout="stack" breakpoint="960px" class="p-datatable-sm">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th class="text-center">Pago</th>
-                        <th class="text-center">Cédula</th>
-                        <th class="text-center">Nombre</th>
-                        <th class="text-center">Matrícula</th>
-                        <th class="text-center">% Votación</th>
-                        <th class="text-center">% Beca</th>
-                        <th class="text-center">Valor Beca</th>
-                        <th class="text-center">% Egresado</th>
-                        <th class="text-center">Rec. Comp.</th>
-                        <th class="text-center">Biblioteca</th>
-                        <th class="text-center">Grupo Inv.</th>
-                        <th class="text-center">Descuentos</th>
-                        <th class="text-center">Total Neto</th>
-                        <th style="width:8rem"></th>
-                    </tr>
-                </ng-template>
+                    responsiveLayout="stack" breakpoint="960px"
+                    styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped">
 
-                <ng-template pTemplate="body" let-estudiante let-editing="editing" let-ri="rowIndex">
-                    <tr [pEditableRow]="estudiante">
-                        <td class="text-center">
-                            <span class="p-column-title font-bold">Pago</span>
-                            <p-cellEditor>
-                                <ng-template pTemplate="input">
-                                    <p-checkbox [(ngModel)]="estudiante.estaPago" [binary]="true"></p-checkbox>
-                                </ng-template>
-                                <ng-template pTemplate="output">
-                                    <p-checkbox [(ngModel)]="estudiante.estaPago" [binary]="true" [disabled]="true"></p-checkbox>
-                                </ng-template>
-                            </p-cellEditor>
-                        </td>
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th class="text-center white-space-nowrap">Pago</th>
+                            <th class="text-center white-space-nowrap">Cédula</th>
+                            <th class="white-space-nowrap">Nombre</th>
+                            <th class="text-right white-space-nowrap">Matrícula</th>
+                            <th class="text-center white-space-nowrap">% Votación</th>
+                            <th class="text-center white-space-nowrap">% Beca</th>
+                            <th class="text-right white-space-nowrap">Valor Beca</th>
+                            <th class="text-center white-space-nowrap">% Egresado</th>
+                            <th class="text-right white-space-nowrap">Rec. Comp.</th>
+                            <th class="text-right white-space-nowrap">Biblioteca</th>
+                            <th class="text-center white-space-nowrap">Grupo Inv.</th>
+                            <th class="text-right white-space-nowrap">Descuentos</th>
+                            <th class="text-right white-space-nowrap">Total Neto</th>
+                            <th style="width:8rem"></th>
+                        </tr>
+                    </ng-template>
 
-                        <td class="text-center">
-                            <span class="p-column-title font-bold">Cédula</span>
-                            {{ estudiante.codigoEstudiante }}
-                        </td>
+                    <ng-template pTemplate="body" let-estudiante let-editing="editing" let-ri="rowIndex">
+                        <tr [pEditableRow]="estudiante">
+                            <td class="text-center">
+                                <span class="p-column-title font-bold">Pago</span>
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <p-checkbox [(ngModel)]="estudiante.estaPago" [binary]="true"></p-checkbox>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        <p-checkbox [(ngModel)]="estudiante.estaPago" [binary]="true" [disabled]="true"></p-checkbox>
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
 
-                        <td>
-                            <span class="p-column-title font-bold">Nombre</span>
-                            {{ estudiante.nombreEstudiante }}
-                        </td>
+                            <td class="text-center">
+                                <span class="p-column-title font-bold">Cédula</span>
+                                {{ estudiante.codigoEstudiante }}
+                            </td>
 
-                        <td class="text-right">
-                            <span class="p-column-title font-bold">Matrícula</span>
-                            {{ formatCurrency(estudiante.matricula) }}
-                        </td>
+                            <td>
+                                <span class="p-column-title font-bold">Nombre</span>
+                                {{ estudiante.nombreEstudiante }}
+                            </td>
 
-                        <td class="text-center">
-                            <span class="p-column-title font-bold">% Votación</span>
-                            <p-cellEditor>
-                                <ng-template pTemplate="input">
-                                    <div class="flex align-items-center gap-1">
-                                        <input pInputText type="number" [(ngModel)]="estudiante.porcentajeVotacion" required min="0" max="100" step="0.1" class="w-full"
-                                            (ngModelChange)="recalcularFila(estudiante)">
-                                        <span class="percent-suffix">%</span>
-                                    </div>
-                                </ng-template>
-                                <ng-template pTemplate="output">
-                                    {{ formatPercent(estudiante.porcentajeVotacion) }}
-                                </ng-template>
-                            </p-cellEditor>
-                        </td>
+                            <td class="text-right">
+                                <span class="p-column-title font-bold">Matrícula</span>
+                                {{ formatCurrency(estudiante.matricula) }}
+                            </td>
 
-                        <td class="text-center">
-                            <span class="p-column-title font-bold">% Beca</span>
-                            <p-cellEditor>
-                                <ng-template pTemplate="input">
-                                    <div class="flex align-items-center gap-1">
-                                        <input pInputText type="number" [(ngModel)]="estudiante.porcentajeBeca" required
-                                            min="0" max="100" step="0.1" class="w-full"
-                                            (ngModelChange)="recalcularFila(estudiante)">
-                                        <span class="percent-suffix">%</span>
-                                    </div>
-                                </ng-template>
-                                <ng-template pTemplate="output">
-                                    {{ formatPercent(estudiante.porcentajeBeca) }}
-                                </ng-template>
-                            </p-cellEditor>
-                        </td>
+                            <td class="text-center">
+                                <span class="p-column-title font-bold">% Votación</span>
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <div class="flex align-items-center gap-1">
+                                            <input pInputText type="number" [(ngModel)]="estudiante.porcentajeVotacion"
+                                                required min="0" max="100" step="0.1" class="percent-input"
+                                                (ngModelChange)="recalcularFila(estudiante)">
+                                            <span class="percent-suffix">%</span>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ formatPercent(estudiante.porcentajeVotacion) }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
 
-                        <td class="text-right">
-                            <span class="p-column-title font-bold">Valor Beca</span>
-                            {{ formatCurrency(estudiante.valorBeca) }}
-                        </td>
+                            <td class="text-center">
+                                <span class="p-column-title font-bold">% Beca</span>
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <div class="flex align-items-center gap-1">
+                                            <input pInputText type="number" [(ngModel)]="estudiante.porcentajeBeca"
+                                                required min="0" max="100" step="0.1" class="percent-input"
+                                                (ngModelChange)="recalcularFila(estudiante)">
+                                            <span class="percent-suffix">%</span>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ formatPercent(estudiante.porcentajeBeca) }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
 
-                        <td class="text-center">
-                            <span class="p-column-title font-bold">% Egresado</span>
-                            <p-cellEditor>
-                                <ng-template pTemplate="input">
-                                    <div class="flex align-items-center gap-1">
-                                        <input pInputText type="number" [(ngModel)]="estudiante.porcentajeEgresado" required
-                                            min="0" max="100" step="0.1" class="w-full"
-                                            (ngModelChange)="recalcularFila(estudiante)">
-                                        <span class="percent-suffix">%</span>
-                                    </div>
-                                </ng-template>
-                                <ng-template pTemplate="output">
-                                    {{ formatPercent(estudiante.porcentajeEgresado) }}
-                                </ng-template>
-                            </p-cellEditor>
-                        </td>
+                            <td class="text-right">
+                                <span class="p-column-title font-bold">Valor Beca</span>
+                                {{ formatCurrency(estudiante.valorBeca) }}
+                            </td>
 
-                        <td class="text-right">
-                            <span class="p-column-title font-bold">Rec. Comp.</span>
-                            {{ formatCurrency(estudiante.recursosComputacionales) }}
-                        </td>
+                            <td class="text-center">
+                                <span class="p-column-title font-bold">% Egresado</span>
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <div class="flex align-items-center gap-1">
+                                            <input pInputText type="number" [(ngModel)]="estudiante.porcentajeEgresado"
+                                                required min="0" max="100" step="0.1" class="percent-input"
+                                                (ngModelChange)="recalcularFila(estudiante)">
+                                            <span class="percent-suffix">%</span>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ formatPercent(estudiante.porcentajeEgresado) }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
 
-                        <td class="text-right">
-                            <span class="p-column-title font-bold">Biblioteca</span>
-                            {{ formatCurrency(estudiante.biblioteca) }}
-                        </td>
+                            <td class="text-right">
+                                <span class="p-column-title font-bold">Rec. Comp.</span>
+                                {{ formatCurrency(estudiante.recursosComputacionales) }}
+                            </td>
 
-                        <td class="text-center">
-                            <span class="p-column-title font-bold">Grupo Inv.</span>
-                            {{ estudiante.grupoInvestigacion }}
-                        </td>
+                            <td class="text-right">
+                                <span class="p-column-title font-bold">Biblioteca</span>
+                                {{ formatCurrency(estudiante.biblioteca) }}
+                            </td>
 
-                        <td class="text-right">
-                            <span class="p-column-title font-bold">Descuentos</span>
-                            {{ formatCurrency(estudiante.grupoDescuentos) }}
-                        </td>
+                            <td class="text-center">
+                                <span class="p-column-title font-bold">Grupo Inv.</span>
+                                {{ estudiante.grupoInvestigacion }}
+                            </td>
 
-                        <td class="text-right font-bold">
-                            <span class="p-column-title font-bold">Total Neto</span>
-                            {{ formatCurrency(estudiante.totalNeto) }}
-                        </td>
+                            <td class="text-right">
+                                <span class="p-column-title font-bold">Descuentos</span>
+                                {{ formatCurrency(estudiante.grupoDescuentos) }}
+                            </td>
 
-                        <td style="text-align:center">
-                            <span class="p-column-title font-bold">Acciones</span>
-                            <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
-                                (click)="onRowEditInit(estudiante)" class="p-button-rounded p-button-text"
-                                [disabled]="!!editingRowKey && editingRowKey !== estudiante.codigoEstudiante || editandoCabecera"></button>
-                            <div *ngIf="editing" class="flex justify-content-center">
-                                <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
-                                    (click)="onRowEditSave(estudiante)" class="p-button-rounded p-button-text p-button-success mr-2"></button>
-                                <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
-                                    (click)="onRowEditCancel(estudiante, ri)" class="p-button-rounded p-button-text p-button-danger"></button>
-                            </div>
-                        </td>
-                    </tr>
-                </ng-template>
+                            <td class="text-right font-bold">
+                                <span class="p-column-title font-bold">Total Neto</span>
+                                {{ formatCurrency(estudiante.totalNeto) }}
+                            </td>
 
-                <ng-template pTemplate="footer">
-                    <tr>
-                        <td colspan="13" class="text-right">
-                            <div class="totales-container">
-                                <div class="total-item">
-                                    <span class="total-label">Total Neto:</span>
-                                    <span class="total-value">{{ formatCurrency(totalNetoCalculado) }}</span>
+                            <td class="text-center">
+                                <span class="p-column-title font-bold">Acciones</span>
+                                <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+                                    (click)="onRowEditInit(estudiante)"
+                                    class="p-button-rounded p-button-text p-button-secondary"
+                                    pTooltip="Editar fila" tooltipPosition="top"
+                                    [disabled]="isAnyEditActive">
+                                </button>
+                                <div *ngIf="editing" class="flex justify-content-center gap-1">
+                                    <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                                        (click)="onRowEditSave(estudiante)"
+                                        class="p-button-rounded p-button-text p-button-success"
+                                        pTooltip="Guardar" tooltipPosition="top">
+                                    </button>
+                                    <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                                        (click)="onRowEditCancel(estudiante, ri)"
+                                        class="p-button-rounded p-button-text p-button-danger"
+                                        pTooltip="Cancelar" tooltipPosition="top">
+                                    </button>
                                 </div>
-                                <div class="total-item">
-                                    <span class="total-label">Total Descuentos:</span>
-                                    <span class="total-value">{{ formatCurrency(totalDescuentosCalculado) }}</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="14" class="text-center p-4 text-600">
+                                <i class="pi pi-inbox mr-2"></i>No hay datos disponibles para el período seleccionado.
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="footer">
+                        <tr>
+                            <td colspan="13" class="text-right">
+                                <div class="totales-container">
+                                    <div class="total-item">
+                                        <span class="total-label">Total Neto:</span>
+                                        <span class="total-value">{{ formatCurrency(totalNetoCalculado) }}</span>
+                                    </div>
+                                    <div class="total-item">
+                                        <span class="total-label">Total Descuentos:</span>
+                                        <span class="total-value">{{ formatCurrency(totalDescuentosCalculado) }}</span>
+                                    </div>
+                                    <div class="total-item highlight">
+                                        <span class="total-label">Ingresos Totales Después de Descuentos:</span>
+                                        <span class="total-value">{{ formatCurrency(totalNetoCalculado) }}</span>
+                                    </div>
                                 </div>
-                                <div class="total-item highlight">
-                                    <span class="total-label">Ingresos Totales Después de Descuentos:</span>
-                                    <span class="total-value">{{ formatCurrency(totalNetoCalculado) }}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td style="width: 8rem;"></td>
-                    </tr>
-                </ng-template>
-            </p-table>
+                            </td>
+                            <td style="width: 8rem;"></td>
+                        </tr>
+                    </ng-template>
+                </p-table>
             </div>
         </div>
     </p-card>

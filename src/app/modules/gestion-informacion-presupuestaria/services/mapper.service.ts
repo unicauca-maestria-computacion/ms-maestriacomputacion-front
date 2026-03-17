@@ -90,7 +90,7 @@ export class GestionInformacionPresupuestariaMapperService {
 
     mappearDeRespuestaAReporteProyeccionEstudiantes(dto: ReporteProyeccionEstudiantesDTORespuesta): ReporteProyeccionEstudiantes {
         return {
-            estudiantes: dto.estudiantes.map(e => this.mappearDeRespuestaAProyeccionEstudiante(e)),
+            estudiantes: (dto.estudiantes ?? []).map(e => this.mappearDeRespuestaAProyeccionEstudiante(e)),
             objConfiguracion: this.mappearDeRespuestaAConfiguracionReporteFinanciero(dto.objConfiguracion),
             periodo: this.mappearDeRespuestaAPeriodoAcademico(dto.periodo)
         };
@@ -108,7 +108,7 @@ export class GestionInformacionPresupuestariaMapperService {
 
     mappearDeRespuestaAReporteEstudiantes(dto: ReporteEstudiantesDTORespuesta): ReporteEstudiantes {
         return {
-            estudiantes: dto.estudiantes.map(e => this.mappearDeRespuestaAProyeccionEstudiante(e)),
+            estudiantes: (dto.estudiantes ?? []).map(e => this.mappearDeRespuestaAProyeccionEstudiante(e)),
             objConfiguracion: this.mappearDeRespuestaAConfiguracionReporteFinanciero(dto.objConfiguracion),
             periodo: this.mappearDeRespuestaAPeriodoAcademico(dto.periodo)
         };
@@ -137,14 +137,14 @@ export class GestionInformacionPresupuestariaMapperService {
     mappearDeRespuestaAProyeccionEstudiante(dto: ProyeccionEstudianteDTORespuesta): ProyeccionEstudiante {
         return {
             codigoEstudiante: dto.codigoEstudiante,
-            nombre: dto.nombre,
-            apellido: dto.apellido,
-            identificacion: dto.identificacion,
-            estaPago: dto.estaPago,
-            porcentajeVotacion: dto.porcentajeVotacion,
-            porcentajeBeca: dto.porcentajeBeca,
-            grupoInvestigacion: dto.grupoInvestigacion,
-            porcentajeEgresado: dto.porcentajeEgresado
+            nombre: dto?.nombre ?? '',
+            apellido: dto?.apellido ?? '',
+            identificacion: Number(dto?.identificacion) || 0,
+            estaPago: dto.estaPago ?? false,
+            porcentajeVotacion: dto.porcentajeVotacion || 0,
+            porcentajeBeca: dto.porcentajeBeca || 0,
+            grupoInvestigacion: dto?.grupoInvestigacion ?? '',
+            porcentajeEgresado: dto.porcentajeEgresado || 0
         };
     }
 
@@ -205,7 +205,7 @@ export class GestionInformacionPresupuestariaMapperService {
             item2: dto.item2,
             imprevistos: dto.imprevistos,
             objPeriodoAcademico: this.mappearDeRespuestaAPeriodoAcademico(dto.objPeriodoAcademico),
-            gastosGenerales: dto.gastosGenerales.map(g => this.mappearDeRespuestaAGastoGeneral(g))
+            gastosGenerales: (dto.gastosGenerales ?? []).map(g => this.mappearDeRespuestaAGastoGeneral(g))
         };
     }
 

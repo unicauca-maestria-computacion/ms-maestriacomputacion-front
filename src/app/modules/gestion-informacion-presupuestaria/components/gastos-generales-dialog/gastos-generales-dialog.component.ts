@@ -73,6 +73,14 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
       monto: 0
     };
     this.gastosEditables.push(this.nuevoGasto);
+
+    // Scroll a la nueva fila después de que se renderice
+    setTimeout(() => {
+      const element = document.getElementById('nuevo-gasto-row');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 50);
   }
 
   guardarNuevoGasto() {

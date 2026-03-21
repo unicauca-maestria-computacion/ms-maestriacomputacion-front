@@ -33,9 +33,6 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
 
   // Configuración del reporte
   configuracion: ConfiguracionReporteFinanciero | null = null;
-  editandoCabecera: boolean = false;
-  clonedCabecera: Partial<ConfiguracionReporteFinanciero> = {};
-
   // Datos de la tabla
   estudiantes: EstudianteReporte[] = [];
 
@@ -124,11 +121,6 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
     return this.estudiantes.reduce((acc, e) => acc + (e.totalNeto || 0), 0);
   }
 
-  // --- Control de Edición Global ---
-  get isAnyEditActive(): boolean {
-    return this.editandoCabecera;
-  }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -153,52 +145,4 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
     return `${(value * 100).toFixed(0)} %`;
   }
 
-  // Lógica de edición de cabecera
-  onHeaderEditInit(): void {
-    if (!this.configuracion) return;
-    this.editandoCabecera = true;
-    this.clonedCabecera = { ...this.configuracion };
-  }
-
-  onHeaderEditSave(): void {
-    if (!this.clonedCabecera) return;
-    
-    // Aquí se llamaría al servicio para persistir si fuera necesario.
-    // Por ahora, actualizamos el modelo local.
-    this.configuracion = { ...this.configuracion, ...this.clonedCabecera } as ConfiguracionReporteFinanciero;
-    this.recalcularReporte();
-    this.editandoCabecera = false;
-    this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Valores de referencia actualizados localmente' });
-  }
-
-  onHeaderEditCancel(): void {
-    this.editandoCabecera = false;
-    this.clonedCabecera = {};
-  }
-
-  private recalcularReporte(): void {
-    if (!this.configuracion || !this.estudiantes.length) return;
-    
-    this.estudiantes = this.estudiantes.map(e => {
-      const matricula = (this.configuracion!.valorMatricula || 0) * (this.configuracion!.valorSMLV || 0);
-      const recursosComp = this.configuracion!.recursosComputacionales || 0;
-      const biblioteca = this.configuracion!.biblioteca || 0;
-      const valorBeca = matricula * (e.porcentajeBeca || 0);
-      const valorEgresado = matricula * (e.porcentajeEgresado || 0);
-      const valorVotacion = matricula * (e.porcentajeVotacion || 0);
-      const grupoDescuentos = valorBeca + valorEgresado + valorVotacion;
-      const totalNeto = matricula + recursosComp + biblioteca - grupoDescuentos;
-
-      return {
-        ...e,
-        matricula,
-        valorBeca,
-        valorEgresado,
-        recursosComputacionales: recursosComp,
-        biblioteca,
-        grupoDescuentos,
-        totalNeto
-      };
-    });
-  }
 }

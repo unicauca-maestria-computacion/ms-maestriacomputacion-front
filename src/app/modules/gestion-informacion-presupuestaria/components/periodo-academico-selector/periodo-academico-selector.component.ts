@@ -16,6 +16,8 @@ export class PeriodoAcademicoSelectorComponent implements OnInit, OnDestroy {
   @Input() mostrarSoloUltimo: boolean = false;
   @Input() excluirUltimo: boolean = false;
   @Output() periodoSeleccionado = new EventEmitter<PeriodoAcademicoDTORespuesta>();
+  /** Emite true cuando el periodo seleccionado es el último (más reciente) de la lista. */
+  @Output() esUltimoPeriodoChange = new EventEmitter<boolean>();
 
   periodos: PeriodoAcademicoDTORespuesta[] = [];
   currentIndex: number = 0;
@@ -69,6 +71,7 @@ export class PeriodoAcademicoSelectorComponent implements OnInit, OnDestroy {
     this.periodoActualTexto = `${periodo.año} - ${periodo.periodo}`;
     this.actualizarEstadoFlechas();
     this.periodoSeleccionado.emit(periodo);
+    this.esUltimoPeriodoChange.emit(this.currentIndex === this.periodos.length - 1);
   }
 
   actualizarEstadoFlechas(): void {

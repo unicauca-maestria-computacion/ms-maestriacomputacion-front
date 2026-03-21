@@ -6,7 +6,8 @@
             </app-opciones-presupuesto>
     
             <!-- Selector de Periodo Académico -->
-            <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)">
+            <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)"
+                (esUltimoPeriodoChange)="esUltimoPeriodo = $event">
             </app-periodo-academico-selector>
         </div>
 
@@ -57,7 +58,7 @@
                             <label for="float-ingresos">Ingresos Matrículas</label>
                         </span>
 
-                        <div class="config-row-actions">
+                        <div class="config-row-actions" *ngIf="esEditable">
                             <button *ngIf="!editandoIngresos" pButton pRipple type="button" icon="pi pi-pencil"
                                 class="p-button-rounded p-button-text p-button-secondary"
                                 pTooltip="Editar ingresos" tooltipPosition="top"
@@ -91,7 +92,7 @@
                                     {{ group.nombre }}
                                 </th>
                                 <th class="text-center font-bold white-space-nowrap">TOTAL</th>
-                                <th style="width: 8rem;"></th>
+                                <th *ngIf="esEditable" style="width: 8rem;"></th>
                             </tr>
                         </ng-template>
 
@@ -127,7 +128,7 @@
                                     {{ row.isPercentage ? formatPercent(row.total) : formatCurrency(row.total) }}
                                 </td>
 
-                                <td class="text-center">
+                                <td class="text-center" *ngIf="esEditable">
                                     <button *ngIf="row.isEditable && !editing" pButton pRipple type="button"
                                         pInitEditableRow icon="pi pi-pencil" (click)="onRowEditInit(row)"
                                         class="p-button-rounded p-button-text p-button-secondary"
@@ -193,10 +194,10 @@
                         </span>
 
                         <div class="p-inputgroup gastos-inputgroup">
-                            <button type="button" pButton pRipple icon="pi pi-pencil"
+                            <button type="button" pButton pRipple [icon]="esEditable ? 'pi pi-pencil' : 'pi pi-eye'"
                                 class="gastos-edit-button"
                                 (click)="abrirModalGastos()"
-                                pTooltip="Ver y gestionar gastos generales" tooltipPosition="top"
+                                [pTooltip]="esEditable ? 'Ver y gestionar gastos generales' : 'Ver gastos generales'" tooltipPosition="top"
                                 [disabled]="isAnyEditActive">
                             </button>
                             <span class="p-float-label">
@@ -206,7 +207,7 @@
                             </span>
                         </div>
 
-                        <div class="config-row-actions">
+                        <div class="config-row-actions" *ngIf="esEditable">
                             <button *ngIf="!editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
                                 class="p-button-rounded p-button-text p-button-secondary"
                                 pTooltip="Editar distribución" tooltipPosition="top"
@@ -276,7 +277,7 @@
                             <label for="float-item2">Item 2 (%)</label>
                         </span>
 
-                        <div class="config-row-actions">
+                        <div class="config-row-actions" *ngIf="esEditable">
                             <button *ngIf="!editandoItems" pButton pRipple type="button" icon="pi pi-pencil"
                                 class="p-button-rounded p-button-text p-button-secondary"
                                 pTooltip="Editar items" tooltipPosition="top"
@@ -350,7 +351,7 @@
                             <label for="float-imprevistos">Imprevistos (%)</label>
                         </span>
 
-                        <div class="config-row-actions">
+                        <div class="config-row-actions" *ngIf="esEditable">
                             <button *ngIf="!editandoImprevistos" pButton pRipple type="button" icon="pi pi-pencil"
                                 class="p-button-rounded p-button-text p-button-secondary"
                                 pTooltip="Editar imprevistos" tooltipPosition="top"
@@ -384,7 +385,7 @@
                                     {{ group.nombre }}
                                 </th>
                                 <th class="text-center font-bold white-space-nowrap">TOTAL</th>
-                                <th style="width: 8rem;"></th>
+                                <th *ngIf="esEditable" style="width: 8rem;"></th>
                             </tr>
                         </ng-template>
 
@@ -416,7 +417,7 @@
                                     {{ formatCurrency(row.total) }}
                                 </td>
 
-                                <td class="text-center">
+                                <td class="text-center" *ngIf="esEditable">
                                     <button *ngIf="row.isEditable && !editing" pButton pRipple type="button"
                                         pInitEditableRow icon="pi pi-pencil" (click)="onBudgetRowEditInit(row)"
                                         class="p-button-rounded p-button-text p-button-secondary"
@@ -455,6 +456,7 @@
                 [(display)]="displayGastosModal"
                 [gastos]="configuracion.objConfiguracionReporteGrupos.gastosGenerales"
                 [idConfiguracionReporteGrupos]="configuracion?.objConfiguracionReporteGrupos?.id ?? null"
+                [readonly]="!esEditable"
                 (onCambio)="onGastosChange()">
             </app-gastos-generales-dialog>
 

@@ -36,62 +36,36 @@
 
                 <div class="config-row">
                     <span class="p-float-label">
-                        <p-inputNumber id="float-biblioteca" [ngModel]="editandoCabecera ? clonedCabecera.biblioteca : configuracion.biblioteca"
-                            (ngModelChange)="clonedCabecera.biblioteca = $event"
+                        <p-inputNumber id="float-biblioteca" [ngModel]="configuracion.biblioteca"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            [readonly]="!editandoCabecera" [disabled]="!editandoCabecera" styleClass="config-input">
+                            [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
                         <label for="float-biblioteca">Biblioteca</label>
                     </span>
 
                     <span class="p-float-label">
-                        <p-inputNumber id="float-recursos" [ngModel]="editandoCabecera ? clonedCabecera.recursosComputacionales : configuracion.recursosComputacionales"
-                            (ngModelChange)="clonedCabecera.recursosComputacionales = $event"
+                        <p-inputNumber id="float-recursos" [ngModel]="configuracion.recursosComputacionales"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            [readonly]="!editandoCabecera" [disabled]="!editandoCabecera" styleClass="config-input">
+                            [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
                         <label for="float-recursos">Recursos Computacionales</label>
                     </span>
 
                     <span class="p-float-label">
-                        <p-inputNumber id="float-matricula" [ngModel]="editandoCabecera ? clonedCabecera.valorMatricula : configuracion.valorMatricula"
-                            (ngModelChange)="clonedCabecera.valorMatricula = $event"
+                        <p-inputNumber id="float-matricula" [ngModel]="configuracion.valorMatricula"
                             [minFractionDigits]="2" suffix=" SMLV"
-                            [readonly]="!editandoCabecera" [disabled]="!editandoCabecera" styleClass="config-input">
+                            [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
                         <label for="float-matricula">Valor Matrícula (SMLV)</label>
                     </span>
 
                     <span class="p-float-label">
-                        <p-inputNumber id="float-smlv" [ngModel]="editandoCabecera ? clonedCabecera.valorSMLV : configuracion.valorSMLV"
-                            (ngModelChange)="clonedCabecera.valorSMLV = $event"
+                        <p-inputNumber id="float-smlv" [ngModel]="configuracion.valorSMLV"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            [readonly]="!editandoCabecera" [disabled]="!editandoCabecera" styleClass="config-input">
+                            [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
                         <label for="float-smlv">Valor SMLV</label>
                     </span>
-
-                    <!-- Controles de Edición de Cabecera -->
-                    <div class="config-row-actions">
-                        <button *ngIf="!editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
-                            class="p-button-rounded p-button-text p-button-secondary"
-                            pTooltip="Editar configuración" tooltipPosition="top"
-                            [disabled]="isAnyEditActive"
-                            (click)="onHeaderEditInit()">
-                        </button>
-                        <ng-container *ngIf="editandoCabecera">
-                            <button pButton pRipple type="button" icon="pi pi-check"
-                                class="p-button-rounded p-button-text p-button-success"
-                                pTooltip="Actualizar localmente" tooltipPosition="top"
-                                (click)="onHeaderEditSave()">
-                            </button>
-                            <button pButton pRipple type="button" icon="pi pi-times"
-                                class="p-button-rounded p-button-text p-button-danger"
-                                pTooltip="Cancelar" tooltipPosition="top"
-                                (click)="onHeaderEditCancel()">
-                            </button>
-                        </ng-container>
-                    </div>
                 </div>
 
             </div>

@@ -1,10 +1,10 @@
-<p-dialog header="Gestión de Gastos Generales" [(visible)]="display" [modal]="true"
+<p-dialog [header]="readonly ? 'Gastos Generales' : 'Gestión de Gastos Generales'" [(visible)]="display" [modal]="true"
     [style]="{width: '60vw', 'min-width': '320px'}" [maximizable]="true"
     [draggable]="false" [resizable]="false"
     [closable]="!guardandoGastos" (onHide)="cerrar()">
 
     <!-- Botón Agregar nuevo gasto (Ahora arriba) -->
-    <div class="mb-3 flex justify-content-end">
+    <div class="mb-3 flex justify-content-end" *ngIf="!readonly">
         <button pButton pRipple type="button" icon="pi pi-plus" label="Agregar Gasto"
             class="p-button-outlined p-button-secondary"
             pTooltip="Agregar nuevo gasto general" tooltipPosition="top"
@@ -24,7 +24,7 @@
                     <th class="white-space-nowrap">Categoría</th>
                     <th class="white-space-nowrap">Descripción</th>
                     <th class="text-right white-space-nowrap">Monto</th>
-                    <th style="width: 10rem;"></th>
+                    <th *ngIf="!readonly" style="width: 10rem;"></th>
                 </tr>
             </ng-template>
 
@@ -33,59 +33,68 @@
                     <!-- Categoría -->
                     <td>
                         <span class="p-column-title font-bold">Categoría</span>
-                        <input *ngIf="gasto.idGastoGeneral < 0" pInputText [(ngModel)]="gasto.categoria"
-                            class="w-full" placeholder="Ej: Administración"
-                            [disabled]="guardandoGastos" />
-                        <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
-                            <ng-template pTemplate="input">
-                                <input pInputText [(ngModel)]="gasto.categoria" class="w-full"
-                                    placeholder="Ej: Administración" [disabled]="guardandoGastos" />
-                            </ng-template>
-                            <ng-template pTemplate="output">
-                                {{ gasto.categoria }}
-                            </ng-template>
-                        </p-cellEditor>
+                        <ng-container *ngIf="readonly">{{ gasto.categoria }}</ng-container>
+                        <ng-container *ngIf="!readonly">
+                            <input *ngIf="gasto.idGastoGeneral < 0" pInputText [(ngModel)]="gasto.categoria"
+                                class="w-full" placeholder="Ej: Administración"
+                                [disabled]="guardandoGastos" />
+                            <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
+                                <ng-template pTemplate="input">
+                                    <input pInputText [(ngModel)]="gasto.categoria" class="w-full"
+                                        placeholder="Ej: Administración" [disabled]="guardandoGastos" />
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    {{ gasto.categoria }}
+                                </ng-template>
+                            </p-cellEditor>
+                        </ng-container>
                     </td>
 
                     <!-- Descripción -->
                     <td>
                         <span class="p-column-title font-bold">Descripción</span>
-                        <input *ngIf="gasto.idGastoGeneral < 0" pInputText [(ngModel)]="gasto.descripcion"
-                            class="w-full" placeholder="Descripción del gasto"
-                            [disabled]="guardandoGastos" />
-                        <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
-                            <ng-template pTemplate="input">
-                                <input pInputText [(ngModel)]="gasto.descripcion" class="w-full"
-                                    placeholder="Descripción del gasto" [disabled]="guardandoGastos" />
-                            </ng-template>
-                            <ng-template pTemplate="output">
-                                {{ gasto.descripcion }}
-                            </ng-template>
-                        </p-cellEditor>
+                        <ng-container *ngIf="readonly">{{ gasto.descripcion }}</ng-container>
+                        <ng-container *ngIf="!readonly">
+                            <input *ngIf="gasto.idGastoGeneral < 0" pInputText [(ngModel)]="gasto.descripcion"
+                                class="w-full" placeholder="Descripción del gasto"
+                                [disabled]="guardandoGastos" />
+                            <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
+                                <ng-template pTemplate="input">
+                                    <input pInputText [(ngModel)]="gasto.descripcion" class="w-full"
+                                        placeholder="Descripción del gasto" [disabled]="guardandoGastos" />
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    {{ gasto.descripcion }}
+                                </ng-template>
+                            </p-cellEditor>
+                        </ng-container>
                     </td>
 
                     <!-- Monto -->
                     <td class="text-right">
                         <span class="p-column-title font-bold">Monto</span>
-                        <p-inputNumber *ngIf="gasto.idGastoGeneral < 0" [(ngModel)]="gasto.monto"
-                            mode="currency" currency="COP" locale="es-CO"
-                            class="w-full" [disabled]="guardandoGastos">
-                        </p-inputNumber>
-                        <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
-                            <ng-template pTemplate="input">
-                                <p-inputNumber [(ngModel)]="gasto.monto" mode="currency"
-                                    currency="COP" locale="es-CO" class="w-full"
-                                    [disabled]="guardandoGastos">
-                                </p-inputNumber>
-                            </ng-template>
-                            <ng-template pTemplate="output">
-                                {{ formatCurrency(gasto.monto) }}
-                            </ng-template>
-                        </p-cellEditor>
+                        <ng-container *ngIf="readonly">{{ formatCurrency(gasto.monto) }}</ng-container>
+                        <ng-container *ngIf="!readonly">
+                            <p-inputNumber *ngIf="gasto.idGastoGeneral < 0" [(ngModel)]="gasto.monto"
+                                mode="currency" currency="COP" locale="es-CO"
+                                class="w-full" [disabled]="guardandoGastos">
+                            </p-inputNumber>
+                            <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
+                                <ng-template pTemplate="input">
+                                    <p-inputNumber [(ngModel)]="gasto.monto" mode="currency"
+                                        currency="COP" locale="es-CO" class="w-full"
+                                        [disabled]="guardandoGastos">
+                                    </p-inputNumber>
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    {{ formatCurrency(gasto.monto) }}
+                                </ng-template>
+                            </p-cellEditor>
+                        </ng-container>
                     </td>
 
                     <!-- Acciones -->
-                    <td class="text-center">
+                    <td class="text-center" *ngIf="!readonly">
                         <span class="p-column-title font-bold">Acciones</span>
 
                         <!-- Botón editar (fila existente, no editando) -->

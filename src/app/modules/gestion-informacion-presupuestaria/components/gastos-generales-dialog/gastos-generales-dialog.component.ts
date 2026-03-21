@@ -17,6 +17,8 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
   @Input() gastos: GastoGeneral[] = [];
   /** ID de la configuración de reporte por grupos actual (periodo seleccionado). Se envía al crear un gasto. */
   @Input() idConfiguracionReporteGrupos: number | null = null;
+  /** Modo solo lectura: oculta botones de agregar, editar y eliminar gastos. */
+  @Input() readonly: boolean = false;
   @Output() displayChange = new EventEmitter<boolean>();
   @Output() onCambio = new EventEmitter<void>();
 
@@ -42,6 +44,8 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['display']?.currentValue === true) {
+      this.prepararGastos();
+    } else if (changes['gastos'] && this.display) {
       this.prepararGastos();
     }
   }

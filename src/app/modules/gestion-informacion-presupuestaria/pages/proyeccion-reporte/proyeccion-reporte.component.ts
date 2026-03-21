@@ -175,9 +175,10 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
 
   private mapearEstudianteProyeccion(e: ProyeccionEstudiante): EstudianteProyeccion {
     const matricula = this.configuracion!.valorMatricula * this.configuracion!.valorSMLV;
-    const ratioBeca = this.toRatio(e.porcentajeBeca);
-    const ratioEgresado = this.toRatio(e.porcentajeEgresado);
-    const ratioVotacion = this.toRatio(e.porcentajeVotacion);
+    // Backend envía ratios 0-1, usarlos directamente para cálculos
+    const ratioBeca = e.porcentajeBeca ?? 0;
+    const ratioEgresado = e.porcentajeEgresado ?? 0;
+    const ratioVotacion = e.porcentajeVotacion ?? 0;
     const valorBeca = matricula * ratioBeca;
     const valorEgresado = matricula * ratioEgresado;
     const valorVotacion = matricula * ratioVotacion;
@@ -323,16 +324,17 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     return index;
   }
 
-  /** Convierte a ratio 0-1 para enviar al backend (ej. 22 → 0.22). */
+  /** Convierte valor UI (escala 0-100) a ratio 0-1 para enviar al backend (ej. 22 → 0.22). */
   private toRatio(value: number | null | undefined): number {
     if (value == null) return 0;
-    return value > 1 ? value / 100 : value;
+    return value / 100;
   }
 
   /** Convierte ratio 0-1 del backend a 0-100 para mostrar y editar en la UI (ej. 0.22 → 22). */
   private toPercent(value: number | null | undefined): number {
     if (value == null) return 0;
-    return value <= 1 ? value * 100 : value;
+    const percent = value <= 1 ? value * 100 : value;
+    return Math.round(percent * 100) / 100;
   }
 
   /**
@@ -400,10 +402,10 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     }).format(value);
   }
 
-  /** Muestra el porcentaje: si el valor está en ratio 0-1 (ej. 0.20) lo convierte a 20 %. */
+  /** Muestra el porcentaje (valores ya están en escala 0-100). */
   formatPercent(value: number): string {
-    const pct = value != null && value <= 1 && value >= 0 ? value * 100 : value;
-    return `${Number(pct).toFixed(1)} %`;
+    if (value == null) return '0.0 %';
+    return `${Number(value).toFixed(1)} %`;
   }
 
   ngOnDestroy(): void {

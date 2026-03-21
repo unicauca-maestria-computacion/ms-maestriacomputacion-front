@@ -33,6 +33,13 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   groupColumns: GroupColumn[] = [];
   loading: boolean = false;
   periodoSeleccionado: PeriodoAcademicoDTORespuesta | null = null;
+  esUltimoPeriodo: boolean = false;
+
+  /** Solo se permite editar cuando el periodo seleccionado es el último (más reciente). */
+  get esEditable(): boolean {
+    return this.esUltimoPeriodo;
+  }
+
   editingRowKey: string | null = null;
   editingBudgetRowKey: string | null = null;
   clonedRow: { [s: string]: number } = {};
@@ -79,7 +86,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   /** Convierte valor en escala 0-100 (UI) a ratio 0-1 para el backend. */
   private toRatio(value: number | null | undefined): number {
     if (value == null) return 0;
-    return value > 1 ? value / 100 : value;
+    return value / 100;
   }
 
   /** AUI Universidad: muestra auiporcentaje del API (ratio 0-1 o ya 0-100). Para vista se normaliza a 0-100. */
@@ -237,11 +244,10 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value);
   }
 
-  /** Muestra porcentaje con 2 decimales. Si el valor viene en ratio (0-1), se muestra como 0-100 (ej. 0.18 → 18.00 %). */
+  /** Muestra porcentaje con 2 decimales (valores ya están en escala 0-100). */
   formatPercent(value: number | null | undefined): string {
     if (value == null || typeof value !== 'number') return '–';
-    const pct = value > 1 ? value : value * 100;
-    return `${pct.toFixed(2)} %`;
+    return `${value.toFixed(2)} %`;
   }
 
   onRowEditInit(row: TableRow) {

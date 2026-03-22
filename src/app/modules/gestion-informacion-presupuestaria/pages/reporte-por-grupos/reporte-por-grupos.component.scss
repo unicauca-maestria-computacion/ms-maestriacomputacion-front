@@ -65,13 +65,22 @@
         width: 180px;
         display: inline-block;
 
-        p-inputnumber, 
+        p-inputnumber,
         .p-inputnumber {
             width: 100% !important;
             display: inline-block;
         }
 
         .p-inputnumber-input {
+            width: 100% !important;
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-color, #495057);
+            background-color: var(--surface-card, #ffffff);
+        }
+
+        /* Input nativo de porcentaje: misma apariencia que p-inputNumber */
+        input.config-input-native {
             width: 100% !important;
             text-align: right;
             font-weight: 600;

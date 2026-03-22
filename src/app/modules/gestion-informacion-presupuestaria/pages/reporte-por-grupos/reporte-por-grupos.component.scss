@@ -60,6 +60,16 @@
     flex-shrink: 0;
 }
 
+.config-percent-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.config-percent-label {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary, #6c757d);
+}
 
 :host ::ng-deep {
     .p-float-label {
@@ -79,27 +89,17 @@
             color: var(--text-color, #495057);
             background-color: var(--surface-card, #ffffff);
         }
-    }
 
-    /* Input nativo de porcentaje con addon "%" */
-    .p-float-label.config-field-percent {
-        .p-inputgroup {
-            width: 100%;
-        }
-
-        input[type="number"] {
+        .config-input-percent {
+            width: 100% !important;
             text-align: right;
             font-weight: 600;
             color: var(--text-color, #495057);
-            flex: 1;
+            background-color: var(--surface-card, #ffffff);
         }
 
-        .p-inputgroup-addon {
-            min-width: auto;
-            padding: 0 0.5rem;
-            font-weight: 600;
-        }
     }
+
 }
 
 .gastos-inputgroup {

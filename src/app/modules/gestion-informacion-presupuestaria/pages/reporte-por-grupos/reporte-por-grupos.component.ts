@@ -247,8 +247,8 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     };
   }
 
-  /** Limita porcentajes de cabecera: max 2 decimales, AUI/Imprevistos max 100, Items juntos max 100. */
-  onHeaderPercentInput(event: Event, field: string): void {
+  /** Limita porcentajes de config: max 2 decimales, AUI/Imprevistos max 100, Items juntos max 100. */
+  onConfigPercentInput(event: Event, field: string): void {
     const input = event.target as HTMLInputElement;
     let raw = input.value;
 
@@ -305,6 +305,18 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       .filter(g => g.nombre !== groupName)
       .reduce((acc, g) => acc + (row.values[g.nombre] ?? 0), 0);
     return Math.round(Math.max(0, 100 - otherSum) * 100) / 100;
+  }
+
+  /** Bloquea letras y caracteres no numéricos en inputs de porcentaje. */
+  onPercentKeyDown(event: KeyboardEvent): void {
+    const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', '.'];
+    if (allowed.includes(event.key) ||
+        (event.ctrlKey && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) ||
+        (event.key >= '0' && event.key <= '9')) {
+      return;
+    }
+    event.preventDefault();
   }
 
   /** Llamado en cada cambio de input: limita decimales a 2 y el valor al máximo disponible. */
@@ -490,6 +502,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     const finish = (data: ReportePorGrupos) => {
       this.configuracion = data;
       this.normalizarPorcentajesParaDisplay(this.configuracion);
+      this.procesarDatosTabla(this.configuracion);
       this.procesarDistribucion(this.configuracion);
       this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Distribución actualizada correctamente.' });
       this.guardandoCabecera = false;

@@ -170,16 +170,16 @@
                     </div>
                     <div class="config-row">
 
-                        <div class="config-percent-field" *ngIf="editandoCabecera">
-                            <span class="config-percent-label">AUI Universidad</span>
-                            <div class="flex align-items-center gap-1">
-                                <input pInputText type="number"
+                        <span class="p-float-label config-field-percent" *ngIf="editandoCabecera">
+                            <div class="p-inputgroup">
+                                <input pInputText type="number" id="float-aui"
                                     [ngModel]="clonedCabecera.aUIPorcentaje"
-                                    min="0" step="0.01" class="percent-input"
+                                    min="0" step="0.01"
                                     (input)="onHeaderPercentInput($event, 'aui')">
-                                <span class="percent-suffix">%</span>
+                                <span class="p-inputgroup-addon">%</span>
                             </div>
-                        </div>
+                            <label for="float-aui">AUI Universidad</label>
+                        </span>
                         <span class="p-float-label" *ngIf="!editandoCabecera">
                             <p-inputNumber [ngModel]="aUIPorcentajeDisplay"
                                 suffix=" %" [minFractionDigits]="2" [maxFractionDigits]="2"
@@ -263,16 +263,16 @@
 
                     <div class="config-row">
 
-                        <div class="config-percent-field" *ngIf="editandoItems">
-                            <span class="config-percent-label">Item 1</span>
-                            <div class="flex align-items-center gap-1">
-                                <input pInputText type="number"
+                        <span class="p-float-label config-field-percent" *ngIf="editandoItems">
+                            <div class="p-inputgroup">
+                                <input pInputText type="number" id="float-item1"
                                     [ngModel]="clonedItems.item1"
-                                    min="0" step="0.01" class="percent-input"
+                                    min="0" step="0.01"
                                     (input)="onHeaderPercentInput($event, 'item1')">
-                                <span class="percent-suffix">%</span>
+                                <span class="p-inputgroup-addon">%</span>
                             </div>
-                        </div>
+                            <label for="float-item1">Item 1</label>
+                        </span>
                         <span class="p-float-label" *ngIf="!editandoItems">
                             <p-inputNumber [ngModel]="configuracion.objConfiguracionReporteGrupos.item1"
                                 suffix=" %" [minFractionDigits]="2" [readonly]="true" [disabled]="true" styleClass="config-input">
@@ -280,16 +280,16 @@
                             <label>Item 1 (%)</label>
                         </span>
 
-                        <div class="config-percent-field" *ngIf="editandoItems">
-                            <span class="config-percent-label">Item 2</span>
-                            <div class="flex align-items-center gap-1">
-                                <input pInputText type="number"
+                        <span class="p-float-label config-field-percent" *ngIf="editandoItems">
+                            <div class="p-inputgroup">
+                                <input pInputText type="number" id="float-item2"
                                     [ngModel]="clonedItems.item2"
-                                    min="0" step="0.01" class="percent-input"
+                                    min="0" step="0.01"
                                     (input)="onHeaderPercentInput($event, 'item2')">
-                                <span class="percent-suffix">%</span>
+                                <span class="p-inputgroup-addon">%</span>
                             </div>
-                        </div>
+                            <label for="float-item2">Item 2</label>
+                        </span>
                         <span class="p-float-label" *ngIf="!editandoItems">
                             <p-inputNumber [ngModel]="configuracion.objConfiguracionReporteGrupos.item2"
                                 suffix=" %" [minFractionDigits]="2" [readonly]="true" [disabled]="true" styleClass="config-input">
@@ -361,16 +361,16 @@
                     </div>
 
                     <div class="config-row">
-                        <div class="config-percent-field" *ngIf="editandoImprevistos">
-                            <span class="config-percent-label">Imprevistos</span>
-                            <div class="flex align-items-center gap-1">
-                                <input pInputText type="number"
+                        <span class="p-float-label config-field-percent" *ngIf="editandoImprevistos">
+                            <div class="p-inputgroup">
+                                <input pInputText type="number" id="float-imprevistos"
                                     [ngModel]="clonedImprevistos"
-                                    min="0" step="0.01" class="percent-input"
+                                    min="0" step="0.01"
                                     (input)="onHeaderPercentInput($event, 'imprevistos')">
-                                <span class="percent-suffix">%</span>
+                                <span class="p-inputgroup-addon">%</span>
                             </div>
-                        </div>
+                            <label for="float-imprevistos">Imprevistos</label>
+                        </span>
                         <span class="p-float-label" *ngIf="!editandoImprevistos">
                             <p-inputNumber [ngModel]="configuracion.objConfiguracionReporteGrupos.imprevistos"
                                 suffix=" %" [minFractionDigits]="2" [readonly]="true" [disabled]="true" styleClass="config-input">

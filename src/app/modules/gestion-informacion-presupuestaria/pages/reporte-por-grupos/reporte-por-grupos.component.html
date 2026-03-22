@@ -171,11 +171,13 @@
                     <div class="config-row">
 
                         <span class="p-float-label">
-                            <p-inputNumber id="float-aui" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.aUIPorcentaje"
-                                (onInput)="onPercentFieldInput($event, 'aui')"
-                                suffix=" %" [min]="0" [minFractionDigits]="2" [maxFractionDigits]="2"
-                                styleClass="config-input">
-                            </p-inputNumber>
+                            <div class="flex align-items-center gap-1" *ngIf="editandoCabecera">
+                                <input pInputText type="number" id="float-aui"
+                                    [ngModel]="clonedCabecera.aUIPorcentaje"
+                                    min="0" step="0.01" class="percent-input config-input"
+                                    (input)="onHeaderPercentInput($event, 'aui')">
+                                <span class="percent-suffix">%</span>
+                            </div>
                             <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="aUIPorcentajeDisplay"
                                 suffix=" %" [minFractionDigits]="2" [maxFractionDigits]="2"
                                 [readonly]="true" [disabled]="true" styleClass="config-input">
@@ -259,11 +261,13 @@
                     <div class="config-row">
 
                         <span class="p-float-label">
-                            <p-inputNumber id="float-item1" *ngIf="editandoItems" [(ngModel)]="clonedItems.item1"
-                                (onInput)="onPercentFieldInput($event, 'item1')"
-                                suffix=" %" [min]="0" [minFractionDigits]="2" [maxFractionDigits]="2"
-                                styleClass="config-input">
-                            </p-inputNumber>
+                            <div class="flex align-items-center gap-1" *ngIf="editandoItems">
+                                <input pInputText type="number" id="float-item1"
+                                    [ngModel]="clonedItems.item1"
+                                    min="0" step="0.01" class="percent-input config-input"
+                                    (input)="onHeaderPercentInput($event, 'item1')">
+                                <span class="percent-suffix">%</span>
+                            </div>
                             <p-inputNumber *ngIf="!editandoItems" [ngModel]="configuracion.objConfiguracionReporteGrupos.item1"
                                 suffix=" %" [minFractionDigits]="2" [readonly]="true" [disabled]="true" styleClass="config-input">
                             </p-inputNumber>
@@ -271,11 +275,13 @@
                         </span>
 
                         <span class="p-float-label">
-                            <p-inputNumber id="float-item2" *ngIf="editandoItems" [(ngModel)]="clonedItems.item2"
-                                (onInput)="onPercentFieldInput($event, 'item2')"
-                                suffix=" %" [min]="0" [minFractionDigits]="2" [maxFractionDigits]="2"
-                                styleClass="config-input">
-                            </p-inputNumber>
+                            <div class="flex align-items-center gap-1" *ngIf="editandoItems">
+                                <input pInputText type="number" id="float-item2"
+                                    [ngModel]="clonedItems.item2"
+                                    min="0" step="0.01" class="percent-input config-input"
+                                    (input)="onHeaderPercentInput($event, 'item2')">
+                                <span class="percent-suffix">%</span>
+                            </div>
                             <p-inputNumber *ngIf="!editandoItems" [ngModel]="configuracion.objConfiguracionReporteGrupos.item2"
                                 suffix=" %" [minFractionDigits]="2" [readonly]="true" [disabled]="true" styleClass="config-input">
                             </p-inputNumber>
@@ -347,11 +353,13 @@
 
                     <div class="config-row">
                         <span class="p-float-label">
-                            <p-inputNumber id="float-imprevistos" *ngIf="editandoImprevistos" [(ngModel)]="clonedImprevistos"
-                                (onInput)="onPercentFieldInput($event, 'imprevistos')"
-                                suffix=" %" [min]="0" [minFractionDigits]="2" [maxFractionDigits]="2"
-                                styleClass="config-input">
-                            </p-inputNumber>
+                            <div class="flex align-items-center gap-1" *ngIf="editandoImprevistos">
+                                <input pInputText type="number" id="float-imprevistos"
+                                    [ngModel]="clonedImprevistos"
+                                    min="0" step="0.01" class="percent-input config-input"
+                                    (input)="onHeaderPercentInput($event, 'imprevistos')">
+                                <span class="percent-suffix">%</span>
+                            </div>
                             <p-inputNumber *ngIf="!editandoImprevistos" [ngModel]="configuracion.objConfiguracionReporteGrupos.imprevistos"
                                 suffix=" %" [minFractionDigits]="2" [readonly]="true" [disabled]="true" styleClass="config-input">
                             </p-inputNumber>

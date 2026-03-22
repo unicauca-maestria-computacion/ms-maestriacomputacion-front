@@ -247,8 +247,18 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     };
   }
 
-  /** Limita porcentajes de cabecera: AUI max 100, Items juntos max 100, Imprevistos max 100. */
-  onPercentFieldInput(event: any, field: string): void {
+  /** Limita porcentajes de cabecera: max 2 decimales, AUI/Imprevistos max 100, Items juntos max 100. */
+  onHeaderPercentInput(event: Event, field: string): void {
+    const input = event.target as HTMLInputElement;
+    let raw = input.value;
+
+    // Limitar a 2 decimales
+    const dot = raw.indexOf('.');
+    if (dot !== -1 && raw.length - dot - 1 > 2) {
+      raw = raw.substring(0, dot + 3);
+      input.value = raw;
+    }
+
     let maxAllowed = 100;
     if (field === 'item1') {
       maxAllowed = Math.round((100 - (this.clonedItems.item2 ?? 0)) * 100) / 100;
@@ -256,17 +266,21 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       maxAllowed = Math.round((100 - (this.clonedItems.item1 ?? 0)) * 100) / 100;
     }
 
-    const v = event.value ?? 0;
-    if (v > maxAllowed || v < 0) {
-      const clamped = Math.round(Math.min(Math.max(0, v), maxAllowed) * 100) / 100;
-      setTimeout(() => {
-        switch (field) {
-          case 'aui': this.clonedCabecera.aUIPorcentaje = clamped; break;
-          case 'item1': this.clonedItems.item1 = clamped; break;
-          case 'item2': this.clonedItems.item2 = clamped; break;
-          case 'imprevistos': this.clonedImprevistos = clamped; break;
-        }
-      });
+    const parsed = parseFloat(raw);
+    let v = 0;
+    if (!isNaN(parsed) && parsed > 0) {
+      v = Math.round(parsed * 100) / 100;
+      if (v > maxAllowed) {
+        v = Math.round(maxAllowed * 100) / 100;
+        input.value = String(v);
+      }
+    }
+
+    switch (field) {
+      case 'aui': this.clonedCabecera.aUIPorcentaje = v; break;
+      case 'item1': this.clonedItems.item1 = v; break;
+      case 'item2': this.clonedItems.item2 = v; break;
+      case 'imprevistos': this.clonedImprevistos = v; break;
     }
   }
 

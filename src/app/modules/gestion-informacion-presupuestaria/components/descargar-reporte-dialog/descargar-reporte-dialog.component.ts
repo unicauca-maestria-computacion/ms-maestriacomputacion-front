@@ -19,17 +19,16 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
   @Input() activePeriod: PeriodoAcademicoDTORespuesta | null = null;
   @Output() displayChange = new EventEmitter<boolean>();
 
-  // Opciones siguiendo el estándar Name/Value del ejemplo de PrimeNG
   reportOptions = [
     { name: 'Reporte Final', value: 'reporte-final' },
     { name: 'Proyección Reporte', value: 'proyeccion-reporte' },
     { name: 'Reporte por Grupos', value: 'reporte-por-grupos' }
   ];
 
-  periodOptions: { name: string; value: PeriodoAcademicoDTORespuesta }[] = [];
-  allPeriodOptions: { name: string; value: PeriodoAcademicoDTORespuesta }[] = [];
+  periodOptions: { name: string; value: string }[] = [];
+  allPeriodOptions: { name: string; value: string; period: PeriodoAcademicoDTORespuesta }[] = [];
   selectedReport: string = '';
-  selectedPeriod: PeriodoAcademicoDTORespuesta | null = null;
+  selectedPeriodKey: string = '';
   loadingPeriods: boolean = false;
   loadingDownload: boolean = false;
 
@@ -44,20 +43,36 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['display']?.currentValue === true) {
+    // Actualizar selección cuando cambia el período o el tipo de reporte desde el padre
+    if ((changes['activePeriod'] || changes['activeReportCode']) && this.allPeriodOptions.length > 0) {
       this.sincronizarSeleccion();
     }
+  }
+
+  onDialogShow(): void {
+    // (onShow) se dispara cuando el dialog ya está completamente en el DOM.
+    // setTimeout(0) garantiza que los dropdowns están inicializados antes de asignar valores.
+    setTimeout(() => this.sincronizarSeleccion(), 0);
   }
 
   cargarPeriodos() {
     this.loadingPeriods = true;
     this.facadeService.obtenerPeriodosAcademicos().pipe(takeUntil(this.destroy$)).subscribe({
       next: (periodos) => {
-        this.allPeriodOptions = periodos.map(p => ({
-          name: `${p.año}-${p.periodo}`,
-          value: p
-        }));
-        this.actualizarPeriodosDisponibles();
+        const seen = new Set<string>();
+        const unicos = periodos.filter(p => {
+          const key = `${p.año}-${p.periodo}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        this.allPeriodOptions = unicos
+          .sort((a, b) => b.año !== a.año ? b.año - a.año : b.periodo - a.periodo)
+          .map(p => ({
+            name: `${p.año}-${p.periodo}`,
+            value: `${p.año}-${p.periodo}`,
+            period: p
+          }));
         this.sincronizarSeleccion();
         this.loadingPeriods = false;
       },
@@ -79,49 +94,77 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
     }
 
     if (this.selectedReport === 'reporte-final') {
-      // Excluir el último periodo para Reporte Final (solo períodos cerrados)
-      this.periodOptions = this.allPeriodOptions.slice(0, -1);
-
-      // Si el periodo seleccionado era el último, deseleccionarlo
-      if (this.selectedPeriod) {
-        const lastPeriodValue = this.allPeriodOptions[this.allPeriodOptions.length - 1].value;
-        if (this.selectedPeriod.año === lastPeriodValue.año && this.selectedPeriod.periodo === lastPeriodValue.periodo) {
-          this.selectedPeriod = null;
-        }
+      this.periodOptions = this.allPeriodOptions.slice(1).map(o => ({ name: o.name, value: o.value }));
+      const currentKey = this.allPeriodOptions[0]?.value;
+      if (currentKey && this.selectedPeriodKey === currentKey) {
+        this.selectedPeriodKey = '';
       }
     } else if (this.selectedReport === 'proyeccion-reporte') {
-      // Solo el último período para Proyección (período en curso)
-      this.periodOptions = [this.allPeriodOptions[this.allPeriodOptions.length - 1]];
-      // Auto-seleccionar el único período disponible
-      this.selectedPeriod = this.periodOptions[0]?.value;
+      const latest = this.allPeriodOptions[0];
+      this.periodOptions = latest ? [{ name: latest.name, value: latest.value }] : [];
+      // No asignar selectedPeriodKey aquí — se hace en aplicarSeleccionPeriodo (diferido)
     } else {
-      // Reporte por Grupos: todos los períodos disponibles
-      this.periodOptions = [...this.allPeriodOptions];
+      this.periodOptions = this.allPeriodOptions.map(o => ({ name: o.name, value: o.value }));
     }
   }
 
   onReportChange() {
+    // Clear first so the p-dropdown options setter does not see a stale value
+    // and clobber selectedPeriodKey via onModelChange(null) before we re-assign it.
+    this.selectedPeriodKey = '';
     this.actualizarPeriodosDisponibles();
+    setTimeout(() => this.aplicarSeleccionPeriodo(), 0);
+  }
+
+  /**
+   * Calculates and assigns the correct selectedPeriodKey from the current
+   * periodOptions and activePeriod. Must be called AFTER periodOptions has
+   * already been set and Angular has processed that binding through the
+   * p-dropdown options setter (i.e. inside a setTimeout or similar).
+   */
+  private aplicarSeleccionPeriodo(): void {
+    if (this.periodOptions.length === 0) {
+      return;
+    }
+    if (this.selectedReport === 'proyeccion-reporte') {
+      // Proyección: siempre el único período disponible (el más reciente)
+      this.selectedPeriodKey = this.periodOptions[0].value;
+      return;
+    }
+    if (this.activePeriod) {
+      const key = `${this.activePeriod.año}-${this.activePeriod.periodo}`;
+      const exists = this.periodOptions.some(opt => opt.value === key);
+      this.selectedPeriodKey = exists ? key : this.periodOptions[0].value;
+    } else {
+      this.selectedPeriodKey = this.periodOptions[0].value;
+    }
   }
 
   sincronizarSeleccion() {
-    // Sincronizar Reporte
+    // 1. Sincronizar tipo de reporte
     if (this.activeReportCode) {
       this.selectedReport = this.activeReportCode;
     }
 
+    // 2. Clear any stale period key BEFORE updating periodOptions so that when
+    //    the p-dropdown `options` setter fires it sees '' and does not try to
+    //    look up a value that belongs to the previous list — avoiding the
+    //    PrimeNG 13 bug where options setter calls onModelChange(null) and
+    //    overwrites the model when the value is not yet present in the new list.
+    this.selectedPeriodKey = '';
+
+    // 3. Reconstruir opciones de período según el reporte
     this.actualizarPeriodosDisponibles();
 
-    // Sincronizar Periodo
-    if (this.activePeriod && this.periodOptions.length > 0) {
-      const found = this.periodOptions.find(opt => 
-        opt.value.año === this.activePeriod?.año && 
-        opt.value.periodo === this.activePeriod?.periodo
-      );
-      if (found) {
-        this.selectedPeriod = found.value;
-      }
-    }
+    // 4. Defer the period key assignment by one macrotask tick so that Angular's
+    //    change-detection has already propagated the new periodOptions array into
+    //    the p-dropdown (triggering its options setter) before we write
+    //    selectedPeriodKey.  Without this deferral, both bindings ([options] and
+    //    [(ngModel)]) are processed in the same CD cycle; [options] fires first
+    //    (it appears first in the template), finds no match for the model value,
+    //    and resets the model to null via onModelChange — wiping out the value
+    //    we are about to set.
+    setTimeout(() => this.aplicarSeleccionPeriodo(), 0);
   }
 
   ngOnDestroy(): void {
@@ -130,13 +173,14 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
   }
 
   cerrar() {
-    // Resetear estado del formulario al cerrar el dialog
     this.loadingDownload = false;
     this.displayChange.emit(false);
   }
 
   descargar() {
-    if (!this.selectedReport || !this.selectedPeriod) {
+    const selectedPeriodObj = this.allPeriodOptions.find(o => o.value === this.selectedPeriodKey)?.period ?? null;
+
+    if (!this.selectedReport || !selectedPeriodObj) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Advertencia',
@@ -146,7 +190,7 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
     }
 
     this.loadingDownload = true;
-    const periodo = { año: this.selectedPeriod.año, periodo: this.selectedPeriod.periodo };
+    const periodo = { año: selectedPeriodObj.año, periodo: selectedPeriodObj.periodo };
 
     switch (this.selectedReport) {
       case 'reporte-final':
@@ -182,21 +226,13 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
         }
         this.excelService.generarExcelReporteFinal(data);
         this.loadingDownload = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Reporte Final descargado correctamente.'
-        });
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Reporte Final descargado correctamente.' });
         this.cerrar();
       },
       error: (err) => {
         this.loadingDownload = false;
         console.error('Error al obtener reporte final:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo descargar el Reporte Final.'
-        });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo descargar el Reporte Final.' });
       }
     });
   }
@@ -215,21 +251,13 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
         }
         this.excelService.generarExcelProyeccionReporte(data);
         this.loadingDownload = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Proyección de Reporte descargada correctamente.'
-        });
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Proyección de Reporte descargada correctamente.' });
         this.cerrar();
       },
       error: (err) => {
         this.loadingDownload = false;
         console.error('Error al obtener proyección:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo descargar la Proyección de Reporte.'
-        });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo descargar la Proyección de Reporte.' });
       }
     });
   }
@@ -248,21 +276,13 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
         }
         this.excelService.generarExcelReportePorGrupos(data);
         this.loadingDownload = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Reporte por Grupos descargado correctamente.'
-        });
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Reporte por Grupos descargado correctamente.' });
         this.cerrar();
       },
       error: (err) => {
         this.loadingDownload = false;
         console.error('Error al obtener reporte por grupos:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo descargar el Reporte por Grupos.'
-        });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo descargar el Reporte por Grupos.' });
       }
     });
   }

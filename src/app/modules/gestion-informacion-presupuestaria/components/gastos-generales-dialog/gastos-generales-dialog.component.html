@@ -76,13 +76,15 @@
                         <ng-container *ngIf="readonly">{{ formatCurrency(gasto.monto) }}</ng-container>
                         <ng-container *ngIf="!readonly">
                             <p-inputNumber *ngIf="gasto.idGastoGeneral < 0" [(ngModel)]="gasto.monto"
-                                mode="currency" currency="COP" locale="es-CO"
+                                prefix="$ " [useGrouping]="true" locale="es-CO"
+                                [min]="0" [minFractionDigits]="0" [maxFractionDigits]="0"
                                 class="w-full" [disabled]="guardandoGastos">
                             </p-inputNumber>
                             <p-cellEditor *ngIf="gasto.idGastoGeneral > 0">
                                 <ng-template pTemplate="input">
                                     <p-inputNumber [(ngModel)]="gasto.monto" mode="currency"
                                         currency="COP" locale="es-CO" class="w-full"
+                                        [minFractionDigits]="0" [maxFractionDigits]="0"
                                         [disabled]="guardandoGastos">
                                     </p-inputNumber>
                                 </ng-template>

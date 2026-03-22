@@ -1,6 +1,6 @@
 :host ::ng-deep {
     .p-dropdown {
-        width: 100%;
+        width: 100% !important;
     }
 
     .p-dialog-content {
@@ -9,7 +9,7 @@
     }
 
     .p-float-label {
-        display: block;
-        width: 100%;
+        display: block !important;
+        width: 100% !important;
     }
 }

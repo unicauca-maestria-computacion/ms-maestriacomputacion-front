@@ -4,7 +4,6 @@ import { takeUntil } from 'rxjs/operators';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.service';
-import { GestionMatriculaFinancieraExcelService } from '../../services/excel.service';
 import { Estudiante, PeriodoAcademico } from '../../models/domain-models';
 
 @Component({
@@ -34,7 +33,6 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
     constructor(
         private facadeService: GestionMatriculaFinancieraFacadeService,
-        private excelService: GestionMatriculaFinancieraExcelService,
         private messageService: MessageService,
         private router: Router,
         private route: ActivatedRoute
@@ -176,26 +174,6 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
     verDetalle(estudiante: Estudiante): void {
         this.router.navigate(['detalle', estudiante.codigo], { relativeTo: this.route });
-    }
-
-    descargarExcel(): void {
-        if (!this.periodoSeleccionado) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Advertencia',
-                detail: 'Seleccione un período académico antes de exportar.'
-            });
-            return;
-        }
-        if (!this.estudiantesFiltrados?.length) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Sin datos',
-                detail: 'No hay estudiantes para exportar con los filtros actuales.'
-            });
-            return;
-        }
-        this.excelService.generarExcelListaEstudiantes(this.estudiantesFiltrados, this.periodoSeleccionado);
     }
 
     getInputValue(event: Event): string {

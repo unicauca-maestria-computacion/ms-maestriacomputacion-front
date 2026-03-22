@@ -111,11 +111,13 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
 
     this.facadeService.crearGastoGeneral(gastoDTO).pipe(takeUntil(this.destroy$)).subscribe({
       next: (gastoCreado) => {
-        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto creado correctamente' });
-        this.onCambio.emit();
+        // Reemplazar fila temporal (-1) con el gasto real recibido del backend
+        const index = this.gastosEditables.findIndex(g => g.idGastoGeneral === -1);
+        if (index !== -1) this.gastosEditables[index] = gastoCreado;
         this.nuevoGasto = null;
         this.guardandoGastos = false;
-        this.prepararGastos(); // Recargar de lo que venga por Input
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto creado correctamente' });
+        this.onCambio.emit();
       },
       error: (err) => {
         console.error('Error al crear gasto general', err);
@@ -157,12 +159,14 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
 
     this.facadeService.actualizarGastoGeneral(gastoDTO).pipe(takeUntil(this.destroy$)).subscribe({
       next: (gastoActualizado) => {
-        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto actualizado correctamente' });
-        this.onCambio.emit();
+        // Actualizar la fila en la lista local con los datos confirmados por el backend
+        const index = this.gastosEditables.findIndex(g => g.idGastoGeneral === gasto.idGastoGeneral);
+        if (index !== -1) this.gastosEditables[index] = gastoActualizado;
         delete this.clonedGasto[gasto.idGastoGeneral];
         this.editingGastoKey = null;
         this.guardandoGastos = false;
-        this.prepararGastos();
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto actualizado correctamente' });
+        this.onCambio.emit();
       },
       error: (err) => {
         console.error('Error al actualizar gasto general', err);
@@ -198,15 +202,15 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
   eliminarGasto(gasto: GastoGeneral) {
     this.guardandoGastos = true;
     this.facadeService.eliminarGastoGeneral(gasto.idGastoGeneral).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (success) => {
-        if (success) {
-          this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto eliminado correctamente' });
-          this.onCambio.emit();
-          this.editingGastoKey = null;
-          delete this.clonedGasto[gasto.idGastoGeneral];
-          this.prepararGastos();
-        }
+      next: (_) => {
+        // El backend retorna 204 No Content — cualquier respuesta aquí es éxito
+        const index = this.gastosEditables.findIndex(g => g.idGastoGeneral === gasto.idGastoGeneral);
+        if (index !== -1) this.gastosEditables.splice(index, 1);
+        this.editingGastoKey = null;
+        delete this.clonedGasto[gasto.idGastoGeneral];
         this.guardandoGastos = false;
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto eliminado correctamente' });
+        this.onCambio.emit();
       },
       error: (err) => {
         console.error('Error al eliminar gasto general', err);

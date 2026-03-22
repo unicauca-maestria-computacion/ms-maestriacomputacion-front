@@ -11,7 +11,7 @@
 <!-- Selector de Período -->
 <div *ngIf="!loading && !errorCarga && periodos.length > 0"
     class="flex justify-content-center align-items-center mb-5 periodo-selector">
-    <button pButton type="button" icon="pi pi-chevron-left"
+    <button *ngIf="periodos.length > 1" pButton type="button" icon="pi pi-chevron-left"
         class="p-button-rounded p-button-text p-button-secondary"
         pTooltip="Período anterior" tooltipPosition="top"
         (click)="irPeriodoAnterior()" [disabled]="!hayAnterior">
@@ -23,7 +23,7 @@
         <span class="periodo-academico-valor">{{ periodoActualTexto }}</span>
     </div>
 
-    <button pButton type="button" icon="pi pi-chevron-right"
+    <button *ngIf="periodos.length > 1" pButton type="button" icon="pi pi-chevron-right"
         class="p-button-rounded p-button-text p-button-secondary"
         pTooltip="Período siguiente" tooltipPosition="top"
         (click)="irPeriodoSiguiente()" [disabled]="!haySiguiente">

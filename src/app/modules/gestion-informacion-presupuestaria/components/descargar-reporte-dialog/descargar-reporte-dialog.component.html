@@ -1,7 +1,7 @@
 <p-dialog header="Descargar Reporte" [(visible)]="display" [modal]="true"
     [style]="{width: '450px', 'min-width': '320px'}"
     [draggable]="false" [resizable]="false"
-    (onHide)="cerrar()" [closable]="true">
+    (onShow)="onDialogShow()" (onHide)="cerrar()" [closable]="true">
 
     <div class="grid p-fluid mt-2">
 
@@ -27,16 +27,19 @@
             <span class="p-float-label">
                 <p-dropdown
                     [options]="periodOptions"
-                    [(ngModel)]="selectedPeriod"
+                    [(ngModel)]="selectedPeriodKey"
                     optionLabel="name"
                     optionValue="value"
                     appendTo="body"
                     inputId="dropdown-period"
                     placeholder="&nbsp;"
-                    [disabled]="!selectedReport || periodOptions.length === 0">
+                    [disabled]="!selectedReport || periodOptions.length === 0 || selectedReport === 'proyeccion-reporte'">
                 </p-dropdown>
                 <label for="dropdown-period">Período Académico</label>
             </span>
+            <small *ngIf="selectedReport === 'proyeccion-reporte'" class="text-500 mt-1 block">
+                La proyección corresponde siempre al período en curso.
+            </small>
         </div>
     </div>
 
@@ -52,7 +55,7 @@
                 [icon]="loadingDownload ? 'pi pi-spin pi-spinner' : 'pi pi-download'"
                 class="p-button-primary"
                 (click)="descargar()"
-                [disabled]="!selectedReport || !selectedPeriod || loadingDownload">
+                [disabled]="!selectedReport || !selectedPeriodKey || loadingDownload">
             </button>
         </div>
     </ng-template>

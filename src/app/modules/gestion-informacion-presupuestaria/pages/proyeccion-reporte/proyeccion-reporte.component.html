@@ -171,9 +171,9 @@
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
                                         <div class="flex align-items-center gap-1">
-                                            <input pInputText type="number" [(ngModel)]="estudiante.porcentajeVotacion"
-                                                required min="0" max="100" step="0.1" class="percent-input"
-                                                (ngModelChange)="recalcularFila(estudiante)">
+                                            <input pInputText type="number" [ngModel]="estudiante.porcentajeVotacion"
+                                                min="0" step="0.01" class="percent-input"
+                                                (input)="onPercentInput($event, estudiante, 'porcentajeVotacion')">
                                             <span class="percent-suffix">%</span>
                                         </div>
                                     </ng-template>
@@ -188,9 +188,9 @@
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
                                         <div class="flex align-items-center gap-1">
-                                            <input pInputText type="number" [(ngModel)]="estudiante.porcentajeBeca"
-                                                required min="0" max="100" step="0.1" class="percent-input"
-                                                (ngModelChange)="recalcularFila(estudiante)">
+                                            <input pInputText type="number" [ngModel]="estudiante.porcentajeBeca"
+                                                min="0" step="0.01" class="percent-input"
+                                                (input)="onPercentInput($event, estudiante, 'porcentajeBeca')">
                                             <span class="percent-suffix">%</span>
                                         </div>
                                     </ng-template>
@@ -210,9 +210,9 @@
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
                                         <div class="flex align-items-center gap-1">
-                                            <input pInputText type="number" [(ngModel)]="estudiante.porcentajeEgresado"
-                                                required min="0" max="100" step="0.1" class="percent-input"
-                                                (ngModelChange)="recalcularFila(estudiante)">
+                                            <input pInputText type="number" [ngModel]="estudiante.porcentajeEgresado"
+                                                min="0" step="0.01" class="percent-input"
+                                                (input)="onPercentInput($event, estudiante, 'porcentajeEgresado')">
                                             <span class="percent-suffix">%</span>
                                         </div>
                                     </ng-template>

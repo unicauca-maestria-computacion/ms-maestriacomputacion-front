@@ -72,7 +72,6 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
         this.normalizarPorcentajesParaDisplay(this.configuracion);
         this.procesarDatosTabla(this.configuracion);
         this.procesarDistribucion(this.configuracion);
-        this.inicializarGrafica(this.configuracion);
         this.loading = false;
       },
       error: (err) => {
@@ -83,10 +82,10 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Convierte valor en escala 0-100 (UI) a ratio 0-1 para el backend. */
+  /** Convierte valor en escala 0-100 (UI) a ratio 0-1 para el backend, con redondeo. */
   private toRatio(value: number | null | undefined): number {
     if (value == null) return 0;
-    return value / 100;
+    return Math.round((value / 100) * 10000) / 10000;
   }
 
   /** AUI Universidad: muestra auiporcentaje del API (ratio 0-1 o ya 0-100). Para vista se normaliza a 0-100. */
@@ -105,6 +104,21 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     if (config.item1 != null && config.item1 <= 1) config.item1 = config.item1 * 100;
     if (config.item2 != null && config.item2 <= 1) config.item2 = config.item2 * 100;
     if (config.imprevistos != null && config.imprevistos <= 1) config.imprevistos = config.imprevistos * 100;
+
+    // Normalizar porcentajes de participación por grupo (ratio 0-1 → escala 0-100)
+    if (data.filasPorGrupo) {
+      for (const fila of data.filasPorGrupo) {
+        if (fila.participacionPrimerSemestre != null && fila.participacionPrimerSemestre <= 1) {
+          fila.participacionPrimerSemestre = Math.round(fila.participacionPrimerSemestre * 10000) / 100;
+        }
+        if (fila.participacionSegundoSemestre != null && fila.participacionSegundoSemestre <= 1) {
+          fila.participacionSegundoSemestre = Math.round(fila.participacionSegundoSemestre * 10000) / 100;
+        }
+        if (fila.participacionPorAño != null && fila.participacionPorAño <= 1) {
+          fila.participacionPorAño = Math.round(fila.participacionPorAño * 10000) / 100;
+        }
+      }
+    }
   }
 
   procesarDatosTabla(data: ReportePorGrupos): void {
@@ -141,6 +155,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     });
 
     this.procesarDatosTablaBudget(data);
+    this.recalcularParticipacionPorAño();
   }
 
   procesarDistribucion(data: ReportePorGrupos): void {
@@ -195,10 +210,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
           {
             label: 'Participación por Año (%)',
             backgroundColor: grupos.map((_, i) => colors[i % colors.length]),
-            data: grupos.map(g => {
-              const v = g.participacionPorAño ?? 0;
-              return v > 1 ? v : v * 100;
-            })
+            data: grupos.map(g => g.participacionPorAño ?? 0)
           }
         ]
       };
@@ -235,6 +247,29 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     };
   }
 
+  /** Limita porcentajes de cabecera: AUI max 100, Items juntos max 100, Imprevistos max 100. */
+  onPercentFieldInput(event: any, field: string): void {
+    let maxAllowed = 100;
+    if (field === 'item1') {
+      maxAllowed = Math.round((100 - (this.clonedItems.item2 ?? 0)) * 100) / 100;
+    } else if (field === 'item2') {
+      maxAllowed = Math.round((100 - (this.clonedItems.item1 ?? 0)) * 100) / 100;
+    }
+
+    const v = event.value ?? 0;
+    if (v > maxAllowed || v < 0) {
+      const clamped = Math.round(Math.min(Math.max(0, v), maxAllowed) * 100) / 100;
+      setTimeout(() => {
+        switch (field) {
+          case 'aui': this.clonedCabecera.aUIPorcentaje = clamped; break;
+          case 'item1': this.clonedItems.item1 = clamped; break;
+          case 'item2': this.clonedItems.item2 = clamped; break;
+          case 'imprevistos': this.clonedImprevistos = clamped; break;
+        }
+      });
+    }
+  }
+
   descargar(): void {
     // La descarga se abre desde opciones-presupuesto (app-descargar-reporte-dialog) con activeTab 'reporte-por-grupos'.
   }
@@ -250,6 +285,95 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     return `${value.toFixed(2)} %`;
   }
 
+  /** Calcula el porcentaje máximo permitido para un grupo en una fila (100 - suma de los demás). */
+  getMaxPercent(row: TableRow, groupName: string): number {
+    const otherSum = this.groupColumns
+      .filter(g => g.nombre !== groupName)
+      .reduce((acc, g) => acc + (row.values[g.nombre] ?? 0), 0);
+    return Math.round(Math.max(0, 100 - otherSum) * 100) / 100;
+  }
+
+  /** Llamado en cada cambio de input: limita decimales a 2 y el valor al máximo disponible. */
+  onPercentInput(event: Event, row: TableRow, groupName: string): void {
+    const input = event.target as HTMLInputElement;
+    let raw = input.value;
+
+    // Limitar a 2 decimales cortando el string
+    const dot = raw.indexOf('.');
+    if (dot !== -1 && raw.length - dot - 1 > 2) {
+      raw = raw.substring(0, dot + 3);
+      input.value = raw;
+    }
+
+    const parsed = parseFloat(raw);
+    if (isNaN(parsed) || parsed < 0) {
+      row.values[groupName] = 0;
+    } else {
+      let v = Math.round(parsed * 100) / 100;
+      const maxAllowed = this.getMaxPercent(row, groupName);
+      if (v > maxAllowed) {
+        v = Math.round(maxAllowed * 100) / 100;
+        input.value = String(v);
+      }
+      row.values[groupName] = v;
+    }
+
+    row.total = this.groupColumns.reduce((acc, g) => acc + (row.values[g.nombre] ?? 0), 0);
+    this.recalcularParticipacionPorAño();
+  }
+
+  /** Recalcula la fila "Participación por año" como promedio de 1er y 2do semestre por grupo. */
+  private recalcularParticipacionPorAño(): void {
+    const primerRow = this.tableRows.find(r => r.key === 'participacionPrimerSemestre');
+    const segundoRow = this.tableRows.find(r => r.key === 'participacionSegundoSemestre');
+    const porAñoRow = this.tableRows.find(r => r.key === 'participacionPorAño');
+    if (!primerRow || !segundoRow || !porAñoRow) return;
+    for (const group of this.groupColumns) {
+      const p1 = primerRow.values[group.nombre] ?? 0;
+      const p2 = segundoRow.values[group.nombre] ?? 0;
+      porAñoRow.values[group.nombre] = Math.round((p1 + p2) / 2 * 10) / 10;
+    }
+    porAñoRow.total = Object.values(porAñoRow.values).reduce((a, b) => a + b, 0);
+    this.actualizarGrafica(porAñoRow);
+  }
+
+  /** Actualiza la gráfica con los valores actuales de participación por año. */
+  private actualizarGrafica(porAñoRow: TableRow): void {
+    const colors = ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+    this.basicData = {
+      labels: this.groupColumns.map(g => g.nombre),
+      datasets: [
+        {
+          label: 'Participación por Año (%)',
+          backgroundColor: this.groupColumns.map((_, i) => colors[i % colors.length]),
+          data: this.groupColumns.map(g => porAñoRow.values[g.nombre] ?? 0)
+        }
+      ]
+    };
+    this.basicOptions = {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { display: false, labels: { color: '#495057' } },
+        tooltip: {
+          callbacks: {
+            label: (ctx: any) => `${ctx.parsed.y.toFixed(2)} %`
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#495057' }, grid: { color: '#ebedef', display: false } },
+        y: {
+          ticks: {
+            color: '#495057',
+            callback: (value: any) => `${value} %`
+          },
+          grid: { color: '#ebedef' }
+        }
+      }
+    };
+  }
+
   onRowEditInit(row: TableRow) {
     if (this.isAnyEditActive) return;
     this.clonedRow = { ...row.values };
@@ -257,11 +381,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   }
 
   onRowEditSave(row: TableRow) {
-    let newTotal = 0;
-    Object.keys(row.values).forEach(key => {
-      newTotal += row.values[key];
-    });
-    row.total = newTotal;
+    row.total = Object.values(row.values).reduce((a, b) => a + b, 0);
 
     this.editingRowKey = null;
     this.clonedRow = {};

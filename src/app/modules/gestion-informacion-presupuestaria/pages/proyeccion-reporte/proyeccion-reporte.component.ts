@@ -337,14 +337,52 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     return Math.round(percent * 100) / 100;
   }
 
+  /** Calcula el porcentaje máximo para un campo de porcentaje (100 - suma de los otros dos). */
+  getMaxPercent(estudiante: EstudianteProyeccion, campo: string): number {
+    const campos: (keyof EstudianteProyeccion)[] = ['porcentajeVotacion', 'porcentajeBeca', 'porcentajeEgresado'];
+    const otherSum = campos
+      .filter(c => c !== campo)
+      .reduce((acc, c) => acc + ((estudiante[c] as number) ?? 0), 0);
+    return Math.round(Math.max(0, 100 - otherSum) * 100) / 100;
+  }
+
+  /** Limita decimales a 2 y el valor al máximo disponible, luego recalcula la fila. */
+  onPercentInput(event: Event, estudiante: EstudianteProyeccion, campo: string): void {
+    const input = event.target as HTMLInputElement;
+    let raw = input.value;
+
+    // Limitar a 2 decimales cortando el string
+    const dot = raw.indexOf('.');
+    if (dot !== -1 && raw.length - dot - 1 > 2) {
+      raw = raw.substring(0, dot + 3);
+      input.value = raw;
+    }
+
+    const parsed = parseFloat(raw);
+    if (isNaN(parsed) || parsed < 0) {
+      (estudiante as any)[campo] = 0;
+    } else {
+      let v = Math.round(parsed * 100) / 100;
+      const maxAllowed = this.getMaxPercent(estudiante, campo);
+      if (v > maxAllowed) {
+        v = Math.round(maxAllowed * 100) / 100;
+        input.value = String(v);
+      }
+      (estudiante as any)[campo] = v;
+    }
+
+    this.recalcularFila(estudiante);
+  }
+
   /**
-   * Recalcula valorBeca, valorEgresado, valorVotacion, grupoDescuentos y totalNeto de una fila
-   * cuando el usuario modifica % votación, % beca o % egresado.
-   * Reglas: no negativos, los tres porcentajes no pueden superar 100 % en total (si superan, se escalan a 100 %).
+   * Recalcula valorBeca, valorEgresado, valorVotacion, grupoDescuentos y totalNeto de una fila.
    */
-  recalcularFila(estudiante: EstudianteProyeccion): void {
+  recalcularFila(estudiante: EstudianteProyeccion, campoModificado?: string, nuevoValor?: number): void {
     if (!this.configuracion) return;
-    this.normalizarPorcentajesFila(estudiante);
+    if (campoModificado != null && nuevoValor != null) {
+      (estudiante as any)[campoModificado] = nuevoValor;
+    }
+    this.normalizarPorcentajesFila(estudiante, campoModificado);
     const matricula = this.configuracion.valorMatricula * this.configuracion.valorSMLV;
     const ratioBeca = this.toRatio(estudiante.porcentajeBeca);
     const ratioEgresado = this.toRatio(estudiante.porcentajeEgresado);
@@ -357,29 +395,26 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Aplica reglas a los tres porcentajes de la fila:
-   * - No negativos (mínimo 0).
-   * - Cada uno máximo 100.
-   * - La suma de los tres no puede superar 100 %; si supera, se escalan proporcionalmente para que sumen 100 %.
+   * Limita el campo modificado al máximo disponible (100 - suma de los otros dos).
+   * Si no se indica campo, aplica la restricción secuencialmente como seguridad.
    */
-  private normalizarPorcentajesFila(estudiante: EstudianteProyeccion): void {
-    const clamp = (v: number | null | undefined) => {
+  private normalizarPorcentajesFila(estudiante: EstudianteProyeccion, campoModificado?: string): void {
+    const clamp0 = (v: number | null | undefined) => {
       if (v == null || isNaN(v)) return 0;
-      return Math.max(0, Math.min(100, v));
+      return Math.round(Math.max(0, v) * 100) / 100;
     };
-    estudiante.porcentajeVotacion = clamp(estudiante.porcentajeVotacion);
-    estudiante.porcentajeBeca = clamp(estudiante.porcentajeBeca);
-    estudiante.porcentajeEgresado = clamp(estudiante.porcentajeEgresado);
-    const suma = estudiante.porcentajeVotacion + estudiante.porcentajeBeca + estudiante.porcentajeEgresado;
-    if (suma > 100) {
-      const factor = 100 / suma;
-      estudiante.porcentajeVotacion = Math.round(estudiante.porcentajeVotacion * factor * 10) / 10;
-      estudiante.porcentajeBeca = Math.round(estudiante.porcentajeBeca * factor * 10) / 10;
-      estudiante.porcentajeEgresado = Math.round(estudiante.porcentajeEgresado * factor * 10) / 10;
-      // Ajuste por redondeo para que sumen exactamente 100
-      const nuevaSuma = estudiante.porcentajeVotacion + estudiante.porcentajeBeca + estudiante.porcentajeEgresado;
-      if (nuevaSuma !== 100) {
-        estudiante.porcentajeEgresado = Math.round((100 - estudiante.porcentajeVotacion - estudiante.porcentajeBeca) * 10) / 10;
+    estudiante.porcentajeVotacion = clamp0(estudiante.porcentajeVotacion);
+    estudiante.porcentajeBeca = clamp0(estudiante.porcentajeBeca);
+    estudiante.porcentajeEgresado = clamp0(estudiante.porcentajeEgresado);
+
+    if (campoModificado) {
+      const max = this.getMaxPercent(estudiante, campoModificado);
+      (estudiante as any)[campoModificado] = Math.round(Math.min((estudiante as any)[campoModificado], max) * 100) / 100;
+    } else {
+      const campos: (keyof EstudianteProyeccion)[] = ['porcentajeVotacion', 'porcentajeBeca', 'porcentajeEgresado'];
+      for (const campo of campos) {
+        const max = this.getMaxPercent(estudiante, campo);
+        (estudiante as any)[campo] = Math.round(Math.min((estudiante as any)[campo] as number, max) * 100) / 100;
       }
     }
   }

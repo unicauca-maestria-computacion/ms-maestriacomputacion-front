@@ -60,6 +60,17 @@
     flex-shrink: 0;
 }
 
+.config-percent-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.config-percent-label {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary, #6c757d);
+}
+
 :host ::ng-deep {
     .p-float-label {
         width: 180px;
@@ -79,14 +90,6 @@
             background-color: var(--surface-card, #ffffff);
         }
 
-        /* Input nativo de porcentaje: misma apariencia que p-inputNumber */
-        input.config-input-native {
-            width: 100% !important;
-            text-align: right;
-            font-weight: 600;
-            color: var(--text-color, #495057);
-            background-color: var(--surface-card, #ffffff);
-        }
     }
 }
 

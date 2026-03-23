@@ -62,7 +62,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
                     // Buscar el objeto exacto de la lista actual para que el dropdown funcione (comparacion de objetos en PrimeNG)
                     this.periodoSeleccionado = this.periodos.find(p => p.año === periodoGuardado.año && p.periodo === periodoGuardado.periodo) || null;
                 } else if (periodos.length > 0) {
-                    this.periodoSeleccionado = periodos[periodos.length - 1];
+                    this.periodoSeleccionado = periodos[0];
                     this.facadeService.setPeriodoFiltro(this.periodoSeleccionado);
                 }
 

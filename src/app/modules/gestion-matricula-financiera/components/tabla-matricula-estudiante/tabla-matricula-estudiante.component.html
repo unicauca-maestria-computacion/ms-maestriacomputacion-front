@@ -1,153 +1,157 @@
-<div class="table-container" *ngIf="estudiante">
+<div *ngIf="estudiante">
 
-    <!-- Header Principal -->
-    <div class="main-title text-center font-bold">
-        Matrícula Financiera &nbsp;&mdash;&nbsp; Estudiante
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- SECCIÓN: MATRÍCULA FINANCIERA                                      -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="seccion-header">
+        <i class="pi pi-wallet mr-2"></i>
+        Matrícula Financiera
+        <p-tag *ngIf="esNuevo" value="Nuevo" severity="info" class="ml-2"></p-tag>
     </div>
 
-    <!-- Tabla Financiera -->
-    <table class="w-full responsive-table">
-        <colgroup class="desktop-only">
-            <col style="width: 10%">
-            <col style="width: 20%">
-            <col style="width: 12%">
-            <col style="width: 8%">
-            <col style="width: 10%">
-            <col style="width: 12%">
-            <col style="width: 18%">
-            <col style="width: 10%">
-        </colgroup>
-        <thead class="desktop-only">
-            <tr class="header-row bg-gray-100">
-                <th rowspan="2">Identificación</th>
-                <th rowspan="2">Nombres Completos<br>Del Estudiante</th>
-                <th rowspan="2">Valor de<br>Matrícula<br>(SMMLV)</th>
-                <th rowspan="2">Sem.<br>Finan.</th>
-                <th rowspan="2">¿Descuento<br>de Voto?</th>
-                <th rowspan="2">Descuento<br>Egresado<br>(UNICAUCA)</th>
-                <th>No. Res.<br>de Beca</th>
-                <th>% Beca</th>
-            </tr>
-            <tr class="header-row bg-gray-100">
-                <th colspan="2" class="text-xs font-normal text-400">—</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="responsive-row">
-                <td>
-                    <span class="p-column-title">Identificación</span>
-                    {{ estudiante.identificacion }}
-                </td>
-                <td>
-                    <span class="p-column-title">Nombre Estudiante</span>
-                    {{ getNombreCompleto() | uppercase }}
-                </td>
-                <td class="text-right font-semibold">
-                    <span class="p-column-title">Valor Matrícula</span>
-                    {{ valorMatricula | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
-                </td>
-                <td class="text-center">
-                    <span class="p-column-title">Sem. Finan.</span>
-                    {{ estudiante.semestreFinanciero }}
-                </td>
-                <td class="text-center">
-                    <span class="p-column-title">¿Descuento Voto?</span>
-                    <p-tag [value]="descuentoVoto"
-                        [severity]="descuentoVoto === 'SI' ? 'success' : 'secondary'">
-                    </p-tag>
-                </td>
-                <td class="text-center">
-                    <span class="p-column-title">Descuento Egresado</span>
-                    <p-tag [value]="descuentoEgresado"
-                        [severity]="descuentoEgresado === 'SI' ? 'success' : 'secondary'">
-                    </p-tag>
-                </td>
-                <td class="text-center">
-                    <span class="p-column-title">No. Res. Beca</span>
-                    {{ becaResolucion }}
-                </td>
-                <td class="text-center">
-                    <span class="p-column-title">% Beca</span>
-                    {{ becaPorcentaje || '—' }}
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="seccion-contenido">
+        <div class="grid">
+            <!-- Fila 1: Identificación y Nombre -->
+            <div class="col-12 md:col-6">
+                <div class="detalle-campo">
+                    <span class="detalle-label">Identificación</span>
+                    <span class="detalle-valor">{{ estudiante.identificacion }}</span>
+                </div>
+            </div>
+            <div class="col-12 md:col-6">
+                <div class="detalle-campo">
+                    <span class="detalle-label">Nombres Completos del Estudiante</span>
+                    <span class="detalle-valor">{{ getNombreCompleto() }}</span>
+                </div>
+            </div>
 
-    <p-divider styleClass="my-0"></p-divider>
+            <!-- Fila 2: Valor Matrícula y Semestre Financiero -->
+            <div class="col-12 md:col-6">
+                <div class="detalle-campo">
+                    <span class="detalle-label">Valor de Matrícula en SMMLV</span>
+                    <span class="detalle-valor">{{ valorEnSMLV }} SMMLV</span>
+                </div>
+            </div>
+            <div class="col-12 md:col-6">
+                <div class="detalle-campo">
+                    <span class="detalle-label">Semestre Financiero</span>
+                    <span class="detalle-valor detalle-valor--destacado">{{ estudiante.semestreFinanciero }}</span>
+                </div>
+            </div>
 
-    <!-- Sección Media: Matrícula Académica -->
-    <div class="middle-section-top font-bold">
-        Matrícula Académica
-    </div>
-    <div class="middle-section-bottom">
-        Semestre:
-        <span class="semestre-value font-normal">
-            {{ estudiante.matriculasAcademicas[0]?.semestre || '____' }}
-        </span>
+            <!-- Fila 3: Descuentos y Beca -->
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="detalle-campo">
+                    <span class="detalle-label">¿Aplica Descuento de Voto?</span>
+                    <span class="detalle-valor">
+                        <p-tag [value]="descuentoVoto === 'SI' ? 'Sí' : 'No'"
+                            [severity]="descuentoVoto === 'SI' ? 'success' : 'warning'">
+                        </p-tag>
+                    </span>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="detalle-campo">
+                    <span class="detalle-label">Descuento por Egresado (UNICAUCA)</span>
+                    <span class="detalle-valor">
+                        <p-tag [value]="descuentoEgresado === 'SI' ? 'Sí' : 'No'"
+                            [severity]="descuentoEgresado === 'SI' ? 'success' : 'warning'">
+                        </p-tag>
+                    </span>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="detalle-campo">
+                    <span class="detalle-label">No. Res. de Beca</span>
+                    <span class="detalle-valor">{{ becaResolucion }}</span>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="detalle-campo">
+                    <span class="detalle-label">% Beca</span>
+                    <span class="detalle-valor">{{ becaPorcentaje || '—' }}</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Tabla Académica -->
-    <table class="w-full responsive-table academic-table">
-        <colgroup class="desktop-only">
-            <col style="width: 5%">
-            <col style="width: 10%">
-            <col style="width: 30%">
-            <col style="width: 45%">
-            <col style="width: 10%">
-        </colgroup>
-        <thead class="desktop-only">
-            <tr class="header-row bg-gray-100">
-                <th rowspan="2" class="p-0">
-                    <div class="vertical-text py-2">Sem. Acad.</div>
-                </th>
-                <th colspan="2">Materias a Matricular</th>
-                <th rowspan="2">Docente Encargado</th>
-                <th rowspan="2">Grupo</th>
-            </tr>
-            <tr class="header-row bg-gray-100">
-                <th>Código OID</th>
-                <th>Materia</th>
-            </tr>
-        </thead>
-        <tbody>
-            <ng-container *ngIf="estudiante.matriculasAcademicas?.length; else noMaterias">
-                <ng-container *ngFor="let matricula of estudiante.matriculasAcademicas; trackBy: trackByMatricula">
-                    <tr *ngFor="let materia of matricula.materias; trackBy: trackByMateria" class="responsive-row">
-                        <td class="text-center">
-                            <span class="p-column-title">Sem. Acad.</span>
-                            {{ matricula.semestre }}
-                        </td>
-                        <td class="text-center">
-                            <span class="p-column-title">Código</span>
-                            {{ materia.codigo_oid }}
-                        </td>
-                        <td>
-                            <span class="p-column-title">Materia</span>
-                            {{ materia.materia }}
-                        </td>
-                        <td>
-                            <span class="p-column-title">Docente</span>
-                            {{ materia.objDocente?.nombre || '—' }}
-                        </td>
-                        <td class="text-center">
-                            <span class="p-column-title">Grupo</span>
-                            {{ materia.grupoClase }}
-                        </td>
-                    </tr>
-                </ng-container>
+    <p-divider styleClass="my-4"></p-divider>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- SECCIÓN: MATRÍCULA ACADÉMICA                                       -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="seccion-header">
+        <i class="pi pi-book mr-2"></i>Matrícula Académica
+    </div>
+
+    <div class="seccion-contenido">
+        <!-- Semestre académico del estudiante -->
+        <div class="grid mb-3" *ngIf="semestreAcademicoEstudiante">
+            <div class="col-12 md:col-6">
+                <div class="detalle-campo">
+                    <span class="detalle-label">Semestre Académico del Estudiante</span>
+                    <span class="detalle-valor detalle-valor--destacado">{{ semestreAcademicoEstudiante }}</span>
+                </div>
+            </div>
+        </div>
+
+        <p-divider *ngIf="semestreAcademicoEstudiante" styleClass="mt-0 mb-3"></p-divider>
+
+        <ng-container *ngIf="materiasAgrupadas.length; else noMaterias">
+            <ng-container *ngFor="let grupo of materiasAgrupadas; trackBy: trackByGrupo; let first = first">
+
+                <!-- Sub-header por semestre académico -->
+                <div class="semestre-badge" [class.mt-4]="!first">
+                    <i class="pi pi-bookmark mr-2"></i>
+                    Semestre Académico:
+                    <strong class="ml-1">{{ grupo.semestre }}</strong>
+                </div>
+
+                <!-- Tabla de materias del grupo -->
+                <p-table [value]="grupo.materias"
+                    styleClass="p-datatable-sm tabla-materias"
+                    responsiveLayout="stack"
+                    [breakpoint]="'960px'">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 15%">Código OID</th>
+                            <th>Materia</th>
+                            <th>Nombre Completo de Docente</th>
+                            <th style="width: 12%">Grupo Clase</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-materia>
+                        <tr>
+                            <td>
+                                <span class="p-column-title">Código OID</span>
+                                {{ materia.codigo_oid }}
+                            </td>
+                            <td>
+                                <span class="p-column-title">Materia</span>
+                                {{ materia.materia }}
+                            </td>
+                            <td>
+                                <span class="p-column-title">Docente</span>
+                                {{ materia.objDocente?.nombre || '—' }}
+                            </td>
+                            <td>
+                                <span class="p-column-title">Grupo Clase</span>
+                                {{ materia.grupoClase }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
             </ng-container>
-            <ng-template #noMaterias>
-                <tr>
-                    <td colspan="5">
-                        <div class="flex flex-column align-items-center justify-content-center py-5 text-400">
-                            <i class="pi pi-book text-4xl mb-2"></i>
-                            <span class="text-base">No hay materias registradas para este período</span>
-                        </div>
-                    </td>
-                </tr>
-            </ng-template>
-        </tbody>
-    </table>
+        </ng-container>
+
+        <!-- Estado vacío: sin materias -->
+        <ng-template #noMaterias>
+            <div class="flex flex-column align-items-center justify-content-center py-5 text-400">
+                <i class="pi pi-book text-4xl mb-2"></i>
+                <span class="text-base">No hay materias registradas para este período</span>
+            </div>
+        </ng-template>
+    </div>
 
 </div>

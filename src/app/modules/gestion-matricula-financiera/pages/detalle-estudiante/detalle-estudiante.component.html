@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <div class="col-12">
     <p-card>
 
@@ -11,29 +12,19 @@
         <!-- Contenido Principal -->
         <div *ngIf="!loading && estudiante">
 
-            <!-- Header: Botón Volver + Título del estudiante + Exportar Excel -->
+            <!-- Header: Título + Botón Volver -->
             <div class="flex flex-column md:flex-row align-items-start md:align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom-1 surface-border">
-                <div class="flex align-items-center gap-3">
-                    <button pButton pRipple
-                        type="button"
-                        label="Volver"
-                        icon="pi pi-arrow-left"
-                        class="p-button-outlined p-button-secondary"
-                        (click)="volver()">
-                    </button>
-                    <div>
-                        <h2 class="m-0 text-700">Detalle de Matrícula Financiera</h2>
-                        <span class="text-500 text-sm">Información completa del estudiante</span>
-                    </div>
+                <div>
+                    <h2 class="m-0 text-700">Detalles de Matrícula</h2>
+                    <span class="text-500 text-sm">Información completa del estudiante</span>
                 </div>
-                <div class="flex align-items-center gap-2">
-                    <p-button
-                        icon="pi pi-file-excel"
-                        label="Exportar Excel"
-                        (click)="descargarExcelDetalle()"
-                        styleClass="p-button-success p-button-outlined">
-                    </p-button>
-                </div>
+                <button pButton pRipple
+                    type="button"
+                    label="Volver"
+                    icon="pi pi-arrow-left"
+                    class="p-button-outlined p-button-secondary"
+                    (click)="volver()">
+                </button>
             </div>
 
             <!-- Tabla Compartida de Matrícula -->

@@ -1,197 +1,133 @@
-.table-container {
-    background-color: var(--surface-card, white);
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0;
-}
+// ─── Variables Institucionales ────────────────────────────────────────────────
+$azul-institucional: #1b3357;
+$azul-claro: #e8ecf1;
+$rojo-institucional: #c8161f;
+$gris-label: #6c757d;
+$gris-borde: #dee2e6;
 
-/* Reset basic table styles */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0;
-    table-layout: fixed;
-}
-
-th, td {
-    border: 1px solid #000;
-    padding: 8px;
-    text-align: center;
-    vertical-align: middle;
-    word-wrap: break-word;
-}
-
-th {
-    background-color: white;
-    font-weight: bold;
-}
-
-/* Monetary values aligned right */
-td.text-right {
-    text-align: right !important;
-    padding-right: 0.75rem;
-    font-variant-numeric: tabular-nums;
-}
-
-.header-row {
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.bg-gray-100 {
-    background-color: #f8f9fa;
-}
-
-/* Titles and Middle Section - Shared Styles */
-.main-title, .middle-section-top {
-    font-size: 1.15rem;
-    padding: 0.85rem 1rem;
-    background: #f8f9fa;
-    text-align: center;
-    font-weight: bold;
+// ─── Sección Header ──────────────────────────────────────────────────────────
+.seccion-header {
+    background-color: $azul-institucional;
+    color: white;
+    font-weight: 600;
+    font-size: 1.05rem;
+    padding: 0.7rem 1.25rem;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    align-items: center;
     letter-spacing: 0.02em;
 }
 
-/* NORMAL MODE BORDERS */
-@media screen and (min-width: 961px) {
-    .main-title {
-        border: 1px solid #000;
-        border-bottom: none;
-    }
+// ─── Sección Contenido ───────────────────────────────────────────────────────
+.seccion-contenido {
+    border: 1px solid $gris-borde;
+    border-top: none;
+    padding: 1.25rem;
+    border-radius: 0 0 4px 4px;
+    background: var(--surface-card, white);
+}
 
-    .middle-section-top {
-        border-left: 1px solid #000;
-        border-right: 1px solid #000;
-        border-top: none;
-    }
+// ─── Campos de detalle (key-value) ───────────────────────────────────────────
+.detalle-campo {
+    margin-bottom: 0.75rem;
+}
 
-    .middle-section-bottom {
-        border-left: 1px solid #000;
-        border-right: 1px solid #000;
-        border-bottom: 1px solid #000;
-        border-top: none;
-        background: white;
-        text-align: center;
-        font-weight: bold;
-        padding: 0.5rem;
+.detalle-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: $gris-label;
+    margin-bottom: 0.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
 
-        .semestre-value {
-            border-bottom: 1px solid #000;
-            padding: 0 1rem;
-        }
-    }
+.detalle-valor {
+    display: block;
+    font-size: 1rem;
+    color: var(--text-color, #333);
+    font-weight: 500;
 
-    .academic-table {
-        thead tr:first-child th {
-            border-top: none;
-        }
+    &--destacado {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: $azul-institucional;
     }
 }
 
-.vertical-text {
-    writing-mode: vertical-rl;
-    text-orientation: upright;
-    white-space: nowrap;
-    margin: 0 auto;
+// ─── Badge de semestre académico ─────────────────────────────────────────────
+.semestre-badge {
+    background-color: $azul-claro;
+    border-left: 4px solid $azul-institucional;
+    padding: 0.55rem 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.92rem;
+    color: $azul-institucional;
+    display: flex;
+    align-items: center;
+    border-radius: 0 4px 4px 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Responsive Logic (Stack Mode)                                               */
-/* -------------------------------------------------------------------------- */
-
-.p-column-title {
-    display: none;
-    font-weight: bold;
-    margin-right: 1rem;
-}
-
-@media screen and (max-width: 960px) {
-    .table-container {
-        overflow-x: hidden;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .main-title, .middle-section-top {
-        border: none !important;
-        font-size: 1.1rem;
-        padding-bottom: 0.5rem;
-        padding-top: 1.5rem;
-        font-weight: bold;
-        background: white;
-    }
-
-    .middle-section-bottom {
-        border: none !important;
-        background: white;
-        text-align: center;
-        font-weight: bold;
-        padding: 0.5rem;
+// ─── Override PrimeNG Table ──────────────────────────────────────────────────
+:host ::ng-deep {
+    .tabla-materias {
         margin-bottom: 0;
 
-        .semestre-value {
-            border-bottom: 1px solid #000;
-            padding: 0 0.5rem;
-            font-weight: normal;
+        .p-datatable-thead > tr > th {
+            background-color: $azul-claro;
+            color: $azul-institucional;
+            font-weight: 600;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            border-color: $gris-borde;
+            padding: 0.6rem 0.75rem;
+        }
+
+        .p-datatable-tbody > tr {
+            > td {
+                padding: 0.55rem 0.75rem;
+                border-color: $gris-borde;
+                font-size: 0.9rem;
+            }
+
+            &:nth-child(even) {
+                background-color: #fafbfc;
+            }
         }
     }
 
-    .desktop-only {
-        display: none !important;
+    .p-tag {
+        font-size: 0.8rem;
+    }
+}
+
+// ─── Responsive ──────────────────────────────────────────────────────────────
+@media screen and (max-width: 960px) {
+    .seccion-header {
+        font-size: 0.95rem;
+        padding: 0.6rem 1rem;
     }
 
-    .responsive-table {
-        display: block;
-        width: 100%;
-        box-sizing: border-box;
-        border: none !important;
+    .seccion-contenido {
+        padding: 1rem 0.75rem;
+    }
 
-        tbody {
-            display: block;
-            width: 100%;
-        }
+    .detalle-campo {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
 
-        .responsive-row {
-            display: block;
-            width: 100%;
-            box-sizing: border-box;
-            margin-bottom: 0;
-            border: 1px solid #000 !important;
-            border-top: none !important;
+    .detalle-label {
+        font-size: 0.75rem;
+    }
 
-            &:first-child {
-                border-top: 1px solid #000 !important;
-            }
+    .detalle-valor {
+        font-size: 0.95rem;
+    }
 
-            td {
-                display: flex !important;
-                justify-content: space-between;
-                align-items: center;
-                text-align: right !important;
-                width: 100% !important;
-                box-sizing: border-box;
-                border: none !important;
-                border-bottom: 1px solid #eee !important;
-                padding: 0.5rem 0.75rem !important;
-                min-height: 2.5rem;
-
-                &.text-right {
-                    text-align: right !important;
-                }
-
-                &:last-child {
-                    border-bottom: none !important;
-                }
-
-                .p-column-title {
-                    display: block;
-                    text-align: left;
-                    font-size: 0.85rem;
-                    color: var(--text-color-secondary, #6c757d);
-                    flex-shrink: 0;
-                    margin-right: 0.5rem;
-                }
-            }
-        }
+    .semestre-badge {
+        font-size: 0.85rem;
     }
 }

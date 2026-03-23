@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Estudiante } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.service';
-import { GestionMatriculaFinancieraExcelService } from '../../services/excel.service';
 
 @Component({
   selector: 'app-detalle-estudiante',
@@ -24,7 +23,6 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private facadeService: GestionMatriculaFinancieraFacadeService,
-    private excelService: GestionMatriculaFinancieraExcelService,
     private messageService: MessageService
   ) { }
 
@@ -76,18 +74,6 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
       this.destroy$.next();
       this.destroy$.complete();
-  }
-
-  descargarExcelDetalle(): void {
-      if (!this.estudiante) {
-          this.messageService.add({
-              severity: 'warn',
-              summary: 'Sin datos',
-              detail: 'No hay información del estudiante para exportar.'
-          });
-          return;
-      }
-      this.excelService.generarExcelDetalleEstudiante(this.estudiante);
   }
 
   volver(): void {

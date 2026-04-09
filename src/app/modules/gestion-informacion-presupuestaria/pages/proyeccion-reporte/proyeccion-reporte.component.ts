@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MessageService } from 'primeng/api';
@@ -25,6 +25,7 @@ interface EstudianteProyeccion extends ProyeccionEstudiante {
   selector: 'app-proyeccion-reporte',
   templateUrl: './proyeccion-reporte.component.html',
   styleUrls: ['./proyeccion-reporte.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
 export class ProyeccionReporteComponent implements OnInit, OnDestroy {
@@ -32,27 +33,22 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   cargando: boolean = false;
-  guardando: boolean = false; // Used for global saving spinner
+  guardando: boolean = false;
   periodoSeleccionado: PeriodoAcademicoDTORespuesta | null = null;
   periodoActualTexto: string = '';
 
-  // Configuración del reporte
   configuracion: ConfiguracionReporteFinanciero | null = null;
-
-  // Datos de la tabla
   estudiantes: EstudianteProyeccion[] = [];
   clonedEstudiantes: { [s: string]: EstudianteProyeccion; } = {};
 
-  // Estado de edición de cabecera
   editandoCabecera: boolean = false;
   clonedCabecera: Partial<ConfiguracionReporteFinanciero> = {};
-
-  // Control de edición de filas (solo una a la vez)
   editingRowKey: string | null = null;
 
   constructor(
     private messageService: MessageService,
-    private facadeService: GestionInformacionPresupuestariaFacadeService
+    private facadeService: GestionInformacionPresupuestariaFacadeService,
+    private cdr: ChangeDetectorRef,
   ) { }
 
   // --- Control de Edición Global ---
@@ -130,12 +126,14 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
         this.procesarRespuesta(data);
         this.cargando = false;
         this.guardando = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error loading projection', err);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la proyección.' });
         this.cargando = false;
         this.guardando = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -295,12 +293,14 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
         delete this.clonedEstudiantes[estudiante.codigoEstudiante];
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estudiante actualizado correctamente' });
         this.guardando = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error updating student', err);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar estudiante.' });
         this.onRowEditCancel(estudiante, this.findIndexById(estudiante.codigoEstudiante)); // Revert
         this.guardando = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -419,14 +419,18 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Total Neto: suma de totalNeto de cada estudiante (coherente con la tabla). */
+  /** Total Neto: solo estudiantes que han pagado (estaPago === true). */
   get totalNetoCalculado(): number {
-    return this.estudiantes.reduce((acc, e) => acc + e.totalNeto, 0);
+    return this.estudiantes
+      .filter(e => e.estaPago)
+      .reduce((acc, e) => acc + e.totalNeto, 0);
   }
 
-  /** Total Descuentos: suma de grupoDescuentos (beca + egresado + votación) de cada estudiante. */
+  /** Total Descuentos: solo estudiantes que han pagado (estaPago === true). */
   get totalDescuentosCalculado(): number {
-    return this.estudiantes.reduce((acc, e) => acc + e.grupoDescuentos, 0);
+    return this.estudiantes
+      .filter(e => e.estaPago)
+      .reduce((acc, e) => acc + e.grupoDescuentos, 0);
   }
 
   formatCurrency(value: number): string {

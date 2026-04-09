@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
@@ -7,7 +7,8 @@ import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
 @Component({
   selector: 'app-periodo-academico-selector',
   templateUrl: './periodo-academico-selector.component.html',
-  styleUrls: ['./periodo-academico-selector.component.scss']
+  styleUrls: ['./periodo-academico-selector.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodoAcademicoSelectorComponent implements OnInit, OnDestroy {
 
@@ -27,7 +28,10 @@ export class PeriodoAcademicoSelectorComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   errorCarga: string | null = null;
 
-  constructor(private facadeService: GestionInformacionPresupuestariaFacadeService) { }
+  constructor(
+    private facadeService: GestionInformacionPresupuestariaFacadeService,
+    private cdr: ChangeDetectorRef,
+  ) { }
 
   ngOnInit(): void {
     this.cargarPeriodos();
@@ -57,11 +61,13 @@ export class PeriodoAcademicoSelectorComponent implements OnInit, OnDestroy {
           this.actualizarPeriodoActual();
         }
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error loading periods', err);
         this.errorCarga = 'No se pudo cargar los períodos académicos. Verifique la conexión con el servidor.';
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }

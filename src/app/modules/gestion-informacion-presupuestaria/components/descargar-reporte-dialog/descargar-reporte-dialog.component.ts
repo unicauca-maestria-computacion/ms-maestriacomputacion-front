@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
@@ -9,7 +9,8 @@ import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-descargar-reporte-dialog',
   templateUrl: './descargar-reporte-dialog.component.html',
-  styleUrls: ['./descargar-reporte-dialog.component.scss']
+  styleUrls: ['./descargar-reporte-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnChanges {
   private destroy$ = new Subject<void>();

@@ -6,8 +6,7 @@ import { BuscadorDocentesComponent } from './components/buscador-docentes/buscad
 import { BuscadorEstudiantesComponent } from './components/buscador-estudiantes/buscador-estudiantes.component';
 import { BuscadorExpertosComponent } from './components/buscador-expertos/buscador-expertos.component';
 import { BytesToKbPipe } from './pipes/bytes-to-kb.pipe';
-
-
+import { ButtonComponent } from './components/button/button.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +14,8 @@ import { BytesToKbPipe } from './pipes/bytes-to-kb.pipe';
     BytesToKbPipe,
     BuscadorDocentesComponent,
     BuscadorEstudiantesComponent,
-    BuscadorExpertosComponent
+    BuscadorExpertosComponent,
+    ButtonComponent,
   ],
   imports: [
     CommonModule,
@@ -26,7 +26,8 @@ import { BytesToKbPipe } from './pipes/bytes-to-kb.pipe';
     BytesToKbPipe,
     BuscadorDocentesComponent,
     BuscadorEstudiantesComponent,
-    BuscadorExpertosComponent
+    BuscadorExpertosComponent,
+    ButtonComponent,
   ]
 })
 export class SharedModule { }

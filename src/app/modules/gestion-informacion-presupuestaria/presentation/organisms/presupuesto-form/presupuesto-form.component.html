@@ -1,0 +1,77 @@
+<!-- ORGANISMO: PresupuestoForm — Smart, consume el Facade via async pipe -->
+<section class="presupuesto-section" aria-label="Información Presupuestaria">
+
+  <!-- Error banner -->
+  <div
+    *ngIf="error$ | async as errorMsg"
+    class="presupuesto-section__error"
+    role="alert"
+  >
+    <span>{{ errorMsg }}</span>
+    <app-button label="Cerrar" variant="ghost" size="sm" (clicked)="onDismissError()"></app-button>
+  </div>
+
+  <!-- Molécula de filtros (Dumb) -->
+  <app-presupuesto-filter
+    (filtroAplicado)="onFiltroAplicado($event)"
+    (filtroLimpiado)="onFiltroLimpiado()"
+  ></app-presupuesto-filter>
+
+  <!-- Estado de carga -->
+  <div *ngIf="cargando$ | async" class="presupuesto-section__loading" aria-live="polite">
+    <span>Cargando partidas...</span>
+  </div>
+
+  <!-- Tabla de resultados -->
+  <ng-container *ngIf="!(cargando$ | async)">
+    <table
+      *ngIf="(partidas$ | async)?.length; else sinResultados"
+      class="presupuesto-table"
+      aria-label="Listado de partidas presupuestarias"
+    >
+      <thead>
+        <tr>
+          <th scope="col">Código</th>
+          <th scope="col">Descripción</th>
+          <th scope="col">Monto Asignado</th>
+          <th scope="col">Monto Ejecutado</th>
+          <th scope="col">Saldo Disponible</th>
+          <th scope="col">% Ejecución</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let partida of partidas$ | async; trackBy: trackByPartidaId"
+          [class.presupuesto-table__row--seleccionada]="(state$ | async)?.seleccionada?.id === partida.id"
+        >
+          <td>{{ partida.codigo }}</td>
+          <td>{{ partida.descripcion }}</td>
+          <td>{{ partida.montoAsignado | currency:'PEN':'S/ ' }}</td>
+          <td>{{ partida.montoEjecutado | currency:'PEN':'S/ ' }}</td>
+          <td>{{ partida.saldoDisponible | currency:'PEN':'S/ ' }}</td>
+          <td>{{ partida.porcentajeEjecucion | number:'1.1-1' }}%</td>
+          <td>
+            <span class="badge badge--{{ partida.estado | lowercase }}">
+              {{ partida.estado }}
+            </span>
+          </td>
+          <td>
+            <app-button
+              label="Ver"
+              variant="secondary"
+              size="sm"
+              (clicked)="onSeleccionarPartida(partida.id)"
+            ></app-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #sinResultados>
+      <p class="presupuesto-section__empty">No se encontraron partidas con los filtros aplicados.</p>
+    </ng-template>
+  </ng-container>
+
+</section>

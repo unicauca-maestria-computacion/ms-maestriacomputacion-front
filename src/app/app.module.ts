@@ -6,6 +6,24 @@ import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 
+// Error handling strategies (Strategy Pattern)
+import {
+    NO_CONNECTION_STRATEGY,
+    BAD_REQUEST_STRATEGY,
+    UNAUTHORIZED_STRATEGY,
+    FORBIDDEN_STRATEGY,
+    NOT_FOUND_STRATEGY,
+    SERVER_ERROR_STRATEGY,
+    DEFAULT_ERROR_STRATEGY,
+} from './shared/config/error-handling/error-handler.tokens';
+import { NoConnectionStrategy }  from './shared/config/error-handling/strategies/no-connection.strategy';
+import { BadRequestStrategy }    from './shared/config/error-handling/strategies/bad-request.strategy';
+import { UnauthorizedStrategy }  from './shared/config/error-handling/strategies/unauthorized.strategy';
+import { ForbiddenStrategy }     from './shared/config/error-handling/strategies/forbidden.strategy';
+import { NotFoundStrategy }      from './shared/config/error-handling/strategies/not-found.strategy';
+import { ServerErrorStrategy }   from './shared/config/error-handling/strategies/server-error.strategy';
+import { DefaultErrorStrategy }  from './shared/config/error-handling/strategies/default-error.strategy';
+
 import { AppComponent } from './core/pages/app.component';
 import { AppTopBarComponent } from './core/components/topbar/app.topbar.component';
 import { AppFooterComponent } from './core/components/footer/app.footer.component';
@@ -78,6 +96,14 @@ import { GestionPreguntasModule } from './modules/gestion-evaluacion-docentes/ge
         MenuService,
         ConfigService,
         BreadcrumbService,
+        // Error handling strategies — Strategy Pattern
+        { provide: NO_CONNECTION_STRATEGY, useClass: NoConnectionStrategy },
+        { provide: BAD_REQUEST_STRATEGY,   useClass: BadRequestStrategy },
+        { provide: UNAUTHORIZED_STRATEGY,  useClass: UnauthorizedStrategy },
+        { provide: FORBIDDEN_STRATEGY,     useClass: ForbiddenStrategy },
+        { provide: NOT_FOUND_STRATEGY,     useClass: NotFoundStrategy },
+        { provide: SERVER_ERROR_STRATEGY,  useClass: ServerErrorStrategy },
+        { provide: DEFAULT_ERROR_STRATEGY, useClass: DefaultErrorStrategy },
     ],
     bootstrap: [AppComponent],
 })

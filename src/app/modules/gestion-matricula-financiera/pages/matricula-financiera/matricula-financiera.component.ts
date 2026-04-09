@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -9,7 +9,8 @@ import { Estudiante, PeriodoAcademico } from '../../models/domain-models';
 @Component({
     selector: 'app-matricula-financiera',
     templateUrl: './matricula-financiera.component.html',
-    styleUrls: ['./matricula-financiera.component.scss']
+    styleUrls: ['./matricula-financiera.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
@@ -19,23 +20,21 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
     estudiantesFiltrados: Estudiante[] = [];
     loading: boolean = false;
 
-    // Períodos
     periodos: PeriodoAcademico[] = [];
     periodosDropdown: { label: string; value: PeriodoAcademico }[] = [];
     periodoSeleccionado: PeriodoAcademico | null = null;
 
-    // Semestres Financieros
     semestres: { label: string; value: number }[] = [];
-    semestreSeleccionado: number | null = null; // null representará "Todos"
+    semestreSeleccionado: number | null = null;
 
-    // Fecha de Matrícula
     fechaSeleccionada: Date | null = null;
 
     constructor(
         private facadeService: GestionMatriculaFinancieraFacadeService,
         private messageService: MessageService,
         private router: Router,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private cdr: ChangeDetectorRef,
     ) {}
 
     ngOnInit(): void {
@@ -78,6 +77,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
                     this.cargarEstudiantes();
                 } else {
                     this.loading = false;
+                    this.cdr.markForCheck();
                 }
             },
             error: (err) => {
@@ -87,6 +87,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
                     detail: 'No se pudieron cargar los períodos académicos. Intente nuevamente más tarde.'
                 });
                 this.loading = false;
+                this.cdr.markForCheck();
             }
         });
     }
@@ -101,6 +102,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
                 this.extraerSemestres();
                 this.aplicarFiltros();
                 this.loading = false;
+                this.cdr.markForCheck();
             },
             error: (err) => {
                 this.messageService.add({
@@ -109,6 +111,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
                     detail: 'No se pudieron cargar los estudiantes. Intente nuevamente más tarde.'
                 });
                 this.loading = false;
+                this.cdr.markForCheck();
             }
         });
     }

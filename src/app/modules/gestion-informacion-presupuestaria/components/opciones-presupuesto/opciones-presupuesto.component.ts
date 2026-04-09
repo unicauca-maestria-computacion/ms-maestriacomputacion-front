@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, OnChanges, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 
 interface TabOption {
@@ -10,7 +10,8 @@ interface TabOption {
 @Component({
   selector: 'app-opciones-presupuesto',
   templateUrl: './opciones-presupuesto.component.html',
-  styleUrls: ['./opciones-presupuesto.component.scss']
+  styleUrls: ['./opciones-presupuesto.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OpcionesPresupuestoComponent implements OnInit, OnChanges {
 

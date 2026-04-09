@@ -1,0 +1,76 @@
+// ORGANISMO: PresupuestoForm styles
+.presupuesto-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  &__error {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: #fce8e6;
+    border-left: 4px solid #d93025;
+    border-radius: 4px;
+    color: #c5221f;
+    font-size: 0.875rem;
+  }
+
+  &__loading {
+    text-align: center;
+    padding: 2rem;
+    color: #5f6368;
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 2rem;
+    color: #80868b;
+    font-style: italic;
+  }
+}
+
+.presupuesto-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e8eaed;
+  }
+
+  th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #3c4043;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+    &:hover { background: #f8f9fa; }
+  }
+
+  &__row--seleccionada {
+    background: #e8f0fe !important;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  &--vigente     { background: #e6f4ea; color: #137333; }
+  &--comprometido{ background: #fef7e0; color: #b06000; }
+  &--devengado   { background: #e8f0fe; color: #1a73e8; }
+  &--pagado      { background: #e6f4ea; color: #137333; }
+  &--anulado     { background: #fce8e6; color: #c5221f; }
+}

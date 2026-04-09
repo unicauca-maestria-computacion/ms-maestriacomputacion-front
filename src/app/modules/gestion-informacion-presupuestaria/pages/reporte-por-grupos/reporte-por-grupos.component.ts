@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
@@ -20,7 +20,8 @@ interface TableRow {
 @Component({
   selector: 'app-reporte-por-grupos',
   templateUrl: './reporte-por-grupos.component.html',
-  styleUrls: ['./reporte-por-grupos.component.scss']
+  styleUrls: ['./reporte-por-grupos.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportePorGruposComponent implements OnInit, OnDestroy {
 
@@ -51,7 +52,8 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   constructor(
     private facadeService: GestionInformacionPresupuestariaFacadeService,
     private confirmationService: ConfirmationService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private cdr: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
@@ -73,11 +75,13 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
         this.procesarDatosTabla(this.configuracion);
         this.procesarDistribucion(this.configuracion);
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error fetching report', err);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar el reporte por grupos.' });
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }

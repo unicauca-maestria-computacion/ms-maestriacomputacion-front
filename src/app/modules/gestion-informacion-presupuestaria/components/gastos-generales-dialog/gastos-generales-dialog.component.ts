@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { GastoGeneral } from '../../models/domain-models';
@@ -8,7 +8,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 @Component({
   selector: 'app-gastos-generales-dialog',
   templateUrl: './gastos-generales-dialog.component.html',
-  styleUrls: ['./gastos-generales-dialog.component.scss']
+  styleUrls: ['./gastos-generales-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChanges {
   private destroy$ = new Subject<void>();

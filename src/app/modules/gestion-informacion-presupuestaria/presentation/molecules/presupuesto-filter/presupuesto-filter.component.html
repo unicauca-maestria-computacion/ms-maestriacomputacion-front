@@ -1,0 +1,45 @@
+<!-- MOLÉCULA: PresupuestoFilter — Dumb, compuesta de átomos -->
+<form [formGroup]="filterForm" class="filter-form">
+
+  <div class="filter-form__field">
+    <label for="anioFiscal">Año Fiscal</label>
+    <input
+      id="anioFiscal"
+      type="number"
+      formControlName="anioFiscal"
+      class="filter-form__input"
+      [attr.aria-label]="'Filtrar por año fiscal'"
+    />
+  </div>
+
+  <div class="filter-form__field">
+    <label for="estado">Estado</label>
+    <select id="estado" formControlName="estado" class="filter-form__select">
+      <option [ngValue]="null">Todos</option>
+      <option *ngFor="let estado of estadosDisponibles" [value]="estado">
+        {{ estado }}
+      </option>
+    </select>
+  </div>
+
+  <div class="filter-form__field">
+    <label for="codigoParcial">Código</label>
+    <input
+      id="codigoParcial"
+      type="text"
+      formControlName="codigoParcial"
+      class="filter-form__input"
+      placeholder="Buscar por código..."
+      [attr.aria-label]="'Filtrar por código de partida'"
+    />
+  </div>
+
+  <!-- Átomo reutilizable -->
+  <app-button
+    label="Limpiar"
+    variant="ghost"
+    size="sm"
+    (clicked)="onLimpiar()"
+  ></app-button>
+
+</form>

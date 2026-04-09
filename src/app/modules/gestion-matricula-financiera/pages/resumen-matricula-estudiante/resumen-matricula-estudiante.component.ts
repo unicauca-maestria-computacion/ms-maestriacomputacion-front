@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,6 +11,7 @@ import { RadicarService } from '../../../gestion-solicitudes/services/radicar.se
   selector: 'app-resumen-matricula-estudiante',
   templateUrl: './resumen-matricula-estudiante.component.html',
   styleUrls: ['./resumen-matricula-estudiante.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
 export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
@@ -25,7 +26,8 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
     private router: Router,
     private facadeService: GestionMatriculaFinancieraFacadeService,
     private radicarService: RadicarService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private cdr: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
@@ -58,6 +60,7 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
               }
               this.estudiante = data;
               this.loading = false;
+              this.cdr.markForCheck();
           },
           error: (err) => {
               console.error('Error cargando estudiante', err);

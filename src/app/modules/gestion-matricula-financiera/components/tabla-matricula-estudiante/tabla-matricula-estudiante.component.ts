@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Estudiante, MatriculaAcademica, Materia } from '../../models/domain-models';
 
 interface GrupoMaterias {
@@ -9,7 +9,8 @@ interface GrupoMaterias {
 @Component({
     selector: 'app-tabla-matricula-estudiante',
     templateUrl: './tabla-matricula-estudiante.component.html',
-    styleUrls: ['./tabla-matricula-estudiante.component.scss']
+    styleUrls: ['./tabla-matricula-estudiante.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TablaMatriculaEstudianteComponent implements OnChanges {
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.s
   selector: 'app-detalle-estudiante',
   templateUrl: './detalle-estudiante.component.html',
   styleUrls: ['./detalle-estudiante.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
 export class DetalleEstudianteComponent implements OnInit, OnDestroy {
@@ -23,7 +24,8 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private facadeService: GestionMatriculaFinancieraFacadeService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private cdr: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
@@ -57,6 +59,7 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
               }
               this.estudiante = data;
               this.loading = false;
+              this.cdr.markForCheck();
           },
           error: (err) => {
               console.error('Error cargando estudiante', err);
@@ -66,6 +69,7 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
                   detail: 'No se pudo cargar la información del estudiante. Volviendo a la lista.'
               });
               this.loading = false;
+              this.cdr.markForCheck();
               this.router.navigate(['/gestion-matricula-financiera']);
           }
       });

@@ -1,9 +1,14 @@
 import { DocenteDTORespuesta } from "./docente.dto";
 
 export interface MateriaDTORespuesta {
-    codigo_oid: string;
-    semestreAcademico: number;
-    materia: string;
-    objDocente: DocenteDTORespuesta;
-    grupoClase: string;
+    codigoOid?: string;
+    materia?: string;
+    creditos?: number;
+    tipo?: string;
+    grupoClase?: string;
+    horario?: string;
+    salon?: string;
+    estadoMatricula?: string;
+    observacion?: string;
+    docente?: DocenteDTORespuesta;
 }

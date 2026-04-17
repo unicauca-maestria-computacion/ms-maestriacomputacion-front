@@ -63,7 +63,7 @@ export class MatriculaFacade implements OnDestroy {
     ).subscribe();
   }
 
-  registrarPago(matriculaId: string, montoPago: number): void {
+  registrarPago(matriculaId: number, montoPago: number): void {
     this._patchState({ procesandoPago: true, error: null, mensajeExito: null });
 
     this.repo.registrarPago(matriculaId, montoPago).pipe(
@@ -87,7 +87,7 @@ export class MatriculaFacade implements OnDestroy {
     ).subscribe();
   }
 
-  seleccionarMatricula(id: string): void {
+  seleccionarMatricula(id: number): void {
     const encontrada = this._state$.getValue().matriculas.find(m => m.id === id) ?? null;
     this._patchState({ seleccionada: encontrada });
   }

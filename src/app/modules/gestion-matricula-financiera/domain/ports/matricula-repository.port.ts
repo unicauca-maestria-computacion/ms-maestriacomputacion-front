@@ -14,7 +14,7 @@ export interface FiltroMatricula {
 
 export interface MatriculaRepositoryPort {
   getMatriculas(filtro?: FiltroMatricula): Observable<MatriculaFinanciera[]>;
-  getMatriculaById(id: string): Observable<MatriculaFinanciera>;
+  getMatriculaById(id: number): Observable<MatriculaFinanciera>;
   getMatriculaByEstudiante(codigoEstudiante: string): Observable<MatriculaFinanciera[]>;
-  registrarPago(matriculaId: string, montoPago: number): Observable<MatriculaFinanciera>;
+  registrarPago(matriculaId: number, montoPago: number): Observable<MatriculaFinanciera>;
 }

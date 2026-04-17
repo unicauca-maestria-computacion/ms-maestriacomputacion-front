@@ -26,7 +26,6 @@ export class GestionMatriculaFinancieraFacadeService {
     private _periodos = new BehaviorSubject<PeriodoAcademico[]>([]);
     public periodos$ = this._periodos.asObservable();
 
-    // Filtros persistentes
     private _periodoSeleccionadoFiltro = new BehaviorSubject<PeriodoAcademico | null>(null);
     public periodoSeleccionadoFiltro$ = this._periodoSeleccionadoFiltro.asObservable();
 
@@ -44,8 +43,8 @@ export class GestionMatriculaFinancieraFacadeService {
     obtenerEstudiantes(periodo: PeriodoAcademico): Observable<Estudiante[]> {
         this._loading.next(true);
         this._error.next(null);
-        const dtoPeticion = this.mapper.mappearDePeriodoAcademicoARespuesta(periodo);
-        
+        const dtoPeticion = this.mapper.mappearDePeriodoAcademicoAPeticion(periodo);
+
         return this.apiService.obtenerEstudiantes(dtoPeticion).pipe(
             map(dtos => this.mapper.mappearDeListaRespuestaAEstudiante(dtos)),
             tap(estudiantes => this._estudiantes.next(estudiantes)),
@@ -60,8 +59,12 @@ export class GestionMatriculaFinancieraFacadeService {
     obtenerEstudiante(codigo: string): Observable<Estudiante> {
         this._loading.next(true);
         this._error.next(null);
-        
-        return this.apiService.obtenerEstudiante(codigo).pipe(
+
+        const periodo = this._periodoSeleccionadoFiltro.value;
+        const tagPeriodo = periodo?.tagPeriodo ?? undefined;
+        const anio = periodo?.año ?? (periodo?.fechaInicio ? new Date(periodo.fechaInicio).getFullYear() : undefined);
+
+        return this.apiService.obtenerEstudiante(codigo, tagPeriodo, anio).pipe(
             map(dto => this.mapper.mappearDeRespuestaAEstudiante(dto)),
             tap(estudiante => this._estudianteSeleccionado.next(estudiante)),
             catchError(error => {
@@ -100,7 +103,6 @@ export class GestionMatriculaFinancieraFacadeService {
         );
     }
 
-    // Getters / Setters para filtros
     setPeriodoFiltro(periodo: PeriodoAcademico | null): void {
         this._periodoSeleccionadoFiltro.next(periodo);
     }

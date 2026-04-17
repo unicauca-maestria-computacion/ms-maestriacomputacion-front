@@ -29,7 +29,8 @@
             <div class="col-12 md:col-6">
                 <div class="detalle-campo">
                     <span class="detalle-label">Valor de Matrícula en SMMLV</span>
-                    <span class="detalle-valor">{{ valorEnSMLV }} SMMLV</span>
+                    <span class="detalle-valor" *ngIf="estudiante.valorEnSMLV != null">{{ estudiante.valorEnSMLV }} SMMLV</span>
+                    <span class="detalle-valor text-400" *ngIf="estudiante.valorEnSMLV == null">Sin proyección</span>
                 </div>
             </div>
             <div class="col-12 md:col-6">
@@ -86,63 +87,49 @@
 
     <div class="seccion-contenido">
         <!-- Semestre académico del estudiante -->
-        <div class="grid mb-3" *ngIf="semestreAcademicoEstudiante">
-            <div class="col-12 md:col-6">
+        <div class="grid mb-3" *ngIf="estudiante.semestreAcademico">
+            <div class="col-12 text-center">
                 <div class="detalle-campo">
                     <span class="detalle-label">Semestre Académico del Estudiante</span>
-                    <span class="detalle-valor detalle-valor--destacado">{{ semestreAcademicoEstudiante }}</span>
+                    <span class="detalle-valor detalle-valor--destacado">{{ estudiante.semestreAcademico }}</span>
                 </div>
             </div>
         </div>
 
-        <p-divider *ngIf="semestreAcademicoEstudiante" styleClass="mt-0 mb-3"></p-divider>
-
-        <ng-container *ngIf="materiasAgrupadas.length; else noMaterias">
-            <ng-container *ngFor="let grupo of materiasAgrupadas; trackBy: trackByGrupo; let first = first">
-
-                <!-- Sub-header por semestre académico -->
-                <div class="semestre-badge" [class.mt-4]="!first">
-                    <i class="pi pi-bookmark mr-2"></i>
-                    Semestre Académico:
-                    <strong class="ml-1">{{ grupo.semestre }}</strong>
-                </div>
-
-                <!-- Tabla de materias del grupo -->
-                <p-table [value]="grupo.materias"
-                    styleClass="p-datatable-sm tabla-materias"
-                    responsiveLayout="stack"
-                    [breakpoint]="'960px'">
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th style="width: 15%">Código OID</th>
-                            <th>Materia</th>
-                            <th>Nombre Completo de Docente</th>
-                            <th style="width: 12%">Grupo Clase</th>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-materia>
-                        <tr>
-                            <td>
-                                <span class="p-column-title">Código OID</span>
-                                {{ materia.codigo_oid }}
-                            </td>
-                            <td>
-                                <span class="p-column-title">Materia</span>
-                                {{ materia.materia }}
-                            </td>
-                            <td>
-                                <span class="p-column-title">Docente</span>
-                                {{ materia.objDocente?.nombre || '—' }}
-                            </td>
-                            <td>
-                                <span class="p-column-title">Grupo Clase</span>
-                                {{ materia.grupoClase }}
-                            </td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-
-            </ng-container>
+        <ng-container *ngIf="estudiante.materias?.length; else noMaterias">
+            <p-table [value]="estudiante.materias"
+                styleClass="p-datatable-sm tabla-materias"
+                responsiveLayout="stack"
+                [breakpoint]="'960px'">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 15%">Código OID</th>
+                        <th>Materia</th>
+                        <th>Nombre Completo de Docente</th>
+                        <th style="width: 12%">Grupo Clase</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-materia>
+                    <tr>
+                        <td>
+                            <span class="p-column-title">Código OID</span>
+                            {{ materia.codigo_oid }}
+                        </td>
+                        <td>
+                            <span class="p-column-title">Materia</span>
+                            {{ materia.materia }}
+                        </td>
+                        <td>
+                            <span class="p-column-title">Docente</span>
+                            {{ materia.objDocente?.nombre || '—' }}
+                        </td>
+                        <td>
+                            <span class="p-column-title">Grupo Clase</span>
+                            {{ materia.grupoClase }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </ng-container>
 
         <!-- Estado vacío: sin materias -->

@@ -58,11 +58,11 @@ export class MatriculaFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSeleccionarMatricula(id: string): void {
+  onSeleccionarMatricula(id: number): void {
     this.facade.seleccionarMatricula(id);
   }
 
-  onRegistrarPago(matriculaId: string): void {
+  onRegistrarPago(matriculaId: number): void {
     if (this.pagoForm.invalid) return;
     const { montoPago } = this.pagoForm.value as { montoPago: number };
     this.facade.registrarPago(matriculaId, montoPago);
@@ -73,7 +73,7 @@ export class MatriculaFormComponent implements OnInit, OnDestroy {
     this.facade.limpiarMensajes();
   }
 
-  trackByMatriculaId(_index: number, matricula: MatriculaFinanciera): string {
+  trackByMatriculaId(_index: number, matricula: MatriculaFinanciera): number {
     return matricula.id;
   }
 

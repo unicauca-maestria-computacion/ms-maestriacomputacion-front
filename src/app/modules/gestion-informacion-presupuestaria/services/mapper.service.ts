@@ -3,25 +3,23 @@ import {
     ConfiguracionReporteFinancieroDTOPeticion,
     ConfiguracionReporteFinancieroDTORespuesta
 } from '../dto/configuracion-reporte-financiero.dto';
-import { ConfiguracionReporteGruposDTORespuesta } from '../dto/configuracion-reporte-grupos.dto';
 import {
     ConfiguracionReporteFinanciero,
     ConfiguracionReporteGrupos,
     GastoGeneral,
-    PeriodoAcademico,
+    Materia,
+    PeriodoFinanciero,
     ProyeccionEstudiante,
+    ReportePorGrupoFila,
     ReportePorGrupos,
     ReporteProyeccionEstudiantes,
     ReporteEstudiantes
 } from '../models/domain-models';
 import { GastoGeneralDTOPeticion, GastoGeneralDTORespuesta } from '../dto/gasto-general.dto';
-import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../dto/periodo-academico.dto';
-import { ProyeccionEstudianteDTOPeticion, ProyeccionEstudianteDTORespuesta } from '../dto/proyeccion-estudiante.dto';
-import { ReportePorGruposDTORespuesta } from '../dto/reporte-por-grupos.dto';
-import {
-    ReporteProyeccionEstudiantesDTOPeticion,
-    ReporteProyeccionEstudiantesDTORespuesta
-} from '../dto/reporte-proyeccion-estudiantes.dto';
+import { PeriodoAcademicoDto } from '../dto/periodo-financiero.dto';
+import { MateriaDto, ProyeccionEstudianteDTOPeticion, ProyeccionEstudianteDTORespuesta } from '../dto/proyeccion-estudiante.dto';
+import { ConsultaReportePorGruposDTORespuesta, ReportePorGrupoDTORespuesta } from '../dto/reporte-por-grupos.dto';
+import { ReporteProyeccionEstudiantesDTORespuesta } from '../dto/reporte-proyeccion-estudiantes.dto';
 import { ReporteEstudiantesDTORespuesta } from '../dto/reporte-estudiantes.dto';
 
 @Injectable({
@@ -31,22 +29,15 @@ export class GestionInformacionPresupuestariaMapperService {
 
     constructor() { }
 
-    // --- ConfiguracionReporteFinanciero ---
+    // --- PeriodoFinanciero ---
 
-    mappearDePeticionAConfiguracionReporteFinanciero(dto: ConfiguracionReporteFinancieroDTOPeticion): ConfiguracionReporteFinanciero {
+    mappearDeRespuestaAPeriodoFinanciero(dto: PeriodoAcademicoDto): PeriodoFinanciero {
         return {
-            id: dto.id || 0,
-            esReporteFinal: false,
-            biblioteca: dto.biblioteca,
-            recursosComputacionales: dto.recursosComputacionales,
-            valorMatricula: dto.valorMatricula,
-            valorSMLV: dto.valorSMLV,
-            totalNeto: dto.totalNeto,
-            totalDescuentos: dto.totalDescuentos,
-            totalIngresos: dto.totalIngresos,
-            objPeriodoAcademico: this.mappearDeRespuestaAPeriodoAcademico(dto.objPeriodoAcademico)
+            periodo: dto.tagPeriodo,
+            año: dto.anio
         };
     }
+    // --- ConfiguracionReporteFinanciero ---
 
     mappearDeRespuestaAConfiguracionReporteFinanciero(dto: ConfiguracionReporteFinancieroDTORespuesta): ConfiguracionReporteFinanciero {
         return {
@@ -54,71 +45,20 @@ export class GestionInformacionPresupuestariaMapperService {
             esReporteFinal: dto.esReporteFinal,
             biblioteca: dto.biblioteca,
             recursosComputacionales: dto.recursosComputacionales,
-            valorMatricula: dto.valorMatricula,
             valorSMLV: dto.valorSMLV,
-            totalNeto: dto.totalNeto,
-            totalDescuentos: dto.totalDescuentos,
-            totalIngresos: dto.totalIngresos,
-            objPeriodoAcademico: this.mappearDeRespuestaAPeriodoAcademico(dto.objPeriodoAcademico)
+            porcentajeVotacionFijo: dto.porcentajeVotacionFijo ?? 0.10,
+            porcentajeEgresadoFijo: dto.porcentajeEgresadoFijo ?? 0.05,
+            objPeriodoFinanciero: this.mappearDeRespuestaAPeriodoFinanciero(dto.periodo)
         };
     }
 
-    mappearDeConfiguracionReporteFinancieroARespuesta(domain: ConfiguracionReporteFinanciero): ConfiguracionReporteFinancieroDTORespuesta {
+    // --- Materia ---
+
+    mappearDeRespuestaAMateria(dto: MateriaDto): Materia {
         return {
-            id: domain.id,
-            esReporteFinal: domain.esReporteFinal,
-            biblioteca: domain.biblioteca,
-            recursosComputacionales: domain.recursosComputacionales,
-            valorMatricula: domain.valorMatricula,
-            valorSMLV: domain.valorSMLV,
-            totalNeto: domain.totalNeto,
-            totalDescuentos: domain.totalDescuentos,
-            totalIngresos: domain.totalIngresos,
-            objPeriodoAcademico: this.mappearDePeriodoAcademicoARespuesta(domain.objPeriodoAcademico)
-        };
-    }
-
-    // --- ReporteProyeccionEstudiantes ---
-
-    mappearDePeticionAReporteProyeccionEstudiantes(dto: ReporteProyeccionEstudiantesDTOPeticion): ReporteProyeccionEstudiantes {
-        return {
-            estudiantes: [],
-            objConfiguracion: this.mappearDeRespuestaAConfiguracionReporteFinanciero(dto.objConfiguracion),
-            periodo: this.mappearDeRespuestaAPeriodoAcademico(dto.objConfiguracion.objPeriodoAcademico)
-        };
-    }
-
-    mappearDeRespuestaAReporteProyeccionEstudiantes(dto: ReporteProyeccionEstudiantesDTORespuesta): ReporteProyeccionEstudiantes {
-        return {
-            estudiantes: (dto.estudiantes ?? []).map(e => this.mappearDeRespuestaAProyeccionEstudiante(e)),
-            objConfiguracion: this.mappearDeRespuestaAConfiguracionReporteFinanciero(dto.objConfiguracion),
-            periodo: this.mappearDeRespuestaAPeriodoAcademico(dto.periodo)
-        };
-    }
-
-    mappearDeReporteProyeccionEstudiantesARespuesta(domain: ReporteProyeccionEstudiantes): ReporteProyeccionEstudiantesDTORespuesta {
-        return {
-            estudiantes: domain.estudiantes.map(e => this.mappearDeProyeccionEstudianteARespuesta(e)),
-            objConfiguracion: this.mappearDeConfiguracionReporteFinancieroARespuesta(domain.objConfiguracion),
-            periodo: this.mappearDePeriodoAcademicoARespuesta(domain.periodo)
-        };
-    }
-
-    // --- ReporteEstudiantes ---
-
-    mappearDeRespuestaAReporteEstudiantes(dto: ReporteEstudiantesDTORespuesta): ReporteEstudiantes {
-        return {
-            estudiantes: (dto.estudiantes ?? []).map(e => this.mappearDeRespuestaAProyeccionEstudiante(e)),
-            objConfiguracion: this.mappearDeRespuestaAConfiguracionReporteFinanciero(dto.objConfiguracion),
-            periodo: this.mappearDeRespuestaAPeriodoAcademico(dto.periodo)
-        };
-    }
-
-    mappearDeReporteEstudiantesARespuesta(domain: ReporteEstudiantes): ReporteEstudiantesDTORespuesta {
-        return {
-            estudiantes: domain.estudiantes.map(e => this.mappearDeProyeccionEstudianteARespuesta(e)),
-            objConfiguracion: this.mappearDeConfiguracionReporteFinancieroARespuesta(domain.objConfiguracion),
-            periodo: this.mappearDePeriodoAcademicoARespuesta(domain.periodo)
+            codigo: dto.codigo,
+            nombre: dto.nombre,
+            creditos: dto.creditos
         };
     }
 
@@ -128,9 +68,10 @@ export class GestionInformacionPresupuestariaMapperService {
         return {
             codigoEstudiante: dto.codigoEstudiante,
             estaPago: dto.estaPago,
-            porcentajeVotacion: dto.porcentajeVotacion,
+            aplicaVotacion: dto.aplicaVotacion,
             porcentajeBeca: dto.porcentajeBeca,
-            porcentajeEgresado: dto.porcentajeEgresado
+            aplicaEgresado: dto.aplicaEgresado,
+            estadoProyeccion: dto.estadoProyeccion
         };
     }
 
@@ -141,152 +82,118 @@ export class GestionInformacionPresupuestariaMapperService {
             apellido: dto?.apellido ?? '',
             identificacion: Number(dto?.identificacion) || 0,
             estaPago: dto.estaPago ?? false,
-            porcentajeVotacion: dto.porcentajeVotacion || 0,
+            aplicaVotacion: dto.aplicaVotacion ?? false,
             porcentajeBeca: dto.porcentajeBeca || 0,
+            aplicaEgresado: dto.aplicaEgresado ?? false,
             grupoInvestigacion: dto?.grupoInvestigacion ?? '',
-            porcentajeEgresado: dto.porcentajeEgresado || 0
+            estadoProyeccion: dto.estadoProyeccion,
+            valorEnSMLV: dto.valorEnSMLV,
+            materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m))
         };
     }
 
-    mappearDeProyeccionEstudianteARespuesta(domain: ProyeccionEstudiante): ProyeccionEstudianteDTORespuesta {
+    // --- ReporteProyeccionEstudiantes ---
+
+    mappearDeRespuestaAReporteProyeccionEstudiantes(dto: ReporteProyeccionEstudiantesDTORespuesta): ReporteProyeccionEstudiantes {
         return {
-            codigoEstudiante: domain.codigoEstudiante,
-            nombre: domain.nombre,
-            apellido: domain.apellido,
-            identificacion: domain.identificacion,
-            estaPago: domain.estaPago,
-            porcentajeVotacion: domain.porcentajeVotacion,
-            porcentajeBeca: domain.porcentajeBeca,
-            grupoInvestigacion: domain.grupoInvestigacion,
-            porcentajeEgresado: domain.porcentajeEgresado
+            estudiantes: (dto.estudiantes ?? []).map(e => this.mappearDeRespuestaAProyeccionEstudiante(e)),
+            objConfiguracion: this.mappearDeRespuestaAConfiguracionReporteFinanciero(dto.configuracion),
+            periodo: this.mappearDeRespuestaAPeriodoFinanciero(dto.periodo),
+            totalNeto: dto.totalNeto,
+            totalDescuentos: dto.totalDescuentos,
+            totalIngresos: dto.totalIngresos
         };
     }
 
-    mappearDeListaProyeccionEstudianteARespuesta(proyecciones: ProyeccionEstudiante[]): ProyeccionEstudianteDTORespuesta[] {
-        return proyecciones.map(p => this.mappearDeProyeccionEstudianteARespuesta(p));
-    }
+    // --- ReporteEstudiantes ---
 
-    // --- PeriodoAcademico ---
-
-    mappearDePeticionAPeriodoAcademico(dto: PeriodoAcademicoDTOPeticion): PeriodoAcademico {
+    mappearDeRespuestaAReporteEstudiantes(dto: ReporteEstudiantesDTORespuesta): ReporteEstudiantes {
         return {
-            periodo: dto.periodo,
-            año: dto.año
-        };
-    }
-
-    mappearDeRespuestaAPeriodoAcademico(dto: PeriodoAcademicoDTORespuesta): PeriodoAcademico {
-        return {
-            periodo: dto.periodo,
-            año: dto.año
-        };
-    }
-
-    mappearDePeriodoAcademicoARespuesta(domain: PeriodoAcademico): PeriodoAcademicoDTORespuesta {
-        return {
-            periodo: domain.periodo,
-            año: domain.año
-        };
-    }
-
-    // --- ConfiguracionReporteGrupos ---
-
-    mappearDeRespuestaAConfiguracionReporteGrupos(dto: ConfiguracionReporteGruposDTORespuesta): ConfiguracionReporteGrupos {
-        const dtoAny = dto as unknown as Record<string, unknown>;
-        const id = dto.idConfiguracionReporteGrupos ?? dtoAny['idConfiguracionReporteGrupos'];
-        return {
-            id: id != null ? Number(id) : undefined,
-            aUIPorcentaje: (dto.aUIPorcentaje ?? dtoAny['auiporcentaje']) as number,
-            excedentesMaestria: dto.excedentesMaestria,
-            aUIValor: (dto.aUIValor ?? dtoAny['auivalor']) as number,
-            ingresosNetos: dto.ingresosNetos,
-            valorADistribuir: dto.valorADistribuir,
-            item1: dto.item1,
-            item2: dto.item2,
-            imprevistos: dto.imprevistos,
-            objPeriodoAcademico: this.mappearDeRespuestaAPeriodoAcademico(dto.objPeriodoAcademico),
-            gastosGenerales: (dto.gastosGenerales ?? []).map(g => this.mappearDeRespuestaAGastoGeneral(g))
+            estudiantes: (dto.estudiantes ?? []).map(e => this.mappearDeRespuestaAProyeccionEstudiante(e)),
+            objConfiguracion: this.mappearDeRespuestaAConfiguracionReporteFinanciero(dto.configuracion),
+            periodo: this.mappearDeRespuestaAPeriodoFinanciero(dto.periodo),
+            totalNeto: dto.totalNeto,
+            totalDescuentos: dto.totalDescuentos,
+            totalIngresos: dto.totalIngresos
         };
     }
 
     // --- GastoGeneral ---
 
-    mappearDePeticionAGastoGeneral(dto: GastoGeneralDTOPeticion): GastoGeneral {
-        return {
-            idGastoGeneral: dto.idGastoGeneral,
-            categoria: dto.categoria,
-            descripcion: dto.descripcion,
-            monto: dto.monto
-        };
-    }
-
     mappearDeRespuestaAGastoGeneral(dto: GastoGeneralDTORespuesta): GastoGeneral {
         return {
-            idGastoGeneral: dto.idGastoGeneral,
+            idGastoGeneral: dto.id,
             categoria: dto.categoria,
             descripcion: dto.descripcion,
             monto: dto.monto
         };
     }
 
-    mappearDeGastoGeneralARespuesta(domain: GastoGeneral): GastoGeneralDTORespuesta {
+    // --- ReportePorGrupoFila ---
+
+    mappearDeRespuestaAReportePorGrupoFila(dto: ReportePorGrupoDTORespuesta): ReportePorGrupoFila {
         return {
-            idGastoGeneral: domain.idGastoGeneral,
-            categoria: domain.categoria,
-            descripcion: domain.descripcion,
-            monto: domain.monto
+            grupoId: dto.grupoId,
+            nombreGrupo: dto.nombreGrupo,
+            porcentajeParticipacion: dto.porcentajeParticipacion,
+            porcentajePrimerSemestre: dto.porcentajePrimerSemestre ?? dto.porcentajeParticipacion,
+            porcentajeSegundoSemestre: dto.porcentajeSegundoSemestre ?? dto.porcentajeParticipacion,
+            vigenciasAnteriores: dto.vigenciasAnteriores,
+            presupuestoPorGrupo: dto.presupuestoPorGrupo,
+            aportePrimerSemestre: dto.aportePrimerSemestre,
+            aporteSegundoSemestre: dto.aporteSegundoSemestre,
+            participacionPrimerSemestre: dto.porcentajeParticipacion,
+            participacionSegundoSemestre: dto.porcentajeParticipacion,
+            participacionPorAño: dto.porcentajeParticipacion,
+            presupuestoPorGrupoItem1: dto.presupuestoPorGrupoItem1 ?? 0,
+            presupuestoPorGrupoItem2: dto.presupuestoPorGrupoItem2 ?? 0,
+            imprevistos: dto.imprevistosValor ?? 0,
+            presupuestoPorGrupoImprevistos: dto.presupuestoPorGrupoImprevistos ?? dto.presupuestoPorGrupo,
+            totalNeto: dto.totalNeto ?? dto.presupuestoPorGrupo
         };
     }
 
     // --- ReportePorGrupos ---
 
-    mappearDeRespuestaAReportePorGrupos(dto: ReportePorGruposDTORespuesta): ReportePorGrupos {
-        const filas = dto.reportesPorGrupos ?? [];
+    mappearDeRespuestaAReportePorGrupos(dto: ConsultaReportePorGruposDTORespuesta): ReportePorGrupos {
         const gastos = (dto.gastosGenerales ?? []).map(g => this.mappearDeRespuestaAGastoGeneral(g));
-        const sum = (key: keyof typeof filas[0]) => filas.reduce((acc, f) => acc + ((f[key] as number) ?? 0), 0);
-        const filasPorGrupo = filas.map((f, i) => ({
-            nombreGrupo: f.grupo?.nombre ?? `Grupo ${i + 1}`,
-            totalNeto: f.totalNeto ?? 0,
-            aportePrimerSemestre: f.aportePrimerSemestre ?? 0,
-            aporteSegundoSemestre: f.aporteSegundoSemestre ?? 0,
-            participacionPrimerSemestre: f.participacionPrimerSemestre ?? 0,
-            participacionSegundoSemestre: f.participacionSegundoSemestre ?? 0,
-            participacionPorAño: f.participacionPorAño ?? 0,
-            presupuestoPorGrupoItem1: f.presupuestoPorGrupoItem1 ?? 0,
-            presupuestoPorGrupoItem2: f.presupuestoPorGrupoItem2 ?? 0,
-            presupuestoPorGrupo: f.presupuestoPorGrupo ?? 0,
-            imprevistos: f.imprevistos ?? 0,
-            presupuestoPorGrupoImprevistos: f.presupuestoPorGrupoImprevistos ?? 0,
-            vigenciasAnteriores: f.vigenciasAnteriores ?? 0
-        }));
+        const filasPorGrupo = (dto.reportesPorGrupo ?? []).map(f => this.mappearDeRespuestaAReportePorGrupoFila(f));
+        const totalNeto = filasPorGrupo.reduce((s, f) => s + f.presupuestoPorGrupo, 0);
+        const aportePrimerSemestre = filasPorGrupo.reduce((s, f) => s + f.aportePrimerSemestre, 0);
+        const aporteSegundoSemestre = filasPorGrupo.reduce((s, f) => s + f.aporteSegundoSemestre, 0);
+        const presupuestoPorGrupoItem1 = filasPorGrupo.reduce((s, f) => s + (f.presupuestoPorGrupoItem1 ?? 0), 0);
+        const presupuestoPorGrupoItem2 = filasPorGrupo.reduce((s, f) => s + (f.presupuestoPorGrupoItem2 ?? 0), 0);
+        const imprevistosTotal = filasPorGrupo.reduce((s, f) => s + (f.imprevistos ?? 0), 0);
+        const presupuestoPorGrupoImprevistos = filasPorGrupo.reduce((s, f) => s + (f.presupuestoPorGrupoImprevistos ?? 0), 0);
         return {
-            totalNeto: sum('totalNeto'),
-            aportePrimerSemestre: sum('aportePrimerSemestre'),
-            aporteSegundoSemestre: sum('aporteSegundoSemestre'),
-            participacionPrimerSemestre: sum('participacionPrimerSemestre'),
-            participacionSegundoSemestre: sum('participacionSegundoSemestre'),
-            participacionPorAño: sum('participacionPorAño'),
-            presupuestoPorGrupoItem1: sum('presupuestoPorGrupoItem1'),
-            presupuestoPorGrupoItem2: sum('presupuestoPorGrupoItem2'),
-            presupuestoPorGrupo: sum('presupuestoPorGrupo'),
-            imprevistos: sum('imprevistos'),
-            presupuestoPorGrupoImprevistos: sum('presupuestoPorGrupoImprevistos'),
-            vigenciasAnteriores: sum('vigenciasAnteriores'),
             gastosGenerales: gastos,
             filasPorGrupo,
+            anio: dto.anio,
+            ingresoPeriodo1: dto.ingresoPeriodo1 ?? 0,
+            ingresoPeriodo2: dto.ingresoPeriodo2 ?? 0,
+            totalNeto,
+            aportePrimerSemestre,
+            aporteSegundoSemestre,
+            participacionPrimerSemestre: 0,
+            participacionSegundoSemestre: 0,
+            participacionPorAño: 0,
+            presupuestoPorGrupoItem1,
+            presupuestoPorGrupoItem2,
+            presupuestoPorGrupo: totalNeto,
+            imprevistos: imprevistosTotal,
+            presupuestoPorGrupoImprevistos,
+            vigenciasAnteriores: filasPorGrupo.reduce((s, f) => s + f.vigenciasAnteriores, 0),
             objConfiguracionReporteGrupos: {
-                id: dto.idConfiguracionReporteGrupos != null ? Number(dto.idConfiguracionReporteGrupos) : undefined,
-                aUIPorcentaje: dto.auiporcentaje ?? 0,
-                aUIValor: dto.auivalor ?? 0,
+                id: dto.idConfiguracionReporteGrupos,
+                aUIPorcentaje: dto.auiPorcentaje ?? 0,
+                aUIValor: dto.auiValor ?? 0,
                 excedentesMaestria: dto.excedentesMaestria ?? 0,
-                ingresosNetos: dto.ingresosNetos ?? 0,
+                ingresosNetos: dto.totalIngresos ?? 0,
                 valorADistribuir: dto.valorADistribuir ?? 0,
                 item1: dto.item1 ?? 0,
                 item2: dto.item2 ?? 0,
                 imprevistos: dto.imprevistos ?? 0,
-                objPeriodoAcademico: dto.objPeriodoAcademico
-                    ? this.mappearDeRespuestaAPeriodoAcademico(dto.objPeriodoAcademico)
-                    : { periodo: 0, año: 0 },
+                objPeriodoFinanciero: this.mappearDeRespuestaAPeriodoFinanciero(dto.periodo),
                 gastosGenerales: gastos
             }
         };

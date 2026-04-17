@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { GastoGeneral } from '../../models/domain-models';
+import { GastoGeneralDTOPeticion } from '../../dto/gasto-general.dto';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
@@ -32,7 +33,8 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
   constructor(
     private facadeService: GestionInformacionPresupuestariaFacadeService,
     private confirmationService: ConfirmationService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -47,7 +49,9 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
     if (changes['display']?.currentValue === true) {
       this.prepararGastos();
     } else if (changes['gastos'] && this.display) {
+      // Siempre actualizar cuando gastos cambia y el dialog está abierto
       this.prepararGastos();
+      this.cdr.markForCheck();
     }
   }
 
@@ -92,7 +96,8 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
     if (!this.nuevoGasto) return;
 
     if (this.idConfiguracionReporteGrupos == null) {
-      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'No se puede crear el gasto: no hay configuración de reporte seleccionada.' });
+      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'No se puede crear el gasto: el ID de configuración no está disponible. Recarga la página.' });
+      console.error('idConfiguracionReporteGrupos es null. Valor de configuracion:', this.idConfiguracionReporteGrupos);
       return;
     }
     if (!this.nuevoGasto.categoria || !this.nuevoGasto.descripcion || this.nuevoGasto.monto <= 0) {
@@ -102,9 +107,8 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
 
     this.guardandoGastos = true;
 
-    const gastoDTO = {
-      idGastoGeneral: 0,
-      idConfiguracionReporteGrupos: this.idConfiguracionReporteGrupos ?? undefined,
+    const gastoDTO: GastoGeneralDTOPeticion = {
+      idConfiguracionReporteGrupos: this.idConfiguracionReporteGrupos!,
       categoria: this.nuevoGasto.categoria,
       descripcion: this.nuevoGasto.descripcion,
       monto: this.nuevoGasto.monto
@@ -118,12 +122,14 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
         this.nuevoGasto = null;
         this.guardandoGastos = false;
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto creado correctamente' });
+        this.cdr.markForCheck();
         this.onCambio.emit();
       },
       error: (err) => {
         console.error('Error al crear gasto general', err);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo crear el gasto' });
         this.guardandoGastos = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -167,6 +173,7 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
         this.editingGastoKey = null;
         this.guardandoGastos = false;
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto actualizado correctamente' });
+        this.cdr.markForCheck();
         this.onCambio.emit();
       },
       error: (err) => {
@@ -174,6 +181,7 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar el gasto' });
         this.onGastoEditCancel(gasto);
         this.guardandoGastos = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -211,12 +219,14 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
         delete this.clonedGasto[gasto.idGastoGeneral];
         this.guardandoGastos = false;
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto eliminado correctamente' });
+        this.cdr.markForCheck();
         this.onCambio.emit();
       },
       error: (err) => {
         console.error('Error al eliminar gasto general', err);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el gasto' });
         this.guardandoGastos = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -229,3 +239,7 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
     }).format(value);
   }
 }
+
+
+
+

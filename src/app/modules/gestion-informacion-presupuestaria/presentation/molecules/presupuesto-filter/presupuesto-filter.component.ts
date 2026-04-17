@@ -18,7 +18,11 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
-import { FiltroPresupuesto } from '../../../domain/ports/presupuesto-repository.port';
+export interface FiltroPresupuesto {
+  anioFiscal?: number;
+  estado?: string | null;
+  codigoParcial?: string;
+}
 
 @Component({
   selector: 'app-presupuesto-filter',
@@ -67,3 +71,7 @@ export class PresupuestoFilterComponent implements OnInit, OnDestroy {
     this._destroy$.complete();
   }
 }
+
+
+
+

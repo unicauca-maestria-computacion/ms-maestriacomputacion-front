@@ -1,5 +1,5 @@
-export interface PorcentajeGrupoDTOPeticion {
-    idGrupo: string;
-    nombreGrupo: string;
-    porcentaje: number;
+export interface ActualizarParticipacionDTOPeticion {
+    grupoId: number;
+    porcentajeParticipacion: number;
+    semestre?: string;
 }

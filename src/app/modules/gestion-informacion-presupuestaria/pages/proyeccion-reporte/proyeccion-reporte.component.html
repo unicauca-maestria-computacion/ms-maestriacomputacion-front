@@ -6,8 +6,11 @@
             </app-opciones-presupuesto>
     
             <!-- Selector de Periodo Académico -->
-            <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)" [mostrarSoloUltimo]="true">
-            </app-periodo-academico-selector>
+            <app-periodo-financiero-selector [modo]="'activos'"
+                [mensajeVacio]="'No hay períodos académicos activos para mostrar.'"
+                (periodoSeleccionado)="onPeriodoChange($event)"
+                (sinPeriodosChange)="sinPeriodos = $event">
+            </app-periodo-financiero-selector>
         </div>
 
 
@@ -27,7 +30,7 @@
         </div>
 
         <!-- Sin datos -->
-        <div *ngIf="!cargando && !guardando && !configuracion" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
+        <div *ngIf="!cargando && !guardando && !configuracion && !sinPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
             <i class="pi pi-inbox text-4xl text-400"></i>
             <span class="text-600 text-lg">Seleccione un período académico para cargar la proyección.</span>
         </div>
@@ -63,17 +66,6 @@
                             [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
                         <label for="float-recursos">Recursos Computacionales</label>
-                    </span>
-
-                    <span class="p-float-label">
-                        <p-inputNumber id="float-matricula" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorMatricula"
-                            [minFractionDigits]="2" suffix=" SMLV" styleClass="config-input">
-                        </p-inputNumber>
-                        <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.valorMatricula"
-                            [minFractionDigits]="2" suffix=" SMLV"
-                            [readonly]="true" [disabled]="true" styleClass="config-input">
-                        </p-inputNumber>
-                        <label for="float-matricula">Matrícula (SMLV)</label>
                     </span>
 
                     <span class="p-float-label">
@@ -113,7 +105,7 @@
             </div>
 
             <!-- Tabla de estudiantes editable -->
-            <div style="overflow-x: auto;">
+            <div class="table-responsive-wrapper">
                 <p-table [value]="estudiantes" dataKey="codigoEstudiante" editMode="row"
                     responsiveLayout="stack" breakpoint="960px"
                     styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped">
@@ -170,15 +162,15 @@
                                 <span class="p-column-title font-bold">% Votación</span>
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
-                                        <div class="flex align-items-center gap-1">
-                                            <input pInputText type="number" [ngModel]="estudiante.porcentajeVotacion"
-                                                min="0" step="0.01" class="percent-input"
-                                                (input)="onPercentInput($event, estudiante, 'porcentajeVotacion')">
-                                            <span class="percent-suffix">%</span>
+                                        <div class="flex align-items-center justify-content-center gap-2">
+                                            <p-checkbox [(ngModel)]="estudiante.aplicaVotacion" [binary]="true"
+                                                (onChange)="recalcularFila(estudiante)">
+                                            </p-checkbox>
+                                            <span>{{ configuracion ? (configuracion.porcentajeVotacionFijo * 100 | number:'1.0-0') + '%' : '10%' }}</span>
                                         </div>
                                     </ng-template>
                                     <ng-template pTemplate="output">
-                                        {{ formatPercent(estudiante.porcentajeVotacion) }}
+                                        {{ estudiante.aplicaVotacion ? (configuracion ? (configuracion.porcentajeVotacionFijo * 100 | number:'1.0-0') + '%' : '10%') : '0%' }}
                                     </ng-template>
                                 </p-cellEditor>
                             </td>
@@ -209,15 +201,15 @@
                                 <span class="p-column-title font-bold">% Egresado</span>
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
-                                        <div class="flex align-items-center gap-1">
-                                            <input pInputText type="number" [ngModel]="estudiante.porcentajeEgresado"
-                                                min="0" step="0.01" class="percent-input"
-                                                (input)="onPercentInput($event, estudiante, 'porcentajeEgresado')">
-                                            <span class="percent-suffix">%</span>
+                                        <div class="flex align-items-center justify-content-center gap-2">
+                                            <p-checkbox [(ngModel)]="estudiante.aplicaEgresado" [binary]="true"
+                                                (onChange)="recalcularFila(estudiante)">
+                                            </p-checkbox>
+                                            <span>{{ configuracion ? (configuracion.porcentajeEgresadoFijo * 100 | number:'1.0-0') + '%' : '5%' }}</span>
                                         </div>
                                     </ng-template>
                                     <ng-template pTemplate="output">
-                                        {{ formatPercent(estudiante.porcentajeEgresado) }}
+                                        {{ estudiante.aplicaEgresado ? (configuracion ? (configuracion.porcentajeEgresadoFijo * 100 | number:'1.0-0') + '%' : '5%') : '0%' }}
                                     </ng-template>
                                 </p-cellEditor>
                             </td>
@@ -278,30 +270,28 @@
                             </td>
                         </tr>
                     </ng-template>
-
-                    <ng-template pTemplate="footer">
-                        <tr>
-                            <td colspan="13" class="text-right">
-                                <div class="totales-container">
-                                    <div class="total-item">
-                                        <span class="total-label">Total Neto:</span>
-                                        <span class="total-value">{{ formatCurrency(totalNetoCalculado) }}</span>
-                                    </div>
-                                    <div class="total-item">
-                                        <span class="total-label">Total Descuentos:</span>
-                                        <span class="total-value">{{ formatCurrency(totalDescuentosCalculado) }}</span>
-                                    </div>
-                                    <div class="total-item highlight">
-                                        <span class="total-label">Ingresos Totales Después de Descuentos:</span>
-                                        <span class="total-value">{{ formatCurrency(totalNetoCalculado) }}</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="width: 8rem;"></td>
-                        </tr>
-                    </ng-template>
                 </p-table>
+            </div>
+
+            <!-- Totales: fuera de la tabla para garantizar visibilidad en mobile -->
+            <div class="totales-container mt-3">
+                <div class="total-item">
+                    <span class="total-label">Total Neto:</span>
+                    <span class="total-value">{{ formatCurrency(totalNetoCalculado) }}</span>
+                </div>
+                <div class="total-item">
+                    <span class="total-label">Total Descuentos:</span>
+                    <span class="total-value">{{ formatCurrency(totalDescuentosCalculado) }}</span>
+                </div>
+                <div class="total-item highlight">
+                    <span class="total-label">Ingresos Totales Después de Descuentos:</span>
+                    <span class="total-value">{{ formatCurrency(totalIngresosCalculado) }}</span>
+                </div>
             </div>
         </div>
     </p-card>
 </div>
+
+
+
+

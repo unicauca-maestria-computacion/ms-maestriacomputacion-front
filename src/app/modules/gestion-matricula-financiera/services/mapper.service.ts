@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import {
     Estudiante,
     MatriculaFinanciera,
-    MatriculaAcademica,
     Materia,
     Docente,
     BecaFinanciera,
@@ -11,7 +10,6 @@ import {
 } from '../models/domain-models';
 import { EstudianteDTORespuesta } from '../dto/estudiante.dto';
 import { MatriculaFinancieraDTORespuesta } from '../dto/matricula-financiera.dto';
-import { MatriculaAcademicaDTORespuesta } from '../dto/matricula-academica.dto';
 import { MateriaDTORespuesta } from '../dto/materia.dto';
 import { DocenteDTORespuesta } from '../dto/docente.dto';
 import { BecasDTORespuesta } from '../dto/beca-financiera.dto';
@@ -28,23 +26,29 @@ export class GestionMatriculaFinancieraMapperService {
     // --- PeriodoAcademico ---
 
     mappearDeRespuestaAPeriodoAcademico(dto: PeriodoAcademicoDTORespuesta): PeriodoAcademico {
+        const año = dto.anio ?? (dto.fechaInicio ? new Date(dto.fechaInicio).getFullYear() : undefined);
         return {
-            periodo: dto.periodo,
-            año: dto.año
+            id: dto.id,
+            tagPeriodo: dto.tagPeriodo,
+            periodo: dto.tagPeriodo,
+            año: año,
+            fechaInicio: dto.fechaInicio,
+            fechaFin: dto.fechaFin,
+            fechaFinMatricula: dto.fechaFinMatricula,
+            descripcion: dto.descripcion,
+            estado: dto.estado
         };
     }
 
-    mappearDePeticionAPeriodoAcademico(dto: PeriodoAcademicoDTOPeticion): PeriodoAcademico {
+    mappearDePeriodoAcademicoAPeticion(domain: PeriodoAcademico): PeriodoAcademicoDTOPeticion {
         return {
-            periodo: dto.periodo,
-            año: dto.año
-        };
-    }
-
-    mappearDePeriodoAcademicoARespuesta(domain: PeriodoAcademico): PeriodoAcademicoDTORespuesta {
-        return {
-            periodo: domain.periodo,
-            año: domain.año
+            tagPeriodo: domain.tagPeriodo,
+            anio: domain.año,
+            fechaInicio: domain.fechaInicio,
+            fechaFin: domain.fechaFin,
+            fechaFinMatricula: domain.fechaFinMatricula,
+            descripcion: domain.descripcion,
+            estado: domain.estado
         };
     }
 
@@ -52,13 +56,8 @@ export class GestionMatriculaFinancieraMapperService {
 
     mappearDeRespuestaADocente(dto: DocenteDTORespuesta): Docente {
         return {
-            nombre: dto.nombre
-        };
-    }
-
-    mappearDeDocenteARespuesta(domain: Docente): DocenteDTORespuesta {
-        return {
-            nombre: domain.nombre
+            nombre: dto.nombre,
+            apellido: dto.apellido
         };
     }
 
@@ -66,39 +65,10 @@ export class GestionMatriculaFinancieraMapperService {
 
     mappearDeRespuestaAMateria(dto: MateriaDTORespuesta): Materia {
         return {
-            codigo_oid: dto.codigo_oid,
-            semestreAcademico: dto.semestreAcademico,
+            codigo_oid: dto.codigoOid,
             materia: dto.materia,
-            objDocente: this.mappearDeRespuestaADocente(dto.objDocente),
+            objDocente: dto.docente ? this.mappearDeRespuestaADocente(dto.docente) : { nombre: '', apellido: '' },
             grupoClase: dto.grupoClase
-        };
-    }
-
-    mappearDeMateriaARespuesta(domain: Materia): MateriaDTORespuesta {
-        return {
-            codigo_oid: domain.codigo_oid,
-            semestreAcademico: domain.semestreAcademico,
-            materia: domain.materia,
-            objDocente: this.mappearDeDocenteARespuesta(domain.objDocente),
-            grupoClase: domain.grupoClase
-        };
-    }
-
-    // --- MatriculaAcademica ---
-
-    mappearDeRespuestaAMatriculaAcademica(dto: MatriculaAcademicaDTORespuesta): MatriculaAcademica {
-        return {
-            semestre: dto.semestre || 0,
-            materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m)),
-            objPeriodoAcademico: this.mappearDeRespuestaAPeriodoAcademico(dto.objPeriodoAcademico)
-        };
-    }
-
-    mappearDeMatriculaAcademicaARespuesta(domain: MatriculaAcademica): MatriculaAcademicaDTORespuesta {
-        return {
-            semestre: domain.semestre,
-            materias: domain.materias.map(m => this.mappearDeMateriaARespuesta(m)),
-            objPeriodoAcademico: this.mappearDePeriodoAcademicoARespuesta(domain.objPeriodoAcademico)
         };
     }
 
@@ -106,17 +76,8 @@ export class GestionMatriculaFinancieraMapperService {
 
     mappearDeRespuestaAMatriculaFinanciera(dto: MatriculaFinancieraDTORespuesta): MatriculaFinanciera {
         return {
-            fechaMatricula: dto.fechaMatricula,
-            valorMatricula: dto.valorMatricula || 0,
+            valorEnSMLV: dto.valorEnSMLV ?? null,
             objPeriodoAcademico: this.mappearDeRespuestaAPeriodoAcademico(dto.objPeriodoAcademico)
-        };
-    }
-
-    mappearDeMatriculaFinancieraARespuesta(domain: MatriculaFinanciera): MatriculaFinancieraDTORespuesta {
-        return {
-            fechaMatricula: domain.fechaMatricula,
-            valorMatricula: domain.valorMatricula,
-            objPeriodoAcademico: this.mappearDePeriodoAcademicoARespuesta(domain.objPeriodoAcademico)
         };
     }
 
@@ -129,26 +90,12 @@ export class GestionMatriculaFinancieraMapperService {
         };
     }
 
-    mappearDeBecaFinancieraARespuesta(domain: BecaFinanciera): BecasDTORespuesta {
-        return {
-            resolucion: domain.resolucion,
-            porcentaje: domain.porcentaje
-        };
-    }
-
     // --- DescuentoFinanciero ---
 
     mappearDeRespuestaADescuentoFinanciero(dto: DescuentosDTORespuesta): DescuentoFinanciero {
         return {
             tipoDescuento: dto.tipoDescuento,
             porcentaje: dto.porcentaje || 0
-        };
-    }
-
-    mappearDeDescuentoFinancieroARespuesta(domain: DescuentoFinanciero): DescuentosDTORespuesta {
-        return {
-            tipoDescuento: domain.tipoDescuento,
-            porcentaje: domain.porcentaje
         };
     }
 
@@ -160,34 +107,16 @@ export class GestionMatriculaFinancieraMapperService {
             nombre: dto.nombre,
             apellido: dto.apellido,
             identificacion: dto.identificacion,
-            cohorte: dto.cohorte,
+            cohorte: dto.cohorte?.toString(),
             periodoIngreso: dto.periodoIngreso,
             semestreFinanciero: dto.semestreFinanciero || 0,
-            matriculasFinancieras: (dto.matriculasFinancieras ?? []).map(mf => this.mappearDeRespuestaAMatriculaFinanciera(mf)),
+            semestreAcademico: dto.semestreAcademico,
+            valorEnSMLV: dto.valorEnSMLV ?? null,
+            matriculasFinancieras: [],
             descuentos: (dto.descuentos ?? []).map(d => this.mappearDeRespuestaADescuentoFinanciero(d)),
             becas: (dto.becas ?? []).map(b => this.mappearDeRespuestaABecaFinanciera(b)),
-            matriculasAcademicas: (dto.matriculasAcademicas ?? []).map(ma => this.mappearDeRespuestaAMatriculaAcademica(ma))
+            materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m))
         };
-    }
-
-    mappearDeEstudianteARespuesta(domain: Estudiante): EstudianteDTORespuesta {
-        return {
-            codigo: domain.codigo,
-            nombre: domain.nombre,
-            apellido: domain.apellido,
-            identificacion: domain.identificacion,
-            cohorte: domain.cohorte,
-            periodoIngreso: domain.periodoIngreso,
-            semestreFinanciero: domain.semestreFinanciero,
-            matriculasFinancieras: domain.matriculasFinancieras.map(mf => this.mappearDeMatriculaFinancieraARespuesta(mf)),
-            descuentos: domain.descuentos.map(d => this.mappearDeDescuentoFinancieroARespuesta(d)),
-            becas: domain.becas.map(b => this.mappearDeBecaFinancieraARespuesta(b)),
-            matriculasAcademicas: domain.matriculasAcademicas.map(ma => this.mappearDeMatriculaAcademicaARespuesta(ma))
-        };
-    }
-
-    mappearDeListaEstudianteARespuesta(estudiantes: Estudiante[]): EstudianteDTORespuesta[] {
-        return estudiantes.map(e => this.mappearDeEstudianteARespuesta(e));
     }
 
     mappearDeListaRespuestaAEstudiante(dtos: EstudianteDTORespuesta[]): Estudiante[] {

@@ -1,4 +1,4 @@
-import { PeriodoAcademicoDTORespuesta } from "./periodo-academico.dto";
+import { PeriodoFinancieroDTORespuesta } from "./periodo-financiero.dto";
 import { GastoGeneralDTORespuesta } from "./gasto-general.dto";
 
 export interface ConfiguracionReporteGruposDTORespuesta {
@@ -11,6 +11,10 @@ export interface ConfiguracionReporteGruposDTORespuesta {
     item1: number;
     item2: number;
     imprevistos: number;
-    objPeriodoAcademico: PeriodoAcademicoDTORespuesta;
+    objPeriodoFinanciero: PeriodoFinancieroDTORespuesta;
     gastosGenerales: GastoGeneralDTORespuesta[];
 }
+
+
+
+

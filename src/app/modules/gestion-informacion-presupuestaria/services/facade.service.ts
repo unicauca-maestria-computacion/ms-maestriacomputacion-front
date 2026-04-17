@@ -1,27 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, finalize, map, tap } from 'rxjs/operators';
+import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { GestionInformacionPresupuestariaApiService } from './api.service';
-import { ApiError } from '../dto/api-error';
-import { ConfiguracionReporteFinancieroDTOPeticion } from '../dto/configuracion-reporte-financiero.dto';
-import { ProyeccionEstudianteDTOPeticion } from '../dto/proyeccion-estudiante.dto';
-import { PeriodoAcademicoDTORespuesta } from '../dto/periodo-academico.dto';
-import { PorcentajeGrupoDTOPeticion } from '../dto/porcentaje-grupo.dto';
-import { GastoGeneralDTOPeticion, GastoGeneralDTORespuesta } from '../dto/gasto-general.dto';
-import { ItemsDTOPeticion } from '../dto/items.dto';
-import { ValorGrupoDTOPeticion } from '../dto/valor-grupo.dto';
-import { ReporteProyeccionEstudiantes, ReportePorGrupos } from '../models/domain-models';
-import { ConfiguracionReporteFinancieroDTORespuesta } from '../dto/configuracion-reporte-financiero.dto';
-import { ReporteProyeccionEstudiantesDTORespuesta } from '../dto/reporte-proyeccion-estudiantes.dto';
-import { ReporteEstudiantesDTORespuesta } from '../dto/reporte-estudiantes.dto';
 import { GestionInformacionPresupuestariaMapperService } from './mapper.service';
+import { ApiError } from '../dto/api-error';
+import { ConfiguracionReporteFinancieroDTOPeticion, ConfiguracionReporteFinancieroDTORespuesta } from '../dto/configuracion-reporte-financiero.dto';
+import { ProyeccionEstudianteDTOPeticion } from '../dto/proyeccion-estudiante.dto';
+import { PeriodoAcademicoDto } from '../dto/periodo-financiero.dto';
+import { ActualizarParticipacionDTOPeticion } from '../dto/porcentaje-grupo.dto';
+import { GastoGeneralDTOPeticion, GastoGeneralDTORespuesta } from '../dto/gasto-general.dto';
+import { ReporteProyeccionEstudiantes, ReportePorGrupos, ConfiguracionReporteFinanciero } from '../models/domain-models';
+import { ReporteProyeccionEstudiantesDTORespuesta } from '../dto/reporte-proyeccion-estudiantes.dto';
 
 @Injectable({
     providedIn: 'root'
 })
 export class GestionInformacionPresupuestariaFacadeService {
 
-    // State using BehaviorSubject
     private _loading = new BehaviorSubject<boolean>(false);
     public loading$ = this._loading.asObservable();
 
@@ -39,214 +34,280 @@ export class GestionInformacionPresupuestariaFacadeService {
         private mapper: GestionInformacionPresupuestariaMapperService
     ) { }
 
-    // Methods
+    // ── Periodos ──────────────────────────────────────────────────────────
+
+    obtenerPeriodosFinancieros(): Observable<PeriodoAcademicoDto[]> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.obtenerPeriodos().pipe(
+            map(periodos => periodos.map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo }))),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    obtenerPeriodosActivos(): Observable<PeriodoAcademicoDto[]> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.obtenerPeriodosActivos().pipe(
+            map(periodos => periodos.map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo }))),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    obtenerPeriodosCerrados(): Observable<PeriodoAcademicoDto[]> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.obtenerPeriodosInactivos().pipe(
+            map(periodos => periodos.map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo }))),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    obtenerPeriodosActivosYCerrados(): Observable<PeriodoAcademicoDto[]> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.obtenerPeriodosActivosYCerrados().pipe(
+            map(periodos => periodos.map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo }))),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    obtenerPeriodoProyeccion(): Observable<PeriodoAcademicoDto> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.obtenerPeriodoProyeccion().pipe(
+            map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo })),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    // ── Proyección de estudiantes ─────────────────────────────────────────
+
+    obtenerProyeccionEstudiantes(tagPeriodo?: number, anio?: number): Observable<ReporteProyeccionEstudiantes> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.obtenerProyeccionEstudiantes(tagPeriodo, anio).pipe(
+            map(dto => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(dto)),
+            tap(data => this._reporteProyeccionEstudiantes.next(data)),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    actualizarProyeccionEstudiante(proyeccion: ProyeccionEstudianteDTOPeticion, tagPeriodo?: number, anio?: number): Observable<any> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.actualizarProyeccionEstudiante(proyeccion, tagPeriodo, anio).pipe(
+            map(dto => ({
+                ...dto,
+                objConfiguracion: null,
+                periodo: null,
+                estudiantes: [dto]
+            })),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    // ── Reporte financiero ────────────────────────────────────────────────
+
+    obtenerReporteFinanciero(tagPeriodo: number, anio: number): Observable<any> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.obtenerReporteFinanciero(tagPeriodo, anio).pipe(
+            map(dto => ({
+                ...dto,
+                objConfiguracion: this.mapper.mappearDeRespuestaAConfiguracionReporteFinanciero(dto.configuracion)
+            })),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    // ── Configuración reporte financiero ──────────────────────────────────
 
     actualizarConfiguracionProyeccion(config: ConfiguracionReporteFinancieroDTOPeticion): Observable<ConfiguracionReporteFinancieroDTORespuesta> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarConfiguracionProyeccion(config).pipe(
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
+        return this.apiService.obtenerPeriodoProyeccion().pipe(
+            switchMap(periodo =>
+                this.apiService.actualizarConfiguracionReporteFinanciero(config, periodo.tagPeriodo, periodo.anio)
+            ),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    actualizarProyeccionEstudiante(proyeccion: ProyeccionEstudianteDTOPeticion): Observable<ReporteProyeccionEstudiantesDTORespuesta> {
+    actualizarConfiguracionReporteFinanciero(
+        config: ConfiguracionReporteFinancieroDTOPeticion,
+        tagPeriodo: number,
+        anio: number
+    ): Observable<ConfiguracionReporteFinancieroDTORespuesta> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarProyeccionEstudiante(proyeccion).pipe(
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
+        return this.apiService.actualizarConfiguracionReporteFinanciero(config, tagPeriodo, anio).pipe(
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    obtenerReporteFinanciero(periodo: number, anio: number): Observable<ReporteEstudiantesDTORespuesta> {
-        this._loading.next(true);
-        this._error.next(null);
-        return this.apiService.obtenerReporteFinanciero(periodo, anio).pipe(
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
-            finalize(() => this._loading.next(false))
-        );
-    }
+    // ── Reporte por grupos ────────────────────────────────────────────────
 
-    obtenerProyeccionEstudiantes(): Observable<ReporteProyeccionEstudiantes> {
+    obtenerReporteGrupos(anio: number): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.obtenerProyeccionEstudiantes().pipe(
-            map(dto => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(dto)),
-            tap(data => this._reporteProyeccionEstudiantes.next(data)),
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
-            finalize(() => this._loading.next(false))
-        );
-    }
-
-    obtenerReporteGrupos(periodo: number, anio: number): Observable<ReportePorGrupos> {
-        this._loading.next(true);
-        this._error.next(null);
-        return this.apiService.obtenerReporteGrupos(periodo, anio).pipe(
+        return this.apiService.obtenerReportePorGrupos(anio).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    obtenerPeriodosAcademicos(): Observable<PeriodoAcademicoDTORespuesta[]> {
+    actualizarParticipacionGrupo(dto: ActualizarParticipacionDTOPeticion): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.obtenerPeriodosAcademicos().pipe(
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
+        return this.apiService.actualizarParticipacionGrupo(dto).pipe(
+            map(d => this.mapper.mappearDeRespuestaAReportePorGrupos(d)),
+            tap(data => this._reporteGrupos.next(data)),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    actualizarPorcentajeParticipacionPrimerSemestre(porcentajes: PorcentajeGrupoDTOPeticion[]): Observable<ReportePorGrupos> {
+    actualizarPorcentajeAUIUniversidad(porcentaje: number): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarPorcentajeParticipacionPrimerSemestre(porcentajes).pipe(
+        return this.apiService.actualizarPorcentajeAUI(porcentaje).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    actualizarPorcentajeParticipacionSegundoSemestre(porcentajes: PorcentajeGrupoDTOPeticion[]): Observable<ReportePorGrupos> {
+    actualizarValorExcedentesMaestria(valor: number): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarPorcentajeParticipacionSegundoSemestre(porcentajes).pipe(
+        return this.apiService.actualizarExcedentesMaestria(valor).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    actualizarPorcentajeAUIUniversidad(nuevoValor: number): Observable<ReportePorGrupos> {
-        this._loading.next(true);
-        this._error.next(null);
-        return this.apiService.actualizarPorcentajeAUIUniversidad(nuevoValor).pipe(
-            map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
-            tap(data => this._reporteGrupos.next(data)),
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
-            finalize(() => this._loading.next(false))
-        );
-    }
+    // ── Gastos generales ──────────────────────────────────────────────────
 
-    actualizarValorExcedentesMaestria(nuevoValor: number): Observable<ReportePorGrupos> {
-        this._loading.next(true);
-        this._error.next(null);
-        return this.apiService.actualizarValorExcedentesMaestria(nuevoValor).pipe(
-            map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
-            tap(data => this._reporteGrupos.next(data)),
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
-            finalize(() => this._loading.next(false))
-        );
-    }
-
-    actualizarGastoGeneral(gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta> {
-        this._loading.next(true);
-        this._error.next(null);
-        return this.apiService.actualizarGastoGeneral(gasto).pipe(
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
-            finalize(() => this._loading.next(false))
-        );
-    }
-
-    crearGastoGeneral(gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta> {
+    crearGastoGeneral(gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }> {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.crearGastoGeneral(gasto).pipe(
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
+            map(dto => ({ ...dto, idGastoGeneral: dto.id })),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    eliminarGastoGeneral(idGastoGeneral: number): Observable<boolean> {
+    actualizarGastoGeneral(id: number, gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }>;
+    actualizarGastoGeneral(gastoConId: { idGastoGeneral: number; categoria: string; descripcion: string; monto: number }): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }>;
+    actualizarGastoGeneral(
+        idOrGasto: number | { idGastoGeneral: number; categoria: string; descripcion: string; monto: number },
+        gasto?: GastoGeneralDTOPeticion
+    ): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.eliminarGastoGeneral(idGastoGeneral).pipe(
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
+        let id: number;
+        let dto: GastoGeneralDTOPeticion;
+        if (typeof idOrGasto === 'number') {
+            id = idOrGasto;
+            dto = gasto!;
+        } else {
+            id = idOrGasto.idGastoGeneral;
+            dto = { categoria: idOrGasto.categoria, descripcion: idOrGasto.descripcion, monto: idOrGasto.monto, idConfiguracionReporteGrupos: 0 };
+        }
+        return this.apiService.actualizarGastoGeneral(id, dto).pipe(
+            map(d => ({ ...d, idGastoGeneral: d.id })),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    actualizarPorcentajeItems(items: ItemsDTOPeticion): Observable<ReportePorGrupos> {
+    eliminarGastoGeneral(id: number): Observable<void> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarPorcentajeItems(items).pipe(
+        return this.apiService.eliminarGastoGeneral(id).pipe(
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    // ── Métodos legacy que el componente aún llama ────────────────────────
+
+    actualizarPorcentajeParticipacionPrimerSemestre(
+        porcentajes: { idGrupo: string; nombreGrupo: string; porcentaje: number }[]
+    ): Observable<ReportePorGrupos> {
+        const dto: ActualizarParticipacionDTOPeticion = {
+            grupoId: 0,
+            porcentajeParticipacion: porcentajes[0]?.porcentaje ?? 0
+        };
+        return this.actualizarParticipacionGrupo(dto);
+    }
+
+    actualizarPorcentajeParticipacionSegundoSemestre(
+        porcentajes: { idGrupo: string; nombreGrupo: string; porcentaje: number }[]
+    ): Observable<ReportePorGrupos> {
+        const dto: ActualizarParticipacionDTOPeticion = {
+            grupoId: 0,
+            porcentajeParticipacion: porcentajes[0]?.porcentaje ?? 0
+        };
+        return this.actualizarParticipacionGrupo(dto);
+    }
+
+    actualizarPorcentajeItems(items: { item1: number; item2: number }): Observable<ReportePorGrupos> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.actualizarItems(items.item1, items.item2).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    actualizarPorcentajeImprevistos(nuevoValor: number): Observable<ReportePorGrupos> {
+    actualizarPorcentajeImprevistos(valor: number): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarPorcentajeImprevistos(nuevoValor).pipe(
+        return this.apiService.actualizarImprevistos(valor).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    actualizarValorVigenciasAnteriores(valoresGrupo: ValorGrupoDTOPeticion[]): Observable<ReportePorGrupos> {
+    actualizarValorVigenciasAnteriores(
+        valoresGrupo: { idGrupo: string; nombreGrupo: string; valor: number }[]
+    ): Observable<ReportePorGrupos> {
+        // No-op: vigencias se actualizan por grupo individualmente desde el componente
+        return new Observable<ReportePorGrupos>(obs => {
+            if (this._reporteGrupos.value) { obs.next(this._reporteGrupos.value); }
+            obs.complete();
+        });
+    }
+
+    actualizarVigenciasAnterioresGrupo(grupoId: number, valor: number): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarValorVigenciasAnteriores(valoresGrupo).pipe(
+        return this.apiService.actualizarVigenciasAnterioresGrupo(grupoId, valor).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }

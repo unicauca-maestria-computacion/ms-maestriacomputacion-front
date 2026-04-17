@@ -6,6 +6,10 @@ export const environment = {
     production: false,
     api_url: 'http://localhost:8091/api/',
 
+    gestion_informacion_presupuestaria: {
+        api_url: 'http://localhost:8091/api/',
+    },
+
     firebaseConfig: {
         apiKey: 'AIzaSyC-Dk2Ooux-jiipoYS4ri_FRtOJjVu8WCs',
         authDomain: 'prod-maestria-computacion.firebaseapp.com',
@@ -23,7 +27,7 @@ export const gestion_informacion_presupuestaria = {
 
 export const gestion_matricula_financiera = {
     production: false,
-    api_url: 'http://localhost:8092/api/gestion-matricula-financiera/',
+    api_url: 'http://localhost:8092/api/v1/gestion-matricula-financiera/',
 };
 
 export const gestion_solicitudes = {

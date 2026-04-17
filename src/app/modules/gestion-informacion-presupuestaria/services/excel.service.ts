@@ -7,7 +7,7 @@ import {
     ProyeccionEstudiante,
     ReporteEstudiantes,
     ReporteProyeccionEstudiantes,
-    PeriodoAcademico,
+    PeriodoFinanciero,
     ReportePorGrupoFila
 } from '../models/domain-models';
 
@@ -100,7 +100,7 @@ export class ExcelService {
         workbook.created = new Date();
 
         const config = data.objConfiguracionReporteGrupos;
-        const periodo = config.objPeriodoAcademico;
+        const periodo = config.objPeriodoFinanciero;
 
         this._crearHojaResumenGeneral(workbook, data);
         this._crearHojaDistribucionFinanciera(workbook, data);
@@ -117,7 +117,7 @@ export class ExcelService {
 
     private _crearHojaResumenEjecutivo(
         wb: ExcelJS.Workbook,
-        periodo: PeriodoAcademico,
+        periodo: PeriodoFinanciero,
         config: ConfiguracionReporteFinanciero,
         estudiantes: ProyeccionEstudiante[],
         esProyeccion: boolean
@@ -151,7 +151,6 @@ export class ExcelService {
         this._agregarEncabezadoSeccion(ws, 'CONFIGURACIÓN FINANCIERA', numCols);
 
         const configRows: [string, string | number][] = [
-            ['Valor Matrícula (SMLV)',        `${config.valorMatricula} SMLV`],
             ['Valor SMLV',                    this._formatCurrency(config.valorSMLV)],
             ['Recursos Computacionales',      this._formatCurrency(config.recursosComputacionales)],
             ['Biblioteca',                    this._formatCurrency(config.biblioteca)],
@@ -274,20 +273,20 @@ export class ExcelService {
         let pendientes = 0;
 
         estudiantes.forEach((est, idx) => {
-            const totalDesc = est.porcentajeVotacion + est.porcentajeBeca + est.porcentajeEgresado;
+            const totalDesc = (est.aplicaVotacion ? (config.porcentajeVotacionFijo ?? 0.10) : 0) * (est.valorEnSMLV ?? 0) * config.valorSMLV + est.porcentajeBeca * (est.valorEnSMLV ?? 0) * config.valorSMLV + (est.aplicaEgresado ? (config.porcentajeEgresadoFijo ?? 0.05) : 0) * (est.valorEnSMLV ?? 0) * config.valorSMLV;
             const valorProy = esProyeccion
-                ? config.valorMatricula * config.valorSMLV * (1 - totalDesc)
+                ? (est.valorEnSMLV ?? 0) * config.valorSMLV * (1 - totalDesc)
                 : null;
 
             const rowValues: any[] = [
                 est.codigoEstudiante,
                 est.identificacion,
-                `${est.nombre} ${est.apellido}`,
+                `${est.nombre} ${est.apellido}`, // Concatenar nombre y apellido
                 est.grupoInvestigacion,
-                `${(est.porcentajeVotacion * 100).toFixed(0)}%`,
-                `${(est.porcentajeBeca * 100).toFixed(0)}%`,
-                `${(est.porcentajeEgresado * 100).toFixed(0)}%`,
-                `${(totalDesc * 100).toFixed(0)}%`,
+                this._formatPercent(est.aplicaVotacion ? (config.porcentajeVotacionFijo ?? 0.10) : 0),
+                this._formatPercent(est.porcentajeBeca),
+                this._formatPercent(est.aplicaEgresado ? (config.porcentajeEgresadoFijo ?? 0.05) : 0),
+                this._formatPercent(totalDesc),
                 est.estaPago ? 'Pagado' : 'Pendiente',
             ];
             if (esProyeccion && valorProy !== null) {
@@ -352,19 +351,17 @@ export class ExcelService {
         headers.forEach((h, i) => this._estilizarCeldaHeader(hRow.getCell(i + 1), h));
         hRow.height = 22;
 
-        const baseMatricula = config.valorMatricula * config.valorSMLV;
-
         const conBeca      = estudiantes.filter(e => e.porcentajeBeca > 0);
-        const conVotacion  = estudiantes.filter(e => e.porcentajeVotacion > 0);
-        const conEgresado  = estudiantes.filter(e => e.porcentajeEgresado > 0);
+        const conVotacion  = estudiantes.filter(e => e.aplicaVotacion === true);
+        const conEgresado  = estudiantes.filter(e => e.aplicaEgresado === true);
 
         const promBeca     = conBeca.length     ? conBeca.reduce((s, e) => s + e.porcentajeBeca, 0)      / conBeca.length      : 0;
-        const promVotacion = conVotacion.length ? conVotacion.reduce((s, e) => s + e.porcentajeVotacion, 0) / conVotacion.length : 0;
-        const promEgresado = conEgresado.length ? conEgresado.reduce((s, e) => s + e.porcentajeEgresado, 0) / conEgresado.length : 0;
+        const promVotacion = conVotacion.length ? conVotacion.length > 0 ? (config.porcentajeVotacionFijo ?? 0.10) : 0 : 0;
+        const promEgresado = conEgresado.length ? conEgresado.length > 0 ? (config.porcentajeEgresadoFijo ?? 0.05) : 0 : 0;
 
-        const impactoBeca      = conBeca.reduce((s, e)     => s + e.porcentajeBeca * baseMatricula, 0);
-        const impactoVotacion  = conVotacion.reduce((s, e) => s + e.porcentajeVotacion * baseMatricula, 0);
-        const impactoEgresado  = conEgresado.reduce((s, e) => s + e.porcentajeEgresado * baseMatricula, 0);
+        const impactoBeca      = conBeca.reduce((s, e)     => s + e.porcentajeBeca * (e.valorEnSMLV ?? 0) * config.valorSMLV, 0);
+        const impactoVotacion  = conVotacion.reduce((s, e) => s + (config.porcentajeVotacionFijo ?? 0.10) * (e.valorEnSMLV ?? 0) * config.valorSMLV, 0);
+        const impactoEgresado  = conEgresado.reduce((s, e) => s + (config.porcentajeEgresadoFijo ?? 0.05) * (e.valorEnSMLV ?? 0) * config.valorSMLV, 0);
 
         const dataRows: any[][] = [
             ['Beca Académica',      conBeca.length,     `${(promBeca * 100).toFixed(1)}%`,     `${(promBeca * 100).toFixed(1)}%`,     this._formatCurrency(impactoBeca)],
@@ -436,7 +433,7 @@ export class ExcelService {
     private _crearHojaResumenGeneral(wb: ExcelJS.Workbook, data: ReportePorGrupos): void {
         const ws = wb.addWorksheet('RESUMEN GENERAL');
         const config = data.objConfiguracionReporteGrupos;
-        const periodo = config.objPeriodoAcademico;
+        const periodo = config.objPeriodoFinanciero;
         const numCols = 4;
 
         ws.columns = [{ width: 36 }, { width: 26 }, { width: 20 }, { width: 20 }];
@@ -449,7 +446,7 @@ export class ExcelService {
         this._agregarEncabezadoSeccion(ws, 'CONFIGURACIÓN FINANCIERA', numCols);
 
         const configRows: [string, string][] = [
-            ['AUI Universidad (%)',       `${config.aUIPorcentaje}%`],
+            ['AUI Universidad (%)',       this._formatPercent(config.aUIPorcentaje)],
             ['AUI Universidad (Valor)',   this._formatCurrency(config.aUIValor)],
             ['Excedentes Maestría',       this._formatCurrency(config.excedentesMaestria)],
             ['Ingresos Netos',            this._formatCurrency(config.ingresosNetos)],
@@ -470,9 +467,9 @@ export class ExcelService {
         const semRows: [string, string][] = [
             ['Aporte 1er Semestre',         this._formatCurrency(data.aportePrimerSemestre)],
             ['Aporte 2do Semestre',         this._formatCurrency(data.aporteSegundoSemestre)],
-            ['Participación 1er Sem (%)',   `${data.participacionPrimerSemestre}%`],
-            ['Participación 2do Sem (%)',   `${data.participacionSegundoSemestre}%`],
-            ['Participación Año (%)',        `${data.participacionPorAño}%`],
+            ['Participación 1er Sem (%)',   this._formatPercent(data.participacionPrimerSemestre)],
+            ['Participación 2do Sem (%)',   this._formatPercent(data.participacionSegundoSemestre)],
+            ['Participación Año (%)',        this._formatPercent(data.participacionPorAño)],
         ];
 
         semRows.forEach(([label, value], i) => {
@@ -487,9 +484,9 @@ export class ExcelService {
         this._agregarEncabezadoSeccion(ws, 'DISTRIBUCIÓN DE ÍTEMS', numCols);
 
         const itemsRows: [string, string][] = [
-            ['Item 1 (%)',              `${config.item1}%`],
-            ['Item 2 (%)',              `${config.item2}%`],
-            ['Imprevistos (%)',         `${config.imprevistos}%`],
+            ['Item 1 (%)',              this._formatPercent(config.item1)],
+            ['Item 2 (%)',              this._formatPercent(config.item2)],
+            ['Imprevistos (%)',         this._formatPercent(config.imprevistos)],
             ['Presupuesto Ítem 1',      this._formatCurrency(data.presupuestoPorGrupoItem1)],
             ['Presupuesto Ítem 2',      this._formatCurrency(data.presupuestoPorGrupoItem2)],
             ['Presupuesto Total',       this._formatCurrency(data.presupuestoPorGrupo)],
@@ -568,9 +565,9 @@ export class ExcelService {
                     this._formatCurrency(fila.totalNeto),
                     this._formatCurrency(fila.aportePrimerSemestre),
                     this._formatCurrency(fila.aporteSegundoSemestre),
-                    `${fila.participacionPrimerSemestre}%`,
-                    `${fila.participacionSegundoSemestre}%`,
-                    `${fila.participacionPorAño}%`,
+                    this._formatPercent(fila.participacionPrimerSemestre),
+                    this._formatPercent(fila.participacionSegundoSemestre),
+                    this._formatPercent(fila.participacionPorAño),
                     this._formatCurrency(fila.presupuestoPorGrupoItem1),
                     this._formatCurrency(fila.presupuestoPorGrupoItem2),
                     this._formatCurrency(fila.presupuestoPorGrupo),
@@ -589,9 +586,9 @@ export class ExcelService {
                 this._formatCurrency(data.totalNeto),
                 this._formatCurrency(data.aportePrimerSemestre),
                 this._formatCurrency(data.aporteSegundoSemestre),
-                `${data.participacionPrimerSemestre}%`,
-                `${data.participacionSegundoSemestre}%`,
-                `${data.participacionPorAño}%`,
+                this._formatPercent(data.participacionPrimerSemestre),
+                this._formatPercent(data.participacionSegundoSemestre),
+                this._formatPercent(data.participacionPorAño),
                 this._formatCurrency(data.presupuestoPorGrupoItem1),
                 this._formatCurrency(data.presupuestoPorGrupoItem2),
                 this._formatCurrency(data.presupuestoPorGrupo),
@@ -653,7 +650,7 @@ export class ExcelService {
     private _crearHojaItemsPresupuesto(
         wb: ExcelJS.Workbook,
         config: any,
-        periodo: PeriodoAcademico
+        periodo: PeriodoFinanciero
     ): void {
         const ws = wb.addWorksheet('ÍTEMS Y PRESUPUESTO');
         const numCols = 3;
@@ -837,6 +834,14 @@ export class ExcelService {
         }).format(value);
     }
 
+    private _formatPercent(value: number): string {
+        if (value === null || value === undefined) return '0%';
+        // Si el valor es ratio (<= 1), convertir a porcentaje escala 0-100
+        // Excepción: 0 es 0%, pero 1 es 100%. Valores > 1 se asumen ya en escala 100.
+        const p = value <= 1 && value !== 0 ? value * 100 : value;
+        return `${Math.round(p)}%`;
+    }
+
     private _guardarWorkbook(workbook: ExcelJS.Workbook, nombreArchivo: string): void {
         workbook.xlsx.writeBuffer().then((buffer: ArrayBuffer) => {
             const blob = new Blob([buffer], {
@@ -848,3 +853,7 @@ export class ExcelService {
         });
     }
 }
+
+
+
+

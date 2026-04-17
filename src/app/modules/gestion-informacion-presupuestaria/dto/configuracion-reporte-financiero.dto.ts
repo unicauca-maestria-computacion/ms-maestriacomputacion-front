@@ -1,26 +1,20 @@
-import { PeriodoAcademicoDTORespuesta, PeriodoAcademicoDTOPeticion } from "./periodo-academico.dto";
+import { PeriodoAcademicoDto } from './periodo-financiero.dto';
 
 export interface ConfiguracionReporteFinancieroDTORespuesta {
     id: number;
-    esReporteFinal: boolean;
     biblioteca: number;
     recursosComputacionales: number;
-    valorMatricula: number;
     valorSMLV: number;
-    totalNeto: number;
-    totalDescuentos: number;
-    totalIngresos: number;
-    objPeriodoAcademico: PeriodoAcademicoDTORespuesta;
+    esReporteFinal: boolean;
+    periodo: PeriodoAcademicoDto;
+    porcentajeVotacionFijo: number;
+    porcentajeEgresadoFijo: number;
 }
 
 export interface ConfiguracionReporteFinancieroDTOPeticion {
-    id?: number;
     biblioteca: number;
     recursosComputacionales: number;
-    valorMatricula: number;
     valorSMLV: number;
-    totalNeto: number;
-    totalDescuentos: number;
-    totalIngresos: number;
-    objPeriodoAcademico: PeriodoAcademicoDTORespuesta;
+    esReporteFinal: boolean;
+    objPeriodoFinanciero?: any;
 }

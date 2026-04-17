@@ -6,8 +6,11 @@
             </app-opciones-presupuesto>
     
             <!-- Selector de Periodo Académico -->
-            <app-periodo-academico-selector (periodoSeleccionado)="onPeriodoChange($event)" [excluirUltimo]="true">
-            </app-periodo-academico-selector>
+            <app-periodo-financiero-selector [modo]="'cerrados'"
+                [mensajeVacio]="'No hay períodos académicos finalizados para mostrar.'"
+                (periodoSeleccionado)="onPeriodoChange($event)"
+                (sinPeriodosChange)="sinPeriodos = $event">
+            </app-periodo-financiero-selector>
         </div>
 
 
@@ -19,7 +22,7 @@
         </div>
 
         <!-- Sin datos -->
-        <div *ngIf="!cargando && !configuracion" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
+        <div *ngIf="!cargando && !configuracion && !sinPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
             <i class="pi pi-inbox text-4xl text-400"></i>
             <span class="text-600 text-lg">Seleccione un período académico para cargar el reporte.</span>
         </div>
@@ -52,14 +55,6 @@
                     </span>
 
                     <span class="p-float-label">
-                        <p-inputNumber id="float-matricula" [ngModel]="configuracion.valorMatricula"
-                            [minFractionDigits]="2" suffix=" SMLV"
-                            [readonly]="true" [disabled]="true" styleClass="config-input">
-                        </p-inputNumber>
-                        <label for="float-matricula">Valor Matrícula (SMLV)</label>
-                    </span>
-
-                    <span class="p-float-label">
                         <p-inputNumber id="float-smlv" [ngModel]="configuracion.valorSMLV"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                             [readonly]="true" [disabled]="true" styleClass="config-input">
@@ -71,7 +66,7 @@
             </div>
 
             <!-- Tabla de estudiantes -->
-            <div style="overflow-x: auto;">
+            <div class="table-responsive-wrapper">
                 <p-table [value]="estudiantes" responsiveLayout="stack" breakpoint="960px"
                     styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped">
 
@@ -152,29 +147,28 @@
                             </td>
                         </tr>
                     </ng-template>
-
-                    <ng-template pTemplate="footer">
-                        <tr>
-                            <td colspan="12" class="text-right">
-                                <div class="totales-container">
-                                    <div class="total-item">
-                                        <span class="total-label">Total Bruto:</span>
-                                        <span class="total-value">{{ formatCurrency(totalBruto) }}</span>
-                                    </div>
-                                    <div class="total-item">
-                                        <span class="total-label">Total Descuentos:</span>
-                                        <span class="total-value">{{ formatCurrency(totalDescuentosCalculado) }}</span>
-                                    </div>
-                                    <div class="total-item highlight">
-                                        <span class="total-label">Ingresos Totales Después de Descuentos:</span>
-                                        <span class="total-value">{{ formatCurrency(totalIngresosNetos) }}</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
                 </p-table>
+            </div>
+
+            <!-- Totales: fuera de la tabla para garantizar visibilidad en mobile -->
+            <div class="totales-container mt-3">
+                <div class="total-item">
+                    <span class="total-label">Total Bruto:</span>
+                    <span class="total-value">{{ formatCurrency(totalBruto) }}</span>
+                </div>
+                <div class="total-item">
+                    <span class="total-label">Total Descuentos:</span>
+                    <span class="total-value">{{ formatCurrency(totalDescuentosCalculado) }}</span>
+                </div>
+                <div class="total-item highlight">
+                    <span class="total-label">Ingresos Totales Después de Descuentos:</span>
+                    <span class="total-value">{{ formatCurrency(totalIngresosNetos) }}</span>
+                </div>
             </div>
         </div>
     </p-card>
 </div>
+
+
+
+

@@ -1,15 +1,22 @@
 export interface PeriodoAcademico {
-    periodo: number;
-    año: number;
+    id?: number;
+    periodo?: number;
+    año?: number;
+    tagPeriodo?: number;
+    fechaInicio?: string;
+    fechaFin?: string;
+    fechaFinMatricula?: string;
+    descripcion?: string;
+    estado?: string;
 }
 
 export interface Docente {
     nombre: string;
+    apellido?: string;
 }
 
 export interface Materia {
     codigo_oid: string;
-    semestreAcademico: number;
     materia: string;
     objDocente: Docente;
     grupoClase: string;
@@ -20,10 +27,9 @@ export interface MatriculaAcademica {
     materias: Materia[];
     objPeriodoAcademico: PeriodoAcademico;
 }
- 
+
 export interface MatriculaFinanciera {
-    fechaMatricula: Date;
-    valorMatricula: number;
+    valorEnSMLV: number | null;
     objPeriodoAcademico: PeriodoAcademico;
 }
 
@@ -45,8 +51,10 @@ export interface Estudiante {
     cohorte: string;
     periodoIngreso: string;
     semestreFinanciero: number;
+    semestreAcademico?: number;
+    valorEnSMLV?: number | null;
     matriculasFinancieras: MatriculaFinanciera[];
     descuentos: DescuentoFinanciero[];
     becas: BecaFinanciera[];
-    matriculasAcademicas: MatriculaAcademica[];
+    materias: Materia[];
 }

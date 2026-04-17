@@ -1,9 +1,21 @@
 export interface PeriodoAcademicoDTORespuesta {
-    periodo: number;
-    año: number;
+    id?: number;
+    periodo?: number;
+    anio?: number;
+    tagPeriodo?: number;
+    fechaInicio?: string;
+    fechaFin?: string;
+    fechaFinMatricula?: string;
+    descripcion?: string;
+    estado?: string;
 }
 
 export interface PeriodoAcademicoDTOPeticion {
-    periodo: number;
-    año: number;
+    tagPeriodo?: number;
+    anio?: number;
+    fechaInicio?: string;
+    fechaFin?: string;
+    fechaFinMatricula?: string;
+    descripcion?: string;
+    estado?: string;
 }

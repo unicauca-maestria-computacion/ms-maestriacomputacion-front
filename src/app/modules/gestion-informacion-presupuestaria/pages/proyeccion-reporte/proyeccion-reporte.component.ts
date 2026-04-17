@@ -4,9 +4,10 @@ import { takeUntil } from 'rxjs/operators';
 import { MessageService } from 'primeng/api';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { ConfiguracionReporteFinanciero, ProyeccionEstudiante, ReporteProyeccionEstudiantes } from '../../models/domain-models';
-import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
+import { PeriodoFinancieroDTORespuesta } from '../../dto/periodo-financiero.dto';
 import { ProyeccionEstudianteDTOPeticion } from '../../dto/proyeccion-estudiante.dto';
 import { ConfiguracionReporteFinancieroDTOPeticion } from '../../dto/configuracion-reporte-financiero.dto';
+import { TotalesReporteService } from '../../services/totales-reporte.service';
 
 interface EstudianteProyeccion extends ProyeccionEstudiante {
   nombreEstudiante: string;
@@ -34,12 +35,17 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
 
   cargando: boolean = false;
   guardando: boolean = false;
-  periodoSeleccionado: PeriodoAcademicoDTORespuesta | null = null;
+  periodoSeleccionado: PeriodoFinancieroDTORespuesta | null = null;
   periodoActualTexto: string = '';
+  sinPeriodos: boolean = false;
 
   configuracion: ConfiguracionReporteFinanciero | null = null;
   estudiantes: EstudianteProyeccion[] = [];
   clonedEstudiantes: { [s: string]: EstudianteProyeccion; } = {};
+
+  totalNetoCalculado: number = 0;
+  totalDescuentosCalculado: number = 0;
+  totalIngresosCalculado: number = 0;
 
   editandoCabecera: boolean = false;
   clonedCabecera: Partial<ConfiguracionReporteFinanciero> = {};
@@ -49,6 +55,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private facadeService: GestionInformacionPresupuestariaFacadeService,
     private cdr: ChangeDetectorRef,
+    private totalesService: TotalesReporteService,
   ) { }
 
   // --- Control de Edición Global ---
@@ -57,10 +64,11 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Initial load handled by selector component
+    // La carga de períodos la maneja el selector app-periodo-financiero-selector con [modo]="'activos'"
+    // que emite el período seleccionado via (periodoSeleccionado)="onPeriodoChange($event)"
   }
 
-  onPeriodoChange(periodo: PeriodoAcademicoDTORespuesta): void {
+  onPeriodoChange(periodo: PeriodoFinancieroDTORespuesta): void {
     this.periodoSeleccionado = periodo;
     // Logic to reload data with new period if API supports it.
     // Currently `actualizarConfiguracionProyeccion` doesn't seem to take period param directly in this component's usage?
@@ -77,7 +85,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     // AND "puedes hacer que periodo academico sea un componente ... y funcione igual y se muestre igual en las 3 paginas".
     // Use logic similar to ReporteFinal.
     // I will assume I should reload the projection. BUT if the service doesn't support it...
-    // `actualizarConfiguracionProyeccion` takes `ConfiguracionReporteFinancieroDTOPeticion` which HAS `objPeriodoAcademico`.
+    // `actualizarConfiguracionProyeccion` takes `ConfiguracionReporteFinancieroDTOPeticion` which HAS `objPeriodoFinanciero`.
     // `obtenerProyeccionEstudiantes` in fake-api just returns a mock.
     // Real API likely needs period. Red flag.
     // I will implement the callback. logic. TO be safe, I will just call `cargarProyeccion` but I can't pass the period if the service signature doesn't allow it.
@@ -101,27 +109,12 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     this.cargarProyeccion(periodo);
   }
 
-  cargarProyeccion(periodo?: PeriodoAcademicoDTORespuesta): void {
+  cargarProyeccion(periodo?: PeriodoFinancieroDTORespuesta): void {
     this.cargando = true;
-    // Note: Facade currently doesn't accept period for this call.
-    // I will call it as is. If the API supported it, I'd pass it.
-    // To make it look "working" with the selector, I should probably update `periodoActualTexto` based on the selector,
-    // OR update the data based on the API response.
-    // If the API response dictates the period, the selector should probably reflect that?
-    // But the selector drives the page.
-    // If I select "2023-1", and the data comes back as "2024-2", it's confusing.
-    // The previous code had `periodoActualTexto` populated from `data.periodo`.
-    // I will keep that behavior: The API tells us what period this projection is for.
-    // BUT the selector is an Input/Output.
-    // If I cannot drive the API with the selector, the selector is useless here.
-    // However, usually "Proyeccion" is for a specific future period. Maybe it's not navigatable?
-    // The user said "funcione igual ... en las 3 paginas".
-    // This implies Proyeccion SHOULD be navigatable.
-    // I will assume the Facade NEEDS to be updated to accept period, OR I leave it as is and just reload (maybe the backend handles state?).
-    // I'll stick to just reloading for now without arguments to avoid breaking signature if I'm not sure.
-    // AND I will update `periodoActualTexto` from data.
+    const tagPeriodo = periodo?.tagPeriodo ?? periodo?.periodo ?? undefined;
+    const anio = periodo?.anio ?? periodo?.año ?? undefined;
 
-    this.facadeService.obtenerProyeccionEstudiantes().pipe(takeUntil(this.destroy$)).subscribe({
+    this.facadeService.obtenerProyeccionEstudiantes(tagPeriodo, anio).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.procesarRespuesta(data);
         this.cargando = false;
@@ -148,6 +141,14 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     if (data.estudiantes && this.configuracion) {
       this.estudiantes = data.estudiantes.map(e => this.mapearEstudianteProyeccion(e));
     }
+    const totales = this.totalesService.fromBackend({
+      totalNeto: data.totalNeto,
+      totalDescuentos: data.totalDescuentos,
+      totalIngresos: data.totalIngresos
+    });
+    this.totalNetoCalculado      = totales.totalNeto;
+    this.totalDescuentosCalculado = totales.totalDescuentos;
+    this.totalIngresosCalculado  = totales.totalIngresos;
   }
 
   /**
@@ -169,24 +170,30 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
         this.estudiantes[index] = actualizado;
       }
     }
+    const totales = this.totalesService.fromBackend({
+      totalNeto: data.totalNeto,
+      totalDescuentos: data.totalDescuentos,
+      totalIngresos: data.totalIngresos
+    });
+    this.totalNetoCalculado      = totales.totalNeto;
+    this.totalDescuentosCalculado = totales.totalDescuentos;
+    this.totalIngresosCalculado  = totales.totalIngresos;
   }
 
   private mapearEstudianteProyeccion(e: ProyeccionEstudiante): EstudianteProyeccion {
-    const matricula = this.configuracion!.valorMatricula * this.configuracion!.valorSMLV;
-    // Backend envía ratios 0-1, usarlos directamente para cálculos
+    const smlvsEstudiante = e.valorEnSMLV ?? 0;
+    const matricula = smlvsEstudiante * this.configuracion!.valorSMLV;
+    const pctVotacion = this.configuracion!.porcentajeVotacionFijo ?? 0.10;
+    const pctEgresado = this.configuracion!.porcentajeEgresadoFijo ?? 0.05;
     const ratioBeca = e.porcentajeBeca ?? 0;
-    const ratioEgresado = e.porcentajeEgresado ?? 0;
-    const ratioVotacion = e.porcentajeVotacion ?? 0;
+    const valorVotacion = e.aplicaVotacion ? matricula * pctVotacion : 0;
+    const valorEgresado = e.aplicaEgresado ? matricula * pctEgresado : 0;
     const valorBeca = matricula * ratioBeca;
-    const valorEgresado = matricula * ratioEgresado;
-    const valorVotacion = matricula * ratioVotacion;
     const grupoDescuentos = valorBeca + valorEgresado + valorVotacion;
     const totalNeto = matricula + this.configuracion!.recursosComputacionales + this.configuracion!.biblioteca - grupoDescuentos;
     return {
       ...e,
-      porcentajeVotacion: this.toPercent(e.porcentajeVotacion),
       porcentajeBeca: this.toPercent(e.porcentajeBeca),
-      porcentajeEgresado: this.toPercent(e.porcentajeEgresado),
       nombreEstudiante: [e.nombre, e.apellido].filter(Boolean).join(' ') || e.codigoEstudiante,
       matricula,
       valorBeca,
@@ -221,13 +228,10 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     this.editandoCabecera = false;
 
     const configUpdate: ConfiguracionReporteFinancieroDTOPeticion = {
-      ...this.configuracion, // Send all current values
-      // Override with edited values (clonedCabecera should hold the bound models)
       biblioteca: this.clonedCabecera.biblioteca!,
       recursosComputacionales: this.clonedCabecera.recursosComputacionales!,
-      valorMatricula: this.clonedCabecera.valorMatricula!,
       valorSMLV: this.clonedCabecera.valorSMLV!,
-      objPeriodoAcademico: this.configuracion.objPeriodoAcademico
+      esReporteFinal: this.configuracion.esReporteFinal
     };
 
     this.facadeService.actualizarConfiguracionProyeccion(configUpdate).pipe(takeUntil(this.destroy$)).subscribe({
@@ -264,15 +268,13 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   }
 
   onRowEditSave(estudiante: EstudianteProyeccion) {
-    this.normalizarPorcentajesFila(estudiante);
-    if (estudiante.porcentajeVotacion < 0 || estudiante.porcentajeBeca < 0 || estudiante.porcentajeEgresado < 0) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Los porcentajes no pueden ser negativos.' });
+    if (estudiante.porcentajeBeca < 0) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'El porcentaje de beca no puede ser negativo.' });
       this.onRowEditCancel(estudiante, this.findIndexById(estudiante.codigoEstudiante));
       return;
     }
-    const sumaPorcentajes = estudiante.porcentajeVotacion + estudiante.porcentajeBeca + estudiante.porcentajeEgresado;
-    if (sumaPorcentajes > 100) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'La suma de % Votación, % Beca y % Egresado no puede superar 100 %.' });
+    if (estudiante.porcentajeBeca > 100) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'El porcentaje de beca no puede superar 100%.' });
       return;
     }
 
@@ -282,12 +284,16 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     const proyeccionUpdate: ProyeccionEstudianteDTOPeticion = {
       codigoEstudiante: estudiante.codigoEstudiante,
       estaPago: estudiante.estaPago,
-      porcentajeVotacion: this.toRatio(estudiante.porcentajeVotacion),
+      aplicaVotacion: estudiante.aplicaVotacion ?? false,
       porcentajeBeca: this.toRatio(estudiante.porcentajeBeca),
-      porcentajeEgresado: this.toRatio(estudiante.porcentajeEgresado)
+      aplicaEgresado: estudiante.aplicaEgresado ?? false
     };
 
-    this.facadeService.actualizarProyeccionEstudiante(proyeccionUpdate).pipe(takeUntil(this.destroy$)).subscribe({
+    this.facadeService.actualizarProyeccionEstudiante(
+      proyeccionUpdate,
+      this.periodoSeleccionado?.tagPeriodo ?? this.periodoSeleccionado?.periodo ?? undefined,
+      this.periodoSeleccionado?.anio ?? this.periodoSeleccionado?.año ?? undefined
+    ).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.actualizarSoloFilaModificada(data);
         delete this.clonedEstudiantes[estudiante.codigoEstudiante];
@@ -339,7 +345,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
 
   /** Calcula el porcentaje máximo para un campo de porcentaje (100 - suma de los otros dos). */
   getMaxPercent(estudiante: EstudianteProyeccion, campo: string): number {
-    const campos: (keyof EstudianteProyeccion)[] = ['porcentajeVotacion', 'porcentajeBeca', 'porcentajeEgresado'];
+    const campos: (keyof EstudianteProyeccion)[] = ['porcentajeBeca'];
     const otherSum = campos
       .filter(c => c !== campo)
       .reduce((acc, c) => acc + ((estudiante[c] as number) ?? 0), 0);
@@ -374,22 +380,18 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     this.recalcularFila(estudiante);
   }
 
-  /**
-   * Recalcula valorBeca, valorEgresado, valorVotacion, grupoDescuentos y totalNeto de una fila.
-   */
-  recalcularFila(estudiante: EstudianteProyeccion, campoModificado?: string, nuevoValor?: number): void {
+  recalcularFila(estudiante: EstudianteProyeccion, campoModificado?: string, nuevoValor?: any): void {
     if (!this.configuracion) return;
     if (campoModificado != null && nuevoValor != null) {
       (estudiante as any)[campoModificado] = nuevoValor;
     }
-    this.normalizarPorcentajesFila(estudiante, campoModificado);
-    const matricula = this.configuracion.valorMatricula * this.configuracion.valorSMLV;
+    const pctVotacion = this.configuracion.porcentajeVotacionFijo ?? 0.10;
+    const pctEgresado = this.configuracion.porcentajeEgresadoFijo ?? 0.05;
+    const matricula = (estudiante.valorEnSMLV ?? 0) * this.configuracion.valorSMLV;
     const ratioBeca = this.toRatio(estudiante.porcentajeBeca);
-    const ratioEgresado = this.toRatio(estudiante.porcentajeEgresado);
-    const ratioVotacion = this.toRatio(estudiante.porcentajeVotacion);
+    estudiante.valorVotacion = estudiante.aplicaVotacion ? matricula * pctVotacion : 0;
+    estudiante.valorEgresado = estudiante.aplicaEgresado ? matricula * pctEgresado : 0;
     estudiante.valorBeca = matricula * ratioBeca;
-    estudiante.valorEgresado = matricula * ratioEgresado;
-    estudiante.valorVotacion = matricula * ratioVotacion;
     estudiante.grupoDescuentos = estudiante.valorBeca + estudiante.valorEgresado + estudiante.valorVotacion;
     estudiante.totalNeto = matricula + this.configuracion.recursosComputacionales + this.configuracion.biblioteca - estudiante.grupoDescuentos;
   }
@@ -403,34 +405,12 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       if (v == null || isNaN(v)) return 0;
       return Math.round(Math.max(0, v) * 100) / 100;
     };
-    estudiante.porcentajeVotacion = clamp0(estudiante.porcentajeVotacion);
     estudiante.porcentajeBeca = clamp0(estudiante.porcentajeBeca);
-    estudiante.porcentajeEgresado = clamp0(estudiante.porcentajeEgresado);
 
-    if (campoModificado) {
+    if (campoModificado === 'porcentajeBeca') {
       const max = this.getMaxPercent(estudiante, campoModificado);
-      (estudiante as any)[campoModificado] = Math.round(Math.min((estudiante as any)[campoModificado], max) * 100) / 100;
-    } else {
-      const campos: (keyof EstudianteProyeccion)[] = ['porcentajeVotacion', 'porcentajeBeca', 'porcentajeEgresado'];
-      for (const campo of campos) {
-        const max = this.getMaxPercent(estudiante, campo);
-        (estudiante as any)[campo] = Math.round(Math.min((estudiante as any)[campo] as number, max) * 100) / 100;
-      }
+      estudiante.porcentajeBeca = Math.round(Math.min(estudiante.porcentajeBeca, max) * 100) / 100;
     }
-  }
-
-  /** Total Neto: solo estudiantes que han pagado (estaPago === true). */
-  get totalNetoCalculado(): number {
-    return this.estudiantes
-      .filter(e => e.estaPago)
-      .reduce((acc, e) => acc + e.totalNeto, 0);
-  }
-
-  /** Total Descuentos: solo estudiantes que han pagado (estaPago === true). */
-  get totalDescuentosCalculado(): number {
-    return this.estudiantes
-      .filter(e => e.estaPago)
-      .reduce((acc, e) => acc + e.grupoDescuentos, 0);
   }
 
   formatCurrency(value: number): string {
@@ -456,3 +436,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     console.log('Descargando proyección reporte...');
   }
 }
+
+
+
+

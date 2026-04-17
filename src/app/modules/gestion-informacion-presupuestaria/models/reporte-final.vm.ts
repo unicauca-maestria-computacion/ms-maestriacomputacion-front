@@ -26,15 +26,16 @@ export function mapToReporteFinalVM(
   e: ProyeccionEstudiante,
   cfg: ConfiguracionReporteFinanciero,
 ): ReporteFinalVM {
-  // valorMatricula = nº de SMLVs; matrícula en COP = valorMatricula × valorSMLV
-  const matricula = (cfg.valorMatricula || 0) * (cfg.valorSMLV || 0);
+  // valorEnSMLV viene del micro financiero por estudiante (ej: 6, 1, null).
+  const smlvsEstudiante = e.valorEnSMLV ?? 0;
+  const matricula = smlvsEstudiante * (cfg.valorSMLV || 0);
   const recursosComputacionales = cfg.recursosComputacionales || 0;
   const biblioteca = cfg.biblioteca || 0;
 
   // porcentajeBeca/Votacion/Egresado son ratios decimales (0.20 = 20%)
-  const valorBeca      = matricula * (e.porcentajeBeca     || 0);
-  const valorEgresado  = matricula * (e.porcentajeEgresado || 0);
-  const valorVotacion  = matricula * (e.porcentajeVotacion || 0);
+  const valorBeca      = matricula * (e.porcentajeBeca || 0);
+  const valorEgresado  = matricula * (e.aplicaEgresado ? (cfg.porcentajeEgresadoFijo ?? 0.05) : 0);
+  const valorVotacion  = matricula * (e.aplicaVotacion ? (cfg.porcentajeVotacionFijo ?? 0.10) : 0);
   const grupoDescuentos = valorBeca + valorEgresado + valorVotacion;
   const totalNeto = matricula + recursosComputacionales + biblioteca - grupoDescuentos;
 
@@ -50,3 +51,7 @@ export function mapToReporteFinalVM(
     totalNeto,
   };
 }
+
+
+
+

@@ -1,13 +1,12 @@
 import {
     environment,
-    gestion_solicitudes,                    
+    gestion_solicitudes,
     gestion_autenticacion,
     gestion_expertos,
     gestion_egresados,
     gestion_trabajo_grado,
     gestion_docentes_estudiantes,
     evaluacion_docente,
-    gestion_informacion_presupuestaria,
     gestion_matricula_financiera,
 } from 'src/environments/environment';
 
@@ -43,16 +42,8 @@ export function backendEvalucionDocente(path: string): string {
     return evaluacion_docente.api_url.concat(path);
 }
 
-export function backendReportesEstudiantes(path: string): string {
-    return gestion_informacion_presupuestaria.api_url.concat('reportes-estudiantes/' + path);
-}
-
-export function backendReportesGrupos(path: string): string {
-    return gestion_informacion_presupuestaria.api_url.concat('reportes-grupos/' + path);
-}
-
-export function backendPeriodosAcademicos(): string {
-    return gestion_informacion_presupuestaria.api_url.concat('periodos-academicos');
+export function backendInfoPresupuestaria(path: string): string {
+    return environment.gestion_informacion_presupuestaria.api_url.concat(path);
 }
 
 export function backendGestionMatriculaFinanciera(path: string): string {

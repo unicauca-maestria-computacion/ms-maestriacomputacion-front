@@ -27,8 +27,6 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
     semestres: { label: string; value: number }[] = [];
     semestreSeleccionado: number | null = null;
 
-    fechaSeleccionada: Date | null = null;
-
     constructor(
         private facadeService: GestionMatriculaFinancieraFacadeService,
         private messageService: MessageService,
@@ -55,10 +53,8 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
                 // Restaurar filtros desde la fachada
                 const periodoGuardado = this.facadeService.getPeriodoFiltro();
                 const semestreGuardado = this.facadeService.getSemestreFiltro();
-                const fechaGuardada = this.facadeService.getFechaFiltro();
 
                 if (periodoGuardado && this.periodos.some(p => p.año === periodoGuardado.año && p.periodo === periodoGuardado.periodo)) {
-                    // Buscar el objeto exacto de la lista actual para que el dropdown funcione (comparacion de objetos en PrimeNG)
                     this.periodoSeleccionado = this.periodos.find(p => p.año === periodoGuardado.año && p.periodo === periodoGuardado.periodo) || null;
                 } else if (periodos.length > 0) {
                     this.periodoSeleccionado = periodos[0];
@@ -67,10 +63,6 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
                 if (semestreGuardado !== null) {
                     this.semestreSeleccionado = semestreGuardado;
-                }
-                
-                if (fechaGuardada) {
-                    this.fechaSeleccionada = new Date(fechaGuardada);
                 }
 
                 if (this.periodoSeleccionado) {
@@ -136,43 +128,15 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
     onFiltroChange(): void {
         this.facadeService.setSemestreFiltro(this.semestreSeleccionado);
-        this.facadeService.setFechaFiltro(this.fechaSeleccionada);
         this.aplicarFiltros();
     }
 
     aplicarFiltros(): void {
         this.estudiantesFiltrados = this.estudiantes.filter(estudiante => {
-            // Filtro por semestre
-            const cumpleSemestre = this.semestreSeleccionado === 0 || 
+            const cumpleSemestre = this.semestreSeleccionado === 0 ||
                                  estudiante.semestreFinanciero === this.semestreSeleccionado;
-            
-            // Filtro por fecha de matrícula
-            let cumpleFecha = true;
-            if (this.fechaSeleccionada) {
-                const fechaM = this.obtenerFechaMatricula(estudiante);
-                if (fechaM) {
-                    // Comparar solo fecha sin hora
-                    const d1 = new Date(this.fechaSeleccionada).setHours(0,0,0,0);
-                    const d2 = new Date(fechaM).setHours(0,0,0,0);
-                    cumpleFecha = d1 === d2;
-                } else {
-                    cumpleFecha = false;
-                }
-            }
-
-            return cumpleSemestre && cumpleFecha;
+            return cumpleSemestre;
         });
-    }
-
-    obtenerFechaMatricula(estudiante: Estudiante): Date | null {
-        if (!this.periodoSeleccionado || !estudiante.matriculasFinancieras) return null;
-        
-        const matricula = estudiante.matriculasFinancieras.find(m => 
-            m.objPeriodoAcademico.año === this.periodoSeleccionado?.año && 
-            m.objPeriodoAcademico.periodo === this.periodoSeleccionado?.periodo
-        );
-        
-        return matricula ? matricula.fechaMatricula : null;
     }
 
     verDetalle(estudiante: Estudiante): void {

@@ -3,9 +3,10 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MessageService } from 'primeng/api';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
-import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
+import { PeriodoFinancieroDTOPeticion, PeriodoFinancieroDTORespuesta } from '../../dto/periodo-financiero.dto';
 import { ConfiguracionReporteFinanciero, ProyeccionEstudiante } from '../../models/domain-models';
 import { ReporteFinalVM, mapToReporteFinalVM } from '../../models/reporte-final.vm';
+import { TotalesReporteService } from '../../services/totales-reporte.service';
 
 @Component({
   selector: 'app-reporte-final',
@@ -19,30 +20,36 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   cargando: boolean = false;
-  periodoSeleccionado: PeriodoAcademicoDTORespuesta | null = null;
+  periodoSeleccionado: PeriodoFinancieroDTORespuesta | null = null;
+  sinPeriodos: boolean = false;
 
   configuracion: ConfiguracionReporteFinanciero | null = null;
   estudiantes: ReporteFinalVM[] = [];
+
+  totalBruto: number = 0;
+  totalDescuentosCalculado: number = 0;
+  totalIngresosNetos: number = 0;
 
   constructor(
     private facadeService: GestionInformacionPresupuestariaFacadeService,
     private messageService: MessageService,
     private cdr: ChangeDetectorRef,
+    private totalesService: TotalesReporteService,
   ) { }
 
   ngOnInit(): void {
     // Initial load handled by selector component output
   }
 
-  onPeriodoChange(periodo: PeriodoAcademicoDTORespuesta): void {
+  onPeriodoChange(periodo: PeriodoFinancieroDTORespuesta): void {
     this.periodoSeleccionado = periodo;
     this.cargarReporte(periodo);
   }
 
-  cargarReporte(periodoObj: PeriodoAcademicoDTORespuesta): void {
+  cargarReporte(periodoObj: PeriodoFinancieroDTORespuesta): void {
     this.cargando = true;
 
-    const periodo: PeriodoAcademicoDTOPeticion = {
+    const periodo: PeriodoFinancieroDTOPeticion = {
       periodo: periodoObj.periodo,
       año: periodoObj.año
     };
@@ -59,6 +66,14 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
           );
         }
 
+        const totales = this.totalesService.fromBackend({
+          totalNeto: data?.totalNeto,
+          totalDescuentos: data?.totalDescuentos,
+          totalIngresos: data?.totalIngresos
+        });
+        this.totalBruto              = totales.totalNeto;
+        this.totalDescuentosCalculado = totales.totalDescuentos;
+        this.totalIngresosNetos      = totales.totalIngresos;
         this.cargando = false;
         this.cdr.markForCheck();
       },
@@ -73,20 +88,6 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       }
     });
-  }
-
-  get totalBruto(): number {
-    return this.estudiantes.reduce(
-      (acc, e) => acc + (e.matricula || 0) + (e.recursosComputacionales || 0) + (e.biblioteca || 0), 0
-    );
-  }
-
-  get totalDescuentosCalculado(): number {
-    return this.estudiantes.reduce((acc, e) => acc + (e.grupoDescuentos || 0), 0);
-  }
-
-  get totalIngresosNetos(): number {
-    return this.estudiantes.reduce((acc, e) => acc + (e.totalNeto || 0), 0);
   }
 
   ngOnDestroy(): void {
@@ -113,3 +114,7 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
   }
 
 }
+
+
+
+

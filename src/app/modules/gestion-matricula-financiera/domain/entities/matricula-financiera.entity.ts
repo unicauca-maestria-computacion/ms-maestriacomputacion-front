@@ -8,7 +8,7 @@ export type EstadoMatricula = 'PENDIENTE' | 'AL_DIA' | 'MORA' | 'EXONERADO' | 'B
 export type ModalidadPago   = 'CONTADO' | 'CUOTAS' | 'BECA' | 'CONVENIO';
 
 export interface MatriculaFinancieraProps {
-  readonly id: string;
+  readonly id: number;
   readonly codigoEstudiante: string;
   readonly nombreEstudiante: string;
   readonly periodoAcademico: string;
@@ -23,7 +23,7 @@ export interface MatriculaFinancieraProps {
 }
 
 export class MatriculaFinanciera {
-  readonly id: string;
+  readonly id: number;
   readonly codigoEstudiante: string;
   readonly nombreEstudiante: string;
   readonly periodoAcademico: string;

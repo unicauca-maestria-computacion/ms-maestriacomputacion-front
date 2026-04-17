@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { PeriodoAcademicoDTORespuesta } from '../../dto/periodo-academico.dto';
+import { PeriodoFinancieroDTORespuesta } from '../../dto/periodo-financiero.dto';
 import { GestionInformacionPresupuestariaFacadeService } from '../../services/facade.service';
 import { ExcelService } from '../../services/excel.service';
 import { MessageService } from 'primeng/api';
@@ -10,14 +10,13 @@ import { MessageService } from 'primeng/api';
   selector: 'app-descargar-reporte-dialog',
   templateUrl: './descargar-reporte-dialog.component.html',
   styleUrls: ['./descargar-reporte-dialog.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnChanges {
   private destroy$ = new Subject<void>();
 
   @Input() display: boolean = false;
   @Input() activeReportCode: string = '';
-  @Input() activePeriod: PeriodoAcademicoDTORespuesta | null = null;
+  @Input() activePeriod: PeriodoFinancieroDTORespuesta | null = null;
   @Output() displayChange = new EventEmitter<boolean>();
 
   reportOptions = [
@@ -27,7 +26,7 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
   ];
 
   periodOptions: { name: string; value: string }[] = [];
-  allPeriodOptions: { name: string; value: string; period: PeriodoAcademicoDTORespuesta }[] = [];
+  allPeriodOptions: { name: string; value: string; period: PeriodoFinancieroDTORespuesta }[] = [];
   selectedReport: string = '';
   selectedPeriodKey: string = '';
   loadingPeriods: boolean = false;
@@ -36,29 +35,36 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
   constructor(
     private facadeService: GestionInformacionPresupuestariaFacadeService,
     private excelService: ExcelService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.cargarPeriodos();
+    // Los períodos se cargan cuando el dialog se muestra por primera vez (onDialogShow)
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Actualizar selección cuando cambia el período o el tipo de reporte desde el padre
-    if ((changes['activePeriod'] || changes['activeReportCode']) && this.allPeriodOptions.length > 0) {
+    // Sincronizar si cambia el periodo activo, el tipo de reporte, o si el diálogo se muestra
+    const periodChanged = !!changes['activePeriod'];
+    const reportChanged = !!changes['activeReportCode'];
+    const visibilityChanged = !!changes['display'] && this.display === true;
+
+    if ((periodChanged || reportChanged || visibilityChanged) && this.allPeriodOptions.length > 0) {
       this.sincronizarSeleccion();
     }
   }
 
   onDialogShow(): void {
-    // (onShow) se dispara cuando el dialog ya está completamente en el DOM.
-    // setTimeout(0) garantiza que los dropdowns están inicializados antes de asignar valores.
-    setTimeout(() => this.sincronizarSeleccion(), 0);
+    if (this.allPeriodOptions.length === 0) {
+      this.cargarPeriodos();
+    } else {
+      setTimeout(() => this.sincronizarSeleccion(), 0);
+    }
   }
 
   cargarPeriodos() {
     this.loadingPeriods = true;
-    this.facadeService.obtenerPeriodosAcademicos().pipe(takeUntil(this.destroy$)).subscribe({
+    this.facadeService.obtenerPeriodosFinancieros().pipe(takeUntil(this.destroy$)).subscribe({
       next: (periodos) => {
         const seen = new Set<string>();
         const unicos = periodos.filter(p => {
@@ -68,12 +74,23 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
           return true;
         });
         this.allPeriodOptions = unicos
-          .sort((a, b) => b.año !== a.año ? b.año - a.año : b.periodo - a.periodo)
-          .map(p => ({
-            name: `${p.año}-${p.periodo}`,
-            value: `${p.año}-${p.periodo}`,
-            period: p
-          }));
+          .sort((a, b) => {
+            const anioA = a.año ?? a.anio ?? 0;
+            const anioB = b.año ?? b.anio ?? 0;
+            const periodA = a.periodo ?? a.tagPeriodo ?? 0;
+            const periodB = b.periodo ?? b.tagPeriodo ?? 0;
+            return anioB !== anioA ? anioB - anioA : periodB - periodA;
+          })
+          .map(p => {
+            const anio = p.año ?? p.anio;
+            const periodNum = p.periodo ?? p.tagPeriodo;
+            const label = `${anio}-${periodNum}`;
+            return {
+              name: label,
+              value: label,
+              period: { ...p, año: anio, periodo: periodNum }
+            };
+          });
         this.sincronizarSeleccion();
         this.loadingPeriods = false;
       },
@@ -88,55 +105,65 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
     });
   }
 
+  private _extrayerLlavePeriodo(periodo: any): string {
+    if (!periodo) return '';
+    const anio = periodo.año ?? periodo.anio;
+    const periodNum = periodo.periodo ?? periodo.tagPeriodo;
+    return (anio != null && periodNum != null) ? `${anio}-${periodNum}` : '';
+  }
+
   actualizarPeriodosDisponibles() {
     if (this.allPeriodOptions.length === 0) {
       this.periodOptions = [];
       return;
     }
 
+    const previousKey = this.selectedPeriodKey;
+
     if (this.selectedReport === 'reporte-final') {
+      // Excluir el periodo más reciente (asumido como el primero por el sort desc)
       this.periodOptions = this.allPeriodOptions.slice(1).map(o => ({ name: o.name, value: o.value }));
-      const currentKey = this.allPeriodOptions[0]?.value;
-      if (currentKey && this.selectedPeriodKey === currentKey) {
-        this.selectedPeriodKey = '';
-      }
     } else if (this.selectedReport === 'proyeccion-reporte') {
+      // Solo el periodo más reciente
       const latest = this.allPeriodOptions[0];
       this.periodOptions = latest ? [{ name: latest.name, value: latest.value }] : [];
-      // No asignar selectedPeriodKey aquí — se hace en aplicarSeleccionPeriodo (diferido)
     } else {
+      // Todos los periodos
       this.periodOptions = this.allPeriodOptions.map(o => ({ name: o.name, value: o.value }));
+    }
+
+    // Si la llave que teníamos ya no existe en las nuevas opciones, la limpiamos
+    const exists = this.periodOptions.some(opt => opt.value === previousKey);
+    if (!exists) {
+      this.selectedPeriodKey = '';
     }
   }
 
   onReportChange() {
-    // Clear first so the p-dropdown options setter does not see a stale value
-    // and clobber selectedPeriodKey via onModelChange(null) before we re-assign it.
-    this.selectedPeriodKey = '';
     this.actualizarPeriodosDisponibles();
-    setTimeout(() => this.aplicarSeleccionPeriodo(), 0);
+    // Forzar re-sincronización tras cambio manual de reporte
+    setTimeout(() => {
+      this.aplicarSeleccionPeriodo();
+      this.cdr.markForCheck();
+    }, 0);
   }
 
-  /**
-   * Calculates and assigns the correct selectedPeriodKey from the current
-   * periodOptions and activePeriod. Must be called AFTER periodOptions has
-   * already been set and Angular has processed that binding through the
-   * p-dropdown options setter (i.e. inside a setTimeout or similar).
-   */
   private aplicarSeleccionPeriodo(): void {
-    if (this.periodOptions.length === 0) {
-      return;
-    }
+    if (this.periodOptions.length === 0) return;
+
     if (this.selectedReport === 'proyeccion-reporte') {
-      // Proyección: siempre el único período disponible (el más reciente)
       this.selectedPeriodKey = this.periodOptions[0].value;
-      return;
-    }
-    if (this.activePeriod) {
-      const key = `${this.activePeriod.año}-${this.activePeriod.periodo}`;
+    } else if (this.activePeriod) {
+      const key = this._extrayerLlavePeriodo(this.activePeriod);
       const exists = this.periodOptions.some(opt => opt.value === key);
-      this.selectedPeriodKey = exists ? key : this.periodOptions[0].value;
-    } else {
+      
+      if (exists) {
+        this.selectedPeriodKey = key;
+      } else if (!this.selectedPeriodKey) {
+        // Si no hay match pero no teníamos nada seleccionado, elegir el primero por defecto
+        this.selectedPeriodKey = this.periodOptions[0].value;
+      }
+    } else if (!this.selectedPeriodKey) {
       this.selectedPeriodKey = this.periodOptions[0].value;
     }
   }
@@ -147,25 +174,14 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
       this.selectedReport = this.activeReportCode;
     }
 
-    // 2. Clear any stale period key BEFORE updating periodOptions so that when
-    //    the p-dropdown `options` setter fires it sees '' and does not try to
-    //    look up a value that belongs to the previous list — avoiding the
-    //    PrimeNG 13 bug where options setter calls onModelChange(null) and
-    //    overwrites the model when the value is not yet present in the new list.
-    this.selectedPeriodKey = '';
-
-    // 3. Reconstruir opciones de período según el reporte
+    // 2. Reconstruir opciones disponibles
     this.actualizarPeriodosDisponibles();
 
-    // 4. Defer the period key assignment by one macrotask tick so that Angular's
-    //    change-detection has already propagated the new periodOptions array into
-    //    the p-dropdown (triggering its options setter) before we write
-    //    selectedPeriodKey.  Without this deferral, both bindings ([options] and
-    //    [(ngModel)]) are processed in the same CD cycle; [options] fires first
-    //    (it appears first in the template), finds no match for the model value,
-    //    and resets the model to null via onModelChange — wiping out the value
-    //    we are about to set.
-    setTimeout(() => this.aplicarSeleccionPeriodo(), 0);
+    // 3. Aplicar selección de periodo de forma diferida para asegurar sincronía con el dropdown
+    setTimeout(() => {
+      this.aplicarSeleccionPeriodo();
+      this.cdr.detectChanges(); // Forzar ciclo completo de detección para asegurar el binding
+    }, 0);
   }
 
   ngOnDestroy(): void {
@@ -264,7 +280,7 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
   }
 
   private descargarReportePorGrupos(periodo: { año: number; periodo: number }) {
-    this.facadeService.obtenerReporteGrupos(periodo.periodo, periodo.año).pipe(takeUntil(this.destroy$)).subscribe({
+    this.facadeService.obtenerReporteGrupos(periodo.año).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         if (!data || !data.objConfiguracionReporteGrupos) {
           this.loadingDownload = false;
@@ -288,3 +304,7 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
     });
   }
 }
+
+
+
+

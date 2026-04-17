@@ -17,10 +17,10 @@ import {
 import { FiltroMatricula, MatriculaRepositoryPort } from '../../domain/ports/matricula-repository.port';
 
 interface MatriculaDto {
-  id: string;
+  id: number;
   codigo_estudiante: string;
   nombre_estudiante: string;
-  periodo_academico: string;
+  periodo_financiero: string;
   monto_total: number;
   monto_pagado: number;
   numero_cuotas: number;
@@ -49,7 +49,7 @@ export class HttpMatriculaAdapter implements MatriculaRepositoryPort {
     );
   }
 
-  getMatriculaById(id: string): Observable<MatriculaFinanciera> {
+  getMatriculaById(id: number): Observable<MatriculaFinanciera> {
     return this.http.get<MatriculaDto>(`${this.BASE_URL}/${id}`).pipe(
       map(this._mapToDomain)
     );
@@ -61,7 +61,7 @@ export class HttpMatriculaAdapter implements MatriculaRepositoryPort {
     );
   }
 
-  registrarPago(matriculaId: string, montoPago: number): Observable<MatriculaFinanciera> {
+  registrarPago(matriculaId: number, montoPago: number): Observable<MatriculaFinanciera> {
     return this.http.post<MatriculaDto>(`${this.BASE_URL}/${matriculaId}/pagos`, { monto: montoPago }).pipe(
       map(this._mapToDomain)
     );
@@ -72,7 +72,7 @@ export class HttpMatriculaAdapter implements MatriculaRepositoryPort {
       id: dto.id,
       codigoEstudiante: dto.codigo_estudiante,
       nombreEstudiante: dto.nombre_estudiante,
-      periodoAcademico: dto.periodo_academico,
+      periodoAcademico: dto.periodo_financiero,
       montoTotal: dto.monto_total,
       montoPagado: dto.monto_pagado,
       numeroCuotas: dto.numero_cuotas,

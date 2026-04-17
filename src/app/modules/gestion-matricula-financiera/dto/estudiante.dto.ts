@@ -1,18 +1,18 @@
-import { MatriculaFinancieraDTORespuesta } from "./matricula-financiera.dto";
 import { DescuentosDTORespuesta } from "./descuento-financiero.dto";
 import { BecasDTORespuesta } from "./beca-financiera.dto";
-import { MatriculaAcademicaDTORespuesta } from "./matricula-academica.dto";
+import { MateriaDTORespuesta } from "./materia.dto";
 
 export interface EstudianteDTORespuesta {
     codigo: string;
     nombre: string;
     apellido: string;
     identificacion: number;
-    cohorte: string;
+    cohorte: number;
     periodoIngreso: string;
     semestreFinanciero: number;
-    matriculasFinancieras: MatriculaFinancieraDTORespuesta[];
+    semestreAcademico?: number;
+    valorEnSMLV?: number | null;
     descuentos: DescuentosDTORespuesta[];
     becas: BecasDTORespuesta[];
-    matriculasAcademicas: MatriculaAcademicaDTORespuesta[];
+    materias: MateriaDTORespuesta[];
 }

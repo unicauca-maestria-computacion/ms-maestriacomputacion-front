@@ -2,6 +2,10 @@ export const environment = {
     production: true,
     api_url: 'https://apptest.unicauca.edu.co:4413/api/',
 
+    gestion_informacion_presupuestaria: {
+        api_url: 'http://localhost:8091/api/',
+    },
+
     firebaseConfig: {
         apiKey: window['env']?.FIREBASE_API_KEY || '',
         authDomain: window['env']?.FIREBASE_AUTH_DOMAIN || '',
@@ -19,7 +23,7 @@ export const gestion_informacion_presupuestaria = {
 
 export const gestion_matricula_financiera = {
     production: true,
-    api_url: 'https://apptest.unicauca.edu.co:4413/api/gestion-matricula-financiera/',
+    api_url: 'https://apptest.unicauca.edu.co:4413/api/v1/gestion-matricula-financiera/',
 };
 
 export const gestion_solicitudes = {

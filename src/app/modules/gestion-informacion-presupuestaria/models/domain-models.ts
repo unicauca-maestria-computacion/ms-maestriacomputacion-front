@@ -1,6 +1,12 @@
-export interface PeriodoAcademico {
+export interface PeriodoFinanciero {
     periodo: number;
     año: number;
+}
+
+export interface Materia {
+    codigo: string;
+    nombre: string;
+    creditos: number;
 }
 
 export interface ConfiguracionReporteFinanciero {
@@ -8,12 +14,13 @@ export interface ConfiguracionReporteFinanciero {
     esReporteFinal: boolean;
     biblioteca: number;
     recursosComputacionales: number;
-    valorMatricula: number;
     valorSMLV: number;
-    totalNeto: number;
-    totalDescuentos: number;
-    totalIngresos: number;
-    objPeriodoAcademico: PeriodoAcademico;
+    porcentajeVotacionFijo: number;
+    porcentajeEgresadoFijo: number;
+    totalNeto?: number;
+    totalDescuentos?: number;
+    totalIngresos?: number;
+    objPeriodoFinanciero: PeriodoFinanciero;
 }
 
 export interface ProyeccionEstudiante {
@@ -22,22 +29,31 @@ export interface ProyeccionEstudiante {
     identificacion: number;
     apellido: string;
     estaPago: boolean;
-    porcentajeVotacion: number;
+    aplicaVotacion: boolean;
     porcentajeBeca: number;
+    aplicaEgresado: boolean;
     grupoInvestigacion: string;
-    porcentajeEgresado: number;
+    estadoProyeccion?: string;
+    valorEnSMLV?: number;
+    materias?: Materia[];
 }
 
 export interface ReporteProyeccionEstudiantes {
     estudiantes: ProyeccionEstudiante[];
     objConfiguracion: ConfiguracionReporteFinanciero;
-    periodo: PeriodoAcademico;
+    periodo: PeriodoFinanciero;
+    totalNeto?: number;
+    totalDescuentos?: number;
+    totalIngresos?: number;
 }
 
 export interface ReporteEstudiantes {
     estudiantes: ProyeccionEstudiante[];
     objConfiguracion: ConfiguracionReporteFinanciero;
-    periodo: PeriodoAcademico;
+    periodo: PeriodoFinanciero;
+    totalNeto?: number;
+    totalDescuentos?: number;
+    totalIngresos?: number;
 }
 
 export interface GastoGeneral {
@@ -46,7 +62,6 @@ export interface GastoGeneral {
     descripcion: string;
     monto: number;
 }
-
 export interface ConfiguracionReporteGrupos {
     id?: number;
     aUIPorcentaje: number;
@@ -57,27 +72,39 @@ export interface ConfiguracionReporteGrupos {
     item1: number;
     item2: number;
     imprevistos: number;
-    objPeriodoAcademico: PeriodoAcademico;
+    objPeriodoFinanciero: PeriodoFinanciero;
     gastosGenerales: GastoGeneral[];
 }
 
 export interface ReportePorGrupoFila {
+    grupoId: number;
     nombreGrupo: string;
-    totalNeto: number;
+    porcentajeParticipacion: number;
+    porcentajePrimerSemestre: number;
+    porcentajeSegundoSemestre: number;
+    vigenciasAnteriores: number;
+    presupuestoPorGrupo: number;
     aportePrimerSemestre: number;
     aporteSegundoSemestre: number;
+    // Campos calculados/derivados usados por componentes y excel
     participacionPrimerSemestre: number;
     participacionSegundoSemestre: number;
     participacionPorAño: number;
     presupuestoPorGrupoItem1: number;
     presupuestoPorGrupoItem2: number;
-    presupuestoPorGrupo: number;
     imprevistos: number;
     presupuestoPorGrupoImprevistos: number;
-    vigenciasAnteriores: number;
+    totalNeto: number;
 }
 
 export interface ReportePorGrupos {
+    gastosGenerales: GastoGeneral[];
+    objConfiguracionReporteGrupos: ConfiguracionReporteGrupos;
+    filasPorGrupo: ReportePorGrupoFila[];
+    anio?: number;
+    ingresoPeriodo1?: number;
+    ingresoPeriodo2?: number;
+    // Campos agregados usados por componentes y excel
     totalNeto: number;
     aportePrimerSemestre: number;
     aporteSegundoSemestre: number;
@@ -90,9 +117,6 @@ export interface ReportePorGrupos {
     imprevistos: number;
     presupuestoPorGrupoImprevistos: number;
     vigenciasAnteriores: number;
-    gastosGenerales: GastoGeneral[];
-    objConfiguracionReporteGrupos: ConfiguracionReporteGrupos;
-    filasPorGrupo: ReportePorGrupoFila[];
 }
 
 export interface PorcentajeGrupo {

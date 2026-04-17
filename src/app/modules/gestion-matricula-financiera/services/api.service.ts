@@ -13,15 +13,20 @@ export class GestionMatriculaFinancieraApiService {
     constructor(private http: HttpClient) { }
 
     obtenerEstudiantes(periodo: PeriodoAcademicoDTOPeticion): Observable<EstudianteDTORespuesta[]> {
-        return this.http.post<EstudianteDTORespuesta[]>(backendGestionMatriculaFinanciera('obtener-estudiantes'), periodo);
+        return this.http.post<EstudianteDTORespuesta[]>(backendGestionMatriculaFinanciera('estudiantes'), periodo);
     }
 
-    obtenerEstudiante(codigo: string): Observable<EstudianteDTORespuesta> {
-        return this.http.get<EstudianteDTORespuesta>(backendGestionMatriculaFinanciera(`obtener-estudiante/${codigo}`));
+    obtenerEstudiante(codigo: string, tagPeriodo?: number, anio?: number): Observable<EstudianteDTORespuesta> {
+        let url = backendGestionMatriculaFinanciera(`estudiantes/${codigo}`);
+        const params: string[] = [];
+        if (tagPeriodo != null) params.push(`tagPeriodo=${tagPeriodo}`);
+        if (anio != null) params.push(`anio=${anio}`);
+        if (params.length > 0) url += '?' + params.join('&');
+        return this.http.get<EstudianteDTORespuesta>(url);
     }
 
     obtenerPeriodosAcademicos(): Observable<PeriodoAcademicoDTORespuesta[]> {
-        return this.http.get<PeriodoAcademicoDTORespuesta[]>(backendGestionMatriculaFinanciera('periodos-academicos'));
+        return this.http.get<PeriodoAcademicoDTORespuesta[]>(backendGestionMatriculaFinanciera('periodos'));
     }
 
     iniciarNuevaMatriculaFinanciera(): Observable<boolean> {

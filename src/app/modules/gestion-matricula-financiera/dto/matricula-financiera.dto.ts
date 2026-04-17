@@ -1,7 +1,6 @@
 import { PeriodoAcademicoDTORespuesta } from "./periodo-academico.dto";
 
 export interface MatriculaFinancieraDTORespuesta {
-    fechaMatricula: Date;
-    valorMatricula: number;
+    valorEnSMLV: number | null;
     objPeriodoAcademico: PeriodoAcademicoDTORespuesta;
 }

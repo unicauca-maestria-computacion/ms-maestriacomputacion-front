@@ -1,0 +1,170 @@
+<p-toast></p-toast>
+
+<p-panel>
+    <p-header>
+        <b>GESTIÓN DE CURSOS</b>
+    </p-header>
+
+    <!-- Filtros alineados verticalmente -->
+    <div class="w-auto max-w-full">
+        <div class="flex flex-column gap-3 mb-2">
+            <div
+                class="flex align-items-start gap-2 flex-column md:flex-row"
+                *ngIf="estado !== 'gestion-matricula-curso'"
+            >
+                <label
+                    for="periodo"
+                    class="font-medium mb-1 w-full md:w-12rem white-space-normal"
+                    >Período</label
+                >
+                <app-periodo-selector
+                    [periodos]="periodos"
+                    [selectedPeriodoId]="periodoSeleccionado"
+                    (selectedPeriodoIdChange)="onPeriodoSeleccionado($event)"
+                ></app-periodo-selector>
+            </div>
+            <div class="flex align-items-center gap-2">
+                <label
+                    for="areaFormacion"
+                    class="font-medium mb-1 w-12rem white-space-normal"
+                    >Área de formación</label
+                >
+                <p-dropdown
+                    id="areaFormacion"
+                    [options]="areasFormacion"
+                    [(ngModel)]="areaSeleccionada"
+                    (onChange)="onAreaChange($event.value)"
+                    [showClear]="true"
+                    placeholder="Ej: Investigación"
+                    class="w-full flex-1 min-w-0"
+                ></p-dropdown>
+            </div>
+            <div class="flex align-items-center gap-2" *ngIf="areaSeleccionada">
+                <label
+                    for="asignaturaInvestigacion"
+                    class="font-medium mb-1 w-12rem white-space-normal"
+                    >Asignatura de investigación</label
+                >
+                <p-dropdown
+                    id="asignaturaInvestigacion"
+                    [options]="asignaturas"
+                    [(ngModel)]="asignaturaSeleccionada"
+                    (onChange)="onFilterChange()"
+                    [showClear]="true"
+                    placeholder="Ej: Metodología de la Investigación"
+                    class="w-full flex-1 min-w-0"
+                ></p-dropdown>
+            </div>
+        </div>
+    </div>
+    <!-- Buscador y botón en la misma línea, ocupando el ancho -->
+    <div
+        class="flex flex-row align-items-center justify-content-between mb-3 w-full"
+    >
+        <div class="w-6">
+            <span class="p-input-icon-left w-full">
+                <i class="pi pi-search"></i>
+                <input
+                    pInputText
+                    type="text"
+                    class="w-full"
+                    placeholder="Ej: Metodología"
+                    (input)="
+                        tableCursos.filterGlobal(
+                            $event.target.value,
+                            'contains'
+                        )
+                    "
+                />
+            </span>
+        </div>
+        <button
+            *ngIf="estado !== 'gestion-matricula-curso'"
+            pButton
+            pRipple
+            label="Agregar Curso"
+            class="p-button-primary p-button-sm"
+            (click)="onAgregarCurso()"
+        ></button>
+    </div>
+
+    <!-- Tabla -->
+    <p-table
+        #tableCursos
+        [value]="cursos"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="cursos?.length || 0"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} cursos"
+        styleClass="p-datatable-gridlines p-datatable-striped"
+        [responsiveLayout]="'scroll'"
+        [globalFilterFields]="['grupo', 'asignatura', 'docente', 'fecha']"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th class="text-center" scope="col">Grupo</th>
+                <th class="text-center" scope="col">Asignatura Asociada</th>
+                <th class="text-center" scope="col">Docentes</th>
+                <th class="text-center" scope="col">Horario</th>
+                <th class="text-center" scope="col">Opciones</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-curso>
+            <tr>
+                <td>{{ curso.grupo }}</td>
+                <td>{{ curso.asignatura }}</td>
+                <td>{{ curso.docente }}</td>
+                <td>{{ curso.horario || "-" }}</td>
+                <td class="text-center">
+                    <div
+                        class="flex align-items-center justify-content-center gap-2"
+                    >
+                        <button
+                            *ngIf="estado === 'gestion-matricula-curso'"
+                            pButton
+                            pRipple
+                            icon="pi pi-user-plus"
+                            class="p-button-rounded p-button-text p-button-sm p-button-primary"
+                            (click)="onAgregarEstudiantes(curso.id)"
+                            title="Agregar Estudiantes"
+                        ></button>
+                        <button
+                            *ngIf="estado !== 'gestion-matricula-curso'"
+                            pButton
+                            pRipple
+                            icon="pi pi-eye"
+                            class="p-button-rounded p-button-text p-button-sm p-button-info"
+                            (click)="onVerCurso(curso)"
+                            title="Ver"
+                        ></button>
+                        <button
+                            *ngIf="estado !== 'gestion-matricula-curso'"
+                            pButton
+                            pRipple
+                            icon="pi pi-pencil"
+                            class="p-button-rounded p-button-text p-button-sm p-button-warning"
+                            (click)="onEditarCurso(curso)"
+                            title="Editar"
+                        ></button>
+                        <button
+                            *ngIf="estado !== 'gestion-matricula-curso'"
+                            pButton
+                            pRipple
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                            (click)="onEliminarCurso($event, curso.id)"
+                            title="Eliminar"
+                        ></button>
+                    </div>
+                    <p-confirmPopup></p-confirmPopup>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="5">No se encontraron cursos</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-panel>

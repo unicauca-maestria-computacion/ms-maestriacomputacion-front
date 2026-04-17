@@ -36,10 +36,11 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   periodoSeleccionado: PeriodoAcademicoDto | null = null;
   esUltimoPeriodo: boolean = false;
   sinPeriodos: boolean = false;
+  errorPeriodos: boolean = false;
 
-  /** Solo se permite editar cuando el periodo seleccionado es el último (más reciente). */
+  /** Es editable si al menos uno de los períodos del año está ACTIVO o dentro de fechas. */
   get esEditable(): boolean {
-    return this.esUltimoPeriodo;
+    return this.configuracion?.esEditable ?? false;
   }
 
   editingRowKey: string | null = null;
@@ -81,7 +82,12 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error fetching report', err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar el reporte por grupos.' });
+        const anioTexto = periodoObj ? `del año ${anio}` : '';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error al cargar',
+          detail: `No se pudo cargar el reporte por grupos ${anioTexto}. Intente nuevamente.`
+        });
         this.loading = false;
         this.cdr.markForCheck();
       }

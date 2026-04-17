@@ -6,10 +6,6 @@ export const environment = {
     production: false,
     api_url: 'http://localhost:8091/api/',
 
-    gestion_informacion_presupuestaria: {
-        api_url: 'http://localhost:8091/api/',
-    },
-
     firebaseConfig: {
         apiKey: 'AIzaSyC-Dk2Ooux-jiipoYS4ri_FRtOJjVu8WCs',
         authDomain: 'prod-maestria-computacion.firebaseapp.com',
@@ -18,16 +14,6 @@ export const environment = {
         messagingSenderId: '668213860429',
         appId: '1:668213860429:web:6ca093c817a6b834f4e404',
     },
-};
-
-export const gestion_informacion_presupuestaria = {
-    production: false,
-    api_url: 'http://localhost:8091/api/',
-};
-
-export const gestion_matricula_financiera = {
-    production: false,
-    api_url: 'http://localhost:8092/api/v1/gestion-matricula-financiera/',
 };
 
 export const gestion_solicitudes = {
@@ -62,12 +48,27 @@ export const gestion_trabajo_grado = {
 
 export const gestion_docentes_estudiantes = {
     production: false,
-    api_url: 'http://localhost:8082/api/',
+    api_url: 'http://localhost:8091/api/',
 };
 
 export const evaluacion_docente = {
     production: false,
     api_url: 'http://localhost:8086/api/',
+};
+
+export const matricula_academica = {
+    production: false,
+    api_url: 'http://localhost:8087/api/',
+};
+
+export const gestion_matricula_financiera = {
+    production: false,
+    api_url: 'http://localhost:8092/api/v1/gestion-matricula-financiera/',
+};
+
+export const gestion_informacion_presupuestaria = {
+    production: false,
+    api_url: 'http://localhost:8091/api/',
 };
 /*
  * For easier debugging in development mode, you can import the following file

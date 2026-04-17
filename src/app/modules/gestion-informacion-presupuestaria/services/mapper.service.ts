@@ -169,6 +169,7 @@ export class GestionInformacionPresupuestariaMapperService {
             gastosGenerales: gastos,
             filasPorGrupo,
             anio: dto.anio,
+            esEditable: dto.esEditable ?? false,
             ingresoPeriodo1: dto.ingresoPeriodo1 ?? 0,
             ingresoPeriodo2: dto.ingresoPeriodo2 ?? 0,
             totalNeto,

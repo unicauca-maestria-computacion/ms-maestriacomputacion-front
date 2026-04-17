@@ -38,6 +38,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   periodoSeleccionado: PeriodoFinancieroDTORespuesta | null = null;
   periodoActualTexto: string = '';
   sinPeriodos: boolean = false;
+  errorPeriodos: boolean = false;
 
   configuracion: ConfiguracionReporteFinanciero | null = null;
   estudiantes: EstudianteProyeccion[] = [];
@@ -213,7 +214,13 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
 
     // Disable row editing if active (force cancel or block? For ease, we just ensure no row is editing or clear it)
     if (this.editingRowKey) {
-      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'Termine de editar el estudiante primero.' });
+      const estudianteEnEdicion = this.estudiantes.find(e => e.codigoEstudiante === this.editingRowKey);
+      const nombre = estudianteEnEdicion?.nombreEstudiante ?? 'un estudiante';
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Edición en curso',
+        detail: `Guarde o cancele los cambios de ${nombre} antes de editar la configuración.`
+      });
       return;
     }
 
@@ -269,12 +276,20 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
 
   onRowEditSave(estudiante: EstudianteProyeccion) {
     if (estudiante.porcentajeBeca < 0) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'El porcentaje de beca no puede ser negativo.' });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Valor inválido',
+        detail: `${estudiante.nombreEstudiante}: el porcentaje de beca no puede ser negativo.`
+      });
       this.onRowEditCancel(estudiante, this.findIndexById(estudiante.codigoEstudiante));
       return;
     }
     if (estudiante.porcentajeBeca > 100) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'El porcentaje de beca no puede superar 100%.' });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Valor inválido',
+        detail: `${estudiante.nombreEstudiante}: el porcentaje de beca no puede superar 100%.`
+      });
       return;
     }
 

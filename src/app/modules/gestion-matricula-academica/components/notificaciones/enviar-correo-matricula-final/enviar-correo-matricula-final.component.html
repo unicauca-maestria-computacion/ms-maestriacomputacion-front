@@ -1,0 +1,219 @@
+<p-toast></p-toast>
+<p-panel>
+    <p-header>
+        <b>ENVIAR CORREO INFORMADO SOBRE LA MATRÍCULA FINAL</b>
+    </p-header>
+
+    <div class="flex flex-column gap-2 mb-3">
+        <div class="font-medium text-900">Descripción del correo a enviar</div>
+        <div class="text-700">
+            <b>Receptores del correo:</b> Estudiantes matriculados en los cursos
+            y directores de los estudiantes.
+        </div>
+        <div class="text-700">
+            <b>Contenido del correo:</b> El correo informa a cada estudiante y
+            director de cada estudiante sobre los cursos matriculados para el
+            período actual.
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <div class="flex align-items-center gap-2 mb-2">
+            <span class="font-medium text-900">Filtrar por asignatura:</span>
+            <button
+                pButton
+                pRipple
+                class="p-button-text p-button-sm"
+                icon="pi pi-filter-slash"
+                label="Limpiar"
+                (click)="limpiarFiltros()"
+                [disabled]="!asignaturasSeleccionadas.length"
+            ></button>
+        </div>
+        <app-multi-select-chips
+            [options]="asignaturasOptions"
+            [(selectedValues)]="asignaturasSeleccionadas"
+            placeholder="Seleccionar asignaturas"
+            selectedItemsLabel="Asignaturas seleccionadas: {0}"
+            [showClearButton]="false"
+            (selectionChange)="aplicarFiltros()"
+            class="w-full md:w-30rem"
+        ></app-multi-select-chips>
+    </div>
+
+    <p-table
+        [value]="cursosFiltrados"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="cursosFiltrados.length"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} cursos"
+        styleClass="p-datatable-gridlines p-datatable-striped"
+        [responsiveLayout]="'scroll'"
+        dataKey="id"
+        selectionMode="multiple"
+        [(selection)]="seleccion"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="grupo" class="text-center" scope="col">
+                    Grupo
+                    <p-sortIcon field="grupo"></p-sortIcon>
+                </th>
+                <th pSortableColumn="asignatura" scope="col">
+                    Asignatura Asociada
+                    <p-sortIcon field="asignatura"></p-sortIcon>
+                </th>
+                <th pSortableColumn="docente" scope="col">
+                    Docentes
+                    <p-sortIcon field="docente"></p-sortIcon>
+                </th>
+                <th class="text-center" scope="col">Seleccionar cursos</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-curso>
+            <tr>
+                <td class="text-center">{{ curso.grupo }}</td>
+                <td>{{ curso.asignatura }}</td>
+                <td>{{ curso.docente }}</td>
+                <td class="text-center">
+                    <p-tableCheckbox [value]="curso"></p-tableCheckbox>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="4" class="text-center">
+                    No hay cursos para los filtros seleccionados
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <div class="flex justify-content-end mt-3">
+        <button
+            pButton
+            pRipple
+            label="Enviar correo"
+            icon="pi pi-send"
+            class="p-button-primary"
+            [disabled]="!seleccion.length || enviando"
+            [loading]="enviando"
+            (click)="enviarCorreo()"
+        ></button>
+    </div>
+</p-panel>
+
+<p-dialog
+    header="Resumen de envío"
+    [(visible)]="resumenVisible"
+    [modal]="true"
+    [style]="{ width: '80vw', maxWidth: '70rem' }"
+    [draggable]="false"
+    [resizable]="false"
+    [dismissableMask]="true"
+    (onHide)="cerrarResumen()"
+>
+    <div class="flex flex-column gap-4">
+        <div class="font-semibold text-900">{{ resumenMessage }}</div>
+
+        <div>
+            <div class="flex justify-content-between align-items-center mb-2">
+                <div class="font-semibold text-900">Resumen de tutores</div>
+                <div class="text-600">
+                    Total tutores notificados: {{ totalTutoresNotificados }}
+                </div>
+            </div>
+
+            <p-table
+                *ngIf="resumenNotificaciones.length; else sinNotificaciones"
+                [value]="resumenNotificaciones"
+                [rows]="5"
+                [paginator]="resumenNotificaciones.length > 5"
+                [responsiveLayout]="'scroll'"
+                styleClass="p-datatable-gridlines p-datatable-striped"
+            >
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th scope="col">Tutor</th>
+                        <th scope="col">Código</th>
+                        <th scope="col" class="text-center">
+                            Total estudiantes con matrícula activa
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr>
+                        <td>{{ item.nombre }}</td>
+                        <td>{{ item.codigo }}</td>
+                        <td class="text-center">
+                            {{ item.totalEstudiantesConMatriculaActiva ?? 0 }}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <ng-template #sinNotificaciones>
+                <div class="text-600">
+                    No se generó información de notificación para tutores.
+                </div>
+            </ng-template>
+        </div>
+
+        <div>
+            <div class="flex justify-content-between align-items-center mb-2">
+                <div class="font-semibold text-900">
+                    Resumen de estudiantes
+                </div>
+                <div class="text-600">
+                    Total estudiantes notificados:
+                    {{ totalEstudiantesNotificados }}
+                </div>
+            </div>
+
+            <p-table
+                *ngIf="resumenEstudiantes.length; else sinEstudiantes"
+                [value]="resumenEstudiantes"
+                [rows]="5"
+                [paginator]="resumenEstudiantes.length > 5"
+                [responsiveLayout]="'scroll'"
+                styleClass="p-datatable-gridlines p-datatable-striped"
+            >
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th scope="col">Estudiante</th>
+                        <th scope="col">Código estudiante</th>
+                        <th scope="col">Correo</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr>
+                        <td>{{ item.estudianteNombre }}</td>
+                        <td>{{ item.estudianteCodigo }}</td>
+                        <td>{{ item.estudianteCorreo }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <ng-template #sinEstudiantes>
+                <div class="text-600">
+                    No se generó detalle de estudiantes para el resumen.
+                </div>
+            </ng-template>
+        </div>
+    </div>
+
+    <p-footer>
+        <div class="flex justify-content-end">
+            <button
+                type="button"
+                pButton
+                pRipple
+                label="Cerrar"
+                icon="pi pi-times"
+                class="p-button-secondary"
+                (click)="cerrarResumen()"
+            ></button>
+        </div>
+    </p-footer>
+</p-dialog>

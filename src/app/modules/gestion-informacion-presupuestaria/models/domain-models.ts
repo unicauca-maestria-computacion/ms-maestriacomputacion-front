@@ -102,6 +102,7 @@ export interface ReportePorGrupos {
     objConfiguracionReporteGrupos: ConfiguracionReporteGrupos;
     filasPorGrupo: ReportePorGrupoFila[];
     anio?: number;
+    esEditable?: boolean;
     ingresoPeriodo1?: number;
     ingresoPeriodo2?: number;
     // Campos agregados usados por componentes y excel

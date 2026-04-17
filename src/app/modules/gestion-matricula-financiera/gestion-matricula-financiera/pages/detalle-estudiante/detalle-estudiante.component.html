@@ -1,0 +1,52 @@
+<p-toast></p-toast>
+<div class="col-12">
+    <p-card>
+
+        <!-- Spinner de Carga -->
+        <div *ngIf="loading" class="flex flex-column align-items-center justify-content-center py-8">
+            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
+            </p-progressSpinner>
+            <span class="mt-3 text-lg">Cargando información del estudiante...</span>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div *ngIf="!loading && estudiante">
+
+            <!-- Header: Título + Botón Volver -->
+            <div class="flex flex-column md:flex-row align-items-start md:align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom-1 surface-border">
+                <div>
+                    <h2 class="m-0 text-700">Detalles de Matrícula</h2>
+                    <span class="text-500 text-sm">Información completa del estudiante</span>
+                </div>
+                <button pButton pRipple
+                    type="button"
+                    label="Volver"
+                    icon="pi pi-arrow-left"
+                    class="p-button-outlined p-button-secondary"
+                    (click)="volver()">
+                </button>
+            </div>
+
+            <!-- Tabla Compartida de Matrícula -->
+            <app-tabla-matricula-estudiante [estudiante]="estudiante"></app-tabla-matricula-estudiante>
+
+        </div>
+
+        <!-- Estado vacío si no se encontró el estudiante -->
+        <div *ngIf="!loading && !estudiante">
+            <div class="flex flex-column align-items-center justify-content-center py-8 text-400">
+                <i class="pi pi-exclamation-triangle text-5xl mb-3 text-yellow-500"></i>
+                <span class="text-lg font-medium text-700">No se encontró la información del estudiante</span>
+                <span class="text-sm mt-1 mb-4">El registro solicitado no está disponible</span>
+                <button pButton pRipple
+                    type="button"
+                    label="Volver al listado"
+                    icon="pi pi-arrow-left"
+                    class="p-button-outlined"
+                    (click)="volver()">
+                </button>
+            </div>
+        </div>
+
+    </p-card>
+</div>

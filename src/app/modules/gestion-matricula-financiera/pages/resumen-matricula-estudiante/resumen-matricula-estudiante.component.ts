@@ -6,6 +6,7 @@ import { MessageService } from 'primeng/api';
 import { Estudiante } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.service';
 import { RadicarService } from '../../../gestion-solicitudes/services/radicar.service';
+import { AutenticacionService } from '../../../gestion-autenticacion/services/autenticacion.service';
 
 @Component({
   selector: 'app-resumen-matricula-estudiante',
@@ -28,16 +29,21 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
     private radicarService: RadicarService,
     private messageService: MessageService,
     private cdr: ChangeDetectorRef,
+    private autenticacionService: AutenticacionService,
   ) { }
 
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
-        const id = params.get('id');
-        if (!id || id.trim() === '') {
+        const idRuta = params.get('id');
+        const id = idRuta?.trim()
+            ? idRuta
+            : this.autenticacionService.getLoggedInUser()?.academicCode ?? null;
+
+        if (!id) {
             this.messageService.add({
                 severity: 'error',
-                summary: 'Error',
-                detail: 'El identificador del estudiante no es válido.'
+                summary: 'Sin identificador',
+                detail: 'No se pudo determinar el estudiante. Inicie sesión nuevamente.'
             });
             return;
         }

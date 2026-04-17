@@ -17,7 +17,7 @@ export class SelectorComponent implements OnInit {
     requisitosSolicitudEscogida: RequisitosSolicitud;
     carga: boolean = false;
 
-    constructor(public radicar: RadicarService, private gestorHttp: HttpService,
+    constructor(public radicar: RadicarService, private gestorHttp: HttpService, 
         private autenticacionService: AutenticacionService) {}
 
     // Al iniciar el componente, se obtienen los tipos de solicitud
@@ -32,19 +32,19 @@ export class SelectorComponent implements OnInit {
 
             // Convertimos a array el string de roles
             if (!Array.isArray(rolesUsuario)) {
-                rolesUsuario = [rolesUsuario];
+                rolesUsuario = [rolesUsuario]; 
             }
 
             // Inicializamos la lista vacía
             this.tiposDeSolicitud = [];
-
+    
             rolesUsuario.forEach(rol => {
                 switch (rol) {
                     case "ROLE_COORDINADOR":
                     case "ROLE_DOCENTE":
                         this.tiposDeSolicitud.push(...respuesta.filter(tipo => tipo.codigoSolicitud === "SO_OTRA"));
                         break;
-
+    
                         case "ROLE_ESTUDIANTE":
                             this.carga = true;
                             // Obtener la fecha desde un servidor en Bogotá
@@ -64,38 +64,24 @@ export class SelectorComponent implements OnInit {
                                     // Asignar un nuevo array en lugar de modificar el existente
                                     this.tiposDeSolicitud = [...this.tiposDeSolicitud, ...solicitudesEstudiante];
                                     this.carga = false;
-                                    // Recuperar tipo después de cargar solicitudes del estudiante
-                                    this.recuperarTipoEscogido();
                                 },
                                 () => { this.carga = false; }
                             );
                             break;
-
+                        
                         default:
                             console.warn(`Rol no reconocido: ${rol}`);
-                            break;
+                            break;                        
                 }
             });
-
+    
             this.recuperarTipoEscogido();
         });
     }
 
     // Verifica en el servicio radicar si ya hay un tipo escogido y lo recupera
     recuperarTipoEscogido() {
-        // Verificar si hay un código pre-seleccionado desde otro módulo
-        if (this.radicar.codigoSolicitudPreseleccionado && this.tiposDeSolicitud?.length > 0) {
-            const tipoEncontrado = this.tiposDeSolicitud.find(
-                tipo => tipo.codigoSolicitud === this.radicar.codigoSolicitudPreseleccionado
-            );
-            if (tipoEncontrado) {
-                this.tipoSolicitudEscogida = tipoEncontrado;
-                this.radicar.codigoSolicitudPreseleccionado = null;
-                this.obtenerRequisitosDeSolicitud();
-                return;
-            }
-        }
-        this.tipoSolicitudEscogida = this.radicar.tipoSolicitudEscogida || this.tiposDeSolicitud[0];
+        this.tipoSolicitudEscogida = this.radicar.tipoSolicitudEscogida || this.tiposDeSolicitud[0];        
         this.obtenerRequisitosDeSolicitud();
     }
 
@@ -116,5 +102,5 @@ export class SelectorComponent implements OnInit {
         this.radicar.requisitosSolicitudEscogida = this.requisitosSolicitudEscogida;
         this.cambioDePaso.emit(1); // Avanzar al siguiente paso
     }
-
+    
 }

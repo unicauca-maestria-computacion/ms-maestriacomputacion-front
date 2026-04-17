@@ -4,6 +4,8 @@ import { MenuItem } from 'primeng/api';
 import { menuItems as originalMenuItems } from '../../constants/menu-items';
 import { MenuService } from '../../services/app.menu.service';
 import { AutenticacionService } from 'src/app/modules/gestion-autenticacion/services/autenticacion.service';
+import { ReportFormatDialogService } from '../../services/report-format-dialog.service';
+import { MatriculaReporteService } from 'src/app/modules/gestion-matricula-academica/services/matricula-reporte.service';
 
 interface Usuario {
     username: string;
@@ -27,7 +29,9 @@ export class AppTopBarComponent implements OnInit {
     constructor(
         public appMain: AppMainComponent,
         private autenticacion: AutenticacionService,
-        private menuService: MenuService
+        private menuService: MenuService,
+        private readonly reportFormatDialog: ReportFormatDialogService,
+        private readonly matriculaReporteService: MatriculaReporteService
     ) {}
 
     ngOnInit() {
@@ -67,6 +71,15 @@ export class AppTopBarComponent implements OnInit {
                 item.command = () => this.autenticacion.login();
             }
         });
+
+        // Comandos para items que no deben navegar a una ruta.
+        this.applyToMenuItem(
+            this.items,
+            (it) => it.id === 'reporte-matricula-estudiantes',
+            (it) => {
+                it.command = () => this.abrirReporteMatriculaEstudiantes();
+            }
+        );
 
         if (this.autenticacion.isLoggedIn()) {
             const user = this.autenticacion.getLoggedInUser();
@@ -162,35 +175,48 @@ export class AppTopBarComponent implements OnInit {
 
                 return false;
             }
-            if (item.label === 'MATRICULAS') {
-                if (user?.role.includes('ROLE_COORDINADOR')) {
-                    // Mostrar "Evaluación Docente" y "Matrícula Financiera" si es coordinador
-                    item.items =
-                        item.items?.filter(
-                            (subItem) =>
-                                subItem.label === 'Evaluación Docente' ||
-                                subItem.label === 'Matrícula Financiera'
-                        ) || [];
-                } else if (user?.role.includes('ROLE_ESTUDIANTE')) {
-                    // Mostrar "Matrícula Académica" y "Resumen Matrícula" si es estudiante
-                    item.items =
-                        item.items?.filter(
-                            (subItem) =>
-                                subItem.label === 'Matrícula Académica' ||
-                                subItem.label === 'Resumen Matrícula'
-                        ) || [];
-                } else {
-                    // Si no es coordinador ni estudiante, eliminar la propiedad items
-                    delete item.items;
+            if (
+                item.label === 'GESTIÓN MATRÍCULAS' ||
+                item.label === 'GESTIÓN ACADÉMICA'
+            ) {
+                if (!user) {
+                    return false;
                 }
-                return true;
+                if (item.label === 'GESTIÓN MATRÍCULAS') {
+                    if (user.role.includes('ROLE_COORDINADOR')) {
+                        item.items = item.items.filter(
+                            (subItem) =>
+                                subItem.label !== 'Revisión de Matrículas'
+                        );
+                        return true;
+                    }
+                    if (user.role.includes('ROLE_DOCENTE')) {
+                        item.items = item.items.filter(
+                            (subItem) =>
+                                subItem.label === 'Revisión de Matrículas'
+                        );
+                        return true;
+                    }
+                    return false;
+                }
+                return user.role.includes('ROLE_COORDINADOR');
             }
+
             if (item.label === 'EVALUACIÓN DOCENTE') {
                 // Solo mostrar si el usuario es estudiante
-                return (
-                    user && user.role && user.role.includes('ROLE_ESTUDIANTE')
-                );
+                return user?.role?.includes('ROLE_ESTUDIANTE');
             }
+
+            if (item.label === 'PRESUPUESTO') {
+                // Solo mostrar si el usuario es coordinador
+                return user?.role?.includes('ROLE_COORDINADOR');
+            }
+
+            if (item.label === 'VER MATRÍCULA') {
+                // Solo mostrar si el usuario es estudiante
+                return user?.role?.includes('ROLE_ESTUDIANTE');
+            }
+
             return true;
         });
     }
@@ -199,5 +225,36 @@ export class AppTopBarComponent implements OnInit {
         // Cerrar sesión y reinicializar los elementos del menú
         this.autenticacion.logout();
         this.initializeMenuItems();
+    }
+
+    private abrirReporteMatriculaEstudiantes(): void {
+        this.reportFormatDialog.open({
+            title: 'Reporte matricula estudiantes',
+            confirmLabel: 'Generar',
+            defaultFormat: 'pdf',
+            loadingText: 'Generando reporte, por favor espera...',
+            errorSummary: 'No se pudo generar el reporte',
+            fileNamePrefix: 'reporte_matricula_estudiantes',
+            action: (formato) =>
+                this.matriculaReporteService.descargarReporteMatriculaEstudiantes(
+                    formato
+                ),
+        }).subscribe();
+    }
+
+    private applyToMenuItem(
+        items: MenuItem[] | undefined,
+        predicate: (item: MenuItem) => boolean,
+        apply: (item: MenuItem) => void
+    ): void {
+        if (!items || items.length === 0) return;
+        for (const item of items) {
+            if (predicate(item)) {
+                apply(item);
+            }
+            if (item.items?.length) {
+                this.applyToMenuItem(item.items, predicate, apply);
+            }
+        }
     }
 }

@@ -34,13 +34,15 @@
     />
   </div>
 
-  <!-- Átomo reutilizable -->
-  <app-button
+  <!-- Botón limpiar filtros -->
+  <button
+    pButton
+    type="button"
     label="Limpiar"
-    variant="ghost"
-    size="sm"
-    (clicked)="onLimpiar()"
-  ></app-button>
+    icon="pi pi-times"
+    class="p-button-outlined p-button-sm"
+    (click)="onLimpiar()"
+  ></button>
 
 </form>
 

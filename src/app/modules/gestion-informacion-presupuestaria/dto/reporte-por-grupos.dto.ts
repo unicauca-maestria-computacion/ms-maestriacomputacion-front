@@ -21,6 +21,7 @@ export interface ReportePorGrupoDTORespuesta {
 export interface ConsultaReportePorGruposDTORespuesta {
     periodo: PeriodoAcademicoDto;
     anio?: number;
+    esEditable?: boolean;
     ingresoPeriodo1?: number;
     ingresoPeriodo2?: number;
     auiPorcentaje: number;

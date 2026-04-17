@@ -1,0 +1,35 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { backendGestionMatriculaFinanciera } from 'src/app/core/constants/api-url';
+import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../dto/periodo-academico.dto';
+import { EstudianteDTORespuesta } from '../dto/estudiante.dto';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class GestionMatriculaFinancieraApiService {
+
+    constructor(private http: HttpClient) { }
+
+    obtenerEstudiantes(periodo: PeriodoAcademicoDTOPeticion): Observable<EstudianteDTORespuesta[]> {
+        return this.http.post<EstudianteDTORespuesta[]>(backendGestionMatriculaFinanciera('estudiantes'), periodo);
+    }
+
+    obtenerEstudiante(codigo: string, tagPeriodo?: number, anio?: number): Observable<EstudianteDTORespuesta> {
+        let url = backendGestionMatriculaFinanciera(`estudiantes/${codigo}`);
+        const params: string[] = [];
+        if (tagPeriodo != null) params.push(`tagPeriodo=${tagPeriodo}`);
+        if (anio != null) params.push(`anio=${anio}`);
+        if (params.length > 0) url += '?' + params.join('&');
+        return this.http.get<EstudianteDTORespuesta>(url);
+    }
+
+    obtenerPeriodosAcademicos(): Observable<PeriodoAcademicoDTORespuesta[]> {
+        return this.http.get<PeriodoAcademicoDTORespuesta[]>(backendGestionMatriculaFinanciera('periodos'));
+    }
+
+    iniciarNuevaMatriculaFinanciera(): Observable<boolean> {
+        return this.http.post<boolean>(backendGestionMatriculaFinanciera('iniciar'), {});
+    }
+}

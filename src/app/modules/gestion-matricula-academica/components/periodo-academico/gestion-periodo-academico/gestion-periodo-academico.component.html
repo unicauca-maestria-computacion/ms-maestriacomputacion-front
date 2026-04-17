@@ -1,0 +1,384 @@
+<p-toast position="top-right"></p-toast>
+<p-panel>
+    <p-header>
+        <b>GESTIÓN DE PERÍODOS ACADÉMICOS</b>
+    </p-header>
+    <!-- Encabezado -->
+    <div
+        class="flex flex-column md:flex-row md:align-items-end md:justify-content-between gap-3 mb-3"
+    >
+        <!-- Busqueda -->
+        <div class="flex-1 min-w-0">
+            <span class="p-input-icon-left w-full">
+                <i class="pi pi-search"></i>
+                <input
+                    pInputText
+                    type="text"
+                    class="w-full"
+                    placeholder="Ej: 2025-1"
+                    (input)="
+                        tablePeriodos.filterGlobal(
+                            $event.target.value,
+                            'contains'
+                        )
+                    "
+                />
+            </span>
+        </div>
+        <div class="flex md:justify-content-end">
+            <button
+                pButton
+                pRipple
+                icon="pi pi-plus"
+                label="Agregar período"
+                class="p-button-primary p-button-sm"
+                (click)="onAgregarPeriodo()"
+            ></button>
+        </div>
+    </div>
+    <!-- Tabla Periodos -->
+    <p-table
+        #tablePeriodos
+        [value]="periodos"
+        [paginator]="true"
+        [rows]="7"
+        [globalFilterFields]="[
+            'id',
+            'fechaInicio',
+            'fechaFin',
+            'fechaFinMatricula',
+            'tagPeriodo',
+            'descripcion',
+            'estado'
+        ]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="{first} - {last} de {totalRecords}"
+        styleClass="p-datatable-gridlines p-datatable-striped"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th scope="col" class="text-center w-5rem">#</th>
+                <th scope="col">Fecha Inicio</th>
+                <th scope="col">Fecha Fin</th>
+                <th scope="col">Fecha fin matrícula</th>
+                <th scope="col">Período</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Estado</th>
+                <th scope="col" class="text-center w-3">Opciones</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-periodo let-rowIndex="rowIndex">
+            <tr>
+                <td class="text-center">{{ rowIndex + 1 }}</td>
+                <td>{{ periodo.fechaInicio }}</td>
+                <td>{{ periodo.fechaFin }}</td>
+                <td>{{ periodo.fechaFinMatricula }}</td>
+                <td>{{ periodo.tagPeriodo }}</td>
+                <td>{{ periodo.descripcion }}</td>
+                <td>{{ periodo.estado }}</td>
+                <td class="text-center">
+                    <div *ngIf="periodo.estado !== 'FINALIZADO'">
+                        <button
+                            pButton
+                            pRipple
+                            icon="pi pi-book"
+                            class="p-button-rounded p-button-text p-button-sm p-button-info mr-2"
+                            pTooltip="Precargar cursos"
+                            tooltipPosition="top"
+                            (click)="onPrecargarCursos(periodo.id)"
+                        ></button>
+                        <button
+                            pButton
+                            pRipple
+                            icon="pi pi-pencil"
+                            class="p-button-rounded p-button-text p-button-sm p-button-warning mr-2"
+                            pTooltip="Editar período"
+                            tooltipPosition="top"
+                            (click)="onEditarPeriodo(periodo.id)"
+                        ></button>
+                        <button
+                            pButton
+                            pRipple
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                            pTooltip="Eliminar período"
+                            tooltipPosition="top"
+                            (click)="onEliminarPeriodo($event, periodo.id)"
+                        ></button>
+                        <p-confirmPopup></p-confirmPopup>
+                    </div>
+                    <div
+                        *ngIf="periodo.estado === 'FINALIZADO'"
+                        class="text-muted"
+                    >
+                        <span class="text-xs">Período finalizado</span>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="8">No se encontraron registros</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <!-- Modal para agregar periodo académico -->
+    <p-dialog
+        [(visible)]="displayModal"
+        [modal]="true"
+        [closable]="false"
+        styleClass="w-25rem"
+    >
+        <ng-template pTemplate="header">
+            <span class="text-xl font-bold">
+                {{
+                    editMode ? "Editar período académico" : "Período académico"
+                }}
+            </span>
+        </ng-template>
+        <form [formGroup]="form" (ngSubmit)="registrarPeriodo()">
+            <div class="field mb-3 flex align-items-center gap-3">
+                <label
+                    for="fechaInicio"
+                    class="text-nowrap w-9rem label-required white-space-nowrap"
+                    >Fecha Inicio:</label
+                >
+                <p-calendar
+                    id="fechaInicio"
+                    formControlName="fechaInicio"
+                    [showIcon]="true"
+                    appendTo="body"
+                    dateFormat="yy-mm-dd"
+                    class="flex-1"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            form.get('fechaInicio').invalid &&
+                            form.get('fechaInicio').touched
+                    }"
+                ></p-calendar>
+            </div>
+            <div class="field mb-3 flex align-items-center gap-3">
+                <label
+                    for="fechaFin"
+                    class="text-nowrap w-9rem label-required white-space-nowrap"
+                    >Fecha Fin:</label
+                >
+                <p-calendar
+                    id="fechaFin"
+                    formControlName="fechaFin"
+                    [showIcon]="true"
+                    appendTo="body"
+                    dateFormat="yy-mm-dd"
+                    class="flex-1"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            form.get('fechaFin').invalid &&
+                            form.get('fechaFin').touched
+                    }"
+                ></p-calendar>
+            </div>
+            <div
+                *ngIf="mostrarValidacionBackend"
+                class="p-error text-xs mb-2 ml-6"
+            >
+                {{ mensajeValidacionBackend }}
+            </div>
+            <div class="field mb-3 flex align-items-center gap-3">
+                <label
+                    for="fechaFinMatricula"
+                    class="text-nowrap w-9rem label-required white-space-nowrap"
+                    >Fecha fin matrícula:</label
+                >
+                <p-calendar
+                    id="fechaFinMatricula"
+                    formControlName="fechaFinMatricula"
+                    [showIcon]="true"
+                    appendTo="body"
+                    dateFormat="yy-mm-dd"
+                    class="flex-1"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            form.get('fechaFinMatricula').invalid &&
+                            form.get('fechaFinMatricula').touched
+                    }"
+                ></p-calendar>
+            </div>
+            <div
+                *ngIf="fechaFinMatriculaInvalida"
+                class="p-error text-xs mb-2 ml-6"
+            >
+                La fecha fin matrícula debe estar entre la fecha de inicio y la
+                fecha de fin del periodo.
+            </div>
+
+            <div class="field mb-3 flex align-items-center gap-3">
+                <label
+                    for="periodoTag"
+                    class="text-nowrap w-9rem label-required"
+                    >Período:</label
+                >
+                <p-dropdown
+                    id="tagPeriodo"
+                    formControlName="tagPeriodo"
+                    [options]="tagPeriodoOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Ej: 2025-1"
+                    class="flex-1"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            form.get('tagPeriodo').invalid &&
+                            form.get('tagPeriodo').touched
+                    }"
+                ></p-dropdown>
+            </div>
+            <div
+                *ngIf="editMode"
+                class="field mb-3 flex align-items-center gap-3"
+            >
+                <label for="estado" class="text-nowrap w-9rem label-required"
+                    >Estado:</label
+                >
+                <p-dropdown
+                    id="estado"
+                    formControlName="estado"
+                    [options]="estadoOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Ej: 2025-1"
+                    class="flex-1"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            form.get('estado').invalid &&
+                            form.get('estado').touched
+                    }"
+                ></p-dropdown>
+            </div>
+            <div class="field mb-3">
+                <label for="descripcion">Descripción: </label>
+                <textarea
+                    id="descripcion"
+                    pInputTextarea
+                    formControlName="descripcion"
+                    rows="4"
+                    class="w-full"
+                    placeholder="Ej: Período 2025-1"
+                    maxlength="200"
+                    [ngClass]="{
+                        'ng-invalid ng-dirty':
+                            form.get('descripcion').invalid &&
+                            form.get('descripcion').touched
+                    }"
+                ></textarea>
+                <div class="text-right text-xs mt-1 text-500">
+                    {{ form.get("descripcion")?.value?.length || 0 }}/200
+                    caracteres
+                </div>
+            </div>
+            <div class="flex justify-content-end gap-2">
+                <button
+                    pButton
+                    pRipple
+                    type="button"
+                    label="Cancelar"
+                    class="p-button-secondary p-button-outlined"
+                    (click)="cancelarModal()"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    type="submit"
+                    [label]="
+                        editMode ? 'Actualizar período' : 'Registrar período'
+                    "
+                    class="p-button-primary"
+                    [disabled]="
+                        !form.valid ||
+                        !fechasValidas ||
+                        (editMode && !form.dirty)
+                    "
+                ></button>
+            </div>
+        </form>
+    </p-dialog>
+
+    <!-- Modal para precargar cursos -->
+    <p-dialog
+        header="Precargar cursos"
+        [(visible)]="displayPrecargaModal"
+        [modal]="true"
+        [closable]="false"
+        [style]="{ width: 'min(720px, 92vw)' }"
+        (onHide)="cancelarPrecargaCursos()"
+    >
+        <div class="flex flex-column gap-3">
+            <div class="text-700">
+                <span class="font-semibold">Período destino:</span>
+                {{ formatPeriodoEtiqueta(periodoPrecargaDestino) || "-" }}
+            </div>
+            <div class="text-700">
+                Seleccione el período desde donde quiere precargar cursos
+                (selección única).
+            </div>
+            <p-table
+                [value]="periodosPrecargaDisponibles"
+                selectionMode="single"
+                [(selection)]="periodoPrecargaOrigen"
+                dataKey="id"
+                [paginator]="true"
+                [rows]="5"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="{first} - {last} de {totalRecords}"
+            >
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th scope="col" style="width: 3rem"></th>
+                        <th scope="col">Período</th>
+                        <th scope="col">Fecha Inicio</th>
+                        <th scope="col">Fecha Fin</th>
+                        <th scope="col">Estado</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-periodo>
+                    <tr [pSelectableRow]="periodo">
+                        <td>
+                            <p-tableRadioButton
+                                [value]="periodo"
+                            ></p-tableRadioButton>
+                        </td>
+                        <td>{{ periodo.tagPeriodo }}</td>
+                        <td>{{ periodo.fechaInicio }}</td>
+                        <td>{{ periodo.fechaFin }}</td>
+                        <td>{{ periodo.estado }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td [attr.colspan]="5">
+                            No hay períodos disponibles para precargar
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+        <p-footer>
+            <div class="flex justify-content-end gap-2">
+                <button
+                    pButton
+                    label="Cancelar"
+                    class="p-button-secondary p-button-outlined"
+                    (click)="cancelarPrecargaCursos()"
+                ></button>
+                <button
+                    pButton
+                    label="Precargar"
+                    class="p-button-primary"
+                    [disabled]="!periodoPrecargaOrigen"
+                    (click)="confirmarPrecargaCursos()"
+                ></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+
+</p-panel>

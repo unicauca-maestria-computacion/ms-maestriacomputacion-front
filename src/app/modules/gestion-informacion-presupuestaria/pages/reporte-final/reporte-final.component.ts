@@ -22,6 +22,7 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
   cargando: boolean = false;
   periodoSeleccionado: PeriodoFinancieroDTORespuesta | null = null;
   sinPeriodos: boolean = false;
+  errorPeriodos: boolean = false;
 
   configuracion: ConfiguracionReporteFinanciero | null = null;
   estudiantes: ReporteFinalVM[] = [];
@@ -79,10 +80,13 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error fetching report', err);
+        const periodoTexto = periodoObj
+          ? `para el período ${periodoObj.año}-${periodoObj.periodo}`
+          : '';
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo cargar el reporte financiero. Intente nuevamente.'
+          summary: 'Error al cargar',
+          detail: `No se pudo cargar el reporte financiero ${periodoTexto}. Intente nuevamente.`
         });
         this.cargando = false;
         this.cdr.markForCheck();

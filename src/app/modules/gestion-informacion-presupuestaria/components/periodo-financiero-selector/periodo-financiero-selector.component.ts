@@ -28,6 +28,7 @@ export class PeriodoFinancieroSelectorComponent implements OnInit, OnDestroy {
   @Output() periodoSeleccionado = new EventEmitter<PeriodoFinancieroDTORespuesta>();
   @Output() esUltimoPeriodoChange = new EventEmitter<boolean>();
   @Output() sinPeriodosChange = new EventEmitter<boolean>();
+  @Output() errorCargaChange = new EventEmitter<boolean>();
 
   periodos: PeriodoFinancieroDTORespuesta[] = [];
   currentIndex: number = 0;
@@ -82,6 +83,8 @@ export class PeriodoFinancieroSelectorComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Error loading periods', err);
         this.errorCarga = 'No se pudo cargar los períodos. Verifique la conexión con el servidor.';
+        this.sinPeriodosChange.emit(false);
+        this.errorCargaChange.emit(true);
         this.loading = false;
         this.cdr.markForCheck();
       }

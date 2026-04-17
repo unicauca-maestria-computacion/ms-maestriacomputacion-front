@@ -1,5 +1,5 @@
 <div class="col-12">
-    <p-toast></p-toast>
+    <p-toast position="top-right"></p-toast>
     <p-card>
         <div class="page-content">
             <app-opciones-presupuesto [activeTab]="'proyeccion-reporte'" [currentPeriod]="periodoSeleccionado" (onDescargar)="descargar()">
@@ -9,7 +9,8 @@
             <app-periodo-financiero-selector [modo]="'activos'"
                 [mensajeVacio]="'No hay períodos académicos activos para mostrar.'"
                 (periodoSeleccionado)="onPeriodoChange($event)"
-                (sinPeriodosChange)="sinPeriodos = $event">
+                (sinPeriodosChange)="sinPeriodos = $event"
+                (errorCargaChange)="errorPeriodos = $event">
             </app-periodo-financiero-selector>
         </div>
 
@@ -30,7 +31,7 @@
         </div>
 
         <!-- Sin datos -->
-        <div *ngIf="!cargando && !guardando && !configuracion && !sinPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
+        <div *ngIf="!cargando && !guardando && !configuracion && !sinPeriodos && !errorPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
             <i class="pi pi-inbox text-4xl text-400"></i>
             <span class="text-600 text-lg">Seleccione un período académico para cargar la proyección.</span>
         </div>

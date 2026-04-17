@@ -475,6 +475,7 @@
                 [(display)]="displayGastosModal"
                 [gastos]="configuracion.objConfiguracionReporteGrupos.gastosGenerales"
                 [idConfiguracionReporteGrupos]="configuracion?.objConfiguracionReporteGrupos?.id ?? null"
+                [periodoAcademicoId]="periodoSeleccionado?.id ?? null"
                 [readonly]="!esEditable"
                 (onCambio)="onGastosChange()">
             </app-gastos-generales-dialog>

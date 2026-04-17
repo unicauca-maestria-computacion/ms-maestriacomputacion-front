@@ -43,6 +43,11 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     return this.configuracion?.esEditable ?? false;
   }
 
+  /** ID del período académico actualmente cargado, necesario para todas las operaciones de edición. */
+  private get periodoAcademicoId(): number {
+    return this.periodoSeleccionado?.id ?? 0;
+  }
+
   editingRowKey: string | null = null;
   editingBudgetRowKey: string | null = null;
   clonedRow: { [s: string]: number } = {};
@@ -439,7 +444,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     const ejecutarSecuencial = (index: number) => {
       if (index >= valoresPorGrupo.length) return;
       const { grupoId, porcentaje } = valoresPorGrupo[index];
-      this.facadeService.actualizarParticipacionGrupo({ grupoId, porcentajeParticipacion: porcentaje, semestre: valoresPorGrupo[index].semestre })
+      this.facadeService.actualizarParticipacionGrupo({ periodoAcademicoId: this.periodoAcademicoId, grupoId, porcentajeParticipacion: porcentaje, semestre: valoresPorGrupo[index].semestre })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (data) => {
@@ -533,11 +538,11 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
 
     if (aui !== undefined) {
       this.configuracion!.objConfiguracionReporteGrupos.aUIPorcentaje = aui;
-      this.facadeService.actualizarPorcentajeAUIUniversidad(this.toRatio(aui)).pipe(takeUntil(this.destroy$)).subscribe({
+      this.facadeService.actualizarPorcentajeAUIUniversidad(this.periodoAcademicoId, this.toRatio(aui)).pipe(takeUntil(this.destroy$)).subscribe({
         next: (data) => {
           if (excedentes !== undefined) {
             this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
-            this.facadeService.actualizarValorExcedentesMaestria(excedentes).pipe(takeUntil(this.destroy$)).subscribe({
+            this.facadeService.actualizarValorExcedentesMaestria(this.periodoAcademicoId, excedentes).pipe(takeUntil(this.destroy$)).subscribe({
               next: (d) => finish(d),
               error: () => onError('No se pudo actualizar excedentes.')
             });
@@ -549,7 +554,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       });
     } else if (excedentes !== undefined) {
       this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
-      this.facadeService.actualizarValorExcedentesMaestria(excedentes).pipe(takeUntil(this.destroy$)).subscribe({
+      this.facadeService.actualizarValorExcedentesMaestria(this.periodoAcademicoId, excedentes).pipe(takeUntil(this.destroy$)).subscribe({
         next: (data) => finish(data),
         error: () => onError('No se pudo actualizar excedentes.')
       });
@@ -601,7 +606,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     this.facadeService.actualizarPorcentajeItems({
       item1: this.toRatio(item1),
       item2: this.toRatio(item2)
-    }).pipe(takeUntil(this.destroy$)).subscribe({
+    }, this.periodoAcademicoId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
         this.normalizarPorcentajesParaDisplay(this.configuracion);
@@ -664,7 +669,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     this.guardandoImprevistos = true;
     this.editandoImprevistos = false;
     const valor = this.clonedImprevistos;
-    this.facadeService.actualizarPorcentajeImprevistos(this.toRatio(valor)).pipe(takeUntil(this.destroy$)).subscribe({
+    this.facadeService.actualizarPorcentajeImprevistos(this.periodoAcademicoId, this.toRatio(valor)).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
         this.normalizarPorcentajesParaDisplay(this.configuracion);
@@ -711,7 +716,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     const ejecutarSecuencial = (index: number) => {
       if (index >= valoresPorGrupo.length) return;
       const { grupoId, valor } = valoresPorGrupo[index];
-      this.facadeService.actualizarVigenciasAnterioresGrupo(grupoId, valor)
+      this.facadeService.actualizarVigenciasAnterioresGrupo(this.periodoAcademicoId, grupoId, valor)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (data) => {

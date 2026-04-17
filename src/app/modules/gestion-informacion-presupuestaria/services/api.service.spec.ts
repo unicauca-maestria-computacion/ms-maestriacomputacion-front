@@ -110,25 +110,34 @@ describe('GestionInformacionPresupuestariaApiService', () => {
         req.flush({});
     });
 
-    it('crearGastoGeneral debe hacer POST a /api/reporte-por-grupos/gastos', () => {
+    it('crearGastoGeneral debe hacer POST a /api/reporte-por-grupos/gastos con periodoAcademicoId', () => {
         const dto = { categoria: 'PAPELERIA', descripcion: 'Resmas', monto: 50000, idConfiguracionReporteGrupos: 1 };
-        service.crearGastoGeneral(dto).subscribe();
-        const req = httpMock.expectOne(`${BASE_URL}reporte-por-grupos/gastos`);
+        service.crearGastoGeneral(2, dto).subscribe();
+        const req = httpMock.expectOne(r =>
+            r.url === `${BASE_URL}reporte-por-grupos/gastos` &&
+            r.params.get('periodoAcademicoId') === '2'
+        );
         expect(req.request.method).toBe('POST');
         req.flush({});
     });
 
-    it('actualizarGastoGeneral debe hacer PUT a /api/reporte-por-grupos/gastos/{id}', () => {
+    it('actualizarGastoGeneral debe hacer PUT a /api/reporte-por-grupos/gastos/{id} con periodoAcademicoId', () => {
         const dto = { categoria: 'PAPELERIA', descripcion: 'Resmas', monto: 60000, idConfiguracionReporteGrupos: 1 };
-        service.actualizarGastoGeneral(5, dto).subscribe();
-        const req = httpMock.expectOne(`${BASE_URL}reporte-por-grupos/gastos/5`);
+        service.actualizarGastoGeneral(5, 2, dto).subscribe();
+        const req = httpMock.expectOne(r =>
+            r.url === `${BASE_URL}reporte-por-grupos/gastos/5` &&
+            r.params.get('periodoAcademicoId') === '2'
+        );
         expect(req.request.method).toBe('PUT');
         req.flush({});
     });
 
-    it('eliminarGastoGeneral debe hacer DELETE a /api/reporte-por-grupos/gastos/{id}', () => {
-        service.eliminarGastoGeneral(3).subscribe();
-        const req = httpMock.expectOne(`${BASE_URL}reporte-por-grupos/gastos/3`);
+    it('eliminarGastoGeneral debe hacer DELETE a /api/reporte-por-grupos/gastos/{id} con periodoAcademicoId', () => {
+        service.eliminarGastoGeneral(3, 2).subscribe();
+        const req = httpMock.expectOne(r =>
+            r.url === `${BASE_URL}reporte-por-grupos/gastos/3` &&
+            r.params.get('periodoAcademicoId') === '2'
+        );
         expect(req.request.method).toBe('DELETE');
         req.flush(null);
     });

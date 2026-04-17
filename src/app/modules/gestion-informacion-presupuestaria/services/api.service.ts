@@ -110,22 +110,27 @@ export class GestionInformacionPresupuestariaApiService {
         );
     }
 
-    actualizarPorcentajeAUI(porcentaje: number): Observable<ConsultaReportePorGruposDTORespuesta> {
-        const params = new HttpParams().set('porcentaje', porcentaje.toString());
+    actualizarPorcentajeAUI(periodoAcademicoId: number, porcentaje: number): Observable<ConsultaReportePorGruposDTORespuesta> {
+        const params = new HttpParams()
+            .set('periodoAcademicoId', periodoAcademicoId.toString())
+            .set('porcentaje', porcentaje.toString());
         return this.http.put<ConsultaReportePorGruposDTORespuesta>(
             backendInfoPresupuestaria('reporte-por-grupos/aui'), null, { params }
         );
     }
 
-    actualizarExcedentesMaestria(valor: number): Observable<ConsultaReportePorGruposDTORespuesta> {
-        const params = new HttpParams().set('valor', valor.toString());
+    actualizarExcedentesMaestria(periodoAcademicoId: number, valor: number): Observable<ConsultaReportePorGruposDTORespuesta> {
+        const params = new HttpParams()
+            .set('periodoAcademicoId', periodoAcademicoId.toString())
+            .set('valor', valor.toString());
         return this.http.put<ConsultaReportePorGruposDTORespuesta>(
             backendInfoPresupuestaria('reporte-por-grupos/excedentes'), null, { params }
         );
     }
 
-    actualizarVigenciasAnterioresGrupo(grupoId: number, valor: number): Observable<ConsultaReportePorGruposDTORespuesta> {
+    actualizarVigenciasAnterioresGrupo(periodoAcademicoId: number, grupoId: number, valor: number): Observable<ConsultaReportePorGruposDTORespuesta> {
         const params = new HttpParams()
+            .set('periodoAcademicoId', periodoAcademicoId.toString())
             .set('grupoId', grupoId.toString())
             .set('valor', valor.toString());
         return this.http.put<ConsultaReportePorGruposDTORespuesta>(
@@ -133,8 +138,9 @@ export class GestionInformacionPresupuestariaApiService {
         );
     }
 
-    actualizarItems(item1: number, item2: number): Observable<ConsultaReportePorGruposDTORespuesta> {
+    actualizarItems(periodoAcademicoId: number, item1: number, item2: number): Observable<ConsultaReportePorGruposDTORespuesta> {
         const params = new HttpParams()
+            .set('periodoAcademicoId', periodoAcademicoId.toString())
             .set('item1', item1.toString())
             .set('item2', item2.toString());
         return this.http.put<ConsultaReportePorGruposDTORespuesta>(
@@ -142,8 +148,10 @@ export class GestionInformacionPresupuestariaApiService {
         );
     }
 
-    actualizarImprevistos(porcentaje: number): Observable<ConsultaReportePorGruposDTORespuesta> {
-        const params = new HttpParams().set('porcentaje', porcentaje.toString());
+    actualizarImprevistos(periodoAcademicoId: number, porcentaje: number): Observable<ConsultaReportePorGruposDTORespuesta> {
+        const params = new HttpParams()
+            .set('periodoAcademicoId', periodoAcademicoId.toString())
+            .set('porcentaje', porcentaje.toString());
         return this.http.put<ConsultaReportePorGruposDTORespuesta>(
             backendInfoPresupuestaria('reporte-por-grupos/imprevistos'), null, { params }
         );
@@ -151,21 +159,24 @@ export class GestionInformacionPresupuestariaApiService {
 
     // --- Gastos generales ---
 
-    crearGastoGeneral(dto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta> {
+    crearGastoGeneral(periodoAcademicoId: number, dto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta> {
+        const params = new HttpParams().set('periodoAcademicoId', periodoAcademicoId.toString());
         return this.http.post<GastoGeneralDTORespuesta>(
-            backendInfoPresupuestaria('reporte-por-grupos/gastos'), dto
+            backendInfoPresupuestaria('reporte-por-grupos/gastos'), dto, { params }
         );
     }
 
-    actualizarGastoGeneral(id: number, dto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta> {
+    actualizarGastoGeneral(id: number, periodoAcademicoId: number, dto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta> {
+        const params = new HttpParams().set('periodoAcademicoId', periodoAcademicoId.toString());
         return this.http.put<GastoGeneralDTORespuesta>(
-            backendInfoPresupuestaria(`reporte-por-grupos/gastos/${id}`), dto
+            backendInfoPresupuestaria(`reporte-por-grupos/gastos/${id}`), dto, { params }
         );
     }
 
-    eliminarGastoGeneral(id: number): Observable<void> {
+    eliminarGastoGeneral(id: number, periodoAcademicoId: number): Observable<void> {
+        const params = new HttpParams().set('periodoAcademicoId', periodoAcademicoId.toString());
         return this.http.delete<void>(
-            backendInfoPresupuestaria(`reporte-por-grupos/gastos/${id}`)
+            backendInfoPresupuestaria(`reporte-por-grupos/gastos/${id}`), { params }
         );
     }
 }

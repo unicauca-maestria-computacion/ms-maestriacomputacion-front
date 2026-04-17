@@ -19,6 +19,8 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
   @Input() gastos: GastoGeneral[] = [];
   /** ID de la configuración de reporte por grupos actual (periodo seleccionado). Se envía al crear un gasto. */
   @Input() idConfiguracionReporteGrupos: number | null = null;
+  /** ID del período académico actualmente seleccionado. Requerido para todas las operaciones de edición. */
+  @Input() periodoAcademicoId: number | null = null;
   /** Modo solo lectura: oculta botones de agregar, editar y eliminar gastos. */
   @Input() readonly: boolean = false;
   @Output() displayChange = new EventEmitter<boolean>();
@@ -100,6 +102,10 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
       console.error('idConfiguracionReporteGrupos es null. Valor de configuracion:', this.idConfiguracionReporteGrupos);
       return;
     }
+    if (this.periodoAcademicoId == null) {
+      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'No se puede crear el gasto: el período académico no está disponible. Recarga la página.' });
+      return;
+    }
     if (!this.nuevoGasto.categoria || !this.nuevoGasto.descripcion || this.nuevoGasto.monto <= 0) {
       this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'Todos los campos son requeridos y el monto debe ser mayor a 0' });
       return;
@@ -114,7 +120,7 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
       monto: this.nuevoGasto.monto
     };
 
-    this.facadeService.crearGastoGeneral(gastoDTO).pipe(takeUntil(this.destroy$)).subscribe({
+    this.facadeService.crearGastoGeneral(this.periodoAcademicoId!, gastoDTO).pipe(takeUntil(this.destroy$)).subscribe({
       next: (gastoCreado) => {
         // Reemplazar fila temporal (-1) con el gasto real recibido del backend
         const index = this.gastosEditables.findIndex(g => g.idGastoGeneral === -1);
@@ -159,6 +165,7 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
 
     const gastoDTO = {
       idGastoGeneral: gasto.idGastoGeneral,
+      periodoAcademicoId: this.periodoAcademicoId!,
       categoria: gasto.categoria,
       descripcion: gasto.descripcion,
       monto: gasto.monto
@@ -210,7 +217,7 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
 
   eliminarGasto(gasto: GastoGeneral) {
     this.guardandoGastos = true;
-    this.facadeService.eliminarGastoGeneral(gasto.idGastoGeneral).pipe(takeUntil(this.destroy$)).subscribe({
+    this.facadeService.eliminarGastoGeneral(gasto.idGastoGeneral, this.periodoAcademicoId!).pipe(takeUntil(this.destroy$)).subscribe({
       next: (_) => {
         // El backend retorna 204 No Content — cualquier respuesta aquí es éxito
         const index = this.gastosEditables.findIndex(g => g.idGastoGeneral === gasto.idGastoGeneral);

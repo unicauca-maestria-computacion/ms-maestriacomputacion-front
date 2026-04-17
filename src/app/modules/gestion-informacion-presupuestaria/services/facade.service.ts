@@ -180,10 +180,10 @@ export class GestionInformacionPresupuestariaFacadeService {
         );
     }
 
-    actualizarPorcentajeAUIUniversidad(porcentaje: number): Observable<ReportePorGrupos> {
+    actualizarPorcentajeAUIUniversidad(periodoAcademicoId: number, porcentaje: number): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarPorcentajeAUI(porcentaje).pipe(
+        return this.apiService.actualizarPorcentajeAUI(periodoAcademicoId, porcentaje).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
@@ -191,10 +191,10 @@ export class GestionInformacionPresupuestariaFacadeService {
         );
     }
 
-    actualizarValorExcedentesMaestria(valor: number): Observable<ReportePorGrupos> {
+    actualizarValorExcedentesMaestria(periodoAcademicoId: number, valor: number): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarExcedentesMaestria(valor).pipe(
+        return this.apiService.actualizarExcedentesMaestria(periodoAcademicoId, valor).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
@@ -204,44 +204,48 @@ export class GestionInformacionPresupuestariaFacadeService {
 
     // ── Gastos generales ──────────────────────────────────────────────────
 
-    crearGastoGeneral(gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }> {
+    crearGastoGeneral(periodoAcademicoId: number, gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.crearGastoGeneral(gasto).pipe(
+        return this.apiService.crearGastoGeneral(periodoAcademicoId, gasto).pipe(
             map(dto => ({ ...dto, idGastoGeneral: dto.id })),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    actualizarGastoGeneral(id: number, gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }>;
-    actualizarGastoGeneral(gastoConId: { idGastoGeneral: number; categoria: string; descripcion: string; monto: number }): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }>;
+    actualizarGastoGeneral(id: number, periodoAcademicoId: number, gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }>;
+    actualizarGastoGeneral(gastoConId: { idGastoGeneral: number; periodoAcademicoId: number; categoria: string; descripcion: string; monto: number }): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }>;
     actualizarGastoGeneral(
-        idOrGasto: number | { idGastoGeneral: number; categoria: string; descripcion: string; monto: number },
+        idOrGasto: number | { idGastoGeneral: number; periodoAcademicoId: number; categoria: string; descripcion: string; monto: number },
+        periodoAcademicoIdOrGasto?: number,
         gasto?: GastoGeneralDTOPeticion
     ): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }> {
         this._loading.next(true);
         this._error.next(null);
         let id: number;
+        let periodoId: number;
         let dto: GastoGeneralDTOPeticion;
         if (typeof idOrGasto === 'number') {
             id = idOrGasto;
+            periodoId = periodoAcademicoIdOrGasto!;
             dto = gasto!;
         } else {
             id = idOrGasto.idGastoGeneral;
+            periodoId = idOrGasto.periodoAcademicoId;
             dto = { categoria: idOrGasto.categoria, descripcion: idOrGasto.descripcion, monto: idOrGasto.monto, idConfiguracionReporteGrupos: 0 };
         }
-        return this.apiService.actualizarGastoGeneral(id, dto).pipe(
+        return this.apiService.actualizarGastoGeneral(id, periodoId, dto).pipe(
             map(d => ({ ...d, idGastoGeneral: d.id })),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    eliminarGastoGeneral(id: number): Observable<void> {
+    eliminarGastoGeneral(id: number, periodoAcademicoId: number): Observable<void> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.eliminarGastoGeneral(id).pipe(
+        return this.apiService.eliminarGastoGeneral(id, periodoAcademicoId).pipe(
             catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
@@ -253,6 +257,7 @@ export class GestionInformacionPresupuestariaFacadeService {
         porcentajes: { idGrupo: string; nombreGrupo: string; porcentaje: number }[]
     ): Observable<ReportePorGrupos> {
         const dto: ActualizarParticipacionDTOPeticion = {
+            periodoAcademicoId: 0,
             grupoId: 0,
             porcentajeParticipacion: porcentajes[0]?.porcentaje ?? 0
         };
@@ -263,16 +268,17 @@ export class GestionInformacionPresupuestariaFacadeService {
         porcentajes: { idGrupo: string; nombreGrupo: string; porcentaje: number }[]
     ): Observable<ReportePorGrupos> {
         const dto: ActualizarParticipacionDTOPeticion = {
+            periodoAcademicoId: 0,
             grupoId: 0,
             porcentajeParticipacion: porcentajes[0]?.porcentaje ?? 0
         };
         return this.actualizarParticipacionGrupo(dto);
     }
 
-    actualizarPorcentajeItems(items: { item1: number; item2: number }): Observable<ReportePorGrupos> {
+    actualizarPorcentajeItems(items: { item1: number; item2: number }, periodoAcademicoId: number): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarItems(items.item1, items.item2).pipe(
+        return this.apiService.actualizarItems(periodoAcademicoId, items.item1, items.item2).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
@@ -280,10 +286,10 @@ export class GestionInformacionPresupuestariaFacadeService {
         );
     }
 
-    actualizarPorcentajeImprevistos(valor: number): Observable<ReportePorGrupos> {
+    actualizarPorcentajeImprevistos(periodoAcademicoId: number, valor: number): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarImprevistos(valor).pipe(
+        return this.apiService.actualizarImprevistos(periodoAcademicoId, valor).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
@@ -301,10 +307,10 @@ export class GestionInformacionPresupuestariaFacadeService {
         });
     }
 
-    actualizarVigenciasAnterioresGrupo(grupoId: number, valor: number): Observable<ReportePorGrupos> {
+    actualizarVigenciasAnterioresGrupo(periodoAcademicoId: number, grupoId: number, valor: number): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarVigenciasAnterioresGrupo(grupoId, valor).pipe(
+        return this.apiService.actualizarVigenciasAnterioresGrupo(periodoAcademicoId, grupoId, valor).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
             tap(data => this._reporteGrupos.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),

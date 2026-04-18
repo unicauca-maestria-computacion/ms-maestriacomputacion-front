@@ -172,6 +172,7 @@ export class GestionInformacionPresupuestariaMapperService {
             esEditable: dto.esEditable ?? false,
             ingresoPeriodo1: dto.ingresoPeriodo1 ?? 0,
             ingresoPeriodo2: dto.ingresoPeriodo2 ?? 0,
+            transferenciaUnicauca: dto.transferenciaUnicauca ?? 0,
             totalNeto,
             aportePrimerSemestre,
             aporteSegundoSemestre,
@@ -194,6 +195,7 @@ export class GestionInformacionPresupuestariaMapperService {
                 item1: dto.item1 ?? 0,
                 item2: dto.item2 ?? 0,
                 imprevistos: dto.imprevistos ?? 0,
+                transferenciaUnicauca: dto.transferenciaUnicauca ?? 0,
                 objPeriodoFinanciero: this.mappearDeRespuestaAPeriodoFinanciero(dto.periodo),
                 gastosGenerales: gastos
             }

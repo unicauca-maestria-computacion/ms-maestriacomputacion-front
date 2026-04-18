@@ -62,6 +62,14 @@
                             <label for="float-ingresos">Ingresos Matrículas</label>
                         </span>
 
+                        <span class="p-float-label">
+                            <p-inputNumber id="float-unicauca" [ngModel]="configuracion.transferenciaUnicauca"
+                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                                [readonly]="true" [disabled]="true" styleClass="config-input">
+                            </p-inputNumber>
+                            <label for="float-unicauca">Transferencia Unicauca (Der. Comp.)</label>
+                        </span>
+
                         <div class="config-row-actions" *ngIf="esEditable">
                             <button *ngIf="!editandoIngresos" pButton pRipple type="button" icon="pi pi-pencil"
                                 class="p-button-rounded p-button-text p-button-secondary"
@@ -365,7 +373,8 @@
                                 class="config-input-percent">
                             <p-inputNumber *ngIf="!editandoImprevistos" [ngModel]="configuracion.objConfiguracionReporteGrupos.imprevistos"
                                 suffix=" %" [minFractionDigits]="2"
-                                [readonly]="true" [disabled]="true" styleClass="config-input">
+                                [readonly]="true" [disabled]="true" styleClass="config-input"
+                                pTooltip="Reserva del 5% calculada sobre el presupuesto bruto anual del grupo" tooltipPosition="top">
                             </p-inputNumber>
                             <label for="float-imprevistos">Imprevistos (%)</label>
                         </span>

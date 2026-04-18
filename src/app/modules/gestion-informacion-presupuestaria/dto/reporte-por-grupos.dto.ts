@@ -32,6 +32,7 @@ export interface ConsultaReportePorGruposDTORespuesta {
     imprevistos: number;
     totalIngresos: number;
     valorADistribuir: number;
+    transferenciaUnicauca?: number;
     reportesPorGrupo: ReportePorGrupoDTORespuesta[];
     gastosGenerales: GastoGeneralDTORespuesta[];
     idConfiguracionReporteGrupos: number;

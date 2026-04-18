@@ -72,6 +72,7 @@ export interface ConfiguracionReporteGrupos {
     item1: number;
     item2: number;
     imprevistos: number;
+    transferenciaUnicauca?: number;
     objPeriodoFinanciero: PeriodoFinanciero;
     gastosGenerales: GastoGeneral[];
 }
@@ -118,6 +119,7 @@ export interface ReportePorGrupos {
     imprevistos: number;
     presupuestoPorGrupoImprevistos: number;
     vigenciasAnteriores: number;
+    transferenciaUnicauca?: number;
 }
 
 export interface PorcentajeGrupo {

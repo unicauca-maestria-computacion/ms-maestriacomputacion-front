@@ -148,8 +148,8 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       { label: 'Total Neto', key: 'totalNeto', isPercentage: false, isEditable: false },
       { label: 'Aporte grupo primer semestre', key: 'aportePrimerSemestre', isPercentage: false, isEditable: false },
       { label: 'Aporte grupo segundo semestre', key: 'aporteSegundoSemestre', isPercentage: false, isEditable: false },
-      { label: 'Participación 1er Semestre', key: 'porcentajePrimerSemestre', isPercentage: true, isEditable: true },
-      { label: 'Participación 2do semestre', key: 'porcentajeSegundoSemestre', isPercentage: true, isEditable: true },
+      { label: 'Participación 1er Semestre', key: 'porcentajePrimerSemestre', isPercentage: true, isEditable: false },
+      { label: 'Participación 2do semestre', key: 'porcentajeSegundoSemestre', isPercentage: true, isEditable: false },
       { label: 'Participación por año', key: 'participacionPorAño', isPercentage: true, isEditable: false }
     ];
 
@@ -182,6 +182,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     this.distributionSummary = [
       { label: 'AUI Universidad', value: auiValor ?? 0 },
       { label: 'Ingresos Netos', value: config.ingresosNetos },
+      { label: 'Transferencia Unicauca', value: data.transferenciaUnicauca ?? 0 },
       { label: 'Excedentes Maestria', value: config.excedentesMaestria },
       { label: 'Gastos Generales', value: config.gastosGenerales.reduce((sum, g) => sum + g.monto, 0) },
       { label: 'Valor a Distribuir (Ingresos-Gastos)', value: config.valorADistribuir, isBold: true }

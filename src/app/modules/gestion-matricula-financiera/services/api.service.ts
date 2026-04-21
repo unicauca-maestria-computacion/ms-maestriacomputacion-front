@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { backendGestionMatriculaFinanciera } from 'src/app/core/constants/api-url';
+import { backendGestionMatriculaFinanciera, backendGestionSolicitudes } from 'src/app/core/constants/api-url';
 import { PeriodoAcademicoDTOPeticion, PeriodoAcademicoDTORespuesta } from '../dto/periodo-academico.dto';
 import { EstudianteDTORespuesta } from '../dto/estudiante.dto';
+
+export interface SolicitudCertificadoVotacion {
+    id_Certificado: string;
+    id_Estudiante: string;
+    estado: string;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -31,5 +37,15 @@ export class GestionMatriculaFinancieraApiService {
 
     iniciarNuevaMatriculaFinanciera(): Observable<boolean> {
         return this.http.post<boolean>(backendGestionMatriculaFinanciera('iniciar'), {});
+    }
+
+    obtenerSolicitudesCertificadoVotacion(): Observable<SolicitudCertificadoVotacion[]> {
+        return this.http.get<SolicitudCertificadoVotacion[]>(
+            backendGestionSolicitudes('gestionSolicitud/obtener-solicitudes-certificado-votacion')
+        );
+    }
+
+    tieneDescuentoVoto(codigo: string): Observable<boolean> {
+        return this.http.get<boolean>(backendGestionMatriculaFinanciera(`estudiantes/${codigo}/descuento-voto`));
     }
 }

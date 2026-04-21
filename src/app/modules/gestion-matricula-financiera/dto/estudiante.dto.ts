@@ -12,6 +12,7 @@ export interface EstudianteDTORespuesta {
     semestreFinanciero: number;
     semestreAcademico?: number;
     valorEnSMLV?: number | null;
+    esEgresadoUnicauca?: boolean;
     descuentos: DescuentosDTORespuesta[];
     becas: BecasDTORespuesta[];
     materias: MateriaDTORespuesta[];

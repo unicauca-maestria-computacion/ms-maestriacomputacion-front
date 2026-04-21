@@ -86,7 +86,8 @@ export class GestionMatriculaFinancieraMapperService {
     mappearDeRespuestaABecaFinanciera(dto: BecasDTORespuesta): BecaFinanciera {
         return {
             resolucion: dto.resolucion,
-            porcentaje: dto.porcentaje || 0
+            porcentaje: dto.porcentaje || 0,
+            tipo: dto.tipo || ''
         };
     }
 
@@ -112,6 +113,7 @@ export class GestionMatriculaFinancieraMapperService {
             semestreFinanciero: dto.semestreFinanciero || 0,
             semestreAcademico: dto.semestreAcademico,
             valorEnSMLV: dto.valorEnSMLV ?? null,
+            esEgresadoUnicauca: dto.esEgresadoUnicauca ?? false,
             matriculasFinancieras: [],
             descuentos: (dto.descuentos ?? []).map(d => this.mappearDeRespuestaADescuentoFinanciero(d)),
             becas: (dto.becas ?? []).map(b => this.mappearDeRespuestaABecaFinanciera(b)),

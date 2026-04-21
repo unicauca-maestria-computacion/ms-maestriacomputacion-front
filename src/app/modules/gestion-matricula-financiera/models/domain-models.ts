@@ -36,6 +36,7 @@ export interface MatriculaFinanciera {
 export interface BecaFinanciera {
     resolucion: string;
     porcentaje: number;
+    tipo: string;
 }
 
 export interface DescuentoFinanciero {
@@ -53,6 +54,7 @@ export interface Estudiante {
     semestreFinanciero: number;
     semestreAcademico?: number;
     valorEnSMLV?: number | null;
+    esEgresadoUnicauca?: boolean;
     matriculasFinancieras: MatriculaFinanciera[];
     descuentos: DescuentoFinanciero[];
     becas: BecaFinanciera[];

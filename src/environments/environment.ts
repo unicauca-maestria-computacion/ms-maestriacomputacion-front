@@ -58,7 +58,7 @@ export const evaluacion_docente = {
 
 export const matricula_academica = {
     production: false,
-    api_url: 'http://localhost:8087/api/',
+    api_url: 'http://localhost:8081/api/',
 };
 
 export const gestion_matricula_financiera = {
@@ -68,7 +68,7 @@ export const gestion_matricula_financiera = {
 
 export const gestion_informacion_presupuestaria = {
     production: false,
-    api_url: 'http://localhost:8091/api/',
+    api_url: 'http://localhost:8094/api/',
 };
 /*
  * For easier debugging in development mode, you can import the following file

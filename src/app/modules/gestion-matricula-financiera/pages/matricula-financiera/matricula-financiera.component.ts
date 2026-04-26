@@ -4,6 +4,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.service';
+import { LoadingService } from 'src/app/shared/services/loading.service';
 import { Estudiante, PeriodoAcademico } from '../../models/domain-models';
 
 @Component({
@@ -33,6 +34,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
         private router: Router,
         private route: ActivatedRoute,
         private cdr: ChangeDetectorRef,
+        private loadingService: LoadingService
     ) {}
 
     ngOnInit(): void {
@@ -41,7 +43,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
 
     cargarPeriodos(): void {
-        this.loading = true;
+        this.loadingService.show('Cargando períodos académicos');
         this.facadeService.obtenerPeriodosAcademicos().pipe(takeUntil(this.destroy$)).subscribe({
             next: (periodos) => {
                 this.periodos = periodos;
@@ -68,7 +70,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
                 if (this.periodoSeleccionado) {
                     this.cargarEstudiantes();
                 } else {
-                    this.loading = false;
+                    this.loadingService.hide();
                     this.cdr.markForCheck();
                 }
             },
@@ -78,7 +80,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
                     summary: 'Error',
                     detail: 'No se pudieron cargar los períodos académicos. Intente nuevamente más tarde.'
                 });
-                this.loading = false;
+                this.loadingService.hide();
                 this.cdr.markForCheck();
             }
         });
@@ -87,13 +89,13 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
     cargarEstudiantes(): void {
         if (!this.periodoSeleccionado) return;
 
-        this.loading = true;
+        this.loadingService.show('Cargando lista de estudiantes');
         this.facadeService.obtenerEstudiantes(this.periodoSeleccionado).pipe(takeUntil(this.destroy$)).subscribe({
             next: (estudiantes) => {
-                this.estudiantes = estudiantes ?? [];
+                this.estudiantes = (estudiantes ?? []).sort((a, b) => (b.semestreFinanciero || 0) - (a.semestreFinanciero || 0));
                 this.extraerSemestres();
                 this.aplicarFiltros();
-                this.loading = false;
+                this.loadingService.hide();
                 this.cdr.markForCheck();
             },
             error: (err) => {
@@ -102,7 +104,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
                     summary: 'Error',
                     detail: 'No se pudieron cargar los estudiantes. Intente nuevamente más tarde.'
                 });
-                this.loading = false;
+                this.loadingService.hide();
                 this.cdr.markForCheck();
             }
         });

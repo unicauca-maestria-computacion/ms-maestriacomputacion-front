@@ -4,11 +4,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GestionMatriculaFinancieraRoutingModule } from './gestion-matricula-financiera-routing.module';
 import { PrimenNgModule } from '../primen-ng/primen-ng.module';
 import { MessageService } from 'primeng/api';
+import { SharedModule } from '../../shared/shared.module';
 
 import { MatriculaFinancieraComponent } from './pages/matricula-financiera/matricula-financiera.component';
 import { DetalleEstudianteComponent } from './pages/detalle-estudiante/detalle-estudiante.component';
 import { ResumenMatriculaEstudianteComponent } from './pages/resumen-matricula-estudiante/resumen-matricula-estudiante.component';
-import { TablaMatriculaEstudianteComponent } from './components/tabla-matricula-estudiante/tabla-matricula-estudiante.component';
 import { MatriculaStatusBadgeComponent } from './presentation/molecules/matricula-status-badge/matricula-status-badge.component';
 import { MatriculaFormComponent } from './presentation/organisms/matricula-form/matricula-form.component';
 import { MatriculaFacade } from './application/facade/matricula.facade';
@@ -20,7 +20,6 @@ import { HttpMatriculaAdapter } from './infrastructure/adapters/http-matricula.a
         MatriculaFinancieraComponent,
         DetalleEstudianteComponent,
         ResumenMatriculaEstudianteComponent,
-        TablaMatriculaEstudianteComponent,
         MatriculaStatusBadgeComponent,
         MatriculaFormComponent,
     ],
@@ -29,7 +28,8 @@ import { HttpMatriculaAdapter } from './infrastructure/adapters/http-matricula.a
         FormsModule,
         ReactiveFormsModule,
         PrimenNgModule,
-        GestionMatriculaFinancieraRoutingModule
+        GestionMatriculaFinancieraRoutingModule,
+        SharedModule
     ],
     providers: [
         MessageService,

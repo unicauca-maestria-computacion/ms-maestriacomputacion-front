@@ -14,9 +14,17 @@ export interface ProyeccionEstudianteDTORespuesta {
     porcentajeBeca: number;
     aplicaEgresado: boolean;
     grupoInvestigacion: string;
-    estadoProyeccion: string;
     valorEnSMLV: number;
     materias: MateriaDto[];
+
+    // Campos calculados recibidos del backend
+    valorMatricula?: number;
+    valorDescuentoVoto?: number;
+    valorDescuentoBeca?: number;
+    valorDescuentoEgresado?: number;
+    totalDescuentos?: number;
+    valorNeto?: number;
+    totalNetoConDerechos?: number;
 }
 
 export interface ProyeccionEstudianteDTOPeticion {
@@ -26,5 +34,4 @@ export interface ProyeccionEstudianteDTOPeticion {
     porcentajeBeca: number;
     aplicaEgresado: boolean;
     grupoInvestigacion?: string;
-    estadoProyeccion?: string;
 }

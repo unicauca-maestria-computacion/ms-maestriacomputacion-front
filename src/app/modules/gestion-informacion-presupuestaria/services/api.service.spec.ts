@@ -48,11 +48,10 @@ describe('GestionInformacionPresupuestariaApiService', () => {
         const dto = {
             codigoEstudiante: 'EST001',
             estaPago: true,
-            porcentajeVotacion: 0,
+            aplicaVotacion: true,
             porcentajeBeca: 0,
-            porcentajeEgresado: 0,
-            grupoInvestigacion: 'GTI',
-            estadoProyeccion: 'ACTIVO'
+            aplicaEgresado: true,
+            grupoInvestigacion: 'GTI'
         };
         service.actualizarProyeccionEstudiante(dto).subscribe();
         const req = httpMock.expectOne(`${BASE_URL}proyeccion-estudiantes`);
@@ -195,11 +194,10 @@ describe('GestionInformacionPresupuestariaApiService', () => {
         const dto = {
             codigoEstudiante: 'EST001',
             estaPago: true,
-            porcentajeVotacion: 0,
+            aplicaVotacion: true,
             porcentajeBeca: 0,
-            porcentajeEgresado: 0,
-            grupoInvestigacion: 'GTI',
-            estadoProyeccion: 'ACTIVO'
+            aplicaEgresado: true,
+            grupoInvestigacion: 'GTI'
         };
         service.actualizarProyeccionEstudiante(dto).subscribe({ error: () => { errorReceived = true; } });
         const req = httpMock.expectOne(`${BASE_URL}proyeccion-estudiantes`);

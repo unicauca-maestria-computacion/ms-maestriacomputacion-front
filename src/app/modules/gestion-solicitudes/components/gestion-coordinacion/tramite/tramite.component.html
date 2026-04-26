@@ -356,6 +356,53 @@
                             </div>
                         </div>
 
+                        <!-- Campos específicos para Becas -->
+                        <div class="col-12 grid" *ngIf="gestor.solicitudSeleccionada.codigoSolicitud === 'SO_BECA'">
+                            <div class="col-12 md:col-3">
+                                <p class="font-semibold">Porcentaje (%)</p>
+                                <p-inputNumber
+                                    [(ngModel)]="respuestaConsejo.porcentaje"
+                                    suffix="%"
+                                    [min]="0"
+                                    [max]="100"
+                                    [disabled]="bloquearConceptoConsejo"
+                                    [style]="{ width: '100%' }"
+                                ></p-inputNumber>
+                            </div>
+                            <div class="col-12 md:col-3">
+                                <p class="font-semibold">Resolución</p>
+                                <input
+                                    type="text"
+                                    pInputText
+                                    [(ngModel)]="respuestaConsejo.resolucion"
+                                    [disabled]="bloquearConceptoConsejo"
+                                    class="w-full"
+                                />
+                            </div>
+                            <div class="col-12 md:col-3">
+                                <p class="font-semibold">Fecha Inicio</p>
+                                <p-calendar
+                                    [(ngModel)]="fechaInicio"
+                                    [disabled]="bloquearConceptoConsejo"
+                                    dateFormat="dd/mm/yy"
+                                    appendTo="body"
+                                    [style]="{ width: '100%' }"
+                                    placeholder="Inicio"
+                                ></p-calendar>
+                            </div>
+                            <div class="col-12 md:col-3">
+                                <p class="font-semibold">Fecha Fin</p>
+                                <p-calendar
+                                    [(ngModel)]="fechaFin"
+                                    [disabled]="bloquearConceptoConsejo"
+                                    dateFormat="dd/mm/yy"
+                                    appendTo="body"
+                                    [style]="{ width: '100%' }"
+                                    placeholder="Fin"
+                                ></p-calendar>
+                            </div>
+                        </div>
+
                         <div
                             class="mt-2"
                             *ngIf="

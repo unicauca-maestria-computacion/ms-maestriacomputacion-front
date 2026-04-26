@@ -43,6 +43,13 @@ export interface DescuentoFinanciero {
     porcentaje: number;
 }
 
+export interface BecaDescuentoInfo {
+  tipo: string;
+  porcentaje: number;
+  resolucion: string;
+  estado: string;
+}
+
 export interface Estudiante {
     codigo: string;
     nombre: string;
@@ -57,4 +64,5 @@ export interface Estudiante {
     descuentos: DescuentoFinanciero[];
     becas: BecaFinanciera[];
     materias: Materia[];
+    becasDescuentos: BecaDescuentoInfo[];
 }

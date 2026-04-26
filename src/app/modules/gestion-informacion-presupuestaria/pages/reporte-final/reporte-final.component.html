@@ -9,27 +9,21 @@
             <app-periodo-financiero-selector [modo]="'cerrados'"
                 [mensajeVacio]="'No hay períodos académicos finalizados para mostrar.'"
                 (periodoSeleccionado)="onPeriodoChange($event)"
-                (sinPeriodosChange)="sinPeriodos = $event"
+                (sinPeriodos)="sinPeriodos = $event"
                 (errorCargaChange)="errorPeriodos = $event">
             </app-periodo-financiero-selector>
         </div>
 
 
-        <!-- Spinner de Carga Inicial -->
-        <div *ngIf="cargando" class="flex justify-content-center align-items-center py-8">
-            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
-            </p-progressSpinner>
-            <span class="ml-3 text-lg text-600">Cargando datos...</span>
-        </div>
 
         <!-- Sin datos -->
-        <div *ngIf="!cargando && !configuracion && !sinPeriodos && !errorPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
+        <div *ngIf="!configuracion && !sinPeriodos && !errorPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
             <i class="pi pi-inbox text-4xl text-400"></i>
             <span class="text-600 text-lg">Seleccione un período académico para cargar el reporte.</span>
         </div>
 
         <!-- Contenido del Reporte -->
-        <div *ngIf="!cargando && configuracion" class="table-container">
+        <div *ngIf="configuracion" class="table-container">
 
             <!-- Panel de Configuración -->
             <div class="config-panel mb-4">

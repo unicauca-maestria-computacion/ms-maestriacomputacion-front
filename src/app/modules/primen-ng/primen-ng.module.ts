@@ -86,9 +86,12 @@ import { VirtualScrollerModule } from 'primeng/virtualscroller';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { SpeedDialModule } from 'primeng/speeddial';
 
+import { BlockUIModule } from 'primeng/blockui';
+
 @NgModule({
     declarations: [],
     exports: [
+        BlockUIModule,
         AccordionModule,
         AutoCompleteModule,
         AvatarModule,

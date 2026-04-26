@@ -2,15 +2,9 @@
     <p-toast></p-toast>
     <p-card>
 
-        <!-- Spinner de Carga Inicial -->
-        <div *ngIf="loading" class="flex justify-content-center align-items-center py-8">
-            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
-            </p-progressSpinner>
-            <span class="ml-3 text-lg">Cargando datos...</span>
-        </div>
 
         <!-- Contenido -->
-        <div *ngIf="!loading" class="table-container">
+        <div class="table-container">
 
             <!-- Header: Título -->
             <div class="mb-4 p-4">
@@ -76,7 +70,9 @@
                     class="p-datatable-sm"
                     [globalFilterFields]="['codigo', 'nombre', 'apellido', 'cohorte', 'periodoIngreso']"
                     [showCurrentPageReport]="true"
-                    currentPageReportTemplate="{first} - {last} de {totalRecords}">
+                    currentPageReportTemplate="{first} - {last} de {totalRecords}"
+                    sortField="semestreFinanciero"
+                    [sortOrder]="-1">
 
                     <ng-template pTemplate="header">
                         <tr>
@@ -86,11 +82,14 @@
                             <th pSortableColumn="nombre">
                                 Nombre Completo <p-sortIcon field="nombre"></p-sortIcon>
                             </th>
-                            <th class="text-center">Sem. Financiero</th>
+                            <th class="text-center" pSortableColumn="semestreFinanciero">
+                                Sem. Financiero <p-sortIcon field="semestreFinanciero"></p-sortIcon>
+                            </th>
+                            <th class="text-center">Estado Pago</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </ng-template>
-
+ 
                     <ng-template pTemplate="body" let-estudiante>
                         <tr>
                             <td class="text-center">
@@ -104,6 +103,11 @@
                             <td class="text-center">
                                 <span class="p-column-title font-bold">Sem. Financiero</span>
                                 <p-tag [value]="'Sem. ' + estudiante.semestreFinanciero" severity="info"></p-tag>
+                            </td>
+                            <td class="text-center">
+                                <span class="p-column-title font-bold">Estado Pago</span>
+                                <p-tag *ngIf="estudiante.estaPago" value="PAGADO" severity="success" icon="pi pi-check"></p-tag>
+                                <p-tag *ngIf="!estudiante.estaPago" value="PENDIENTE" severity="warning" icon="pi pi-clock"></p-tag>
                             </td>
                             <td class="text-center">
                                 <span class="p-column-title font-bold">Acciones</span>

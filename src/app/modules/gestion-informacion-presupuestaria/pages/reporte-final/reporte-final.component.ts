@@ -7,6 +7,7 @@ import { PeriodoFinancieroDTOPeticion, PeriodoFinancieroDTORespuesta } from '../
 import { ConfiguracionReporteFinanciero, ProyeccionEstudiante } from '../../models/domain-models';
 import { ReporteFinalVM, mapToReporteFinalVM } from '../../models/reporte-final.vm';
 import { TotalesReporteService } from '../../services/totales-reporte.service';
+import { LoadingService } from 'src/app/shared/services/loading.service';
 
 @Component({
   selector: 'app-reporte-final',
@@ -36,6 +37,7 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private cdr: ChangeDetectorRef,
     private totalesService: TotalesReporteService,
+    private loadingService: LoadingService
   ) { }
 
   ngOnInit(): void {
@@ -43,12 +45,13 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
   }
 
   onPeriodoChange(periodo: PeriodoFinancieroDTORespuesta): void {
+    console.log('[ReporteFinal] Periodo cambiado:', periodo);
     this.periodoSeleccionado = periodo;
     this.cargarReporte(periodo);
   }
 
   cargarReporte(periodoObj: PeriodoFinancieroDTORespuesta): void {
-    this.cargando = true;
+    this.loadingService.show(`Cargando reporte final ${periodoObj.año}-${periodoObj.periodo}`);
 
     const periodo: PeriodoFinancieroDTOPeticion = {
       periodo: periodoObj.periodo,
@@ -57,6 +60,7 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
 
     this.facadeService.obtenerReporteFinanciero(periodo.periodo, periodo.año).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
+        console.log('[ReporteFinal] Datos recibidos del reporte:', data);
         if (data?.objConfiguracion) {
           this.configuracion = data.objConfiguracion;
         }
@@ -75,7 +79,7 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
         this.totalBruto              = totales.totalNeto;
         this.totalDescuentosCalculado = totales.totalDescuentos;
         this.totalIngresosNetos      = totales.totalIngresos;
-        this.cargando = false;
+        this.loadingService.hide();
         this.cdr.markForCheck();
       },
       error: (err) => {
@@ -88,7 +92,7 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
           summary: 'Error al cargar',
           detail: `No se pudo cargar el reporte financiero ${periodoTexto}. Intente nuevamente.`
         });
-        this.cargando = false;
+        this.loadingService.hide();
         this.cdr.markForCheck();
       }
     });

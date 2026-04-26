@@ -8,6 +8,7 @@ import { PeriodoFinancieroDTORespuesta } from '../../dto/periodo-financiero.dto'
 import { ProyeccionEstudianteDTOPeticion } from '../../dto/proyeccion-estudiante.dto';
 import { ConfiguracionReporteFinancieroDTOPeticion } from '../../dto/configuracion-reporte-financiero.dto';
 import { TotalesReporteService } from '../../services/totales-reporte.service';
+import { LoadingService } from 'src/app/shared/services/loading.service';
 
 interface EstudianteProyeccion extends ProyeccionEstudiante {
   nombreEstudiante: string;
@@ -57,6 +58,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     private facadeService: GestionInformacionPresupuestariaFacadeService,
     private cdr: ChangeDetectorRef,
     private totalesService: TotalesReporteService,
+    private loadingService: LoadingService
   ) { }
 
   // --- Control de Edición Global ---
@@ -111,22 +113,20 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   }
 
   cargarProyeccion(periodo?: PeriodoFinancieroDTORespuesta): void {
-    this.cargando = true;
+    this.loadingService.show(periodo ? `Cargando proyección ${periodo.año}-${periodo.periodo}` : 'Cargando proyección');
     const tagPeriodo = periodo?.tagPeriodo ?? periodo?.periodo ?? undefined;
     const anio = periodo?.anio ?? periodo?.año ?? undefined;
 
     this.facadeService.obtenerProyeccionEstudiantes(tagPeriodo, anio).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.procesarRespuesta(data);
-        this.cargando = false;
-        this.guardando = false;
+        this.loadingService.hide();
         this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error loading projection', err);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la proyección.' });
-        this.cargando = false;
-        this.guardando = false;
+        this.loadingService.hide();
         this.cdr.markForCheck();
       }
     });
@@ -182,28 +182,21 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   }
 
   private mapearEstudianteProyeccion(e: ProyeccionEstudiante): EstudianteProyeccion {
-    const smlvsEstudiante = e.valorEnSMLV ?? 0;
-    const matricula = smlvsEstudiante * this.configuracion!.valorSMLV;
-    const pctVotacion = this.configuracion!.porcentajeVotacionFijo ?? 0.10;
-    const pctEgresado = this.configuracion!.porcentajeEgresadoFijo ?? 0.05;
-    const ratioBeca = e.porcentajeBeca ?? 0;
-    const valorVotacion = e.aplicaVotacion ? matricula * pctVotacion : 0;
-    const valorEgresado = e.aplicaEgresado ? matricula * pctEgresado : 0;
-    const valorBeca = matricula * ratioBeca;
-    const grupoDescuentos = valorBeca + valorEgresado + valorVotacion;
-    const totalNeto = matricula + this.configuracion!.recursosComputacionales + this.configuracion!.biblioteca - grupoDescuentos;
+    const recursosComputacionales = this.configuracion!.recursosComputacionales || 0;
+    const biblioteca = this.configuracion!.biblioteca || 0;
+
     return {
       ...e,
       porcentajeBeca: this.toPercent(e.porcentajeBeca),
       nombreEstudiante: [e.nombre, e.apellido].filter(Boolean).join(' ') || e.codigoEstudiante,
-      matricula,
-      valorBeca,
-      valorEgresado,
-      valorVotacion,
-      recursosComputacionales: this.configuracion!.recursosComputacionales,
-      biblioteca: this.configuracion!.biblioteca,
-      grupoDescuentos,
-      totalNeto
+      matricula: e.valorMatricula || 0,
+      valorBeca: e.valorDescuentoBeca || 0,
+      valorEgresado: e.valorDescuentoEgresado || 0,
+      valorVotacion: e.valorDescuentoVoto || 0,
+      recursosComputacionales: recursosComputacionales,
+      biblioteca: biblioteca,
+      grupoDescuentos: e.totalDescuentos || 0,
+      totalNeto: e.totalNetoConDerechos || 0
     } as EstudianteProyeccion;
   }
 
@@ -231,7 +224,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   onHeaderEditSave() {
     if (!this.configuracion) return;
 
-    this.guardando = true; // Show loading spinner
+    this.loadingService.show('Actualizando configuración');
     this.editandoCabecera = false;
 
     const configUpdate: ConfiguracionReporteFinancieroDTOPeticion = {
@@ -242,16 +235,16 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     };
 
     this.facadeService.actualizarConfiguracionProyeccion(configUpdate).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (_data) => {
+      next: (data) => {
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Configuración actualizada correctamente' });
-        this.guardando = false;
+        this.procesarRespuesta(data);
+        this.loadingService.hide();
         this.clonedCabecera = {};
-        this.cargarProyeccion(this.periodoSeleccionado ?? undefined);
       },
       error: (err) => {
         console.error('Error update config', err);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar configuración.' });
-        this.guardando = false;
+        this.loadingService.hide();
         // Optionally revert local changes or reload
       }
     });
@@ -293,7 +286,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.guardando = true; // Show full page spinner
+    this.loadingService.show(`Guardando cambios de ${estudiante.nombreEstudiante}`);
     this.editingRowKey = null; // Exit edit mode
 
     const proyeccionUpdate: ProyeccionEstudianteDTOPeticion = {
@@ -304,23 +297,24 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       aplicaEgresado: estudiante.aplicaEgresado ?? false
     };
 
-    this.facadeService.actualizarProyeccionEstudiante(
+  this.facadeService.actualizarProyeccionEstudiante(
       proyeccionUpdate,
       this.periodoSeleccionado?.tagPeriodo ?? this.periodoSeleccionado?.periodo ?? undefined,
       this.periodoSeleccionado?.anio ?? this.periodoSeleccionado?.año ?? undefined
     ).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
-        this.actualizarSoloFilaModificada(data);
+        // Al guardar, refrescamos TODO el reporte para que el backend recalcule todos los totales
+        this.procesarRespuesta(data);
         delete this.clonedEstudiantes[estudiante.codigoEstudiante];
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estudiante actualizado correctamente' });
-        this.guardando = false;
+        this.loadingService.hide();
         this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error updating student', err);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar estudiante.' });
         this.onRowEditCancel(estudiante, this.findIndexById(estudiante.codigoEstudiante)); // Revert
-        this.guardando = false;
+        this.loadingService.hide();
         this.cdr.markForCheck();
       }
     });
@@ -354,77 +348,26 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   /** Convierte ratio 0-1 del backend a 0-100 para mostrar y editar en la UI (ej. 0.22 → 22). */
   private toPercent(value: number | null | undefined): number {
     if (value == null) return 0;
+    // El backend ya debería mandar el porcentaje normalizado (0.22 para 22%) o (22.0 para 22%)
+    // Si viene como ratio (<= 1), lo multiplicamos por 100 para la UI
     const percent = value <= 1 ? value * 100 : value;
     return Math.round(percent * 100) / 100;
   }
 
-  /** Calcula el porcentaje máximo para un campo de porcentaje (100 - suma de los otros dos). */
-  getMaxPercent(estudiante: EstudianteProyeccion, campo: string): number {
-    const campos: (keyof EstudianteProyeccion)[] = ['porcentajeBeca'];
-    const otherSum = campos
-      .filter(c => c !== campo)
-      .reduce((acc, c) => acc + ((estudiante[c] as number) ?? 0), 0);
-    return Math.round(Math.max(0, 100 - otherSum) * 100) / 100;
-  }
-
-  /** Limita decimales a 2 y el valor al máximo disponible, luego recalcula la fila. */
+  /** Limita decimales a 2 al escribir. */
   onPercentInput(event: Event, estudiante: EstudianteProyeccion, campo: string): void {
     const input = event.target as HTMLInputElement;
     let raw = input.value;
 
-    // Limitar a 2 decimales cortando el string
     const dot = raw.indexOf('.');
     if (dot !== -1 && raw.length - dot - 1 > 2) {
       raw = raw.substring(0, dot + 3);
       input.value = raw;
     }
-
+    
     const parsed = parseFloat(raw);
-    if (isNaN(parsed) || parsed < 0) {
-      (estudiante as any)[campo] = 0;
-    } else {
-      let v = Math.round(parsed * 100) / 100;
-      const maxAllowed = this.getMaxPercent(estudiante, campo);
-      if (v > maxAllowed) {
-        v = Math.round(maxAllowed * 100) / 100;
-        input.value = String(v);
-      }
-      (estudiante as any)[campo] = v;
-    }
-
-    this.recalcularFila(estudiante);
-  }
-
-  recalcularFila(estudiante: EstudianteProyeccion, campoModificado?: string, nuevoValor?: any): void {
-    if (!this.configuracion) return;
-    if (campoModificado != null && nuevoValor != null) {
-      (estudiante as any)[campoModificado] = nuevoValor;
-    }
-    const pctVotacion = this.configuracion.porcentajeVotacionFijo ?? 0.10;
-    const pctEgresado = this.configuracion.porcentajeEgresadoFijo ?? 0.05;
-    const matricula = (estudiante.valorEnSMLV ?? 0) * this.configuracion.valorSMLV;
-    const ratioBeca = this.toRatio(estudiante.porcentajeBeca);
-    estudiante.valorVotacion = estudiante.aplicaVotacion ? matricula * pctVotacion : 0;
-    estudiante.valorEgresado = estudiante.aplicaEgresado ? matricula * pctEgresado : 0;
-    estudiante.valorBeca = matricula * ratioBeca;
-    estudiante.grupoDescuentos = estudiante.valorBeca + estudiante.valorEgresado + estudiante.valorVotacion;
-    estudiante.totalNeto = matricula + this.configuracion.recursosComputacionales + this.configuracion.biblioteca - estudiante.grupoDescuentos;
-  }
-
-  /**
-   * Limita el campo modificado al máximo disponible (100 - suma de los otros dos).
-   * Si no se indica campo, aplica la restricción secuencialmente como seguridad.
-   */
-  private normalizarPorcentajesFila(estudiante: EstudianteProyeccion, campoModificado?: string): void {
-    const clamp0 = (v: number | null | undefined) => {
-      if (v == null || isNaN(v)) return 0;
-      return Math.round(Math.max(0, v) * 100) / 100;
-    };
-    estudiante.porcentajeBeca = clamp0(estudiante.porcentajeBeca);
-
-    if (campoModificado === 'porcentajeBeca') {
-      const max = this.getMaxPercent(estudiante, campoModificado);
-      estudiante.porcentajeBeca = Math.round(Math.min(estudiante.porcentajeBeca, max) * 100) / 100;
+    if (!isNaN(parsed)) {
+       (estudiante as any)[campo] = Math.round(parsed * 100) / 100;
     }
   }
 

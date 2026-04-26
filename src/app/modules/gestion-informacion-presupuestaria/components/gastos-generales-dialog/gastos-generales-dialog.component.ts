@@ -121,10 +121,9 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
     };
 
     this.facadeService.crearGastoGeneral(this.periodoAcademicoId!, gastoDTO).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (gastoCreado) => {
-        // Reemplazar fila temporal (-1) con el gasto real recibido del backend
-        const index = this.gastosEditables.findIndex(g => g.idGastoGeneral === -1);
-        if (index !== -1) this.gastosEditables[index] = gastoCreado;
+      next: (reporteCompleto) => {
+        // El backend retorna el reporte completo recalculado
+        this.gastosEditables = [...reporteCompleto.objConfiguracionReporteGrupos.gastosGenerales];
         this.nuevoGasto = null;
         this.guardandoGastos = false;
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto creado correctamente' });
@@ -172,10 +171,9 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
     };
 
     this.facadeService.actualizarGastoGeneral(gastoDTO).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (gastoActualizado) => {
-        // Actualizar la fila en la lista local con los datos confirmados por el backend
-        const index = this.gastosEditables.findIndex(g => g.idGastoGeneral === gasto.idGastoGeneral);
-        if (index !== -1) this.gastosEditables[index] = gastoActualizado;
+      next: (reporteCompleto) => {
+        // El backend retorna el reporte completo recalculado
+        this.gastosEditables = [...reporteCompleto.objConfiguracionReporteGrupos.gastosGenerales];
         delete this.clonedGasto[gasto.idGastoGeneral];
         this.editingGastoKey = null;
         this.guardandoGastos = false;
@@ -218,10 +216,9 @@ export class GastosGeneralesDialogComponent implements OnInit, OnDestroy, OnChan
   eliminarGasto(gasto: GastoGeneral) {
     this.guardandoGastos = true;
     this.facadeService.eliminarGastoGeneral(gasto.idGastoGeneral, this.periodoAcademicoId!).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (_) => {
-        // El backend retorna 204 No Content — cualquier respuesta aquí es éxito
-        const index = this.gastosEditables.findIndex(g => g.idGastoGeneral === gasto.idGastoGeneral);
-        if (index !== -1) this.gastosEditables.splice(index, 1);
+      next: (reporteCompleto) => {
+        // El backend retorna el reporte completo recalculado
+        this.gastosEditables = [...reporteCompleto.objConfiguracionReporteGrupos.gastosGenerales];
         this.editingGastoKey = null;
         delete this.clonedGasto[gasto.idGastoGeneral];
         this.guardandoGastos = false;

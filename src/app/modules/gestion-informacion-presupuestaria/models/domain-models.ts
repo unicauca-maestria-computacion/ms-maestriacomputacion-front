@@ -33,9 +33,17 @@ export interface ProyeccionEstudiante {
     porcentajeBeca: number;
     aplicaEgresado: boolean;
     grupoInvestigacion: string;
-    estadoProyeccion?: string;
     valorEnSMLV?: number;
     materias?: Materia[];
+
+    // Campos calculados recibidos del backend
+    valorMatricula?: number;
+    valorDescuentoVoto?: number;
+    valorDescuentoBeca?: number;
+    valorDescuentoEgresado?: number;
+    totalDescuentos?: number;
+    valorNeto?: number;
+    totalNetoConDerechos?: number;
 }
 
 export interface ReporteProyeccionEstudiantes {
@@ -90,7 +98,7 @@ export interface ReportePorGrupoFila {
     // Campos calculados/derivados usados por componentes y excel
     participacionPrimerSemestre: number;
     participacionSegundoSemestre: number;
-    participacionPorAño: number;
+    participacionPorAnio: number;
     presupuestoPorGrupoItem1: number;
     presupuestoPorGrupoItem2: number;
     imprevistos: number;
@@ -112,7 +120,7 @@ export interface ReportePorGrupos {
     aporteSegundoSemestre: number;
     participacionPrimerSemestre: number;
     participacionSegundoSemestre: number;
-    participacionPorAño: number;
+    participacionPorAnio: number;
     presupuestoPorGrupoItem1: number;
     presupuestoPorGrupoItem2: number;
     presupuestoPorGrupo: number;

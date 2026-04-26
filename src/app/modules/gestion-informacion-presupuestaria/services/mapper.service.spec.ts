@@ -60,26 +60,24 @@ describe('GestionInformacionPresupuestariaMapperService', () => {
     // Feature: front-info-presupuestaria-adapter, Property 2
     // Propiedad 2: Mapper ProyeccionEstudiante preserva campos nuevos del backend
     // Valida: Requisitos 3.4, 3.5
-    it('mappearDeRespuestaAProyeccionEstudiante preserva estadoProyeccion y valorEnSMLV', () => {
+    it('mappearDeRespuestaAProyeccionEstudiante preserva valorEnSMLV', () => {
         fc.assert(fc.property(
-            fc.string(), fc.integer({ min: 0 }),
-            (estadoProyeccion, valorEnSMLV) => {
+            fc.integer({ min: 0 }),
+            (valorEnSMLV) => {
                 const dto: ProyeccionEstudianteDTORespuesta = {
                     codigoEstudiante: 'EST001',
                     identificacion: 123456,
                     nombre: 'Juan',
                     apellido: 'Pérez',
                     estaPago: true,
-                    porcentajeVotacion: 0,
+                    aplicaVotacion: true,
                     porcentajeBeca: 0,
-                    porcentajeEgresado: 0,
+                    aplicaEgresado: true,
                     grupoInvestigacion: 'GTI',
-                    estadoProyeccion,
                     valorEnSMLV,
                     materias: []
                 };
                 const result = mapper.mappearDeRespuestaAProyeccionEstudiante(dto);
-                expect(result.estadoProyeccion).toBe(estadoProyeccion);
                 expect(result.valorEnSMLV).toBe(valorEnSMLV);
             }
         ), { numRuns: 100 });

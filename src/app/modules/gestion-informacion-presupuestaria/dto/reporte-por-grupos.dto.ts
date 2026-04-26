@@ -11,8 +11,9 @@ export interface ReportePorGrupoDTORespuesta {
     presupuestoPorGrupo: number;
     presupuestoPorGrupoItem1: number;
     presupuestoPorGrupoItem2: number;
+    subtotalPorGrupo?: number;
     imprevistosValor: number;
-    presupuestoPorGrupoImprevistos: number;
+    totalNetoPeriodo?: number;
     totalNeto: number;
     aportePrimerSemestre: number;
     aporteSegundoSemestre: number;

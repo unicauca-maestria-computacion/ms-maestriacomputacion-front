@@ -60,6 +60,7 @@ export class PeriodoFinancieroSelectorComponent implements OnInit, OnDestroy {
 
     fuente$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (periodos) => {
+        console.log(`[PeriodoSelector] Datos recibidos en modo ${this.modo}:`, periodos);
         // Modo anual: deduplicar por año, tomar el primer período de cada año como representante
         if (this.modo === 'anios-activos-y-cerrados') {
           const vistos = new Set<number>();

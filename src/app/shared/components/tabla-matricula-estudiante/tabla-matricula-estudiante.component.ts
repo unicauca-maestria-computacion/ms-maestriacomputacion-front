@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { Estudiante, Materia } from '../../models/domain-models';
+// Importamos desde la ubicación original de los modelos por ahora
+import { Estudiante, Materia } from '../../../modules/gestion-matricula-financiera/models/domain-models';
 
 @Component({
     selector: 'app-tabla-matricula-estudiante',
@@ -38,10 +39,13 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
         this.becaEstado = '—';
         this.becaAvalado = null;
         
+        // Usar los campos booleanos unificados del backend
         this.descuentoVoto = this.estudiante.aplicaVotacion ? 'SI' : 'NO';
         this.descuentoEgresado = this.estudiante.esEgresadoUnicauca ? 'SI' : 'NO';
         this.esNuevo = this.estudiante.semestreFinanciero === 1;
 
+        // Buscamos becas en el campo becasDescuentos (que es el que usa el backend unificado)
+        // o en becas (por compatibilidad)
         const listaBecas = (this.estudiante.becasDescuentos?.length) 
             ? this.estudiante.becasDescuentos 
             : this.estudiante.becas;

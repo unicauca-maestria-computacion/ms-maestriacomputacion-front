@@ -9,13 +9,19 @@ import { BytesToKbPipe } from './pipes/bytes-to-kb.pipe';
 
 
 
+import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
+import { TablaMatriculaEstudianteComponent } from './components/tabla-matricula-estudiante/tabla-matricula-estudiante.component';
+
+
 @NgModule({
   declarations: [
     EmptyLabelPipe,
     BytesToKbPipe,
     BuscadorDocentesComponent,
     BuscadorEstudiantesComponent,
-    BuscadorExpertosComponent
+    BuscadorExpertosComponent,
+    LoadingOverlayComponent,
+    TablaMatriculaEstudianteComponent
   ],
   imports: [
     CommonModule,
@@ -26,7 +32,9 @@ import { BytesToKbPipe } from './pipes/bytes-to-kb.pipe';
     BytesToKbPipe,
     BuscadorDocentesComponent,
     BuscadorEstudiantesComponent,
-    BuscadorExpertosComponent
+    BuscadorExpertosComponent,
+    LoadingOverlayComponent,
+    TablaMatriculaEstudianteComponent
   ]
 })
 export class SharedModule { }

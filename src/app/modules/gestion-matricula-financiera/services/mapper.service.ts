@@ -87,16 +87,22 @@ export class GestionMatriculaFinancieraMapperService {
         return {
             resolucion: dto.resolucion,
             porcentaje: dto.porcentaje || 0,
-            tipo: dto.tipo || ''
+            tipo: dto.tipo || '',
+            estado: dto.estado || '',
+            avaladoConcejo: dto.avaladoConcejo || null
         };
     }
 
+
     // --- DescuentoFinanciero ---
 
-    mappearDeRespuestaADescuentoFinanciero(dto: DescuentosDTORespuesta): DescuentoFinanciero {
+    mappearDeRespuestaADescuentoFinanciero(dto: any): DescuentoFinanciero {
         return {
-            tipoDescuento: dto.tipoDescuento,
-            porcentaje: dto.porcentaje || 0
+            resolucion: dto.resolucion || '-',
+            porcentaje: dto.porcentaje || 0,
+            tipo: dto.tipo || '',
+            estado: dto.estado || '',
+            avaladoConcejo: dto.avaladoConcejo || null
         };
     }
 
@@ -114,10 +120,13 @@ export class GestionMatriculaFinancieraMapperService {
             semestreAcademico: dto.semestreAcademico,
             valorEnSMLV: dto.valorEnSMLV ?? null,
             esEgresadoUnicauca: dto.esEgresadoUnicauca ?? false,
+            aplicaVotacion: dto.aplicaVotacion ?? false,
             matriculasFinancieras: [],
-            descuentos: (dto.descuentos ?? []).map(d => this.mappearDeRespuestaADescuentoFinanciero(d)),
+            descuentos: (dto.descuentos ?? []).map(b => this.mappearDeRespuestaABecaFinanciera(b)),
             becas: (dto.becas ?? []).map(b => this.mappearDeRespuestaABecaFinanciera(b)),
-            materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m))
+            becasDescuentos: (dto.becasDescuentos ?? []).map(b => this.mappearDeRespuestaABecaFinanciera(b)),
+            materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m)),
+            estaPago: dto.estaPago ?? false
         };
     }
 

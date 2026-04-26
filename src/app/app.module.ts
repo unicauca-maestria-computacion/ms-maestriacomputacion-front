@@ -9,6 +9,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './core/pages/app.component';
 import { AppTopBarComponent } from './core/components/topbar/app.topbar.component';
 import { AppFooterComponent } from './core/components/footer/app.footer.component';
+import { SharedModule as MySharedModule } from './shared/shared.module';
 
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
@@ -58,6 +59,7 @@ import { ReportFormatDialogHostComponent } from './core/components/report-format
         HttpClientModule,
         GestionCuestionariosModule,
         GestionPreguntasModule,
+        MySharedModule
     ],
     declarations: [
         AppComponent,

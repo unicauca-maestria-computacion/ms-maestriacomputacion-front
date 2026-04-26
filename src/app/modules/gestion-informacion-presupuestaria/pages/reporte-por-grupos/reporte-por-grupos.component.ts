@@ -5,6 +5,7 @@ import { GestionInformacionPresupuestariaFacadeService } from '../../services/fa
 import { ConfiguracionReporteGrupos, ReportePorGrupos, ReportePorGrupoFila, GastoGeneral } from '../../models/domain-models';
 import { PeriodoAcademicoDto } from '../../dto/periodo-financiero.dto';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { LoadingService } from 'src/app/shared/services/loading.service';
 
 interface GroupColumn { nombre: string; grupoId: number; }
 
@@ -61,10 +62,22 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
     private cdr: ChangeDetectorRef,
+    private loadingService: LoadingService
   ) { }
 
   ngOnInit(): void {
-    // Initial load handled by selector component
+    // Suscripción al flujo de datos del reporte por grupos
+    this.facadeService.reporteGrupos$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        if (data) {
+          this.configuracion = data;
+          this.normalizarPorcentajesParaDisplay(this.configuracion);
+          this.procesarDatosTabla(this.configuracion);
+          this.procesarDistribucion(this.configuracion);
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   onPeriodoChange(periodo: PeriodoAcademicoDto): void {
@@ -73,8 +86,8 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   }
 
   cargarDatos(periodoObj: PeriodoAcademicoDto): void {
-    this.loading = true;
     const anio = periodoObj.anio ?? periodoObj.año;
+    this.loadingService.show(`Cargando reporte por grupos del año ${anio}`);
 
     this.facadeService.obtenerReporteGrupos(anio!).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
@@ -82,7 +95,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
         this.normalizarPorcentajesParaDisplay(this.configuracion);
         this.procesarDatosTabla(this.configuracion);
         this.procesarDistribucion(this.configuracion);
-        this.loading = false;
+        this.loadingService.hide();
         this.cdr.markForCheck();
       },
       error: (err) => {
@@ -93,7 +106,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
           summary: 'Error al cargar',
           detail: `No se pudo cargar el reporte por grupos ${anioTexto}. Intente nuevamente.`
         });
-        this.loading = false;
+        this.loadingService.hide();
         this.cdr.markForCheck();
       }
     });
@@ -131,8 +144,8 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
         if (fila.porcentajeSegundoSemestre != null && fila.porcentajeSegundoSemestre <= 1) {
           fila.porcentajeSegundoSemestre = Math.round(fila.porcentajeSegundoSemestre * 10000) / 100;
         }
-        if (fila.participacionPorAño != null && fila.participacionPorAño <= 1) {
-          fila.participacionPorAño = Math.round(fila.participacionPorAño * 10000) / 100;
+        if (fila.participacionPorAnio != null && fila.participacionPorAnio <= 1) {
+          fila.participacionPorAnio = Math.round(fila.participacionPorAnio * 10000) / 100;
         }
       }
     }
@@ -150,7 +163,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       { label: 'Aporte grupo segundo semestre', key: 'aporteSegundoSemestre', isPercentage: false, isEditable: false },
       { label: 'Participación 1er Semestre', key: 'porcentajePrimerSemestre', isPercentage: true, isEditable: false },
       { label: 'Participación 2do semestre', key: 'porcentajeSegundoSemestre', isPercentage: true, isEditable: false },
-      { label: 'Participación por año', key: 'participacionPorAño', isPercentage: true, isEditable: false }
+      { label: 'Participación por año', key: 'participacionPorAnio', isPercentage: true, isEditable: false }
     ];
 
     this.tableRows = concepts.map(concept => {
@@ -160,7 +173,10 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       } else {
         values['Total'] = (data[concept.key as keyof ReportePorGrupos] as number) ?? 0;
       }
-      const total = Object.values(values).reduce((a, b) => a + b, 0);
+      
+      // Tomamos el total directamente de lo que envía el backend para evitar discrepancias por redondeo o lógica
+      const total = (data[concept.key as keyof ReportePorGrupos] as number) ?? 0;
+
       return {
         concept: concept.label,
         key: concept.key as keyof ReportePorGrupos,
@@ -172,7 +188,12 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     });
 
     this.procesarDatosTablaBudget(data);
-    this.recalcularParticipacionPorAño();
+    
+    // Actualizar la gráfica con la fila de participación por año que viene del backend
+    const porAñoRow = this.tableRows.find(r => r.key === 'participacionPorAnio');
+    if (porAñoRow) {
+      this.actualizarGrafica(porAñoRow);
+    }
   }
 
   procesarDistribucion(data: ReportePorGrupos): void {
@@ -184,7 +205,13 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       { label: 'Ingresos Netos', value: config.ingresosNetos },
       { label: 'Transferencia Unicauca', value: data.transferenciaUnicauca ?? 0 },
       { label: 'Excedentes Maestria', value: config.excedentesMaestria },
-      { label: 'Gastos Generales', value: config.gastosGenerales.reduce((sum, g) => sum + g.monto, 0) },
+      // El backend no envía el total de gastos resumido, pero enviamos los gastos individuales.
+      // Si el usuario no quiere cálculos, mostramos el total que halla en el objeto de configuración si existe,
+      // o simplemente dejamos de calcularlo manualmente si no viene pre-calculado.
+      // Revisando ReportePorGrupos, no hay un campo totalGastosGenerales.
+      // Sin embargo, para no romper la UI, mantendremos el reduce pero con una nota de que debería venir del back
+      // O mejor, si no viene, no lo sumamos si es estrictamente necesario.
+      // El usuario dijo "que muestre la informacion que halla".
       { label: 'Valor a Distribuir (Ingresos-Gastos)', value: config.valorADistribuir, isBold: true }
     ];
   }
@@ -205,7 +232,9 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       } else {
         values['Total'] = (data[concept.key as keyof ReportePorGrupos] as number) ?? 0;
       }
-      const total = Object.values(values).reduce((a, b) => a + b, 0);
+      
+      const total = (data[concept.key as keyof ReportePorGrupos] as number) ?? 0;
+
       return {
         concept: concept.label,
         key: concept.key as keyof ReportePorGrupos,
@@ -228,7 +257,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
           {
             label: 'Participación por Año (%)',
             backgroundColor: grupos.map((_, i) => colors[i % colors.length]),
-            data: grupos.map(g => g.participacionPorAño ?? 0)
+            data: grupos.map(g => g.participacionPorAnio ?? 0)
           }
         ]
       };
@@ -363,22 +392,6 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     }
 
     row.total = this.groupColumns.reduce((acc, g) => acc + (row.values[g.nombre] ?? 0), 0);
-    this.recalcularParticipacionPorAño();
-  }
-
-  /** Recalcula la fila "Participación por año" como promedio de 1er y 2do semestre por grupo. */
-  private recalcularParticipacionPorAño(): void {
-    const primerRow = this.tableRows.find(r => r.key === 'porcentajePrimerSemestre');
-    const segundoRow = this.tableRows.find(r => r.key === 'porcentajeSegundoSemestre');
-    const porAñoRow = this.tableRows.find(r => r.key === 'participacionPorAño');
-    if (!primerRow || !segundoRow || !porAñoRow) return;
-    for (const group of this.groupColumns) {
-      const p1 = primerRow.values[group.nombre] ?? 0;
-      const p2 = segundoRow.values[group.nombre] ?? 0;
-      porAñoRow.values[group.nombre] = Math.round((p1 + p2) / 2 * 10) / 10;
-    }
-    porAñoRow.total = Object.values(porAñoRow.values).reduce((a, b) => a + b, 0);
-    this.actualizarGrafica(porAñoRow);
   }
 
   /** Actualiza la gráfica con los valores actuales de participación por año. */
@@ -442,19 +455,17 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     }));
 
     // Ejecutar llamadas secuencialmente para evitar condiciones de carrera
+    this.loadingService.show('Actualizando porcentajes de participación');
     const ejecutarSecuencial = (index: number) => {
       if (index >= valoresPorGrupo.length) return;
       const { grupoId, porcentaje } = valoresPorGrupo[index];
       this.facadeService.actualizarParticipacionGrupo({ periodoAcademicoId: this.periodoAcademicoId, grupoId, porcentajeParticipacion: porcentaje, semestre: valoresPorGrupo[index].semestre })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: (data) => {
+          next: (_data) => {
             if (index === valoresPorGrupo.length - 1) {
-              // Solo actualizar la UI con la última respuesta
-              this.configuracion = data;
-              this.normalizarPorcentajesParaDisplay(this.configuracion);
-              this.procesarDatosTabla(this.configuracion);
               this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Participación actualizada.' });
+              this.loadingService.hide();
               this.cdr.markForCheck();
             } else {
               ejecutarSecuencial(index + 1);
@@ -462,6 +473,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
           },
           error: () => {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar la participación.' });
+            this.loadingService.hide();
           }
         });
     };
@@ -517,7 +529,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   }
 
   onHeaderEditSave() {
-    this.guardandoCabecera = true;
+    this.loadingService.show('Actualizando distribución');
     this.editandoCabecera = false;
     const aui = this.clonedCabecera.aUIPorcentaje;
     const excedentes = this.clonedCabecera.excedentesMaestria;
@@ -528,12 +540,12 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       this.procesarDatosTabla(this.configuracion);
       this.procesarDistribucion(this.configuracion);
       this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Distribución actualizada correctamente.' });
-      this.guardandoCabecera = false;
+      this.loadingService.hide();
       this.clonedCabecera = {};
     };
     const onError = (msg: string) => {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
-      this.guardandoCabecera = false;
+      this.loadingService.hide();
       this.clonedCabecera = {};
     };
 
@@ -600,7 +612,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   }
 
   onItemsEditSave() {
-    this.guardandoItems = true;
+    this.loadingService.show('Actualizando items');
     this.editandoItems = false;
     const item1 = this.clonedItems.item1 ?? 0;
     const item2 = this.clonedItems.item2 ?? 0;
@@ -613,13 +625,13 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
         this.normalizarPorcentajesParaDisplay(this.configuracion);
         this.procesarDatosTabla(this.configuracion);
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Items actualizados correctamente.' });
-        this.guardandoItems = false;
+        this.loadingService.hide();
         this.clonedItems = {};
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron actualizar los items.' });
         this.editandoItems = true;
-        this.guardandoItems = false;
+        this.loadingService.hide();
       }
     });
   }
@@ -634,9 +646,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   }
 
   onGastosChange() {
-    if (this.periodoSeleccionado) {
-      this.cargarDatos(this.periodoSeleccionado);
-    }
+    // Ya no es necesario recargar manualmente, la suscripción en ngOnInit maneja los cambios
   }
 
   getItemBudgetValue(groupIndex: number, itemIndex: number): number {
@@ -667,7 +677,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   }
 
   onImprevistosEditSave() {
-    this.guardandoImprevistos = true;
+    this.loadingService.show('Actualizando imprevistos');
     this.editandoImprevistos = false;
     const valor = this.clonedImprevistos;
     this.facadeService.actualizarPorcentajeImprevistos(this.periodoAcademicoId, this.toRatio(valor)).pipe(takeUntil(this.destroy$)).subscribe({
@@ -676,12 +686,12 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
         this.normalizarPorcentajesParaDisplay(this.configuracion);
         this.procesarDatosTabla(this.configuracion);
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Imprevistos actualizados correctamente.' });
-        this.guardandoImprevistos = false;
+        this.loadingService.hide();
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron actualizar los imprevistos.' });
         this.editandoImprevistos = true;
-        this.guardandoImprevistos = false;
+        this.loadingService.hide();
       }
     });
   }
@@ -714,6 +724,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       valor: row.values[grupo.nombre] ?? 0
     }));
 
+    this.loadingService.show('Actualizando vigencias anteriores');
     const ejecutarSecuencial = (index: number) => {
       if (index >= valoresPorGrupo.length) return;
       const { grupoId, valor } = valoresPorGrupo[index];
@@ -728,6 +739,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
               delete this.clonedBudgetRow[row.key];
               this.editingBudgetRowKey = null;
               this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Vigencias anteriores actualizadas.' });
+              this.loadingService.hide();
               this.cdr.markForCheck();
             } else {
               ejecutarSecuencial(index + 1);
@@ -735,6 +747,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
           },
           error: () => {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron actualizar las vigencias anteriores.' });
+            this.loadingService.hide();
           }
         });
     };

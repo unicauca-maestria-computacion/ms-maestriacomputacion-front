@@ -20,6 +20,7 @@ export interface Materia {
     materia: string;
     objDocente: Docente;
     grupoClase: string;
+    estadoMatricula?: string;
 }
 
 export interface MatriculaAcademica {
@@ -37,11 +38,16 @@ export interface BecaFinanciera {
     resolucion: string;
     porcentaje: number;
     tipo: string;
+    estado: string;
+    avaladoConcejo: string | null;
 }
 
 export interface DescuentoFinanciero {
-    tipoDescuento: string;
+    resolucion: string;
     porcentaje: number;
+    tipo: string;
+    estado: string;
+    avaladoConcejo: string | null;
 }
 
 export interface Estudiante {
@@ -55,8 +61,11 @@ export interface Estudiante {
     semestreAcademico?: number;
     valorEnSMLV?: number | null;
     esEgresadoUnicauca?: boolean;
+    aplicaVotacion?: boolean;
     matriculasFinancieras: MatriculaFinanciera[];
     descuentos: DescuentoFinanciero[];
     becas: BecaFinanciera[];
+    becasDescuentos: BecaFinanciera[];
     materias: Materia[];
+    estaPago?: boolean;
 }

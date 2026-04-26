@@ -70,8 +70,7 @@ export class GestionInformacionPresupuestariaMapperService {
             estaPago: dto.estaPago,
             aplicaVotacion: dto.aplicaVotacion,
             porcentajeBeca: dto.porcentajeBeca,
-            aplicaEgresado: dto.aplicaEgresado,
-            estadoProyeccion: dto.estadoProyeccion
+            aplicaEgresado: dto.aplicaEgresado
         };
     }
 
@@ -86,9 +85,17 @@ export class GestionInformacionPresupuestariaMapperService {
             porcentajeBeca: dto.porcentajeBeca || 0,
             aplicaEgresado: dto.aplicaEgresado ?? false,
             grupoInvestigacion: dto?.grupoInvestigacion ?? '',
-            estadoProyeccion: dto.estadoProyeccion,
             valorEnSMLV: dto.valorEnSMLV,
-            materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m))
+            materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m)),
+            
+            // Campos calculados
+            valorMatricula: dto.valorMatricula,
+            valorDescuentoVoto: dto.valorDescuentoVoto,
+            valorDescuentoBeca: dto.valorDescuentoBeca,
+            valorDescuentoEgresado: dto.valorDescuentoEgresado,
+            totalDescuentos: dto.totalDescuentos,
+            valorNeto: dto.valorNeto,
+            totalNetoConDerechos: dto.totalNetoConDerechos
         };
     }
 
@@ -142,13 +149,13 @@ export class GestionInformacionPresupuestariaMapperService {
             presupuestoPorGrupo: dto.presupuestoPorGrupo,
             aportePrimerSemestre: dto.aportePrimerSemestre,
             aporteSegundoSemestre: dto.aporteSegundoSemestre,
-            participacionPrimerSemestre: dto.porcentajeParticipacion,
-            participacionSegundoSemestre: dto.porcentajeParticipacion,
-            participacionPorAño: dto.porcentajeParticipacion,
+            participacionPrimerSemestre: dto.porcentajePrimerSemestre ?? dto.porcentajeParticipacion,
+            participacionSegundoSemestre: dto.porcentajeSegundoSemestre ?? dto.porcentajeParticipacion,
+            participacionPorAnio: dto.porcentajeParticipacion,
             presupuestoPorGrupoItem1: dto.presupuestoPorGrupoItem1 ?? 0,
             presupuestoPorGrupoItem2: dto.presupuestoPorGrupoItem2 ?? 0,
             imprevistos: dto.imprevistosValor ?? 0,
-            presupuestoPorGrupoImprevistos: dto.presupuestoPorGrupoImprevistos ?? dto.presupuestoPorGrupo,
+            presupuestoPorGrupoImprevistos: dto.totalNetoPeriodo ?? dto.presupuestoPorGrupo,
             totalNeto: dto.totalNeto ?? dto.presupuestoPorGrupo
         };
     }
@@ -158,13 +165,6 @@ export class GestionInformacionPresupuestariaMapperService {
     mappearDeRespuestaAReportePorGrupos(dto: ConsultaReportePorGruposDTORespuesta): ReportePorGrupos {
         const gastos = (dto.gastosGenerales ?? []).map(g => this.mappearDeRespuestaAGastoGeneral(g));
         const filasPorGrupo = (dto.reportesPorGrupo ?? []).map(f => this.mappearDeRespuestaAReportePorGrupoFila(f));
-        const totalNeto = filasPorGrupo.reduce((s, f) => s + f.presupuestoPorGrupo, 0);
-        const aportePrimerSemestre = filasPorGrupo.reduce((s, f) => s + f.aportePrimerSemestre, 0);
-        const aporteSegundoSemestre = filasPorGrupo.reduce((s, f) => s + f.aporteSegundoSemestre, 0);
-        const presupuestoPorGrupoItem1 = filasPorGrupo.reduce((s, f) => s + (f.presupuestoPorGrupoItem1 ?? 0), 0);
-        const presupuestoPorGrupoItem2 = filasPorGrupo.reduce((s, f) => s + (f.presupuestoPorGrupoItem2 ?? 0), 0);
-        const imprevistosTotal = filasPorGrupo.reduce((s, f) => s + (f.imprevistos ?? 0), 0);
-        const presupuestoPorGrupoImprevistos = filasPorGrupo.reduce((s, f) => s + (f.presupuestoPorGrupoImprevistos ?? 0), 0);
         return {
             gastosGenerales: gastos,
             filasPorGrupo,
@@ -173,18 +173,18 @@ export class GestionInformacionPresupuestariaMapperService {
             ingresoPeriodo1: dto.ingresoPeriodo1 ?? 0,
             ingresoPeriodo2: dto.ingresoPeriodo2 ?? 0,
             transferenciaUnicauca: dto.transferenciaUnicauca ?? 0,
-            totalNeto,
-            aportePrimerSemestre,
-            aporteSegundoSemestre,
-            participacionPrimerSemestre: 0,
-            participacionSegundoSemestre: 0,
-            participacionPorAño: 0,
-            presupuestoPorGrupoItem1,
-            presupuestoPorGrupoItem2,
-            presupuestoPorGrupo: totalNeto,
-            imprevistos: imprevistosTotal,
-            presupuestoPorGrupoImprevistos,
-            vigenciasAnteriores: filasPorGrupo.reduce((s, f) => s + f.vigenciasAnteriores, 0),
+            totalNeto: dto.valorADistribuir ?? 0,
+            aportePrimerSemestre: dto.ingresoPeriodo1 ?? 0,
+            aporteSegundoSemestre: dto.ingresoPeriodo2 ?? 0,
+            participacionPrimerSemestre: 100, // Total participación es 100%
+            participacionSegundoSemestre: 100,
+            participacionPorAnio: 100,
+            presupuestoPorGrupoItem1: (dto.valorADistribuir ?? 0) * (dto.item1 ?? 0),
+            presupuestoPorGrupoItem2: (dto.valorADistribuir ?? 0) * (dto.item2 ?? 0),
+            presupuestoPorGrupo: dto.valorADistribuir ?? 0,
+            imprevistos: (dto.valorADistribuir ?? 0) * (dto.imprevistos ?? 0),
+            presupuestoPorGrupoImprevistos: dto.valorADistribuir ?? 0,
+            vigenciasAnteriores: filasPorGrupo.reduce((s, f) => s + (f.vigenciasAnteriores ?? 0), 0),
             objConfiguracionReporteGrupos: {
                 id: dto.idConfiguracionReporteGrupos,
                 aUIPorcentaje: dto.auiPorcentaje ?? 0,

@@ -6,9 +6,11 @@ import {
     Docente,
     BecaFinanciera,
     DescuentoFinanciero,
-    PeriodoAcademico
+    PeriodoAcademico,
+    BecaDescuentoInfo
 } from '../models/domain-models';
 import { EstudianteDTORespuesta } from '../dto/estudiante.dto';
+import { BecaDescuentoInfoDTO } from '../dto/beca-descuento-info.dto';
 import { MatriculaFinancieraDTORespuesta } from '../dto/matricula-financiera.dto';
 import { MateriaDTORespuesta } from '../dto/materia.dto';
 import { DocenteDTORespuesta } from '../dto/docente.dto';
@@ -99,6 +101,17 @@ export class GestionMatriculaFinancieraMapperService {
         };
     }
 
+    // --- BecaDescuentoInfo ---
+
+    mappearDeRespuestaABecaDescuentoInfo(dto: BecaDescuentoInfoDTO): BecaDescuentoInfo {
+        return {
+            tipo: dto.tipo,
+            porcentaje: dto.porcentaje,
+            resolucion: dto.resolucion,
+            estado: dto.estado
+        };
+    }
+
     // --- Estudiante ---
 
     mappearDeRespuestaAEstudiante(dto: EstudianteDTORespuesta): Estudiante {
@@ -115,7 +128,8 @@ export class GestionMatriculaFinancieraMapperService {
             matriculasFinancieras: [],
             descuentos: (dto.descuentos ?? []).map(d => this.mappearDeRespuestaADescuentoFinanciero(d)),
             becas: (dto.becas ?? []).map(b => this.mappearDeRespuestaABecaFinanciera(b)),
-            materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m))
+            materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m)),
+            becasDescuentos: (dto.becasDescuentos ?? []).map(b => this.mappearDeRespuestaABecaDescuentoInfo(b))
         };
     }
 

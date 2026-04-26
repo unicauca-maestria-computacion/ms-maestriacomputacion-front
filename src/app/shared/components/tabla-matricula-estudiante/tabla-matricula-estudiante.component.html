@@ -7,6 +7,8 @@
         <i class="pi pi-wallet mr-2"></i>
         Matrícula Financiera
         <p-tag *ngIf="esNuevo" value="Nuevo" severity="info" class="ml-2"></p-tag>
+        <p-tag *ngIf="estudiante.estaPago" value="PAGADO" severity="success" class="ml-2" icon="pi pi-check"></p-tag>
+        <p-tag *ngIf="!estudiante.estaPago" value="PENDIENTE" severity="warning" class="ml-2" icon="pi pi-clock"></p-tag>
     </div>
 
     <div class="seccion-contenido">
@@ -64,7 +66,7 @@
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
                     <span class="detalle-label">No. Res. de Beca</span>
-                    <span class="detalle-valor">{{ becaResolucion }}</span>
+                    <span class="detalle-valor">{{ becaResolucion || '—' }}</span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
@@ -76,7 +78,35 @@
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
                     <span class="detalle-label">Tipo de beca</span>
-                    <span class="detalle-valor">{{ becaTipo }}</span>
+                    <span class="detalle-valor">{{ becaTipo || '—' }}</span>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="detalle-campo">
+                    <span class="detalle-label">Estado Solicitud</span>
+                    <span class="detalle-valor">
+                        <p-tag *ngIf="tieneBeca; else noBecaStatus" 
+                            [value]="becaEstado"
+                            [severity]="becaEstado === 'RESUELTA' || becaEstado === 'FINALIZADA' ? 'success' : 'info'">
+                        </p-tag>
+                        <ng-template #noBecaStatus>—</ng-template>
+                    </span>
+
+                </div>
+            </div>
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="detalle-campo">
+                    <span class="detalle-label">¿Avalado por Concejo?</span>
+                    <span class="detalle-valor">
+                        <ng-container *ngIf="tieneBeca; else noBecaAval">
+                            <p-tag *ngIf="becaAvalado === 'SI'" value="Avalada" severity="success"></p-tag>
+                            <p-tag *ngIf="becaAvalado === 'NO'" value="No Avalada" severity="danger"></p-tag>
+                            <span *ngIf="becaAvalado === null">—</span>
+                        </ng-container>
+
+
+                        <ng-template #noBecaAval>—</ng-template>
+                    </span>
                 </div>
             </div>
         </div>

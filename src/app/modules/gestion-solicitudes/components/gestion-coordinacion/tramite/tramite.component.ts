@@ -32,6 +32,8 @@ interface RespuestaConcejo {
 export class TramiteComponent implements OnInit {
     fechaSeleccionada: Date;
     fechaConsejo: Date;
+    fechaInicio: Date;
+    fechaFin: Date;
     avalComite: SolicitudEnComiteResponse = {
         idSolicitud: null,
         enComite: false,
@@ -201,6 +203,14 @@ export class TramiteComponent implements OnInit {
                 if (infoConsejo.fechaAval) {
                     this.fechaConsejo = this.convertirCadenaAFecha(infoConsejo.fechaAval);
                     this.respuestaConsejo.fechaAval = this.formatearFecha(this.fechaConsejo);
+                }
+
+                if (infoConsejo.fechaInicio) {
+                    this.fechaInicio = this.convertirCadenaAFecha(infoConsejo.fechaInicio);
+                }
+
+                if (infoConsejo.fechaFin) {
+                    this.fechaFin = this.convertirCadenaAFecha(infoConsejo.fechaFin);
                 }
 
                 if (infoConsejo && infoConsejo.documentosConcejo && infoConsejo.documentosConcejo.length > 0) {
@@ -559,6 +569,8 @@ export class TramiteComponent implements OnInit {
 
                 // Lógica para guardar
                 this.respuestaConsejo.fechaAval = this.formatearFecha(this.fechaConsejo);
+                this.respuestaConsejo.fechaInicio = this.formatearFecha(this.fechaInicio);
+                this.respuestaConsejo.fechaFin = this.formatearFecha(this.fechaFin);
                 this.gestor.conceptoConsejo = this.respuestaConsejo;
 
                 this.respuestaConsejo.documentosConcejo = [];
@@ -795,10 +807,20 @@ export class TramiteComponent implements OnInit {
         // Validación de que la fecha del consejo es válida
         const fechaValida = this.fechaConsejo instanceof Date && !isNaN(this.fechaConsejo.getTime());
 
+        const esBeca = this.gestor.solicitudSeleccionada?.codigoSolicitud === 'SO_BECA';
+        const camposBecaValidos = !esBeca || (
+            this.respuestaConsejo.porcentaje != null &&
+            this.respuestaConsejo.resolucion != null &&
+            this.respuestaConsejo.resolucion !== '' &&
+            this.fechaInicio != null &&
+            this.fechaFin != null
+        );
+
         return (
             (this.respuestaConsejo.avaladoConcejo === 'Si' || this.respuestaConsejo.avaladoConcejo === 'No') &&
             this.respuestaConsejo.conceptoConcejo !== '' &&
             fechaValida &&
+            camposBecaValidos &&
             (this.respuestaConsejo.avaladoConcejo === 'No' || // Si es "No", no requiere asignaturas aprobadas
                 !tieneActividades || // Si no hay actividades, no requiere asignaturas aprobadas
                 hayAsignaturasAprobadas) // Si hay actividades, se verifica que al menos una esté aprobada

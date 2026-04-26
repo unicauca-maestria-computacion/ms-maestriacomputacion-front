@@ -1,6 +1,7 @@
 import { DescuentosDTORespuesta } from "./descuento-financiero.dto";
 import { BecasDTORespuesta } from "./beca-financiera.dto";
 import { MateriaDTORespuesta } from "./materia.dto";
+import { BecaDescuentoInfoDTO } from './beca-descuento-info.dto';
 
 export interface EstudianteDTORespuesta {
     codigo: string;
@@ -15,4 +16,5 @@ export interface EstudianteDTORespuesta {
     descuentos: DescuentosDTORespuesta[];
     becas: BecasDTORespuesta[];
     materias: MateriaDTORespuesta[];
+    becasDescuentos: BecaDescuentoInfoDTO[];
 }

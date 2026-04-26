@@ -26,18 +26,19 @@ export function mapToReporteFinalVM(
   e: ProyeccionEstudiante,
   cfg: ConfiguracionReporteFinanciero,
 ): ReporteFinalVM {
-  // valorEnSMLV viene del micro financiero por estudiante (ej: 6, 1, null).
-  const smlvsEstudiante = e.valorEnSMLV ?? 0;
-  const matricula = smlvsEstudiante * (cfg.valorSMLV || 0);
+  // Usamos estrictamente los valores calculados que vienen del backend
+  const matricula = e.valorMatricula || 0;
   const recursosComputacionales = cfg.recursosComputacionales || 0;
   const biblioteca = cfg.biblioteca || 0;
-
-  // porcentajeBeca/Votacion/Egresado son ratios decimales (0.20 = 20%)
-  const valorBeca      = matricula * (e.porcentajeBeca || 0);
-  const valorEgresado  = matricula * (e.aplicaEgresado ? (cfg.porcentajeEgresadoFijo ?? 0.05) : 0);
-  const valorVotacion  = matricula * (e.aplicaVotacion ? (cfg.porcentajeVotacionFijo ?? 0.10) : 0);
-  const grupoDescuentos = valorBeca + valorEgresado + valorVotacion;
-  const totalNeto = matricula + recursosComputacionales + biblioteca - grupoDescuentos;
+  
+  const valorVotacion  = e.valorDescuentoVoto || 0;
+  const valorBeca      = e.valorDescuentoBeca || 0;
+  const valorEgresado  = e.valorDescuentoEgresado || 0;
+    
+  const grupoDescuentos = e.totalDescuentos || 0;
+  
+  // El totalNeto ya viene calculado del backend incluyendo Biblioteca y Recursos
+  const totalNeto = e.totalNetoConDerechos || 0;
 
   return {
     ...e,
@@ -51,7 +52,6 @@ export function mapToReporteFinalVM(
     totalNeto,
   };
 }
-
 
 
 

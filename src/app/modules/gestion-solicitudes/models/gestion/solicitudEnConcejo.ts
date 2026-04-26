@@ -15,7 +15,11 @@ export class SolicitudEnConcejoResponse {
             obj['asignaturasHomologadas'],
             obj['asignaturasOtroPrograma'],
             obj['avalActPracticaDocente'],
-            obj['reconocimientoCreditosPD']
+            obj['reconocimientoCreditosPD'],
+            obj['porcentaje'],
+            obj['resolucion'],
+            obj['fechaInicio'],
+            obj['fechaFin']
         );
     }
 
@@ -31,6 +35,10 @@ export class SolicitudEnConcejoResponse {
         public asignaturasHomologadas: AprobarHomologacion[],
         public asignaturasOtroPrograma: AprobarAsignaturasExt[],
         public avalActPracticaDocente: AprobarAvalComite[],
-        public reconocimientoCreditosPD: AprobarAvalComite[]
+        public reconocimientoCreditosPD: AprobarAvalComite[],
+        public porcentaje?: number,
+        public resolucion?: string,
+        public fechaInicio?: string,
+        public fechaFin?: string
     ) {}
 }

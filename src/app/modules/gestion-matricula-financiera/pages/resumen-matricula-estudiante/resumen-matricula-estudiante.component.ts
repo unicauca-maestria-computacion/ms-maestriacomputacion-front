@@ -7,6 +7,7 @@ import { Estudiante } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.service';
 import { RadicarService } from '../../../gestion-solicitudes/services/radicar.service';
 import { AutenticacionService } from '../../../gestion-autenticacion/services/autenticacion.service';
+import { LoadingService } from 'src/app/shared/services/loading.service';
 
 @Component({
   selector: 'app-resumen-matricula-estudiante',
@@ -30,6 +31,7 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private cdr: ChangeDetectorRef,
     private autenticacionService: AutenticacionService,
+    private loadingService: LoadingService
   ) { }
 
   ngOnInit(): void {
@@ -52,7 +54,7 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
   }
 
   cargarEstudiante(id: string): void {
-      this.loading = true;
+      this.loadingService.show('Cargando resumen de matrícula');
       this.facadeService.obtenerEstudiante(id).pipe(takeUntil(this.destroy$)).subscribe({
           next: (data) => {
               if (!data) {
@@ -61,11 +63,11 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
                       summary: 'Error',
                       detail: 'No se encontró información de matrícula para el estudiante solicitado.'
                   });
-                  this.loading = false;
+                  this.loadingService.hide();
                   return;
               }
               this.estudiante = data;
-              this.loading = false;
+              this.loadingService.hide();
               this.cdr.markForCheck();
           },
           error: (err) => {
@@ -75,7 +77,7 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
                   summary: 'Error',
                   detail: 'No se pudo cargar la información de matrícula del estudiante.'
               });
-              this.loading = false;
+              this.loadingService.hide();
           }
       });
   }

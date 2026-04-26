@@ -107,6 +107,12 @@ export class ExcelService {
         this._crearHojaGastosGenerales(workbook, data);
         this._crearHojaItemsPresupuesto(workbook, config, periodo);
 
+        // Una hoja individual por cada grupo de investigación
+        const filas = data.filasPorGrupo ?? [];
+        filas.forEach((fila, i) => {
+            this._crearHojaGrupoIndividual(workbook, fila, data, i);
+        });
+
         const nombreArchivo = `Reporte_Grupos_${periodo.año}-${periodo.periodo}.xlsx`;
         this._guardarWorkbook(workbook, nombreArchivo);
     }
@@ -273,24 +279,19 @@ export class ExcelService {
         let pendientes = 0;
 
         estudiantes.forEach((est, idx) => {
-            const totalDesc = (est.aplicaVotacion ? (config.porcentajeVotacionFijo ?? 0.10) : 0) * (est.valorEnSMLV ?? 0) * config.valorSMLV + est.porcentajeBeca * (est.valorEnSMLV ?? 0) * config.valorSMLV + (est.aplicaEgresado ? (config.porcentajeEgresadoFijo ?? 0.05) : 0) * (est.valorEnSMLV ?? 0) * config.valorSMLV;
-            const valorProy = esProyeccion
-                ? (est.valorEnSMLV ?? 0) * config.valorSMLV * (1 - totalDesc)
-                : null;
-
             const rowValues: any[] = [
                 est.codigoEstudiante,
                 est.identificacion,
-                `${est.nombre} ${est.apellido}`, // Concatenar nombre y apellido
+                `${est.nombre} ${est.apellido}`,
                 est.grupoInvestigacion,
                 this._formatPercent(est.aplicaVotacion ? (config.porcentajeVotacionFijo ?? 0.10) : 0),
                 this._formatPercent(est.porcentajeBeca),
                 this._formatPercent(est.aplicaEgresado ? (config.porcentajeEgresadoFijo ?? 0.05) : 0),
-                this._formatPercent(totalDesc),
+                this._formatCurrency(est.totalDescuentos ?? 0),
                 est.estaPago ? 'Pagado' : 'Pendiente',
             ];
-            if (esProyeccion && valorProy !== null) {
-                rowValues.push(this._formatCurrency(valorProy));
+            if (esProyeccion) {
+                rowValues.push(this._formatCurrency(est.totalNetoConDerechos ?? 0));
             }
 
             const dataRow = ws.addRow(rowValues);
@@ -330,43 +331,32 @@ export class ExcelService {
         config: ConfiguracionReporteFinanciero
     ): void {
         const ws = wb.addWorksheet('ANÁLISIS DESCUENTOS');
-        const numCols = 5;
-        const lastCol = this._colLetra(numCols);
+        const numCols = 3;
 
         ws.columns = [
             { width: 30 },
             { width: 18 },
-            { width: 18 },
-            { width: 22 },
             { width: 22 },
         ];
 
         this._agregarTitulo(ws, 1, 'ANÁLISIS DE DESCUENTOS POR TIPO', numCols, 35, COLOR.AZUL_HEADER, 16);
-        this._agregarSubtitulo(ws, 2, 'Distribución e impacto económico de descuentos', numCols, 25);
+        this._agregarSubtitulo(ws, 2, 'Distribución de beneficios por estudiante', numCols, 25);
         ws.getRow(3).height = 8;
 
         // Headers
-        const headers = ['Tipo de Descuento', 'Cant. Estudiantes', 'Promedio (%)', 'Total Descuento (%)', 'Impacto Económico'];
+        const headers = ['Tipo de Descuento', 'Cant. Estudiantes', 'Observaciones'];
         const hRow = ws.getRow(4);
         headers.forEach((h, i) => this._estilizarCeldaHeader(hRow.getCell(i + 1), h));
         hRow.height = 22;
 
-        const conBeca      = estudiantes.filter(e => e.porcentajeBeca > 0);
-        const conVotacion  = estudiantes.filter(e => e.aplicaVotacion === true);
-        const conEgresado  = estudiantes.filter(e => e.aplicaEgresado === true);
-
-        const promBeca     = conBeca.length     ? conBeca.reduce((s, e) => s + e.porcentajeBeca, 0)      / conBeca.length      : 0;
-        const promVotacion = conVotacion.length ? conVotacion.length > 0 ? (config.porcentajeVotacionFijo ?? 0.10) : 0 : 0;
-        const promEgresado = conEgresado.length ? conEgresado.length > 0 ? (config.porcentajeEgresadoFijo ?? 0.05) : 0 : 0;
-
-        const impactoBeca      = conBeca.reduce((s, e)     => s + e.porcentajeBeca * (e.valorEnSMLV ?? 0) * config.valorSMLV, 0);
-        const impactoVotacion  = conVotacion.reduce((s, e) => s + (config.porcentajeVotacionFijo ?? 0.10) * (e.valorEnSMLV ?? 0) * config.valorSMLV, 0);
-        const impactoEgresado  = conEgresado.reduce((s, e) => s + (config.porcentajeEgresadoFijo ?? 0.05) * (e.valorEnSMLV ?? 0) * config.valorSMLV, 0);
+        const conBeca      = estudiantes.filter(e => (e.valorDescuentoBeca ?? 0) > 0);
+        const conVotacion  = estudiantes.filter(e => (e.valorDescuentoVoto ?? 0) > 0);
+        const conEgresado  = estudiantes.filter(e => (e.valorDescuentoEgresado ?? 0) > 0);
 
         const dataRows: any[][] = [
-            ['Beca Académica',      conBeca.length,     `${(promBeca * 100).toFixed(1)}%`,     `${(promBeca * 100).toFixed(1)}%`,     this._formatCurrency(impactoBeca)],
-            ['Descuento Votación',  conVotacion.length, `${(promVotacion * 100).toFixed(1)}%`, `${(promVotacion * 100).toFixed(1)}%`, this._formatCurrency(impactoVotacion)],
-            ['Descuento Egresado',  conEgresado.length, `${(promEgresado * 100).toFixed(1)}%`, `${(promEgresado * 100).toFixed(1)}%`, this._formatCurrency(impactoEgresado)],
+            ['Beca Académica',      conBeca.length,     'Estudiantes con beca asignada'],
+            ['Descuento Votación',  conVotacion.length, 'Estudiantes que presentaron certificado electoral'],
+            ['Descuento Egresado',  conEgresado.length, 'Graduados de la Universidad del Cauca'],
         ];
 
         dataRows.forEach((rowData, i) => {
@@ -374,11 +364,6 @@ export class ExcelService {
             const bg = i % 2 === 0 ? COLOR.BLANCO : COLOR.FILA_ALTERNA;
             this._estilizarFilaDatosCompleta(row, bg, numCols);
         });
-
-        // Total impacto
-        const totalImpacto = impactoBeca + impactoVotacion + impactoEgresado;
-        const totalRow = ws.addRow(['TOTAL IMPACTO DESCUENTOS', '', '', '', this._formatCurrency(totalImpacto)]);
-        this._estilizarFilaTotales(totalRow, numCols);
 
         ws.views = [{ state: 'frozen', xSplit: 0, ySplit: 4 }];
     }
@@ -469,7 +454,7 @@ export class ExcelService {
             ['Aporte 2do Semestre',         this._formatCurrency(data.aporteSegundoSemestre)],
             ['Participación 1er Sem (%)',   this._formatPercent(data.participacionPrimerSemestre)],
             ['Participación 2do Sem (%)',   this._formatPercent(data.participacionSegundoSemestre)],
-            ['Participación Año (%)',        this._formatPercent(data.participacionPorAño)],
+            ['Participación Año (%)',        this._formatPercent(data.participacionPorAnio)],
         ];
 
         semRows.forEach(([label, value], i) => {
@@ -548,7 +533,7 @@ export class ExcelService {
                 this._formatCurrency(data.aporteSegundoSemestre),
                 `${data.participacionPrimerSemestre}%`,
                 `${data.participacionSegundoSemestre}%`,
-                `${data.participacionPorAño}%`,
+                `${data.participacionPorAnio}%`,
                 this._formatCurrency(data.presupuestoPorGrupoItem1),
                 this._formatCurrency(data.presupuestoPorGrupoItem2),
                 this._formatCurrency(data.presupuestoPorGrupo),
@@ -567,7 +552,7 @@ export class ExcelService {
                     this._formatCurrency(fila.aporteSegundoSemestre),
                     this._formatPercent(fila.participacionPrimerSemestre),
                     this._formatPercent(fila.participacionSegundoSemestre),
-                    this._formatPercent(fila.participacionPorAño),
+                    this._formatPercent(fila.participacionPorAnio),
                     this._formatCurrency(fila.presupuestoPorGrupoItem1),
                     this._formatCurrency(fila.presupuestoPorGrupoItem2),
                     this._formatCurrency(fila.presupuestoPorGrupo),
@@ -588,7 +573,7 @@ export class ExcelService {
                 this._formatCurrency(data.aporteSegundoSemestre),
                 this._formatPercent(data.participacionPrimerSemestre),
                 this._formatPercent(data.participacionSegundoSemestre),
-                this._formatPercent(data.participacionPorAño),
+                this._formatPercent(data.participacionPorAnio),
                 this._formatCurrency(data.presupuestoPorGrupoItem1),
                 this._formatCurrency(data.presupuestoPorGrupoItem2),
                 this._formatCurrency(data.presupuestoPorGrupo),
@@ -627,9 +612,7 @@ export class ExcelService {
             msgRow.getCell(3).fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR.FILA_ALTERNA } };
             msgRow.height = 28;
         } else {
-            let subtotal = 0;
             gastos.forEach((gasto, i) => {
-                subtotal += gasto.monto ?? 0;
                 const row = ws.addRow([
                     gasto.idGastoGeneral,
                     gasto.categoria,
@@ -639,9 +622,8 @@ export class ExcelService {
                 const bg = i % 2 === 0 ? COLOR.BLANCO : COLOR.FILA_ALTERNA;
                 this._estilizarFilaDatosCompleta(row, bg, numCols);
             });
-
-            const totalRow = ws.addRow(['', '', 'SUBTOTAL', this._formatCurrency(subtotal)]);
-            this._estilizarFilaTotales(totalRow, numCols);
+            // No agregamos fila de subtotal calculado manualmente para cumplir con la política de cero cálculos en frontend
+            // El resumen ejecutivo del Excel ya muestra los valores globales del backend.
         }
 
         ws.views = [{ state: 'frozen', xSplit: 0, ySplit: 4 }];
@@ -677,6 +659,129 @@ export class ExcelService {
             const bg = i % 2 === 0 ? COLOR.BLANCO : COLOR.FILA_ALTERNA;
             this._estilizarFilaDatosCompleta(row, bg, numCols);
         });
+    }
+
+    /**
+     * Genera una hoja independiente con el reporte detallado de un grupo de investigación.
+     * @param wb         Workbook destino
+     * @param fila       Datos del grupo
+     * @param data       Datos globales del reporte (para contexto de configuración)
+     * @param grupoIdx   Índice para alternar paleta de colores por grupo
+     */
+    private _crearHojaGrupoIndividual(
+        wb: ExcelJS.Workbook,
+        fila: ReportePorGrupoFila,
+        data: ReportePorGrupos,
+        grupoIdx: number
+    ): void {
+        // Paleta de colores por grupo (azul, verde, morado, naranja, teal, rojo)
+        const PALETA_GRUPOS = [
+            'FF1565C0', 'FF2E7D32', 'FF6A1B9A', 'FFE65100', 'FF00695C', 'FFC62828',
+        ];
+        const COLOR_GRUPO = PALETA_GRUPOS[grupoIdx % PALETA_GRUPOS.length];
+
+        // Nombre de hoja: truncado a 31 caracteres (límite Excel)
+        const nombreHoja = fila.nombreGrupo.length > 28
+            ? fila.nombreGrupo.substring(0, 28) + '...'
+            : fila.nombreGrupo;
+
+        const ws = wb.addWorksheet(nombreHoja);
+        const config = data.objConfiguracionReporteGrupos;
+        const periodo = config.objPeriodoFinanciero;
+        const numCols = 2;
+
+        ws.columns = [{ width: 38 }, { width: 28 }];
+
+        // ── Título principal del grupo ────────────────────────────────────
+        ws.mergeCells('A1:B1');
+        const titleCell = ws.getCell('A1');
+        titleCell.value = fila.nombreGrupo.toUpperCase();
+        titleCell.font  = { name: 'Calibri', size: 16, bold: true, color: { argb: COLOR.BLANCO } };
+        titleCell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_GRUPO } };
+        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+        ws.getRow(1).height = 38;
+
+        // ── Subtítulo período ─────────────────────────────────────────────
+        ws.mergeCells('A2:B2');
+        const subtCell = ws.getCell('A2');
+        subtCell.value = `Reporte Detallado — Período Académico ${periodo.año}-${periodo.periodo}`;
+        subtCell.font  = { name: 'Calibri', size: 12, color: { argb: COLOR.BLANCO } };
+        subtCell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR.AZUL_SECCION } };
+        subtCell.alignment = { horizontal: 'center', vertical: 'middle' };
+        ws.getRow(2).height = 25;
+
+        ws.getRow(3).height = 10; // separador
+
+        // ── Helper local para agregar sección con color del grupo ─────────
+        const addSection = (titulo: string) => {
+            const rowNum = ws.rowCount + 1;
+            ws.mergeCells(`A${rowNum}:B${rowNum}`);
+            const cell = ws.getCell(`A${rowNum}`);
+            cell.value = titulo;
+            cell.font  = { name: 'Calibri', size: 11, bold: true, color: { argb: COLOR.BLANCO } };
+            cell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_GRUPO } };
+            cell.alignment = { horizontal: 'left', vertical: 'middle', indent: 1 };
+            ws.getRow(rowNum).height = 22;
+        };
+
+        // ── Helper local para agregar fila de dato ────────────────────────
+        let rowIdx = 0;
+        const addDataRow = (label: string, value: string, bold = false) => {
+            const bg = rowIdx % 2 === 0 ? COLOR.BLANCO : COLOR.FILA_ALTERNA;
+            const row = ws.addRow([label, value]);
+            for (let c = 1; c <= numCols; c++) {
+                const cell = row.getCell(c);
+                cell.font  = { name: 'Calibri', size: 10, bold, color: { argb: COLOR.GRIS_TEXTO } };
+                cell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+                cell.border = { bottom: { style: 'thin', color: { argb: COLOR.GRIS_BORDE } } };
+                cell.alignment = { vertical: 'middle' };
+            }
+            row.getCell(1).font = { name: 'Calibri', size: 10, bold: true, color: { argb: COLOR.GRIS_TEXTO } };
+            row.getCell(2).alignment = { horizontal: 'right', vertical: 'middle' };
+            row.height = 18;
+            rowIdx++;
+        };
+
+        // ── Helper fila resaltada (totales) ───────────────────────────────
+        const addHighlightRow = (label: string, value: string) => {
+            const row = ws.addRow([label, value]);
+            for (let c = 1; c <= numCols; c++) {
+                const cell = row.getCell(c);
+                cell.font  = { name: 'Calibri', size: 11, bold: true, color: { argb: COLOR_GRUPO } };
+                cell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR.AMARILLO_TOTAL } };
+                cell.border = {
+                    top:    { style: 'double', color: { argb: COLOR_GRUPO } },
+                    bottom: { style: 'thin',   color: { argb: COLOR.GRIS_BORDE } },
+                };
+                cell.alignment = { vertical: 'middle' };
+            }
+            row.getCell(2).alignment = { horizontal: 'right', vertical: 'middle' };
+            row.height = 22;
+            rowIdx = 0; // reset alternancia para siguiente sección
+        };
+
+        // ══ SECCIÓN 1: Ingresos y Aportes ════════════════════════════════
+        addSection('INGRESOS Y APORTES');
+        addHighlightRow('Total Neto del Grupo', this._formatCurrency(fila.totalNeto));
+
+        // ══ SECCIÓN 2: Distribución Porcentual ═══════════════════════════
+        ws.addRow([]).height = 6;
+        addSection('DISTRIBUCIÓN PORCENTUAL');
+        addDataRow('Participación 1er Semestre (%)',  this._formatPercent(fila.porcentajePrimerSemestre));
+        addDataRow('Participación 2do Semestre (%)',  this._formatPercent(fila.porcentajeSegundoSemestre));
+        addHighlightRow('Participación Anual (%)',    this._formatPercent(fila.participacionPorAnio));
+
+        // ══ SECCIÓN 3: Asignación Presupuestal ═══════════════════════════
+        ws.addRow([]).height = 6;
+        addSection('ASIGNACIÓN PRESUPUESTAL');
+        addDataRow('Presupuesto Ítem 1',              this._formatCurrency(fila.presupuestoPorGrupoItem1));
+        addDataRow('Presupuesto Ítem 2',              this._formatCurrency(fila.presupuestoPorGrupoItem2));
+        addDataRow('Presupuesto Base Total',          this._formatCurrency(fila.presupuestoPorGrupo));
+        addDataRow('Imprevistos (reserva)',            this._formatCurrency(fila.imprevistos));
+        addDataRow('Vigencias Anteriores',            this._formatCurrency(fila.vigenciasAnteriores));
+        addHighlightRow('Presupuesto Bruto Total',    this._formatCurrency(fila.presupuestoPorGrupoImprevistos));
+
+        this._aplicarBordesHoja(ws);
     }
 
     // ═══════════════════════════════════════════════════════════════════════

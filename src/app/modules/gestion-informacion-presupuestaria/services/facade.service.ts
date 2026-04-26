@@ -60,8 +60,22 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.obtenerPeriodosInactivos().pipe(
-            map(periodos => periodos.map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo }))),
-            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            map(periodos => {
+                console.log('[Facade] Periodos cerrados raw:', periodos);
+                return (periodos || []).map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo }));
+            }),
+            catchError(err => {
+                console.error('[Facade] Error cargando periodos cerrados:', err);
+                const msg = 'No se pudieron cargar los períodos académicos finalizados.';
+                this._error.next({
+                    mensaje: msg,
+                    codigoError: 'FE-PERIODOS-CERRADOS',
+                    codigoHttp: err.status || 500,
+                    url: err.url || '',
+                    metodo: 'GET'
+                });
+                return throwError(() => err);
+            }),
             finalize(() => this._loading.next(false))
         );
     }
@@ -70,8 +84,22 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.obtenerPeriodosActivosYCerrados().pipe(
-            map(periodos => periodos.map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo }))),
-            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            map(periodos => {
+                console.log('[Facade] Periodos activos/cerrados raw:', periodos);
+                return (periodos || []).map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo }));
+            }),
+            catchError(err => {
+                console.error('[Facade] Error cargando periodos activos/cerrados:', err);
+                const msg = 'No se pudieron cargar los períodos académicos.';
+                this._error.next({
+                    mensaje: msg,
+                    codigoError: 'FE-PERIODOS-ACT-CERR',
+                    codigoHttp: err.status || 500,
+                    url: err.url || '',
+                    metodo: 'GET'
+                });
+                return throwError(() => err);
+            }),
             finalize(() => this._loading.next(false))
         );
     }
@@ -99,16 +127,12 @@ export class GestionInformacionPresupuestariaFacadeService {
         );
     }
 
-    actualizarProyeccionEstudiante(proyeccion: ProyeccionEstudianteDTOPeticion, tagPeriodo?: number, anio?: number): Observable<any> {
+    actualizarProyeccionEstudiante(proyeccion: ProyeccionEstudianteDTOPeticion, tagPeriodo?: number, anio?: number): Observable<ReporteProyeccionEstudiantes> {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarProyeccionEstudiante(proyeccion, tagPeriodo, anio).pipe(
-            map(dto => ({
-                ...dto,
-                objConfiguracion: null,
-                periodo: null,
-                estudiantes: [dto]
-            })),
+            map(dto => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(dto)),
+            tap(data => this._reporteProyeccionEstudiantes.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
@@ -131,13 +155,15 @@ export class GestionInformacionPresupuestariaFacadeService {
 
     // ── Configuración reporte financiero ──────────────────────────────────
 
-    actualizarConfiguracionProyeccion(config: ConfiguracionReporteFinancieroDTOPeticion): Observable<ConfiguracionReporteFinancieroDTORespuesta> {
+    actualizarConfiguracionProyeccion(config: ConfiguracionReporteFinancieroDTOPeticion): Observable<ReporteProyeccionEstudiantes> {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.obtenerPeriodoProyeccion().pipe(
             switchMap(periodo =>
                 this.apiService.actualizarConfiguracionReporteFinanciero(config, periodo.tagPeriodo, periodo.anio)
             ),
+            map(dto => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(dto)),
+            tap(data => this._reporteProyeccionEstudiantes.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
@@ -147,10 +173,12 @@ export class GestionInformacionPresupuestariaFacadeService {
         config: ConfiguracionReporteFinancieroDTOPeticion,
         tagPeriodo: number,
         anio: number
-    ): Observable<ConfiguracionReporteFinancieroDTORespuesta> {
+    ): Observable<ReporteProyeccionEstudiantes> {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.actualizarConfiguracionReporteFinanciero(config, tagPeriodo, anio).pipe(
+            map(dto => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(dto)),
+            tap(data => this._reporteProyeccionEstudiantes.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
@@ -204,23 +232,24 @@ export class GestionInformacionPresupuestariaFacadeService {
 
     // ── Gastos generales ──────────────────────────────────────────────────
 
-    crearGastoGeneral(periodoAcademicoId: number, gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }> {
+    crearGastoGeneral(periodoAcademicoId: number, gasto: GastoGeneralDTOPeticion): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.crearGastoGeneral(periodoAcademicoId, gasto).pipe(
-            map(dto => ({ ...dto, idGastoGeneral: dto.id })),
+            map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
+            tap(data => this._reporteGrupos.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    actualizarGastoGeneral(id: number, periodoAcademicoId: number, gasto: GastoGeneralDTOPeticion): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }>;
-    actualizarGastoGeneral(gastoConId: { idGastoGeneral: number; periodoAcademicoId: number; categoria: string; descripcion: string; monto: number }): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }>;
+    actualizarGastoGeneral(id: number, periodoAcademicoId: number, gasto: GastoGeneralDTOPeticion): Observable<ReportePorGrupos>;
+    actualizarGastoGeneral(gastoConId: { idGastoGeneral: number; periodoAcademicoId: number; categoria: string; descripcion: string; monto: number }): Observable<ReportePorGrupos>;
     actualizarGastoGeneral(
         idOrGasto: number | { idGastoGeneral: number; periodoAcademicoId: number; categoria: string; descripcion: string; monto: number },
         periodoAcademicoIdOrGasto?: number,
         gasto?: GastoGeneralDTOPeticion
-    ): Observable<GastoGeneralDTORespuesta & { idGastoGeneral: number }> {
+    ): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
         let id: number;
@@ -236,16 +265,19 @@ export class GestionInformacionPresupuestariaFacadeService {
             dto = { categoria: idOrGasto.categoria, descripcion: idOrGasto.descripcion, monto: idOrGasto.monto, idConfiguracionReporteGrupos: 0 };
         }
         return this.apiService.actualizarGastoGeneral(id, periodoId, dto).pipe(
-            map(d => ({ ...d, idGastoGeneral: d.id })),
+            map(d => this.mapper.mappearDeRespuestaAReportePorGrupos(d)),
+            tap(data => this._reporteGrupos.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );
     }
 
-    eliminarGastoGeneral(id: number, periodoAcademicoId: number): Observable<void> {
+    eliminarGastoGeneral(id: number, periodoAcademicoId: number): Observable<ReportePorGrupos> {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.eliminarGastoGeneral(id, periodoAcademicoId).pipe(
+            map(dto => this.mapper.mappearDeRespuestaAReportePorGrupos(dto)),
+            tap(data => this._reporteGrupos.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))
         );

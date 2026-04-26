@@ -16,21 +16,13 @@
         </div>
 
 
-
-        <!-- Spinner de Carga Inicial -->
-        <div *ngIf="loading" class="flex justify-content-center align-items-center py-8">
-            <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" animationDuration="1s">
-            </p-progressSpinner>
-            <span class="ml-3 text-lg text-600">Cargando reporte...</span>
-        </div>
-
         <!-- Sin datos -->
-        <div *ngIf="!loading && !configuracion && !sinPeriodos && !errorPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
+        <div *ngIf="!configuracion && !sinPeriodos && !errorPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
             <i class="pi pi-inbox text-4xl text-400"></i>
             <span class="text-600 text-lg">Seleccione un período académico para cargar el reporte por grupos.</span>
         </div>
 
-        <div *ngIf="!loading && configuracion" class="mt-4 table-container">
+        <div *ngIf="configuracion" class="mt-4 table-container">
 
             <!-- Título Global -->
             <div class="flex justify-content-center align-items-center mb-4">

@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Estudiante } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../services/facade.service';
+import { LoadingService } from 'src/app/shared/services/loading.service';
 
 @Component({
   selector: 'app-detalle-estudiante',
@@ -26,6 +27,7 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
     private facadeService: GestionMatriculaFinancieraFacadeService,
     private messageService: MessageService,
     private cdr: ChangeDetectorRef,
+    private loadingService: LoadingService
   ) { }
 
   ngOnInit(): void {
@@ -45,7 +47,7 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
   }
 
   cargarEstudiante(id: string): void {
-      this.loading = true;
+      this.loadingService.show(`Cargando detalle del estudiante ${id}`);
       this.facadeService.obtenerEstudiante(id).pipe(takeUntil(this.destroy$)).subscribe({
           next: (data) => {
               if (!data) {
@@ -58,7 +60,7 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
                   return;
               }
               this.estudiante = data;
-              this.loading = false;
+              this.loadingService.hide();
               this.cdr.markForCheck();
           },
           error: (err) => {
@@ -68,7 +70,7 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
                   summary: 'Error',
                   detail: 'No se pudo cargar la información del estudiante. Volviendo a la lista.'
               });
-              this.loading = false;
+              this.loadingService.hide();
               this.cdr.markForCheck();
               this.router.navigate(['/gestion-matricula-financiera']);
           }

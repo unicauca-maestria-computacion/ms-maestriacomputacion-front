@@ -13,7 +13,10 @@ export interface EstudianteDTORespuesta {
     semestreAcademico?: number;
     valorEnSMLV?: number | null;
     esEgresadoUnicauca?: boolean;
-    descuentos: DescuentosDTORespuesta[];
-    becas: BecasDTORespuesta[];
+    aplicaVotacion?: boolean;
+    becas?: BecasDTORespuesta[];
+    descuentos?: BecasDTORespuesta[];
+    becasDescuentos: BecasDTORespuesta[];
     materias: MateriaDTORespuesta[];
+    estaPago?: boolean;
 }

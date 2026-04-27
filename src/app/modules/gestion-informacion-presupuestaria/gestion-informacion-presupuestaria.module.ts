@@ -2,31 +2,40 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GestionInformacionPresupuestariaRoutingModule } from './gestion-informacion-presupuestaria-routing.module';
-import { ReporteFinalComponent } from './pages/reporte-final/reporte-final.component';
-import { ProyeccionReporteComponent } from './pages/proyeccion-reporte/proyeccion-reporte.component';
-import { ReportePorGruposComponent } from './pages/reporte-por-grupos/reporte-por-grupos.component';
+
+import { ReporteFinalComponent } from './feature/reporte-final/reporte-final.component';
+import { ProyeccionReporteComponent } from './feature/proyeccion-reporte/proyeccion-reporte.component';
+import { ReportePorGruposComponent } from './feature/reporte-por-grupos/reporte-por-grupos.component';
+import { PeriodoFinancieroSelectorComponent } from './feature/periodo-financiero-selector/periodo-financiero-selector.component';
+import { GastosGeneralesDialogComponent } from './feature/gastos-generales-dialog/gastos-generales-dialog.component';
+import { DescargarReporteDialogComponent } from './feature/descargar-reporte-dialog/descargar-reporte-dialog.component';
+
+import { OpcionesPresupuestoComponent } from './ui/opciones-presupuesto/opciones-presupuesto.component';
+import { PresupuestoFilterComponent } from './ui/presupuesto-filter/presupuesto-filter.component';
+import { PresupuestoFormComponent } from './ui/presupuesto-form/presupuesto-form.component';
+
+import { GestionInformacionPresupuestariaApiService } from './data/api.service';
+import { GestionInformacionPresupuestariaFacadeService } from './data/facade.service';
+import { GestionInformacionPresupuestariaMapperService } from './data/mapper.service';
+import { TotalesReporteService } from './data/totales-reporte.service';
+import { ExcelService } from './data/excel.service';
+
 import { PrimenNgModule } from '../primen-ng/primen-ng.module';
 import { SharedModule } from '../../shared/shared.module';
-import { OpcionesPresupuestoComponent } from './components/opciones-presupuesto/opciones-presupuesto.component';
-import { PeriodoFinancieroSelectorComponent } from './components/periodo-financiero-selector/periodo-financiero-selector.component';
-import { GastosGeneralesDialogComponent } from './components/gastos-generales-dialog/gastos-generales-dialog.component';
-import { DescargarReporteDialogComponent } from './components/descargar-reporte-dialog/descargar-reporte-dialog.component';
-import { PresupuestoFilterComponent } from './presentation/molecules/presupuesto-filter/presupuesto-filter.component';
-import { PresupuestoFormComponent } from './presentation/organisms/presupuesto-form/presupuesto-form.component';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 @NgModule({
     declarations: [
-    ReporteFinalComponent,
-    ProyeccionReporteComponent,
-    ReportePorGruposComponent,
-    OpcionesPresupuestoComponent,
-    PeriodoFinancieroSelectorComponent,
-    GastosGeneralesDialogComponent,
-    DescargarReporteDialogComponent,
-    PresupuestoFilterComponent,
-    PresupuestoFormComponent,
-  ],
+        ReporteFinalComponent,
+        ProyeccionReporteComponent,
+        ReportePorGruposComponent,
+        PeriodoFinancieroSelectorComponent,
+        GastosGeneralesDialogComponent,
+        DescargarReporteDialogComponent,
+        OpcionesPresupuestoComponent,
+        PresupuestoFilterComponent,
+        PresupuestoFormComponent,
+    ],
     imports: [
         CommonModule,
         FormsModule,
@@ -37,10 +46,12 @@ import { MessageService } from 'primeng/api';
     ],
     providers: [
         MessageService,
+        ConfirmationService,
+        GestionInformacionPresupuestariaApiService,
+        GestionInformacionPresupuestariaFacadeService,
+        GestionInformacionPresupuestariaMapperService,
+        TotalesReporteService,
+        ExcelService,
     ]
 })
 export class GestionInformacionPresupuestariaModule { }
-
-
-
-

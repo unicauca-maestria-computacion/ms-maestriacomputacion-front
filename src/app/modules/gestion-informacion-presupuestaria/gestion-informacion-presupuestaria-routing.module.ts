@@ -1,28 +1,28 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { ReporteFinalComponent } from './pages/reporte-final/reporte-final.component';
-import { ProyeccionReporteComponent } from './pages/proyeccion-reporte/proyeccion-reporte.component';
-import { ReportePorGruposComponent } from './pages/reporte-por-grupos/reporte-por-grupos.component';
+import { ReporteFinalComponent } from './feature/reporte-final/reporte-final.component';
+import { ProyeccionReporteComponent } from './feature/proyeccion-reporte/proyeccion-reporte.component';
+import { ReportePorGruposComponent } from './feature/reporte-por-grupos/reporte-por-grupos.component';
 
 import { RoleGuard } from '../gestion-autenticacion/guards/role.guard';
 
 const routes: Routes = [
     { path: '', redirectTo: 'reporte-final', pathMatch: 'full' },
-    { 
-        path: 'reporte-final', 
+    {
+        path: 'reporte-final',
         component: ReporteFinalComponent,
         canActivate: [RoleGuard],
         data: { expectedRole: ['ROLE_COORDINADOR'] }
     },
-    { 
-        path: 'proyeccion-reporte', 
+    {
+        path: 'proyeccion-reporte',
         component: ProyeccionReporteComponent,
         canActivate: [RoleGuard],
         data: { expectedRole: ['ROLE_COORDINADOR'] }
     },
-    { 
-        path: 'reporte-por-grupos', 
+    {
+        path: 'reporte-por-grupos',
         component: ReportePorGruposComponent,
         canActivate: [RoleGuard],
         data: { expectedRole: ['ROLE_COORDINADOR'] }
@@ -34,7 +34,3 @@ const routes: Routes = [
     exports: [RouterModule]
 })
 export class GestionInformacionPresupuestariaRoutingModule { }
-
-
-
-

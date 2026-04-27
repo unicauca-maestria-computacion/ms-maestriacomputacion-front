@@ -1,3 +1,5 @@
+export type EstadoMatricula = 'PENDIENTE' | 'AL_DIA' | 'MORA' | 'EXONERADO' | 'BECADO' | 'ANULADO';
+
 export interface PeriodoAcademico {
     id?: number;
     periodo?: number;

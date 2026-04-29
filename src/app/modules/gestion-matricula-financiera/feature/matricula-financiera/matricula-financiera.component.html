@@ -106,8 +106,9 @@
                             </td>
                             <td class="text-center">
                                 <span class="p-column-title font-bold">Estado Pago</span>
-                                <p-tag *ngIf="estudiante.estaPago" value="PAGADO" severity="success" icon="pi pi-check"></p-tag>
-                                <p-tag *ngIf="!estudiante.estaPago" value="PENDIENTE" severity="warning" icon="pi pi-clock"></p-tag>
+                                <p-tag *ngIf="estudiante.estaPago === true" value="PAGADO" severity="success" icon="pi pi-check"></p-tag>
+                                <p-tag *ngIf="estudiante.estaPago === false" value="NO PAGADO" severity="danger" icon="pi pi-times"></p-tag>
+                                <p-tag *ngIf="estudiante.estaPago === null || estudiante.estaPago === undefined" value="PENDIENTE" severity="warning" icon="pi pi-clock"></p-tag>
                             </td>
                             <td class="text-center">
                                 <span class="p-column-title font-bold">Acciones</span>

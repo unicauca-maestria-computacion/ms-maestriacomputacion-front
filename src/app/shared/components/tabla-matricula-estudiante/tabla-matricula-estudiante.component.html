@@ -7,8 +7,9 @@
         <i class="pi pi-wallet mr-2"></i>
         Matrícula Financiera
         <p-tag *ngIf="esNuevo" value="Nuevo" severity="info" class="ml-2"></p-tag>
-        <p-tag *ngIf="estudiante.estaPago" value="PAGADO" severity="success" class="ml-2" icon="pi pi-check"></p-tag>
-        <p-tag *ngIf="!estudiante.estaPago" value="PENDIENTE" severity="warning" class="ml-2" icon="pi pi-clock"></p-tag>
+        <p-tag *ngIf="estudiante.estaPago === true" value="PAGADO" severity="success" class="ml-2" icon="pi pi-check"></p-tag>
+        <p-tag *ngIf="estudiante.estaPago === false" value="NO PAGADO" severity="danger" class="ml-2" icon="pi pi-times"></p-tag>
+        <p-tag *ngIf="estudiante.estaPago === null || estudiante.estaPago === undefined" value="PENDIENTE" severity="warning" class="ml-2" icon="pi pi-clock"></p-tag>
     </div>
 
     <div class="seccion-contenido">

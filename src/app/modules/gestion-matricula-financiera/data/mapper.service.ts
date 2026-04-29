@@ -108,7 +108,7 @@ export class GestionMatriculaFinancieraMapperService {
             becas: (dto.becas ?? []).map(b => this.mappearDeRespuestaABecaFinanciera(b)),
             becasDescuentos: (dto.becasDescuentos ?? []).map(b => this.mappearDeRespuestaABecaFinanciera(b)),
             materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m)),
-            estaPago: dto.estaPago ?? false
+            estaPago: dto.estaPago
         };
     }
 

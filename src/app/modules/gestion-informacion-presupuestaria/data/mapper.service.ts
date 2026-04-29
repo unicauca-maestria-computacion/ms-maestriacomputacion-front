@@ -65,6 +65,7 @@ export class GestionInformacionPresupuestariaMapperService {
             grupoInvestigacion: dto?.grupoInvestigacion ?? '',
             valorEnSMLV: dto.valorEnSMLV,
             materias: (dto.materias ?? []).map(m => this.mappearDeRespuestaAMateria(m)),
+            estadoMatriculaFinanciera: dto.estadoMatriculaFinanciera,
             valorMatricula: dto.valorMatricula,
             valorDescuentoVoto: dto.valorDescuentoVoto,
             valorDescuentoBeca: dto.valorDescuentoBeca,

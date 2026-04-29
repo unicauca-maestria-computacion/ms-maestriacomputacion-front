@@ -121,10 +121,12 @@
                                 <span class="p-column-title font-bold">Pago</span>
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
-                                        <p-checkbox [(ngModel)]="estudiante.estaPago" [binary]="true"></p-checkbox>
+                                        <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true" [(ngModel)]="estudiante.estaPago" [binary]="true"></p-checkbox>
+                                        <p-tag *ngIf="estudiante.estadoMatriculaFinanciera === true" value="PAGADO" severity="success" icon="pi pi-check"></p-tag>
                                     </ng-template>
                                     <ng-template pTemplate="output">
-                                        <p-checkbox [(ngModel)]="estudiante.estaPago" [binary]="true" [disabled]="true"></p-checkbox>
+                                        <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true" [(ngModel)]="estudiante.estaPago" [binary]="true" [disabled]="true"></p-checkbox>
+                                        <p-tag *ngIf="estudiante.estadoMatriculaFinanciera === true" value="PAGADO" severity="success" icon="pi pi-check"></p-tag>
                                     </ng-template>
                                 </p-cellEditor>
                             </td>

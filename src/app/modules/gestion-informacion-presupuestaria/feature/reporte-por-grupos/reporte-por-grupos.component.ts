@@ -239,7 +239,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       { label: 'Presupuesto por grupo', key: 'presupuestoPorGrupo', isEditable: false },
       { label: 'Imprevistos', key: 'imprevistos', isEditable: false },
       { label: 'Presupuesto por grupo imprevistos', key: 'presupuestoPorGrupoImprevistos', isEditable: false },
-      { label: 'Vigencias Anteriores', key: 'vigenciasAnteriores', isEditable: true }
+      { label: 'Vigencias Anteriores', key: 'vigenciasAnteriores', isEditable: false }
     ];
 
     this.budgetTableRows = budgetConcepts.map(concept => {

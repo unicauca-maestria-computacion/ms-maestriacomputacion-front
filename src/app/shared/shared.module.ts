@@ -6,6 +6,8 @@ import { BuscadorDocentesComponent } from './components/buscador-docentes/buscad
 import { BuscadorEstudiantesComponent } from './components/buscador-estudiantes/buscador-estudiantes.component';
 import { BuscadorExpertosComponent } from './components/buscador-expertos/buscador-expertos.component';
 import { BytesToKbPipe } from './pipes/bytes-to-kb.pipe';
+import { FormatCurrencyPipe } from './pipes/format-currency.pipe';
+import { FormatPercentPipe } from './pipes/format-percent.pipe';
 
 
 
@@ -17,6 +19,8 @@ import { TablaMatriculaEstudianteComponent } from './components/tabla-matricula-
   declarations: [
     EmptyLabelPipe,
     BytesToKbPipe,
+    FormatCurrencyPipe,
+    FormatPercentPipe,
     BuscadorDocentesComponent,
     BuscadorEstudiantesComponent,
     BuscadorExpertosComponent,
@@ -30,6 +34,8 @@ import { TablaMatriculaEstudianteComponent } from './components/tabla-matricula-
   exports: [
     EmptyLabelPipe,
     BytesToKbPipe,
+    FormatCurrencyPipe,
+    FormatPercentPipe,
     BuscadorDocentesComponent,
     BuscadorEstudiantesComponent,
     BuscadorExpertosComponent,

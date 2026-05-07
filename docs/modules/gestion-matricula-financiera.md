@@ -249,13 +249,42 @@ Muestra la información completa de matrícula de un estudiante específico.
 **Ruta:** `/gestion-matricula-financiera/resumen` y `/gestion-matricula-financiera/resumen/:id`
 **Rol requerido:** `ROLE_ESTUDIANTE`
 
-Vista del estudiante para consultar su propia matrícula financiera.
+Vista del estudiante para consultar su propia matrícula financiera. Fue actualizado con mejoras significativas de UX.
 
-**Funcionalidades:**
+**Funcionalidades actuales:**
+- Carga primero los períodos académicos para mostrar el período activo en el header
 - Si hay `:id` en la ruta, lo usa como código del estudiante
 - Si no hay `:id`, obtiene el código del usuario autenticado via `AutenticacionService`
-- Usa el componente compartido `TablaMatriculaEstudianteComponent`
-- Botón "Solicitar Revisión" que navega al módulo de solicitudes con el tipo `RE_MATR` preseleccionado
+- Muestra el período académico activo como badge en el header (`getPeriodoLabel()`)
+- Usa el componente compartido `TablaMatriculaEstudianteComponent` para mostrar los datos
+- Si el estudiante no tiene matrícula o hay un error 404, muestra un estado vacío informativo en lugar de redirigir
+- El botón "Solicitar Revisión" es **siempre visible** — tanto si hay datos como si no — para que el estudiante pueda solicitar revisión en cualquier caso
+- Navega al módulo de solicitudes con el tipo `RE_MATR` preseleccionado
+
+**Flujo de carga actualizado:**
+```
+ngOnInit → cargarDatosIniciales()
+         → obtenerPeriodosAcademicos() → periodoActual = periodos[0]
+                                       → setPeriodoFiltro(periodoActual)
+         → route.paramMap → obtener id (ruta o usuario autenticado)
+         → cargarEstudiante(id) → obtenerEstudiante(id)
+                                → si 404: muestra estado vacío + botón revisión
+                                → si ok: muestra TablaMatriculaEstudianteComponent
+```
+
+**Propiedades del componente:**
+| Propiedad | Tipo | Descripción |
+|-----------|------|-------------|
+| `estudiante` | `Estudiante \| null` | Datos del estudiante cargado |
+| `periodoActual` | `PeriodoAcademico \| null` | Período académico activo mostrado en el header |
+
+**Métodos:**
+| Método | Descripción |
+|--------|-------------|
+| `cargarDatosIniciales()` | Carga períodos y luego el estudiante en secuencia |
+| `cargarEstudiante(id)` | Carga el detalle del estudiante; en error muestra estado vacío sin redirigir |
+| `solicitarRevision()` | Preselecciona `RE_MATR` y navega al módulo de solicitudes |
+| `getPeriodoLabel()` | Construye el label del período (`{año}-{periodo}`) compatible con ASCII |
 
 ---
 
@@ -323,6 +352,12 @@ El filtrado por semestre financiero se realiza localmente en el componente (`apl
 
 ### Persistencia del filtro entre navegaciones
 El período y semestre seleccionados se guardan en el Facade (`setPeriodoFiltro`, `setSemestreFiltro`). Cuando el usuario navega al detalle y vuelve, el filtro se restaura automáticamente.
+
+### Comportamiento ante error 404 en ResumenMatriculaEstudianteComponent
+A diferencia del `DetalleEstudianteComponent` (que redirige al listado si no encuentra al estudiante), el `ResumenMatriculaEstudianteComponent` **no redirige** cuando recibe un 404. En su lugar muestra un estado vacío informativo y mantiene visible el botón "Solicitar Revisión". Esto es intencional: si el estudiante no tiene matrícula generada aún, debe poder solicitar una revisión sin ser expulsado de la pantalla.
+
+### Botón "Solicitar Revisión" siempre visible
+El botón de solicitud de revisión aparece en todos los casos (con datos, sin datos, con error). Esto garantiza que el estudiante siempre tenga una vía de acción disponible independientemente del estado de su matrícula.
 
 ### Uso de `LoadingService` vs. `facade.loading$`
 El módulo usa `LoadingService` (servicio global de overlay de carga) en lugar de leer `facade.loading$` directamente en el template. Esto permite mostrar un overlay de carga global consistente con el resto de la aplicación.

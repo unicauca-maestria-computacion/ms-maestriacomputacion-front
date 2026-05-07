@@ -81,17 +81,78 @@ Este enum es usado por el backend para identificar y procesar los tipos de solic
 
 **Archivo:** `src/app/modules/gestion-matricula-financiera/feature/resumen-matricula-estudiante/resumen-matricula-estudiante.component.ts`
 
-Se agregó el método `solicitarRevision()` que:
-1. Limpia el estado previo del servicio de radicación
-2. Preselecciona el tipo de solicitud `RE_MATR`
-3. Navega al flujo de radicación del módulo de solicitudes
+El componente fue **rediseñado** con las siguientes mejoras respecto a la versión anterior:
+
+**Cambios principales:**
+1. **Carga del período académico activo** — ahora carga primero los períodos y muestra el período activo como badge en el header
+2. **Manejo de error 404 mejorado** — ya no redirige al listado si el estudiante no tiene matrícula; muestra un estado vacío informativo
+3. **Botón "Solicitar Revisión" siempre visible** — aparece tanto si hay datos como si no, para que el estudiante siempre tenga una vía de acción
+4. **Getter `getPeriodoLabel()`** — construye el label del período sin usar caracteres no-ASCII en el template (fix de compatibilidad con el compilador Angular)
 
 ```typescript
+// Flujo actualizado: primero períodos, luego estudiante
+cargarDatosIniciales(): void {
+    this.facadeService.obtenerPeriodosAcademicos().pipe(...).subscribe({
+        next: (periodos) => {
+            if (periodos?.length > 0) {
+                this.periodoActual = periodos[0];  // ← nuevo: muestra período en header
+                this.facadeService.setPeriodoFiltro(this.periodoActual);
+            }
+            // luego carga el estudiante...
+        }
+    });
+}
+
+// Error 404: ya no redirige, muestra estado vacío
+cargarEstudiante(id: string): void {
+    this.facadeService.obtenerEstudiante(id).pipe(...).subscribe({
+        error: (_err) => {
+            this.estudiante = null;  // ← muestra estado vacío + botón revisión
+            this.loadingService.hide();
+            this.cdr.markForCheck();
+        }
+    });
+}
+
+// Getter para evitar 'ñ' en expresiones de binding del template
+getPeriodoLabel(): string {
+    if (!this.periodoActual) return '';
+    const anio = this.periodoActual.año ?? this.periodoActual.tagPeriodo ?? '';
+    const periodo = this.periodoActual.periodo ?? this.periodoActual.tagPeriodo ?? '';
+    return `${anio}-${periodo}`;
+}
+
 solicitarRevision(): void {
     this.radicarService.restrablecerValores();
     this.radicarService.codigoSolicitudPreseleccionado = 'RE_MATR';
     this.router.navigate(['/gestionsolicitudes/portafolio/radicar']);
 }
+```
+
+**Template actualizado** — estructura de la pantalla:
+```html
+<!-- Header con período académico activo -->
+<div class="mb-4 pb-3 border-bottom-1 surface-border flex justify-content-between align-items-center">
+    <h2>Mi Matrícula Financiera</h2>
+    <p-tag *ngIf="periodoActual" [value]="getPeriodoLabel()" severity="info" icon="pi pi-calendar"></p-tag>
+</div>
+
+<!-- Datos del estudiante (si existen) -->
+<div *ngIf="estudiante">
+    <app-tabla-matricula-estudiante [estudiante]="estudiante"></app-tabla-matricula-estudiante>
+</div>
+
+<!-- Estado vacío (si no hay datos o hay error) -->
+<div *ngIf="!estudiante">
+    <i class="pi pi-exclamation-circle"></i>
+    <span>Información no disponible</span>
+</div>
+
+<!-- Botón SIEMPRE visible -->
+<div class="bg-blue-50 border-round mt-3 p-3">
+    <span>Si tienes dudas sobre tu costo o no aparece tu información, solicita una revisión.</span>
+    <button pButton label="Solicitar Revisión" icon="pi pi-send" (click)="solicitarRevision()"></button>
+</div>
 ```
 
 **Dependencias inyectadas en el componente:**
@@ -239,6 +300,6 @@ El `RadicarService` tiene la propiedad `codigoSolicitudPreseleccionado` que perm
 |---------|------|--------|
 | `Scripts/Nuevo/4.Script_Solicitud_Revision_Matricula.sql` | SQL nuevo | INSERT en `tipos_solicitudes` y `requisitos_solicitud` |
 | `ms-gestion-solicitudes/.../ABREVIATURA_SOLICITUD.java` | Java modificado | Agregado `RE_MATR("Revisión de Matrícula")` al enum |
-| `gestion-matricula-financiera/.../resumen-matricula-estudiante.component.ts` | TypeScript modificado | Agregado método `solicitarRevision()` e inyección de `RadicarService` |
-| `gestion-matricula-financiera/.../resumen-matricula-estudiante.component.html` | HTML modificado | Agregado botón "Solicitar Revisión" con mensaje informativo |
+| `gestion-matricula-financiera/.../resumen-matricula-estudiante.component.ts` | TypeScript modificado | Rediseño completo: carga período activo, manejo de 404 sin redirección, `getPeriodoLabel()`, `solicitarRevision()` |
+| `gestion-matricula-financiera/.../resumen-matricula-estudiante.component.html` | HTML modificado | Header con badge de período, estado vacío informativo, botón "Solicitar Revisión" siempre visible |
 | `gestion-solicitudes/services/radicar.service.ts` | TypeScript modificado | Agregado `formRevisionMatricula` y limpieza en `restrablecerValores()` |

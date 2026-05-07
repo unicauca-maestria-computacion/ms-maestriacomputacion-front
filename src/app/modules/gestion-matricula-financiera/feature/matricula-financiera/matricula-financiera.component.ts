@@ -19,7 +19,6 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
     estudiantes: Estudiante[] = [];
     estudiantesFiltrados: Estudiante[] = [];
-    loading: boolean = false;
 
     periodos: PeriodoAcademico[] = [];
     periodosDropdown: { label: string; value: PeriodoAcademico }[] = [];

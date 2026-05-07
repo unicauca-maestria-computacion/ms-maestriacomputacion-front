@@ -63,8 +63,7 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
               this.loadingService.hide();
               this.cdr.markForCheck();
           },
-          error: (err) => {
-              console.error('Error cargando estudiante', err);
+          error: (_err) => {
               this.messageService.add({
                   severity: 'error',
                   summary: 'Error',

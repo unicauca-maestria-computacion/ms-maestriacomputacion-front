@@ -128,8 +128,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
         this.loadingService.hide();
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('Error fetching report', err);
+      error: (_err) => {
         const anioTexto = periodoObj ? `del año ${anio}` : '';
         this.messageService.add({
           severity: 'error',
@@ -336,16 +335,6 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
 
   descargar(): void {
     // La descarga se abre desde opciones-presupuesto (app-descargar-reporte-dialog) con activeTab 'reporte-por-grupos'.
-  }
-
-  formatCurrency(value: number | null | undefined): string {
-    if (value == null || typeof value !== 'number') return '–';
-    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value);
-  }
-
-  formatPercent(value: number | null | undefined): string {
-    if (value == null || typeof value !== 'number') return '–';
-    return `${value.toFixed(2)} %`;
   }
 
   getMaxPercent(row: TableRow, groupName: string): number {

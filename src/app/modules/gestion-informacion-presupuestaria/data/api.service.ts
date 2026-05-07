@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 import { backendInfoPresupuestaria } from 'src/app/core/constants/api-url';
 import { ConfiguracionReporteFinancieroDTOPeticion } from '../dto/configuracion-reporte-financiero.dto';
 import { ProyeccionEstudianteDTOPeticion } from '../dto/proyeccion-estudiante.dto';
@@ -64,22 +63,18 @@ export class GestionInformacionPresupuestariaApiService {
         );
     }
 
-    actualizarConfiguracionReporteFinanciero(
-        config: ConfiguracionReporteFinancieroDTOPeticion,
-        tagPeriodo: number,
-        anio: number
-    ): Observable<ReporteEstudiantesDTORespuesta> {
+    obtenerIdConfiguracionReporteFinanciero(tagPeriodo: number, anio: number): Observable<number> {
         const params = new HttpParams()
             .set('tagPeriodo', tagPeriodo.toString())
             .set('anio', anio.toString());
         return this.http.get<number>(
             backendInfoPresupuestaria('configuracion-reporte-financiero/periodo'), { params }
-        ).pipe(
-            switchMap((id: number) =>
-                this.http.put<ReporteEstudiantesDTORespuesta>(
-                    backendInfoPresupuestaria(`configuracion-reporte-financiero/${id}`), config
-                )
-            )
+        );
+    }
+
+    actualizarConfiguracionReporteFinanciero(id: number, config: ConfiguracionReporteFinancieroDTOPeticion): Observable<ReporteEstudiantesDTORespuesta> {
+        return this.http.put<ReporteEstudiantesDTORespuesta>(
+            backendInfoPresupuestaria(`configuracion-reporte-financiero/${id}`), config
         );
     }
 

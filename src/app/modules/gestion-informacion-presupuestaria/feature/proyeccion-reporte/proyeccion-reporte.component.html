@@ -143,7 +143,7 @@
 
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Matrícula</span>
-                                {{ formatCurrency(estudiante.matricula) }}
+                                {{ estudiante.matricula | formatCurrency }}
                             </td>
 
                             <td class="text-center">
@@ -174,14 +174,14 @@
                                         </div>
                                     </ng-template>
                                     <ng-template pTemplate="output">
-                                        {{ formatPercent(estudiante.porcentajeBeca) }}
+                                        {{ estudiante.porcentajeBeca | formatPercent:1 }}
                                     </ng-template>
                                 </p-cellEditor>
                             </td>
 
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Valor Beca</span>
-                                {{ formatCurrency(estudiante.valorBeca) }}
+                                {{ estudiante.valorBeca | formatCurrency }}
                             </td>
 
                             <td class="text-center">
@@ -202,12 +202,12 @@
 
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Rec. Comp.</span>
-                                {{ formatCurrency(estudiante.recursosComputacionales) }}
+                                {{ estudiante.recursosComputacionales | formatCurrency }}
                             </td>
 
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Biblioteca</span>
-                                {{ formatCurrency(estudiante.biblioteca) }}
+                                {{ estudiante.biblioteca | formatCurrency }}
                             </td>
 
                             <td class="text-center">
@@ -217,12 +217,12 @@
 
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Descuentos</span>
-                                {{ formatCurrency(estudiante.grupoDescuentos) }}
+                                {{ estudiante.grupoDescuentos | formatCurrency }}
                             </td>
 
                             <td class="text-right font-bold">
                                 <span class="p-column-title font-bold">Total Neto</span>
-                                {{ formatCurrency(estudiante.totalNeto) }}
+                                {{ estudiante.totalNeto | formatCurrency }}
                             </td>
 
                             <td class="text-center">
@@ -263,15 +263,15 @@
             <div class="totales-container mt-3">
                 <div class="total-item">
                     <span class="total-label">Total Neto:</span>
-                    <span class="total-value">{{ formatCurrency(totalNetoCalculado) }}</span>
+                    <span class="total-value">{{ totalNetoCalculado | formatCurrency }}</span>
                 </div>
                 <div class="total-item">
                     <span class="total-label">Total Descuentos:</span>
-                    <span class="total-value">{{ formatCurrency(totalDescuentosCalculado) }}</span>
+                    <span class="total-value">{{ totalDescuentosCalculado | formatCurrency }}</span>
                 </div>
                 <div class="total-item highlight">
                     <span class="total-label">Ingresos Totales Después de Descuentos:</span>
-                    <span class="total-value">{{ formatCurrency(totalIngresosCalculado) }}</span>
+                    <span class="total-value">{{ totalIngresosCalculado | formatCurrency }}</span>
                 </div>
             </div>
         </div>

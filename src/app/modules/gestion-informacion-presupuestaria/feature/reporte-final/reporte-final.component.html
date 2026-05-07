@@ -94,31 +94,31 @@
                             </td>
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Matrícula</span>
-                                {{ formatCurrency(estudiante.matricula) }}
+                                {{ estudiante.matricula | formatCurrency }}
                             </td>
                             <td class="text-center">
                                 <span class="p-column-title font-bold">% Votación</span>
-                                {{ formatPercent(estudiante.porcentajeVotacion) }}
+                                {{ estudiante.porcentajeVotacion | formatPercent:0 }}
                             </td>
                             <td class="text-center">
                                 <span class="p-column-title font-bold">% Beca</span>
-                                {{ formatPercent(estudiante.porcentajeBeca) }}
+                                {{ estudiante.porcentajeBeca | formatPercent:0 }}
                             </td>
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Valor Beca</span>
-                                {{ formatCurrency(estudiante.valorBeca) }}
+                                {{ estudiante.valorBeca | formatCurrency }}
                             </td>
                             <td class="text-center">
                                 <span class="p-column-title font-bold">% Egresado</span>
-                                {{ formatPercent(estudiante.porcentajeEgresado) }}
+                                {{ estudiante.porcentajeEgresado | formatPercent:0 }}
                             </td>
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Rec. Comp.</span>
-                                {{ formatCurrency(estudiante.recursosComputacionales) }}
+                                {{ estudiante.recursosComputacionales | formatCurrency }}
                             </td>
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Biblioteca</span>
-                                {{ formatCurrency(estudiante.biblioteca) }}
+                                {{ estudiante.biblioteca | formatCurrency }}
                             </td>
                             <td class="text-center">
                                 <span class="p-column-title font-bold">Grupo Inv.</span>
@@ -126,11 +126,11 @@
                             </td>
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Descuentos</span>
-                                {{ formatCurrency(estudiante.grupoDescuentos) }}
+                                {{ estudiante.grupoDescuentos | formatCurrency }}
                             </td>
                             <td class="text-right font-bold">
                                 <span class="p-column-title font-bold">Total Neto</span>
-                                {{ formatCurrency(estudiante.totalNeto) }}
+                                {{ estudiante.totalNeto | formatCurrency }}
                             </td>
                         </tr>
                     </ng-template>
@@ -149,15 +149,15 @@
             <div class="totales-container mt-3">
                 <div class="total-item">
                     <span class="total-label">Total Bruto:</span>
-                    <span class="total-value">{{ formatCurrency(totalBruto) }}</span>
+                    <span class="total-value">{{ totalBruto | formatCurrency }}</span>
                 </div>
                 <div class="total-item">
                     <span class="total-label">Total Descuentos:</span>
-                    <span class="total-value">{{ formatCurrency(totalDescuentosCalculado) }}</span>
+                    <span class="total-value">{{ totalDescuentosCalculado | formatCurrency }}</span>
                 </div>
                 <div class="total-item highlight">
                     <span class="total-label">Ingresos Totales Después de Descuentos:</span>
-                    <span class="total-value">{{ formatCurrency(totalIngresosNetos) }}</span>
+                    <span class="total-value">{{ totalIngresosNetos | formatCurrency }}</span>
                 </div>
             </div>
         </div>

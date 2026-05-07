@@ -139,7 +139,9 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._error.next(null);
         return this.apiService.obtenerPeriodoProyeccion().pipe(
             switchMap(periodo =>
-                this.apiService.actualizarConfiguracionReporteFinanciero(config, periodo.tagPeriodo, periodo.anio)
+                this.apiService.obtenerIdConfiguracionReporteFinanciero(periodo.tagPeriodo, periodo.anio).pipe(
+                    switchMap(id => this.apiService.actualizarConfiguracionReporteFinanciero(id, config))
+                )
             ),
             map(dto => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(dto)),
             tap(data => this._reporteProyeccionEstudiantes.next(data)),
@@ -155,7 +157,8 @@ export class GestionInformacionPresupuestariaFacadeService {
     ): Observable<ReporteProyeccionEstudiantes> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.actualizarConfiguracionReporteFinanciero(config, tagPeriodo, anio).pipe(
+        return this.apiService.obtenerIdConfiguracionReporteFinanciero(tagPeriodo, anio).pipe(
+            switchMap(id => this.apiService.actualizarConfiguracionReporteFinanciero(id, config)),
             map(dto => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(dto)),
             tap(data => this._reporteProyeccionEstudiantes.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),

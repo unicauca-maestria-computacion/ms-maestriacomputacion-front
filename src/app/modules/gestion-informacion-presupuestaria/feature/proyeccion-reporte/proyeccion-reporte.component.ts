@@ -84,8 +84,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
         this.loadingService.hide();
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('Error loading projection', err);
+      error: (_err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la proyección.' });
         this.loadingService.hide();
         this.cdr.markForCheck();
@@ -195,8 +194,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
         this.loadingService.hide();
         this.clonedCabecera = {};
       },
-      error: (err) => {
-        console.error('Error update config', err);
+      error: (_err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar configuración.' });
         this.loadingService.hide();
       }
@@ -258,8 +256,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
         this.loadingService.hide();
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('Error updating student', err);
+      error: (_err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar estudiante.' });
         this.onRowEditCancel(estudiante, this.findIndexById(estudiante.codigoEstudiante));
         this.loadingService.hide();
@@ -312,25 +309,12 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     return Math.round(percent * 100) / 100;
   }
 
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0
-    }).format(value);
-  }
-
-  formatPercent(value: number): string {
-    if (value == null) return '0.0 %';
-    return `${Number(value).toFixed(1)} %`;
-  }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   descargar(): void {
-    console.log('Descargando proyección reporte...');
+    // TODO: implementar descarga de proyección reporte (pendiente integración con ExcelService)
   }
 }

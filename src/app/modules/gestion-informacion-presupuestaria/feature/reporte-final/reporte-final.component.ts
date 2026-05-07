@@ -80,8 +80,7 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
         this.loadingService.hide();
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('Error fetching report', err);
+      error: (_err) => {
         const periodoTexto = periodoObj
           ? `para el período ${periodoObj.año}-${periodoObj.periodo}`
           : '';
@@ -102,21 +101,7 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
   }
 
   descargar(): void {
-    console.log('Descargando reporte final...');
-  }
-
-  formatCurrency(value: number): string {
-    if (value == null || isNaN(value)) return '$0';
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0
-    }).format(value);
-  }
-
-  formatPercent(value: number): string {
-    if (value == null || isNaN(value)) return '0 %';
-    return `${(value * 100).toFixed(0)} %`;
+    // TODO: implementar descarga de reporte final (pendiente integración con ExcelService)
   }
 
 }

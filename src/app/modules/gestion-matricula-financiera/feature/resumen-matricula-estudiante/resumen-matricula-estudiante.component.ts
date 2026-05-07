@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { Estudiante } from '../../models/domain-models';
+import { Estudiante, PeriodoAcademico } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../data/facade.service';
 import { RadicarService } from '../../../gestion-solicitudes/services/radicar.service';
 import { AutenticacionService } from '../../../gestion-autenticacion/services/autenticacion.service';
@@ -21,7 +21,7 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   estudiante: Estudiante | null = null;
-  loading: boolean = false;
+  periodoActual: PeriodoAcademico | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -35,48 +35,75 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
-        const idRuta = params.get('id');
-        const id = idRuta?.trim()
-            ? idRuta
-            : this.autenticacionService.getLoggedInUser()?.academicCode ?? null;
+    this.cargarDatosIniciales();
+  }
 
-        if (!id) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Sin identificador',
-                detail: 'No se pudo determinar el estudiante. Inicie sesión nuevamente.'
-            });
-            return;
+  cargarDatosIniciales(): void {
+    this.loadingService.show('Cargando información...');
+    
+    // 1. Primero cargamos los periodos para saber en cuál estamos
+    this.facadeService.obtenerPeriodosAcademicos().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (periodos) => {
+        if (periodos && periodos.length > 0) {
+          // Tomamos el primer periodo (que suele ser el activo según la lógica del back)
+          this.periodoActual = periodos[0];
+          this.facadeService.setPeriodoFiltro(this.periodoActual);
         }
-        this.cargarEstudiante(id);
+        
+        // 2. Luego identificamos al estudiante y cargamos su detalle
+        this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+          const idRuta = params.get('id');
+          const id = idRuta?.trim()
+              ? idRuta
+              : this.autenticacionService.getLoggedInUser()?.academicCode ?? null;
+
+          if (!id) {
+              this.messageService.add({
+                  severity: 'error',
+                  summary: 'Sin identificador',
+                  detail: 'No se pudo determinar el estudiante. Inicie sesión nuevamente.'
+              });
+              this.loadingService.hide();
+              return;
+          }
+          this.cargarEstudiante(id);
+        });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Periodo no cargado',
+          detail: 'No se pudo determinar el periodo académico actual.'
+        });
+        this.loadingService.hide();
+      }
     });
   }
 
   cargarEstudiante(id: string): void {
-      this.loadingService.show('Cargando resumen de matrícula');
       this.facadeService.obtenerEstudiante(id).pipe(takeUntil(this.destroy$)).subscribe({
           next: (data) => {
               if (!data) {
                   this.messageService.add({
-                      severity: 'error',
-                      summary: 'Error',
-                      detail: 'No se encontró información de matrícula para el estudiante solicitado.'
+                      severity: 'info',
+                      summary: 'Sin registro',
+                      detail: 'No se encontró un registro de matrícula para el periodo actual.'
                   });
-                  this.loadingService.hide();
-                  return;
               }
               this.estudiante = data;
               this.loadingService.hide();
               this.cdr.markForCheck();
           },
-          error: (_err) => {
+          error: (err) => {
+              // Si es un 404 u otro error, permitimos que el estudiante vea el botón de revisión
               this.messageService.add({
                   severity: 'error',
-                  summary: 'Error',
-                  detail: 'No se pudo cargar la información de matrícula del estudiante.'
+                  summary: 'Error de consulta',
+                  detail: 'Hubo un problema al consultar tu matrícula. Si el error persiste, solicita una revisión.'
               });
+              this.estudiante = null;
               this.loadingService.hide();
+              this.cdr.markForCheck();
           }
       });
   }
@@ -90,5 +117,12 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
       this.radicarService.restrablecerValores();
       this.radicarService.codigoSolicitudPreseleccionado = 'RE_MATR';
       this.router.navigate(['/gestionsolicitudes/portafolio/radicar']);
+  }
+
+  getPeriodoLabel(): string {
+      if (!this.periodoActual) return '';
+      const anio = this.periodoActual.año ?? this.periodoActual.tagPeriodo ?? '';
+      const periodo = this.periodoActual.periodo ?? this.periodoActual.tagPeriodo ?? '';
+      return `${anio}-${periodo}`;
   }
 }

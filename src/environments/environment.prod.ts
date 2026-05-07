@@ -46,3 +46,18 @@ export const matricula_academica = {
     production: true,
     api_url: 'http://localhost:8087/api/',
 };
+
+export const evaluacion_docente = {
+    production: true,
+    api_url: 'https://apptest.unicauca.edu.co:4420/api/',
+};
+
+export const gestion_matricula_financiera = {
+    production: true,
+    api_url: 'https://apptest.unicauca.edu.co:4421/api/v1/gestion-matricula-financiera/',
+};
+
+export const gestion_informacion_presupuestaria = {
+    production: true,
+    api_url: 'https://apptest.unicauca.edu.co:4422/api/',
+};

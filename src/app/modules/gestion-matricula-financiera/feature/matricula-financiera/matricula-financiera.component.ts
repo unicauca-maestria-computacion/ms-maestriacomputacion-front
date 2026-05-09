@@ -98,7 +98,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
     }
 
     private cargarPeriodosYEstudiantes(): void {
-        this.loadingService.show('Cargando períodos académicos...');
+        this.loadingService.show('Cargando períodos académicos');
         this.facadeService.obtenerPeriodosAcademicos()
             .pipe(takeUntil(this.destroy$))
             .subscribe({
@@ -110,7 +110,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
                     if (periodo) {
                         this.facadeService.setPeriodoFiltro(periodo);
-                        this.loadingService.show(`Cargando estudiantes del período ${this.getPeriodoDropdownLabel(periodo)}...`);
+                        this.loadingService.show(`Cargando estudiantes del período ${this.getPeriodoDropdownLabel(periodo)}`);
                         this.facadeService.obtenerEstudiantes(periodo)
                             .pipe(takeUntil(this.destroy$))
                             .subscribe({
@@ -134,7 +134,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
     onPeriodoChange(periodo: any): void {
         if (!periodo) return;
-        this.loadingService.show(`Sincronizando período ${this.getPeriodoDropdownLabel(periodo)}...`);
+        this.loadingService.show(`Sincronizando período ${this.getPeriodoDropdownLabel(periodo)}`);
         this.facadeService.setPeriodoFiltro(periodo);
         this.facadeService.obtenerEstudiantes(periodo)
             .pipe(takeUntil(this.destroy$))

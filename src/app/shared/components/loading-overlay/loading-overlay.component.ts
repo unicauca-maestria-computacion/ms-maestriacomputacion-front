@@ -6,7 +6,7 @@ import { LoadingService } from '../../services/loading.service';
   template: `
     <p-blockUI [blocked]="(loadingService.loading$ | async) || false" [baseZIndex]="9999">
       <div class="loading-content flex flex-column align-items-center gap-3">
-        <div style="width: 300px;">
+        <div class="loading-card">
           <app-uni-progress-bar [label]="(loadingService.message$ | async) || ''"></app-uni-progress-bar>
         </div>
       </div>
@@ -24,6 +24,16 @@ import { LoadingService } from '../../services/loading.service';
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 10000;
+    }
+
+    .loading-card {
+      background-color: #FFFFFF;
+      padding: 2rem 3rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid #E5E2E1;
+      width: 340px;
+      text-align: center;
     }
 
     .uni-loading-text {

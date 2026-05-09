@@ -22,6 +22,7 @@ import { MessageService } from 'primeng/api';
 import { GestionMatriculaFinancieraFacadeService } from '../../data/facade.service';
 import { Estudiante } from '../../models/domain-models';
 import { getEstadoMatriculaLabel, getEstadoMatriculaSeverity } from '../../utils/estado-matricula.utils';
+import { LoadingService } from 'src/app/shared/services/loading.service';
 
 @Component({
     selector: 'app-matricula-financiera',
@@ -88,7 +89,8 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
         private messageService: MessageService,
         private router: Router,
         private route: ActivatedRoute,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private loadingService: LoadingService
     ) {}
 
     ngOnInit(): void {
@@ -96,6 +98,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
     }
 
     private cargarPeriodosYEstudiantes(): void {
+        this.loadingService.show('Cargando períodos académicos...');
         this.facadeService.obtenerPeriodosAcademicos()
             .pipe(takeUntil(this.destroy$))
             .subscribe({
@@ -107,24 +110,40 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
                     if (periodo) {
                         this.facadeService.setPeriodoFiltro(periodo);
+                        this.loadingService.show(`Cargando estudiantes del período ${this.getPeriodoDropdownLabel(periodo)}...`);
                         this.facadeService.obtenerEstudiantes(periodo)
                             .pipe(takeUntil(this.destroy$))
                             .subscribe({
-                                error: () => this.mostrarError('No fue posible cargar las matrículas. Por favor, intente nuevamente.')
+                                next: () => this.loadingService.hide(),
+                                error: () => {
+                                    this.loadingService.hide();
+                                    this.mostrarError('No fue posible cargar las matrículas. Por favor, intente nuevamente.');
+                                }
                             });
+                    } else {
+                        this.loadingService.hide();
                     }
                     this.cdr.markForCheck();
                 },
-                error: () => this.mostrarError('No fue posible cargar los períodos académicos. Por favor, intente nuevamente.')
+                error: () => {
+                    this.loadingService.hide();
+                    this.mostrarError('No fue posible cargar los períodos académicos. Por favor, intente nuevamente.');
+                }
             });
     }
 
     onPeriodoChange(periodo: any): void {
+        if (!periodo) return;
+        this.loadingService.show(`Sincronizando período ${this.getPeriodoDropdownLabel(periodo)}...`);
         this.facadeService.setPeriodoFiltro(periodo);
         this.facadeService.obtenerEstudiantes(periodo)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
-                error: () => this.mostrarError('No fue posible cargar las matrículas. Por favor, intente nuevamente.')
+                next: () => this.loadingService.hide(),
+                error: () => {
+                    this.loadingService.hide();
+                    this.mostrarError('No fue posible cargar las matrículas. Por favor, intente nuevamente.');
+                }
             });
     }
 

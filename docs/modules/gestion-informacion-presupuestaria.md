@@ -65,7 +65,9 @@ gestion-informacion-presupuestaria/
 ├── ui/                                      ← Componentes presentacionales (Dumb)
 │   ├── opciones-presupuesto/                ← Tabs de navegación entre reportes
 │   ├── presupuesto-filter/                  ← Filtro reactivo con debounce
-│   └── presupuesto-form/                    ← Formulario de partidas (scaffold)
+│   ├── presupuesto-form/                    ← Formulario de partidas (scaffold)
+│   ├── tabla-estudiantes-reporte/           ← Tabla estandarizada (Alta Densidad)
+│   └── configuracion-proyeccion-card/       ← Tarjeta de configuración reutilizable
 ├── gestion-informacion-presupuestaria-routing.module.ts
 └── gestion-informacion-presupuestaria.module.ts
 ```
@@ -85,6 +87,8 @@ graph LR
   subgraph "UI (ui/)"
     OP["OpcionesPresupuestoComponent\n(Dumb, OnPush)"]
     PF["PresupuestoFilterComponent\n(Dumb, OnPush)"]
+    TER["TablaEstudiantesReporteComponent\n(Dumb, High Density)"]
+    CPC["ConfiguracionProyeccionCardComponent\n(Dumb, Editable/Read-only)"]
   end
   subgraph "Aplicación (data/)"
     F["GestionInformacionPresupuestariaFacadeService\nBehaviorSubject + orquestación"]
@@ -407,12 +411,50 @@ Modal para seleccionar y descargar reportes en Excel.
 ---
 
 ### `OpcionesPresupuestoComponent` (Dumb)
-**Selector:** `app-opciones-presupuesto`
-
-Barra de navegación entre las tres vistas del módulo con botón de descarga.
-
-**Inputs:** `activeTab: string`, `currentPeriod: PeriodoFinancieroDTORespuesta | null`
+... (existing content) ...
 **Outputs:** `onDescargar: EventEmitter<void>`
+
+---
+
+### `TablaEstudiantesReporteComponent` (Dumb)
+**Selector:** `app-tabla-estudiantes-reporte`
+
+Componente de tabla de alta densidad que unifica la visualización de estudiantes para Proyección y Reporte Final.
+
+**Funcionalidades:**
+- Visualización de 14 columnas financieras con diseño optimizado (DS-006).
+- Edición inline integrada (edita % beca, aplica votación, aplica egresado).
+- Formateo automático de moneda y porcentajes.
+- Diseño "High Density" optimizado para pantallas de 1366px.
+
+**Inputs:**
+| Input | Tipo | Descripción |
+|-------|------|-------------|
+| `estudiantes` | `any[]` | Listado de estudiantes a mostrar |
+| `configuracion` | `ConfiguracionReporteFinanciero` | Configuración para cálculos en UI |
+| `editable` | `boolean` | Habilita/deshabilita edición inline |
+
+---
+
+### `ConfiguracionProyeccionCardComponent` (Dumb)
+**Selector:** `app-configuracion-proyeccion-card`
+
+Tarjeta de configuración reutilizable que permite visualizar y editar los valores base del reporte (Biblioteca, Recursos, SMLV).
+
+**Funcionalidades:**
+- Modo solo lectura (usado en Reporte Final).
+- Modo edición con clonación de estado (usado en Proyección).
+- Bloqueo de edición concurrente (Input `disabled`).
+
+**Inputs:**
+| Input | Tipo | Descripción |
+|-------|------|-------------|
+| `configuracion` | `ConfiguracionReporteFinanciero` | Valores actuales |
+| `isEditable` | `boolean` | Muestra/oculta botones de edición |
+| `disabled` | `boolean` | Bloquea el botón de edición |
+
+**Outputs:** `save: EventEmitter<Partial<ConfiguracionReporteFinanciero>>`
+
 
 ---
 

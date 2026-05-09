@@ -28,17 +28,20 @@
         <ng-template pTemplate="body" let-estudiante let-editing="editing" let-ri="rowIndex">
             <tr [pEditableRow]="editable ? estudiante : null">
 
-                <!-- Pago -->
+                <!-- Pago (Triple Estado: True=Pagado, False=No Pagado, Null=Simulable) -->
                 <td class="text-center">
                     <ng-container *ngIf="editable; else pagoReadonly">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
-                                <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true"
+                                <!-- ESTADO 3: NULL/UNDEFINED (Simulable mediante Checkbox) -->
+                                <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera === null || estudiante.estadoMatriculaFinanciera === undefined"
                                     [(ngModel)]="estudiante.estaPago" [binary]="true"
                                     styleClass="uni-checkbox">
                                 </p-checkbox>
-                                <app-uni-status-badge *ngIf="estudiante.estadoMatriculaFinanciera === true"
-                                    [status]="true">
+
+                                <!-- ESTADO 1 y 2: TRUE o FALSE (Fijos desde MF) -->
+                                <app-uni-status-badge *ngIf="estudiante.estadoMatriculaFinanciera === true || estudiante.estadoMatriculaFinanciera === false"
+                                    [status]="estudiante.estadoMatriculaFinanciera">
                                 </app-uni-status-badge>
                             </ng-template>
                             <ng-template pTemplate="output">
@@ -47,10 +50,25 @@
                         </p-cellEditor>
                     </ng-container>
                     <ng-template #pagoReadonly>
-                        <app-uni-status-badge [status]="estudiante.estaPago || estudiante.estadoMatriculaFinanciera">
-                        </app-uni-status-badge>
+                        <!-- Visualización de prioridad: Real (MF) > Simulado (estaPago) -->
+                        <ng-container [ngSwitch]="estudiante.estadoMatriculaFinanciera">
+                            <!-- Si es True o False (Real), mostramos ese valor institucional fijo -->
+                            <app-uni-status-badge *ngSwitchCase="true" [status]="true"></app-uni-status-badge>
+                            <app-uni-status-badge *ngSwitchCase="false" [status]="false"></app-uni-status-badge>
+                            
+                            <!-- Si es Null/Undefined, mostramos el checkbox simulado (deshabilitado en modo lectura) -->
+                            <p-checkbox *ngSwitchDefault 
+                                [ngModel]="estudiante.estaPago" 
+                                [binary]="true" 
+                                [disabled]="true" 
+                                styleClass="uni-checkbox">
+                            </p-checkbox>
+                        </ng-container>
                     </ng-template>
+
                 </td>
+
+
 
                 <!-- Cédula -->
                 <td class="col-monetaria">{{ estudiante.identificacion }}</td>
@@ -161,10 +179,13 @@
                         (click)="rowEditInit.emit(estudiante)"
                         class="p-button-rounded p-button-text"
                         style="color: #000066; width:36px; height:36px; padding:0;"
-                        pTooltip="Editar fila" tooltipPosition="top"
+                        [pTooltip]="estudiante.estadoMatriculaFinanciera === null || estudiante.estadoMatriculaFinanciera === undefined ? 'Editar fila' : 'No es posible editar un registro con estado real en MF'" 
+                        tooltipPosition="top"
+                        [disabled]="estudiante.estadoMatriculaFinanciera !== null && estudiante.estadoMatriculaFinanciera !== undefined"
                         [attr.aria-label]="'Editar ' + estudiante.nombreEstudiante">
                         <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">edit</span>
                     </button>
+
                     <div *ngIf="editing" class="flex justify-content-center gap-1">
                         <button pButton pRipple type="button" pSaveEditableRow
                             (click)="rowEditSave.emit(estudiante)"

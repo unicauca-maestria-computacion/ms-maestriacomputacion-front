@@ -1,6 +1,6 @@
 # Changelog — Módulos Matrícula Financiera e Información Presupuestaria
 
-**Período:** 2026-05-07 al 2026-05-08  
+**Período:** 2026-05-07 al 2026-05-09  
 **Autor:** Daniel Felipe Contreras Tobar  
 **Contexto:** Correcciones post-implementación del spec, alineación con Design System TIC v3 y mejoras de UX
 
@@ -243,3 +243,101 @@ O en el controlador:
 | `src/app/modules/gestion-informacion-presupuestaria/feature/reporte-por-grupos/reporte-por-grupos.component.html` | Atomic Design |
 | `src/app/modules/gestion-informacion-presupuestaria/feature/reporte-final/reporte-final.component.html` | Atomic Design |
 | `src/app/modules/gestion-informacion-presupuestaria/feature/proyeccion-reporte/proyeccion-reporte.component.html` | Atomic Design |
+---
+
+## Jornada 2026-05-09 — Optimización Arquitectónica y Estandarización Final
+
+### ARQ-001 — Refactorización SCSS (Principios DRY & Atomic Design)
+
+**Archivos:** `src/assets/sass/layout/_financial-reports.scss`, `src/assets/sass/layout/_layout.scss`  
+**Problema:** Se detectó una redundancia de estilos de más de 15KB entre los componentes de reportes, lo que causaba advertencias de presupuesto en el build.  
+**Solución:**
+- Centralización de clases estructurales (`.config-panel`, `.unified-table`, `.totales-container`) en un layout global especializado.
+- Limpieza de archivos `.scss` locales, eliminando definiciones duplicadas y forzando el consumo de estilos atómicos.
+- Resultado: Reducción del peso de los componentes y cumplimiento de los budgets originales de 10KB en `angular.json`.
+
+---
+
+### DS-005 — Notificaciones e Interacciones Oficiales (TIC v3 2026)
+
+**Archivos:** `src/assets/sass/layout/_financial-notifications.scss`, 6 templates HTML.  
+**Problema:** Los mensajes de error usaban el Rojo Institucional (prohibido por el manual para errores) y no seguían la geometría M3 (radius 28px para diálogos).  
+**Solución:**
+- **Color de Error:** Se migró al **Naranja #ED7D31** para todos los Toasts y Mensajes de error.
+- **Geometría Oficial:** Implementación de `border-radius: 4px` para Toasts y **28px** para Diálogos de Confirmación.
+- **Línea Lateral:** Agregada línea de acento izquierda de 4px según especificación del manual Punto 10.
+- **Enfoque Seguro:** Implementado mediante clases `uni-toast`, `uni-dialog` y `uni-message` para evitar afectar a otros módulos del sistema.
+
+---
+
+### UX-004 — UX Writing: Ustedeo y Propuesta de Solución
+
+**Archivos:** `reporte-por-grupos.component.ts`, `reporte-final.component.ts`, `matricula-financiera.component.ts`, entre otros.  
+**Problema:** Mensajes de error pasivos ("No se pudo cargar") o técnicos que no guiaban al usuario.  
+**Solución:**
+- Ajuste al **Ustedeo** institucional ("Por favor, verifique su conexión").
+- Aplicación de la **Regla de Solución**: Todo mensaje de error ahora propone una acción correctiva (ej: "Por favor, intente nuevamente" o "Contacte al administrador").
+
+---
+
+### PERF-001 — Estrategia OnPush y Gestión de Memoria
+
+**Archivos:** Auditoría completa de componentes en ambos módulos.  
+**Solución:**
+- **OnPush Garantizado:** Se verificó que el 100% de los componentes TypeScript (12/12) utilicen `ChangeDetectionStrategy.OnPush`.
+- **Memory Leak Prevention:** Implementación sistemática de `takeUntil(this.destroy$)` en todas las suscripciones manuales de los componentes.
+- **Async Pipe:** Priorización del pipe `async` en plantillas para la resolución automática de observables.
+
+---
+
+## Archivos modificados — Adenda 09/05
+
+| Archivo | Cambios |
+|---------|---------|
+| `angular.json` | Reversión de budgets a 10KB (optimización exitosa) |
+| `src/assets/sass/layout/_financial-reports.scss` | Centralización de layout de reportes |
+| `src/assets/sass/layout/_financial-notifications.scss` | Notificaciones y diálogos TIC v3 |
+| `src/app/modules/gestion-informacion-presupuestaria/feature/reporte-por-grupos/reporte-por-grupos.component.scss` | Eliminación de 377 líneas redundantes |
+| `src/app/modules/gestion-informacion-presupuestaria/feature/reporte-final/reporte-final.component.scss` | Eliminación de 131 líneas redundantes |
+| `src/app/modules/gestion-informacion-presupuestaria/feature/proyeccion-reporte/proyeccion-reporte.component.scss` | Eliminación de 148 líneas redundantes |
+| `src/app/modules/gestion-informacion-presupuestaria/ui/configuracion-proyeccion-card/` | [NUEVO] Componente reutilizable de configuración |
+| `src/app/modules/gestion-informacion-presupuestaria/gestion-informacion-presupuestaria.module.ts` | Registro de nuevo componente UI |
+
+---
+
+### AD-002 — Componente Reutilizable: Tarjeta de Configuración de Proyección
+
+**Archivos:** `src/app/modules/gestion-informacion-presupuestaria/ui/configuracion-proyeccion-card/`  
+**Problema:** La tarjeta de configuración (Biblioteca, Recursos, SMLV) estaba duplicada y hardcodeada tanto en Proyección como en Reporte Final. En Proyección requería lógica de edición, mientras que en Reporte Final solo lectura.  
+**Solución:**
+- Creación de `ConfiguracionProyeccionCardComponent` con Input `isEditable`.
+- Centralización del manejo de estados de edición (`clonedConfig`) dentro del componente UI (Dumb-ish).
+- Implementación de mecanismo de guardado mediante EventEmitters.
+- **Seguridad de UI:** El componente bloquea su edición si detecta que otra parte del proceso (ej: edición de filas en la tabla) está activa, evitando inconsistencias de datos.
+- Resultado: Eliminación de ~80 líneas de HTML/TS duplicadas en los componentes Feature.
+
+---
+
+### DS-006 — Optimización de Alta Densidad para Reportes Extensos
+
+**Archivo:** `src/app/modules/gestion-informacion-presupuestaria/ui/tabla-estudiantes-reporte/`  
+**Problema:** Las tablas de reportes financieros contienen hasta 14 columnas, lo que causaba desbordamiento horizontal excesivo y dificultad de lectura en pantallas estándar (1366px).  
+**Solución:**
+- **Geometría Adaptativa:** Se aplicó una reducción estratégica del font-size a **11.5px** en celdas y **10.5px** en cabeceras.
+- **Distribución Inteligente:**
+    - Columna **Nombre**: Expandible con wrap permitido y `min-width: 160px`.
+    - Columnas **Monetarias**: Anchos fijos optimizados (~95px) con `tabular-nums` para alineación perfecta de cifras.
+- **Encabezados Multilínea:** Se habilitó `white-space: normal` en `th` para permitir saltos de línea, reduciendo el ancho total necesario sin perder descriptividad.
+- **Micro-espaciado:** Reducción de padding a **4px 3px**, maximizando el área útil de datos sin sacrificar la legibilidad institucional.
+- **Cumplimiento TIC v3:** Se mantuvo el uso de **Open Sans**, bordes `#E0E0E0` y el patrón de filas alternas (Zebra) especificado en el manual.
+
+---
+
+### UI-007 — Unificación de Estética entre Módulos (Matrícula vs. Presupuesto)
+
+**Archivos:** `matricula-financiera.component.html`, `matricula-financiera.component.scss`  
+**Problema:** Discrepancias visuales en los títulos de sección y estilos de tabla entre los módulos financieros y presupuestarios.  
+**Solución:**
+- **Encabezados Institucionales:** Se migró el título de "Listado de Estudiantes" en Matrícula al estándar `h2` con **Titillium Web** y color `#000066`, unificando la jerarquía visual con el módulo de Presupuesto.
+- **Normalización de Texto:** Se eliminó el resaltado azul y negrita en los nombres de los estudiantes en la tabla de Matrícula para favorecer un diseño más sobrio y homogéneo.
+- **Densidad de Tabla:** Se aplicó el estándar de **Alta Densidad (DS-006)** a la tabla de Matrícula, reduciendo fuentes y paddings para lograr una paridad visual del 100% entre ambos módulos.

@@ -87,7 +87,7 @@ export class ReporteFinalComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: 'Error al cargar',
-          detail: `No se pudo cargar el reporte financiero ${periodoTexto}. Intente nuevamente.`
+          detail: `No fue posible cargar el reporte financiero ${periodoTexto}. Por favor, intente nuevamente.`
         });
         this.loadingService.hide();
         this.cdr.markForCheck();

@@ -10,7 +10,7 @@ import { MatriculaFinancieraComponent } from './feature/matricula-financiera/mat
 import { DetalleEstudianteComponent } from './feature/detalle-estudiante/detalle-estudiante.component';
 import { ResumenMatriculaEstudianteComponent } from './feature/resumen-matricula-estudiante/resumen-matricula-estudiante.component';
 
-import { MatriculaStatusBadgeComponent } from './ui/matricula-status-badge/matricula-status-badge.component';
+
 
 import { GestionMatriculaFinancieraApiService } from './data/api.service';
 import { GestionMatriculaFinancieraFacadeService } from './data/facade.service';
@@ -21,7 +21,6 @@ import { GestionMatriculaFinancieraMapperService } from './data/mapper.service';
         MatriculaFinancieraComponent,
         DetalleEstudianteComponent,
         ResumenMatriculaEstudianteComponent,
-        MatriculaStatusBadgeComponent,
     ],
     imports: [
         CommonModule,

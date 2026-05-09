@@ -16,7 +16,7 @@
     <label for="estado">Estado</label>
     <select id="estado" formControlName="estado" class="filter-form__select">
       <option [ngValue]="null">Todos</option>
-      <option *ngFor="let estado of estadosDisponibles" [value]="estado">
+      <option *ngFor="let estado of estadosDisponibles; trackBy: trackByEstado" [value]="estado">
         {{ estado }}
       </option>
     </select>

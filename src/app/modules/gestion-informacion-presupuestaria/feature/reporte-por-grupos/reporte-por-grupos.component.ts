@@ -133,7 +133,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: 'Error al cargar',
-          detail: `No se pudo cargar el reporte por grupos ${anioTexto}. Intente nuevamente.`
+          detail: `No fue posible cargar el reporte por grupos ${anioTexto}. Por favor, intente nuevamente.`
         });
         this.loadingService.hide();
         this.cdr.markForCheck();
@@ -451,7 +451,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
             }
           },
           error: () => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar la participación.' });
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No fue posible actualizar la participación. Por favor, intente nuevamente.' });
             this.loadingService.hide();
           }
         });
@@ -501,13 +501,13 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
             this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
             this.facadeService.actualizarValorExcedentesMaestria(this.periodoAcademicoId, excedentes).pipe(takeUntil(this.destroy$)).subscribe({
               next: (d) => finish(d),
-              error: () => onError('No se pudo actualizar excedentes.')
+              error: () => onError('No fue posible actualizar los excedentes. Por favor, verifique su conexión.')
             });
           } else {
             finish(data);
           }
         },
-        error: () => onError('No se pudo actualizar AUI.')
+        error: () => onError('No fue posible actualizar el AUI. Por favor, intente nuevamente.')
       });
     } else if (excedentes !== undefined) {
       this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;

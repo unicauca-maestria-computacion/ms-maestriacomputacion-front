@@ -4,7 +4,7 @@
 
     <!-- Pestañas de navegación -->
     <div class="flex align-items-center gap-2 flex-wrap">
-        <button *ngFor="let tab of tabOptions"
+        <button *ngFor="let tab of tabOptions; trackBy: trackByTabOption"
             type="button"
             class="tab-btn"
             [class.tab-btn--active]="selectedTab === tab.value"

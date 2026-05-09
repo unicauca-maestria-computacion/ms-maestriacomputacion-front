@@ -1,5 +1,5 @@
 <div class="surface-0 p-4">
-    <p-toast position="top-right"></p-toast>
+    <p-toast position="top-right" styleClass="uni-toast"></p-toast>
 
     <!-- Navegación por pestañas -->
     <app-opciones-presupuesto
@@ -35,29 +35,11 @@
     <ng-container *ngIf="configuracion">
 
         <!-- Sección: Configuración del período -->
-        <div class="mb-3">
-            <app-uni-card-header
-                titulo="Configuración del Período"
-                icono="settings"
-                class="no-radius-bottom">
-            </app-uni-card-header>
-            <div class="config-panel">
-                <div class="grid p-2">
-                    <div class="col-12 md:col-4 mb-2">
-                        <span class="campo-label">Biblioteca</span>
-                        <span class="campo-valor">{{ configuracion.biblioteca | formatCurrency }}</span>
-                    </div>
-                    <div class="col-12 md:col-4 mb-2">
-                        <span class="campo-label">Recursos Computacionales</span>
-                        <span class="campo-valor">{{ configuracion.recursosComputacionales | formatCurrency }}</span>
-                    </div>
-                    <div class="col-12 md:col-4 mb-2">
-                        <span class="campo-label">Valor SMLV</span>
-                        <span class="campo-valor">{{ configuracion.valorSMLV | formatCurrency }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <app-configuracion-proyeccion-card
+            [configuracion]="configuracion"
+            [isEditable]="false">
+        </app-configuracion-proyeccion-card>
+
 
         <!-- Título de sección institucional -->
         <div class="mb-2 px-1">

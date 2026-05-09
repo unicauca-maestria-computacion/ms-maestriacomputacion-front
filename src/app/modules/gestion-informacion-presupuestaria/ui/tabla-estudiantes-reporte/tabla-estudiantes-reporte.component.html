@@ -8,20 +8,20 @@
 
         <ng-template pTemplate="header">
             <tr>
-                <th class="text-center">Pago</th>
-                <th>Cédula</th>
-                <th>Nombre</th>
-                <th class="text-center">Grupo Inv.</th>
-                <th class="text-right">Matrícula</th>
-                <th class="text-center">Votación</th>
-                <th class="text-center" style="width: 100px; min-width: 100px;">% Beca</th>
-                <th class="text-right">Valor Beca</th>
-                <th class="text-center">Egresado</th>
-                <th class="text-right">Rec. Comp.</th>
-                <th class="text-right">Biblioteca</th>
-                <th class="text-right">Descuentos</th>
-                <th class="text-right">Total Neto</th>
-                <th *ngIf="editable" style="width: 3rem" class="text-center"></th>
+                <th class="text-center" style="width: 85px; min-width: 85px;">Pago</th>
+                <th style="width: 95px; min-width: 95px;">Cédula</th>
+                <th style="min-width: 160px;">Nombre</th>
+                <th class="text-center" style="width: 80px; min-width: 80px;">Grupo Inv.</th>
+                <th class="text-right" style="width: 95px; min-width: 95px;">Matrícula</th>
+                <th class="text-center" style="width: 75px; min-width: 75px;">Votación</th>
+                <th class="text-center" style="width: 70px; min-width: 70px;">% Beca</th>
+                <th class="text-right" style="width: 95px; min-width: 95px;">Valor Beca</th>
+                <th class="text-center" style="width: 75px; min-width: 75px;">Egresado</th>
+                <th class="text-right" style="width: 95px; min-width: 95px;">Rec. Comp.</th>
+                <th class="text-right" style="width: 85px; min-width: 85px;">Biblioteca</th>
+                <th class="text-right" style="width: 95px; min-width: 95px;">Descuentos</th>
+                <th class="text-right" style="width: 100px; min-width: 100px;">Total Neto</th>
+                <th *ngIf="editable" style="width: 80px; min-width: 80px;" class="text-center">Acciones</th>
             </tr>
         </ng-template>
 
@@ -53,16 +53,16 @@
                 </td>
 
                 <!-- Cédula -->
-                <td>{{ estudiante.identificacion }}</td>
+                <td class="col-monetaria">{{ estudiante.identificacion }}</td>
 
                 <!-- Nombre -->
-                <td>{{ estudiante.nombreEstudiante }}</td>
+                <td class="col-nombre">{{ estudiante.nombreEstudiante }}</td>
 
                 <!-- Grupo -->
                 <td class="text-center">{{ estudiante.grupoInvestigacion }}</td>
 
                 <!-- Matrícula -->
-                <td class="text-right">{{ estudiante.matricula | formatCurrency }}</td>
+                <td class="text-right col-monetaria">{{ estudiante.matricula | formatCurrency }}</td>
 
                 <!-- Votación -->
                 <td class="text-center">
@@ -114,7 +114,7 @@
                 </td>
 
                 <!-- Valor Beca -->
-                <td class="text-right">{{ estudiante.valorBeca | formatCurrency }}</td>
+                <td class="text-right col-monetaria">{{ estudiante.valorBeca | formatCurrency }}</td>
 
                 <!-- Egresado -->
                 <td class="text-center">
@@ -143,16 +143,16 @@
                 </td>
 
                 <!-- Rec. Comp. -->
-                <td class="text-right">{{ estudiante.recursosComputacionales | formatCurrency }}</td>
+                <td class="text-right col-monetaria">{{ estudiante.recursosComputacionales | formatCurrency }}</td>
 
                 <!-- Biblioteca -->
-                <td class="text-right">{{ estudiante.biblioteca | formatCurrency }}</td>
+                <td class="text-right col-monetaria">{{ estudiante.biblioteca | formatCurrency }}</td>
 
                 <!-- Descuentos -->
-                <td class="text-right">{{ estudiante.grupoDescuentos | formatCurrency }}</td>
+                <td class="text-right col-monetaria">{{ estudiante.grupoDescuentos | formatCurrency }}</td>
 
                 <!-- Total Neto -->
-                <td class="text-right total-neto">{{ estudiante.totalNeto | formatCurrency }}</td>
+                <td class="text-right total-neto col-monetaria">{{ estudiante.totalNeto | formatCurrency }}</td>
 
                 <!-- Acciones (solo si editable) -->
                 <td *ngIf="editable" class="text-center">

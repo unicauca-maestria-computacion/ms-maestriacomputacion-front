@@ -56,4 +56,7 @@ export class OpcionesPresupuestoComponent implements OnInit, OnChanges {
     this.onDescargar.emit();
   }
 
+  trackByTabOption(index: number, tab: TabOption): string {
+    return tab.value;
+  }
 }

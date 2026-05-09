@@ -50,8 +50,6 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   totalDescuentosCalculado: number = 0;
   totalIngresosCalculado: number = 0;
 
-  editandoCabecera: boolean = false;
-  clonedCabecera: Partial<ConfiguracionReporteFinanciero> = {};
   editingRowKey: string | null = null;
 
   constructor(
@@ -63,7 +61,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   ) { }
 
   get isAnyEditActive(): boolean {
-    return this.editandoCabecera || this.editingRowKey !== null;
+    return this.editingRowKey !== null;
   }
 
   ngOnInit(): void {
@@ -86,7 +84,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       },
       error: (_err) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la proyección.' });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No fue posible cargar la proyección. Por favor, intente nuevamente.' });
         this.loadingService.hide();
         this.cdr.markForCheck();
       }
@@ -157,34 +155,15 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     } as EstudianteProyeccion;
   }
 
-  onHeaderEditInit() {
-    if (!this.configuracion) return;
-
-    if (this.editingRowKey) {
-      const estudianteEnEdicion = this.estudiantes.find(e => e.codigoEstudiante === this.editingRowKey);
-      const nombre = estudianteEnEdicion?.nombreEstudiante ?? 'un estudiante';
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Edición en curso',
-        detail: `Guarde o cancele los cambios de ${nombre} antes de editar la configuración.`
-      });
-      return;
-    }
-
-    this.editandoCabecera = true;
-    this.clonedCabecera = { ...this.configuracion };
-  }
-
-  onHeaderEditSave() {
+  onConfigSave(config: Partial<ConfiguracionReporteFinanciero>) {
     if (!this.configuracion) return;
 
     this.loadingService.show('Actualizando configuración');
-    this.editandoCabecera = false;
 
     const configUpdate: ConfiguracionReporteFinancieroDTOPeticion = {
-      biblioteca: this.clonedCabecera.biblioteca!,
-      recursosComputacionales: this.clonedCabecera.recursosComputacionales!,
-      valorSMLV: this.clonedCabecera.valorSMLV!,
+      biblioteca: config.biblioteca!,
+      recursosComputacionales: config.recursosComputacionales!,
+      valorSMLV: config.valorSMLV!,
       esReporteFinal: this.configuracion.esReporteFinal
     };
 
@@ -193,7 +172,6 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Configuración actualizada correctamente' });
         this.procesarRespuesta(data);
         this.loadingService.hide();
-        this.clonedCabecera = {};
       },
       error: (_err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar configuración.' });
@@ -202,15 +180,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     });
   }
 
-  onHeaderEditCancel() {
-    this.editandoCabecera = false;
-    this.clonedCabecera = {};
-  }
-
   onRowEditInit(estudiante: EstudianteProyeccion) {
-    if (this.editandoCabecera) {
-      return;
-    }
     this.editingRowKey = estudiante.codigoEstudiante;
     this.clonedEstudiantes[estudiante.codigoEstudiante] = { ...estudiante };
   }

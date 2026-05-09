@@ -9,7 +9,7 @@ import { Subject } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { BecaFinanciera, Materia } from '../../models/domain-models';
+import { BecaFinanciera, Materia, PeriodoAcademico } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../data/facade.service';
 import { RadicarService } from '../../../gestion-solicitudes/services/radicar.service';
 import { AutenticacionService } from '../../../gestion-autenticacion/services/autenticacion.service';
@@ -71,7 +71,7 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
         this.router.navigate(['/gestionsolicitudes/portafolio/radicar']);
     }
 
-    getPeriodoLabel(periodos: any[]): string {
+    getPeriodoLabel(periodos: PeriodoAcademico[]): string {
         if (!periodos?.length) return '';
         const p = periodos[0];
         const anio = p.año ?? p.tagPeriodo ?? '';

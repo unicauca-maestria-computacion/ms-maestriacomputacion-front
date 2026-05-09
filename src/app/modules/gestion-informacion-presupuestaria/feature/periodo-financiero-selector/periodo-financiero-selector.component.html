@@ -1,11 +1,10 @@
-<!-- Esqueleto mientras carga -->
-<div *ngIf="loading" class="flex justify-content-center align-items-center mb-4">
-    <p-skeleton width="320px" height="60px" borderRadius="9999px"></p-skeleton>
+<div *ngIf="loading" class="flex justify-content-center align-items-center mb-4" style="width: 320px; margin: 0 auto;">
+    <app-uni-progress-bar label="Cargando períodos..."></app-uni-progress-bar>
 </div>
 
 <!-- Error de carga -->
 <div *ngIf="!loading && errorCarga" class="flex justify-content-center mb-3">
-    <p-message severity="error" [text]="errorCarga"></p-message>
+    <p-message severity="error" [text]="errorCarga" styleClass="uni-message w-full"></p-message>
 </div>
 
 <!-- Sin períodos -->

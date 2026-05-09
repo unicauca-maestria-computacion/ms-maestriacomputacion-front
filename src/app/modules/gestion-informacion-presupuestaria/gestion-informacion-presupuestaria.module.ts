@@ -14,6 +14,8 @@ import { OpcionesPresupuestoComponent } from './ui/opciones-presupuesto/opciones
 import { PresupuestoFilterComponent } from './ui/presupuesto-filter/presupuesto-filter.component';
 import { PresupuestoFormComponent } from './ui/presupuesto-form/presupuesto-form.component';
 import { TablaEstudiantesReporteComponent } from './ui/tabla-estudiantes-reporte/tabla-estudiantes-reporte.component';
+import { ConfiguracionProyeccionCardComponent } from './ui/configuracion-proyeccion-card/configuracion-proyeccion-card.component';
+
 
 import { GestionInformacionPresupuestariaApiService } from './data/api.service';
 import { GestionInformacionPresupuestariaFacadeService } from './data/facade.service';
@@ -37,6 +39,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
         PresupuestoFilterComponent,
         PresupuestoFormComponent,
         TablaEstudiantesReporteComponent,
+        ConfiguracionProyeccionCardComponent,
     ],
     imports: [
         CommonModule,

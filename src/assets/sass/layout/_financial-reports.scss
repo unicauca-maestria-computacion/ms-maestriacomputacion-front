@@ -1,0 +1,440 @@
+// ── Financial Reports Shared Layout ──────────────────────────────────────────
+// Extract of common patterns used across Reporte Por Grupos, Reporte Final y Proyección Reporte
+
+.page-content {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.no-radius-bottom {
+    display: block;
+    .uni-card-header {
+        border-radius: 12px 12px 0 0 !important;
+        border-bottom: none !important;
+    }
+}
+
+.table-container {
+    margin: 1rem auto 0 auto;
+    max-width: 1400px;
+}
+
+.chart-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.config-panel {
+    background-color: var(--surface-ground, #f8f9fa);
+    padding: 1.5rem;
+    border-radius: 0 0 12px 12px;
+    border: 1px solid var(--color-border, #C9C8CC);
+    border-top: none;
+
+    @media screen and (min-width: 961px) {
+        border-radius: 0 0 12px 12px !important;
+        border-top: none !important;
+        margin-bottom: 1.5rem;
+    }
+
+    &.no-radius-bottom {
+        @media screen and (max-width: 960px) {
+            border-radius: 0 !important;
+        }
+    }
+}
+
+.config-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 2.5rem;
+    align-items: flex-end;
+    padding-top: 1.5rem;
+    justify-content: center;
+
+    .p-float-label {
+        width: 180px;
+        display: inline-block;
+
+        p-inputnumber, .p-inputnumber { width: 100% !important; display: inline-block; }
+
+        .p-inputnumber-input {
+            width: 100% !important;
+            text-align: right;
+            font-weight: 600;
+            font-family: 'Open Sans', sans-serif;
+            color: #454444;
+        }
+
+        @media screen and (max-width: 600px) {
+            width: 100% !important;
+            display: block !important;
+            margin-bottom: 1rem;
+        }
+    }
+}
+
+.config-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;
+    flex-shrink: 0;
+
+    .p-button-text {
+        transition: transform 0.2s;
+        &:enabled:hover { transform: scale(1.1); }
+    }
+}
+
+.section-block {
+    border-radius: 12px;
+    overflow: visible;
+}
+
+.percent-input {
+    width: 70px;
+    text-align: right;
+    border: 1px solid var(--surface-border, #ced4da);
+    border-radius: 4px;
+    padding: 0.4rem 0.5rem;
+}
+
+.percent-suffix {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    color: #777680;
+    flex-shrink: 0;
+}
+
+.config-percent-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.config-percent-label {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
+    color: #777680;
+}
+
+.gastos-inputgroup {
+    width: 180px;
+    display: flex !important;
+    align-items: stretch;
+
+    @media screen and (max-width: 768px) { width: 100%; }
+
+    input {
+        width: 100% !important;
+        text-align: right;
+        font-weight: 600;
+        font-family: 'Open Sans', sans-serif;
+        color: #454444;
+    }
+
+    .gastos-edit-button {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        border-right: none !important;
+        height: 38px !important;
+        background-color: #000066 !important;
+        border: 1px solid #000066 !important;
+        color: #ffffff !important;
+        padding: 0 12px !important;
+
+        &:enabled:hover {
+            background-color: #5056AC !important;
+            border-color: #5056AC !important;
+        }
+    }
+
+    .p-inputnumber {
+        flex: 1;
+        
+        .p-inputtext {
+            width: 100% !important;
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+            border-left: 1px solid #ced4da !important;
+            height: 38px !important;
+            text-align: right;
+            font-weight: 600;
+            background-color: #ffffff !important;
+            color: #454444 !important;
+
+            &:disabled {
+                background-color: #ffffff !important;
+                opacity: 1;
+                cursor: default;
+            }
+        }
+    }
+}
+
+// ── Design System TIC v3 — Totales ─────────────────────────────────────────
+.totales-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--surface-ground, #f8f9fa);
+    border-radius: 12px;
+    border: 1px solid var(--color-border, #C9C8CC);
+
+    .total-item {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+
+        .total-label {
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            color: #777680;
+        }
+
+        .total-value {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #454444;
+            min-width: 160px;
+            text-align: right;
+        }
+
+        &.highlight {
+            padding-top: 0.75rem;
+            border-top: 2px solid #E5E2E1;
+
+            .total-label { color: #000066; font-weight: 700; }
+            .total-value { color: #000066; font-size: 16px; }
+        }
+
+        @media screen and (max-width: 600px) {
+            justify-content: space-between;
+            width: 100%;
+            .total-value { min-width: unset; text-align: right; }
+        }
+    }
+}
+
+// ── Estilos de Inputs unificados para configuración ───────────────────────
+.config-input, .config-input-percent, .percent-input {
+    .p-inputtext {
+        font-family: 'Open Sans', sans-serif !important;
+        border: 1px solid #C9C8CC !important;
+        border-radius: 8px !important;
+        color: #454444 !important;
+        height: 38px !important;
+
+        &:enabled:focus {
+            border-color: #000066 !important;
+            box-shadow: 0 0 0 1px #000066 !important;
+        }
+
+        &:disabled {
+            background-color: #F8F9FA !important;
+            border-color: #E5E2E1 !important;
+            opacity: 1;
+            color: #777680 !important;
+        }
+    }
+}
+
+.config-input-percent {
+    width: 100% !important;
+    text-align: right;
+    .config-percent-label {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: #454444;
+        margin-bottom: 2px;
+    }
+}
+
+// ── Tablas unificadas (sin saltos entre paneles) ──────────────────────
+.unified-table, .distribution-table {
+    border: 1px solid #C9C8CC !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    margin-top: 0; 
+    background-color: #ffffff;
+
+    .p-datatable-thead > tr > th {
+        background-color: #F6F6F6 !important;
+        color: #454444 !important;
+        font-family: 'Titillium Web', sans-serif !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        border-bottom: 1px solid #C9C8CC !important;
+        border-right: 1px solid #E0E0E0 !important;
+        border-top: none !important;
+        border-left: none !important;
+        padding: 12px 16px !important;
+
+        &:last-child {
+            border-right: none !important;
+        }
+    }
+
+    .p-datatable-tbody > tr > td {
+        font-family: 'Open Sans', sans-serif !important;
+        font-size: 12px !important;
+        color: #454444 !important;
+        border-bottom: 1px solid #F0F0F0 !important;
+        border-right: 1px solid #F0F0F0 !important;
+        border-left: none !important;
+        padding: 10px 16px !important;
+
+        &:last-child {
+            border-right: none !important;
+        }
+    }
+
+    .p-datatable-tbody > tr:last-child > td {
+        border-bottom: none !important;
+    }
+
+    @media screen and (max-width: 960px) {
+        border-radius: 0 0 12px 12px !important;
+        border-top: none !important;
+        margin-top: 0 !important;
+
+        &.p-datatable-responsive-stack .p-datatable-tbody > tr {
+            margin-bottom: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            border-bottom: 1px solid var(--color-border, #C9C8CC) !important;
+            background: transparent !important;
+
+            &:last-child {
+                border-bottom: none !important;
+                border-radius: 0 0 12px 12px !important;
+            }
+        }
+    }
+}
+
+// Estilos específicos para la tabla de distribución (resumen)
+.distribution-table {
+    .p-datatable-tbody > tr {
+        border-bottom: 1px solid var(--color-border, #C9C8CC) !important;
+
+        &:last-child { border-bottom: none !important; }
+
+        > td {
+            border: none !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem !important;
+
+            .p-column-title { display: none; }
+
+            .desktop-label {
+                font-family: 'Open Sans', sans-serif;
+                font-weight: 600;
+                color: #454444;
+            }
+
+            .value {
+                font-family: 'Open Sans', sans-serif;
+                text-align: right;
+                font-weight: 500;
+                color: #454444;
+            }
+        }
+    }
+
+    @media screen and (max-width: 960px) {
+        .p-datatable-tbody > tr > td {
+            .p-column-title { display: block !important; }
+            .desktop-label { display: none !important; }
+            .value { font-weight: 600; }
+        }
+    }
+}
+
+// ── Tablas de PrimeNG (Modo Striped/General) ────────────────────────
+.p-datatable {
+    &.p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
+        background-color: var(--surface-ground, #f8f9fa);
+    }
+
+    .p-datatable-thead > tr > th {
+        background-color: var(--surface-ground, #f8f9fa) !important;
+        color: #000066 !important;
+        font-family: 'Titillium Web', sans-serif !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.1px !important;
+        border: 1px solid var(--color-border, #C9C8CC) !important;
+    }
+
+    &.p-datatable-gridlines .p-datatable-tbody > tr > td {
+        border: 1px solid var(--surface-border, #dee2e6) !important;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        letter-spacing: 0.25px;
+        color: #454444;
+    }
+
+    .p-datatable-tbody > tr > td .p-column-title { display: none; }
+
+    @media screen and (max-width: 960px) {
+        &.p-datatable-responsive-stack .p-datatable-thead > tr > th,
+        &.p-datatable-responsive-stack .p-datatable-tfoot > tr > td { display: none !important; }
+
+        &.p-datatable-responsive-stack .p-datatable-tbody > tr > td {
+            display: flex !important;
+            width: 100% !important;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem !important;
+            border: none !important;
+            border-bottom: 1px solid var(--surface-border, #dee2e6) !important;
+        }
+
+        &.p-datatable-responsive-stack .p-datatable-tbody > tr {
+            border-bottom: 2px solid #5056AC !important;
+            margin-bottom: 0.75rem;
+            display: block !important;
+            background: var(--surface-card, #ffffff);
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .p-datatable-tbody > tr > td .p-column-title {
+            display: inline !important;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            color: #777680;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px;
+        }
+    }
+}
+
+// Unificar tablas con paneles
+.config-panel + div > .p-datatable,
+.config-panel + .p-datatable {
+    border-top: none !important;
+    border-radius: 0 0 12px 12px !important;
+}
+
+.config-panel.no-radius-bottom,
+.config-panel:has(+ div > .p-datatable),
+.config-panel:has(+ .p-datatable) {
+    @media screen and (max-width: 960px) {
+        border-radius: 0 !important;
+    }
+}

@@ -9,7 +9,7 @@ import { Subject } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { BecaFinanciera, Materia } from '../../models/domain-models';
+import { BecaFinanciera, Materia, PeriodoAcademico } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../data/facade.service';
 import { getEstadoMatriculaSeverity, getEstadoMatriculaLabel } from '../../utils/estado-matricula.utils';
 
@@ -83,7 +83,7 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
         return getEstadoMatriculaSeverity(estaPago);
     }
 
-    getPeriodoLabel(periodos: any[]): string {
+    getPeriodoLabel(periodos: PeriodoAcademico[]): string {
         if (!periodos || periodos.length === 0) return 'Periodo Académico';
         // Si hay una lógica de periodo activo, se usaría aquí. 
         // Por ahora tomamos el primero o el que esté marcado como activo.

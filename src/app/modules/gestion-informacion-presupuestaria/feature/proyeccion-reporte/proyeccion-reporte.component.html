@@ -1,5 +1,5 @@
 <div class="surface-0 p-4">
-    <p-toast position="top-right"></p-toast>
+    <p-toast position="top-right" styleClass="uni-toast"></p-toast>
 
     <!-- Navegación por pestañas -->
     <app-opciones-presupuesto
@@ -35,85 +35,13 @@
     <ng-container *ngIf="configuracion">
 
         <!-- Sección: Configuración editable -->
-        <!-- Sección: Configuración editable -->
-        <div class="mb-3">
-            <app-uni-card-header titulo="Configuración del Reporte" icono="settings" class="no-radius-bottom">
-            </app-uni-card-header>
-            <div class="config-panel">
-                <div class="config-row">
-                    <span class="p-float-label">
-                        <p-inputNumber id="float-biblioteca"
-                            *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.biblioteca"
-                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            styleClass="config-input">
-                        </p-inputNumber>
-                        <p-inputNumber *ngIf="!editandoCabecera"
-                            [ngModel]="configuracion.biblioteca"
-                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            [readonly]="true" [disabled]="true" styleClass="config-input">
-                        </p-inputNumber>
-                        <label for="float-biblioteca">Biblioteca</label>
-                    </span>
+        <app-configuracion-proyeccion-card
+            [configuracion]="configuracion"
+            [isEditable]="esEditable"
+            [disabled]="editingRowKey !== null"
+            (save)="onConfigSave($event)">
+        </app-configuracion-proyeccion-card>
 
-                    <span class="p-float-label">
-                        <p-inputNumber id="float-recursos"
-                            *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.recursosComputacionales"
-                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            styleClass="config-input">
-                        </p-inputNumber>
-                        <p-inputNumber *ngIf="!editandoCabecera"
-                            [ngModel]="configuracion.recursosComputacionales"
-                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            [readonly]="true" [disabled]="true" styleClass="config-input">
-                        </p-inputNumber>
-                        <label for="float-recursos">Recursos Computacionales</label>
-                    </span>
-
-                    <span class="p-float-label">
-                        <p-inputNumber id="float-smlv"
-                            *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorSMLV"
-                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            styleClass="config-input">
-                        </p-inputNumber>
-                        <p-inputNumber *ngIf="!editandoCabecera"
-                            [ngModel]="configuracion.valorSMLV"
-                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            [readonly]="true" [disabled]="true" styleClass="config-input">
-                        </p-inputNumber>
-                        <label for="float-smlv">Valor SMLV</label>
-                    </span>
-
-                    <div class="config-row-actions" *ngIf="esEditable">
-                        <button *ngIf="!editandoCabecera" pButton pRipple type="button"
-                            class="p-button-rounded p-button-text"
-                            style="color: #000066; width:36px; height:36px; padding:0;"
-                            pTooltip="Editar configuración" tooltipPosition="top"
-                            aria-label="Editar configuración"
-                            (click)="onHeaderEditInit()">
-                            <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">edit</span>
-                        </button>
-                        <ng-container *ngIf="editandoCabecera">
-                            <button pButton pRipple type="button"
-                                class="p-button-rounded p-button-text"
-                                style="color: #5BAE40; width:36px; height:36px; padding:0;"
-                                pTooltip="Guardar" tooltipPosition="top"
-                                aria-label="Guardar configuración"
-                                (click)="onHeaderEditSave()">
-                                <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">check_circle</span>
-                            </button>
-                            <button pButton pRipple type="button"
-                                class="p-button-rounded p-button-text"
-                                style="color: #FF6D0A; width:36px; height:36px; padding:0;"
-                                pTooltip="Cancelar" tooltipPosition="top"
-                                aria-label="Cancelar edición de configuración"
-                                (click)="onHeaderEditCancel()">
-                                <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">cancel</span>
-                            </button>
-                        </ng-container>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Título de sección institucional -->
         <div class="mb-2 px-1">

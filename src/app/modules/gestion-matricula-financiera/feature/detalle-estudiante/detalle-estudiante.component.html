@@ -20,8 +20,8 @@
     <p-message
       *ngIf="vm.error && !vm.loading"
       severity="error"
-      styleClass="w-full mb-3"
-      text="No fue posible cargar el detalle del estudiante. Verifique su conexión a la red universitaria e intente nuevamente.">
+      styleClass="uni-message w-full mb-3"
+      text="No fue posible cargar el detalle del estudiante. Por favor, verifique su conexión e intente nuevamente.">
     </p-message>
 
     <!-- Estado: Vacío (404) -->
@@ -107,7 +107,7 @@
           <div class="col-12 md:col-3 mb-3">
             <span class="campo-label">Estado de pago</span>
             <div class="mt-1">
-              <app-matricula-status-badge [estaPago]="est.estaPago"></app-matricula-status-badge>
+              <app-uni-status-badge [status]="est.estaPago"></app-uni-status-badge>
             </div>
           </div>
           <div class="col-12 md:col-3 mb-3">
@@ -185,4 +185,4 @@
 </div>
 
 <!-- Toast institucional -->
-<p-toast position="top-right"></p-toast>
+<p-toast position="top-right" styleClass="uni-toast"></p-toast>

@@ -1,0 +1,143 @@
+// ── Financial Notifications & Dialogs (Design System TIC v3 2026) ───────────
+// These styles are applied only to components using styleClass="uni-toast" or "uni-dialog"
+
+// ── Notificaciones (Toasts / Snackbars) ──────────────────────────────────────
+:host ::ng-deep .uni-toast, .uni-toast {
+    .p-toast-message {
+        border-radius: 4px !important;
+        box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.10) !important;
+        border: none !important;
+        margin-bottom: 1rem;
+
+        .p-toast-message-content {
+            padding: 1rem !important;
+            border-left: 4px solid transparent; // Se define por estado
+            align-items: flex-start !important;
+        }
+
+        .p-toast-summary {
+            font-family: 'Open Sans', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            line-height: 1.4 !important;
+        }
+
+        .p-toast-detail {
+            font-family: 'Open Sans', sans-serif !important;
+            font-size: 12px !important;
+            color: #3C3B3F !important;
+            margin-top: 4px !important;
+        }
+
+        .p-toast-icon-close {
+            color: #A7A6B0 !important;
+            top: 8px !important;
+            right: 8px !important;
+        }
+
+        // --- Estados ---
+        &.p-toast-message-success {
+            background-color: #EFF7EC !important;
+            .p-toast-message-content { border-left-color: #5BAE40 !important; }
+            .p-toast-message-icon, .p-toast-summary { color: #5BAE40 !important; }
+        }
+
+        &.p-toast-message-warn {
+            background-color: #FFF7E5 !important;
+            .p-toast-message-content { border-left-color: #FFB000 !important; }
+            .p-toast-message-icon, .p-toast-summary { color: #FFB000 !important; }
+        }
+
+        &.p-toast-message-error {
+            background-color: #FDF2EA !important;
+            .p-toast-message-content { border-left-color: #ED7D31 !important; }
+            .p-toast-message-icon, .p-toast-summary { color: #ED7D31 !important; }
+        }
+
+        &.p-toast-message-info {
+            background-color: #E8F1FB !important;
+            .p-toast-message-content { border-left-color: #1D72D3 !important; }
+            .p-toast-message-icon, .p-toast-summary { color: #1D72D3 !important; }
+        }
+    }
+}
+
+// ── Diálogos de Confirmación ────────────────────────────────────────────────
+:host ::ng-deep .uni-dialog, .uni-dialog {
+    &.p-dialog, &.p-confirm-dialog {
+        border-radius: 28px !important;
+        overflow: hidden !important;
+        box-shadow: 0 11px 15px -7px rgba(0,0,0,.2), 0 24px 38px 3px rgba(0,0,0,.14), 0 9px 46px 8px rgba(0,0,0,.12) !important;
+        
+        .p-dialog-header {
+            background: #ffffff !important;
+            padding: 1.5rem 1.5rem 0.5rem 1.5rem !important;
+            border-bottom: none !important;
+            
+            .p-dialog-title {
+                color: #000066 !important;
+                font-family: 'Titillium Web', sans-serif !important;
+                font-weight: 700 !important;
+            }
+        }
+
+        .p-dialog-content {
+            background: #ffffff !important;
+            padding: 0.5rem 1.5rem 1.5rem 1.5rem !important;
+            font-family: 'Open Sans', sans-serif !important;
+            color: #454444 !important;
+        }
+
+        .p-dialog-footer {
+            background: #ffffff !important;
+            padding: 1rem 1.5rem 1.5rem 1.5rem !important;
+            border-top: none !important;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+
+            button {
+                border-radius: 9999px !important; // Botones Full
+                font-family: 'Open Sans', sans-serif !important;
+                font-weight: 600 !important;
+                
+                &.p-button-secondary {
+                    background: transparent !important;
+                    color: #000066 !important;
+                    border: 2px solid #000066 !important;
+                    &:hover { background: rgba(80, 86, 172, 0.1) !important; }
+                }
+
+                &:not(.p-button-secondary) {
+                    background: #000066 !important;
+                    border: none !important;
+                    &:hover { background: #5056AC !important; }
+                }
+            }
+        }
+    }
+}
+
+// ── Mensajes Estáticos (p-message) ──────────────────────────────────────────
+:host ::ng-deep .uni-message, .uni-message {
+    &.p-message {
+        border-radius: 4px !important;
+        margin: 0.5rem 0;
+        
+        &.p-message-error {
+            background: #FDF2EA !important;
+            border-left: 4px solid #ED7D31 !important;
+            color: #ED7D31 !important;
+            .p-message-icon { color: #ED7D31 !important; }
+        }
+        
+        &.p-message-success {
+            background: #EFF7EC !important;
+            border-left: 4px solid #5BAE40 !important;
+            color: #5BAE40 !important;
+            .p-message-icon { color: #5BAE40 !important; }
+        }
+
+        .p-message-wrapper { padding: 0.75rem 1rem !important; }
+    }
+}

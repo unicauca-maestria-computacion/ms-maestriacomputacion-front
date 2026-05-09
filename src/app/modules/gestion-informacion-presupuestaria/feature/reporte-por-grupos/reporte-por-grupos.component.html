@@ -1,5 +1,5 @@
 <div class="surface-0 p-4">
-    <p-toast position="top-right"></p-toast>
+    <p-toast position="top-right" styleClass="uni-toast"></p-toast>
 
     <!-- Navegación por pestañas -->
     <app-opciones-presupuesto
@@ -498,7 +498,7 @@
             (onCambio)="onGastosChange()">
         </app-gastos-generales-dialog>
 
-        <p-confirmDialog [style]="{width: '450px', 'border-radius': '28px'}"></p-confirmDialog>
+        <p-confirmDialog [style]="{width: '450px'}" styleClass="uni-dialog"></p-confirmDialog>
 
     </ng-container>
 </div>

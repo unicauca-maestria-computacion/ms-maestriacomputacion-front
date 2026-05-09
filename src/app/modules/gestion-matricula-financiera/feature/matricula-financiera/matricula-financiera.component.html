@@ -70,16 +70,20 @@
     <p-message
       *ngIf="vm.error && !vm.loading"
       severity="error"
-      styleClass="w-full mb-3"
+      styleClass="uni-message w-full mb-3"
       [text]="'No fue posible cargar las matrículas. Por favor, intente nuevamente o contacte al administrador.'">
     </p-message>
 
-    <!-- Listado de Estudiantes (Sin encabezado de tarjeta, estilo presupuesto) -->
-    <div class="flex justify-content-between align-items-center mb-2 px-2">
-      <span class="total-label">
-        Estudiantes Matriculados (Total: {{ (estudiantesFiltrados$ | async)?.length ?? 0 }})
+    <!-- Título de sección institucional -->
+    <div class="mb-2 px-1">
+      <h2 class="text-xl font-semibold m-0" style="color: #000066; font-family: 'Titillium Web', sans-serif;">
+        Listado de Estudiantes Matriculados
+      </h2>
+      <span class="total-label" style="font-size: 12px; color: #777680;">
+        Total: {{ (estudiantesFiltrados$ | async)?.length ?? 0 }} registros encontrados
       </span>
     </div>
+
 
     <div class="table-responsive-wrapper border-round-xl overflow-hidden mb-4">
       <p-table
@@ -110,7 +114,7 @@
             </td>
             <td>
               <span class="p-column-title font-bold">Nombre completo</span>
-              <span class="font-semibold" style="color: #000066;">{{ estudiante.nombre }} {{ estudiante.apellido }}</span>
+              <span>{{ estudiante.nombre }} {{ estudiante.apellido }}</span>
             </td>
             <td class="text-center">
               <span class="p-column-title font-bold">Semestre</span>
@@ -118,7 +122,7 @@
             </td>
             <td class="text-center">
               <span class="p-column-title font-bold">Estado</span>
-              <app-matricula-status-badge [estaPago]="estudiante.estaPago"></app-matricula-status-badge>
+              <app-uni-status-badge [status]="estudiante.estaPago"></app-uni-status-badge>
             </td>
             <td class="text-center">
               <p-button
@@ -151,4 +155,4 @@
 </div>
 
 <!-- Toast institucional — posición top-right -->
-<p-toast position="top-right"></p-toast>
+<p-toast position="top-right" styleClass="uni-toast"></p-toast>

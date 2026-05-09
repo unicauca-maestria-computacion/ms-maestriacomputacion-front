@@ -62,4 +62,8 @@ export class PresupuestoFilterComponent implements OnInit, OnDestroy {
     this._destroy$.next();
     this._destroy$.complete();
   }
+
+  trackByEstado(index: number, estado: string): string {
+    return estado;
+  }
 }

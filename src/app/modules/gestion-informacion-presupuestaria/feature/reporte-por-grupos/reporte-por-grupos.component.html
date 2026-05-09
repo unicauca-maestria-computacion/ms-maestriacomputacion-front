@@ -19,6 +19,11 @@
             (errorCargaChange)="errorPeriodos = $event">
         </app-periodo-financiero-selector>
     </div>
+    
+    <!-- Estado: Cargando -->
+    <div *ngIf="loading" class="mb-4">
+        <app-uni-progress-bar label="Cargando reporte por grupos..."></app-uni-progress-bar>
+    </div>
 
     <!-- Estado: Sin datos -->
     <app-estado-vacio

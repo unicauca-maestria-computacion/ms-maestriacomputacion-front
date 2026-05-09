@@ -149,19 +149,16 @@
         background-color: #ffffff;
 
         .p-datatable-thead > tr > th {
-            background-color: #F6F6F6 !important;
-            color: #454444 !important;
-            font-family: 'Titillium Web', sans-serif !important;
-            font-size: 14px !important;
+            background-color: #F8F9FA !important; // Gris tenue de la captura
+            color: #454444 !important; // Texto oscuro institucional
+            font-family: 'Open Sans', sans-serif !important;
+            font-size: 13px !important;
             font-weight: 700 !important;
-            border-bottom: 1px solid #C9C8CC !important;
-            border-right: 1px solid #E0E0E0 !important;
-            border-top: none !important;
-            border-left: none !important;
+            border: 1px solid #E0E0E0 !important; // Bordes sutiles
             padding: 12px 16px !important;
 
             &:last-child {
-                border-right: none !important;
+                border-right: 1px solid #E0E0E0 !important;
             }
         }
 
@@ -209,7 +206,7 @@
         width: 32px !important;
         height: 32px !important;
         padding: 0 !important;
-        color: #777680 !important;
+        color: #000066 !important; // Azul institucional prominente
         transition: all 0.2s ease;
         display: inline-flex !important;
         align-items: center;

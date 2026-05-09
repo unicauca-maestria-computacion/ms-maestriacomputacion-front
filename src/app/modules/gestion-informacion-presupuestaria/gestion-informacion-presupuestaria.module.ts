@@ -13,6 +13,7 @@ import { DescargarReporteDialogComponent } from './feature/descargar-reporte-dia
 import { OpcionesPresupuestoComponent } from './ui/opciones-presupuesto/opciones-presupuesto.component';
 import { PresupuestoFilterComponent } from './ui/presupuesto-filter/presupuesto-filter.component';
 import { PresupuestoFormComponent } from './ui/presupuesto-form/presupuesto-form.component';
+import { TablaEstudiantesReporteComponent } from './ui/tabla-estudiantes-reporte/tabla-estudiantes-reporte.component';
 
 import { GestionInformacionPresupuestariaApiService } from './data/api.service';
 import { GestionInformacionPresupuestariaFacadeService } from './data/facade.service';
@@ -35,6 +36,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
         OpcionesPresupuestoComponent,
         PresupuestoFilterComponent,
         PresupuestoFormComponent,
+        TablaEstudiantesReporteComponent,
     ],
     imports: [
         CommonModule,

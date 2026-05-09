@@ -1,36 +1,35 @@
-<!-- Encabezado con Tabs y Botón Descargar -->
-<div class="flex flex-column md:flex-row align-items-start md:align-items-center justify-content-between gap-3 mb-3">
-    <div class="flex align-items-center">
-        <p-selectButton
-            [options]="tabOptions"
-            [(ngModel)]="selectedTab"
-            optionLabel="label"
-            optionValue="value"
-            (onChange)="onTabChange($event)">
-        </p-selectButton>
-    </div>
+<!-- Encabezado con Tabs y Botón Descargar — Design System TIC v3 -->
+<div class="flex flex-column md:flex-row align-items-start md:align-items-center justify-content-between gap-3 mb-4 pb-3"
+     style="border-bottom: 2px solid #DB141C;">
 
-    <div class="flex justify-content-start md:justify-content-end">
-        <button
-            pButton
-            pRipple
+    <!-- Pestañas de navegación -->
+    <div class="flex align-items-center gap-2 flex-wrap">
+        <button *ngFor="let tab of tabOptions"
             type="button"
-            label="Descargar"
-            icon="pi pi-download"
-            class="p-button-outlined"
-            pTooltip="Descargar reporte en Excel"
-            tooltipPosition="left"
-            (click)="descargar()">
+            class="tab-btn"
+            [class.tab-btn--active]="selectedTab === tab.value"
+            (click)="onTabChange({ value: tab.value })"
+            [attr.aria-current]="selectedTab === tab.value ? 'page' : null">
+            {{ tab.label }}
         </button>
     </div>
+
+    <!-- Botón Descargar -->
+    <button
+        pButton pRipple
+        type="button"
+        label="Descargar"
+        class="p-button-rounded p-button-outlined descargar-btn"
+        pTooltip="Descargar reporte en Excel"
+        tooltipPosition="left"
+        aria-label="Descargar reporte en Excel"
+        (click)="descargar()">
+        <span class="material-symbols-rounded mr-2" aria-hidden="true" style="font-size: 18px;">download</span>
+    </button>
 </div>
 
 <app-descargar-reporte-dialog
     [(display)]="displayDescargarModal"
-    [activeReportCode]="activeTab"
-    [activePeriod]="currentPeriod">
+    [reporteActual]="activeTab"
+    [periodoActual]="currentPeriod">
 </app-descargar-reporte-dialog>
-
-
-
-

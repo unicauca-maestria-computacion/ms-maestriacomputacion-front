@@ -1,128 +1,102 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    OnDestroy,
+    OnInit
+} from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { Estudiante, PeriodoAcademico } from '../../models/domain-models';
+import { BecaFinanciera, Materia } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../data/facade.service';
 import { RadicarService } from '../../../gestion-solicitudes/services/radicar.service';
 import { AutenticacionService } from '../../../gestion-autenticacion/services/autenticacion.service';
-import { LoadingService } from 'src/app/shared/services/loading.service';
+import { getEstadoMatriculaSeverity, getEstadoMatriculaLabel } from '../../utils/estado-matricula.utils';
 
 @Component({
-  selector: 'app-resumen-matricula-estudiante',
-  templateUrl: './resumen-matricula-estudiante.component.html',
-  styleUrls: ['./resumen-matricula-estudiante.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [MessageService]
+    selector: 'app-resumen-matricula-estudiante',
+    templateUrl: './resumen-matricula-estudiante.component.html',
+    styleUrls: ['./resumen-matricula-estudiante.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [MessageService]
 })
 export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
 
-  private destroy$ = new Subject<void>();
+    private destroy$ = new Subject<void>();
 
-  estudiante: Estudiante | null = null;
-  periodoActual: PeriodoAcademico | null = null;
+    /** ViewModel del Facade — contiene loading, error, estudiante, periodos, isEmpty */
+    readonly vmResumen$ = this.facadeService.vmResumen$;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private facadeService: GestionMatriculaFinancieraFacadeService,
-    private radicarService: RadicarService,
-    private messageService: MessageService,
-    private cdr: ChangeDetectorRef,
-    private autenticacionService: AutenticacionService,
-    private loadingService: LoadingService
-  ) { }
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private facadeService: GestionMatriculaFinancieraFacadeService,
+        private radicarService: RadicarService,
+        private messageService: MessageService,
+        private cdr: ChangeDetectorRef,
+        private autenticacionService: AutenticacionService
+    ) {}
 
-  ngOnInit(): void {
-    this.cargarDatosIniciales();
-  }
-
-  cargarDatosIniciales(): void {
-    this.loadingService.show('Cargando información...');
-    
-    // 1. Primero cargamos los periodos para saber en cuál estamos
-    this.facadeService.obtenerPeriodosAcademicos().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (periodos) => {
-        if (periodos && periodos.length > 0) {
-          // Tomamos el primer periodo (que suele ser el activo según la lógica del back)
-          this.periodoActual = periodos[0];
-          this.facadeService.setPeriodoFiltro(this.periodoActual);
-        }
-        
-        // 2. Luego identificamos al estudiante y cargamos su detalle
-        this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
-          const idRuta = params.get('id');
-          const id = idRuta?.trim()
-              ? idRuta
-              : this.autenticacionService.getLoggedInUser()?.academicCode ?? null;
-
-          if (!id) {
-              this.messageService.add({
-                  severity: 'error',
-                  summary: 'Sin identificador',
-                  detail: 'No se pudo determinar el estudiante. Inicie sesión nuevamente.'
-              });
-              this.loadingService.hide();
-              return;
-          }
-          this.cargarEstudiante(id);
+    ngOnInit(): void {
+        this.facadeService.obtenerPeriodosAcademicos().pipe(
+            switchMap(periodos => {
+                if (periodos?.length > 0) {
+                    this.facadeService.setPeriodoFiltro(periodos[0]);
+                }
+                return this.route.paramMap;
+            }),
+            switchMap(params => {
+                const idRuta = params.get('id');
+                const id = idRuta?.trim()
+                    ? idRuta
+                    : this.autenticacionService.getLoggedInUser()?.academicCode ?? '';
+                return this.facadeService.obtenerEstudiante(id);
+            }),
+            takeUntil(this.destroy$)
+        ).subscribe({
+            next: () => this.cdr.markForCheck(),
+            error: () => {
+                // Error 404 u otro: no redirigir, mostrar estado vacío con botón de revisión
+                this.cdr.markForCheck();
+            }
         });
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Periodo no cargado',
-          detail: 'No se pudo determinar el periodo académico actual.'
-        });
-        this.loadingService.hide();
-      }
-    });
-  }
+    }
 
-  cargarEstudiante(id: string): void {
-      this.facadeService.obtenerEstudiante(id).pipe(takeUntil(this.destroy$)).subscribe({
-          next: (data) => {
-              if (!data) {
-                  this.messageService.add({
-                      severity: 'info',
-                      summary: 'Sin registro',
-                      detail: 'No se encontró un registro de matrícula para el periodo actual.'
-                  });
-              }
-              this.estudiante = data;
-              this.loadingService.hide();
-              this.cdr.markForCheck();
-          },
-          error: (err) => {
-              // Si es un 404 u otro error, permitimos que el estudiante vea el botón de revisión
-              this.messageService.add({
-                  severity: 'error',
-                  summary: 'Error de consulta',
-                  detail: 'Hubo un problema al consultar tu matrícula. Si el error persiste, solicita una revisión.'
-              });
-              this.estudiante = null;
-              this.loadingService.hide();
-              this.cdr.markForCheck();
-          }
-      });
-  }
+    /** Navega al flujo de radicación con RE_MATR preseleccionado */
+    solicitarRevision(): void {
+        this.radicarService.restrablecerValores();
+        this.radicarService.codigoSolicitudPreseleccionado = 'RE_MATR';
+        this.router.navigate(['/gestionsolicitudes/portafolio/radicar']);
+    }
 
-  ngOnDestroy(): void {
-      this.destroy$.next();
-      this.destroy$.complete();
-  }
+    getPeriodoLabel(periodos: any[]): string {
+        if (!periodos?.length) return '';
+        const p = periodos[0];
+        const anio = p.año ?? p.tagPeriodo ?? '';
+        const periodo = p.periodo ?? p.tagPeriodo ?? '';
+        return `${anio}-${periodo}`;
+    }
 
-  solicitarRevision(): void {
-      this.radicarService.restrablecerValores();
-      this.radicarService.codigoSolicitudPreseleccionado = 'RE_MATR';
-      this.router.navigate(['/gestionsolicitudes/portafolio/radicar']);
-  }
+    getEstadoPagoLabel(estaPago: boolean | undefined | null): string {
+        return getEstadoMatriculaLabel(estaPago);
+    }
 
-  getPeriodoLabel(): string {
-      if (!this.periodoActual) return '';
-      const anio = this.periodoActual.año ?? this.periodoActual.tagPeriodo ?? '';
-      const periodo = this.periodoActual.periodo ?? this.periodoActual.tagPeriodo ?? '';
-      return `${anio}-${periodo}`;
-  }
+    getEstadoPagoSeverity(estaPago: boolean | undefined | null): 'success' | 'warning' | 'danger' | 'info' {
+        return getEstadoMatriculaSeverity(estaPago);
+    }
+
+    trackByBeca(index: number, beca: BecaFinanciera): string {
+        return beca.resolucion + index;
+    }
+
+    trackByMateria(index: number, materia: Materia): string {
+        return materia.codigo_oid + index;
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
 }

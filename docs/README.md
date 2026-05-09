@@ -15,6 +15,13 @@
 |-----------|-------------|
 | [`integration/frontend-backend-integration.md`](integration/frontend-backend-integration.md) | Cómo se acordaron los contratos de API, separación de responsabilidades, por qué los cambios en el backend no afectan al frontend, y cómo probar la integración |
 
+### Design System TIC v3
+
+| Documento | Descripción |
+|-----------|-------------|
+| [`design-system/design-system-tic-v3.md`](design-system/design-system-tic-v3.md) | Colores institucionales, tipografía, border radius, íconos y estados de pago aplicados en los módulos |
+| [`design-system/atomic-design.md`](design-system/atomic-design.md) | Catálogo de átomos y moléculas compartidos: `app-uni-progress-bar`, `app-periodo-badge`, `app-campo-dato`, `app-page-header`, `app-estado-vacio`, `app-uni-card-header` |
+
 ### Gestión y Proceso Scrum
 
 | Documento | Descripción |
@@ -31,6 +38,7 @@
 |-----------|-------------|
 | [`modules/gestion-matricula-financiera.md`](modules/gestion-matricula-financiera.md) | Documentación técnica completa del módulo de Gestión de Matrícula Financiera |
 | [`modules/gestion-informacion-presupuestaria.md`](modules/gestion-informacion-presupuestaria.md) | Documentación técnica completa del módulo de Gestión de Información Presupuestaria |
+| [`modules/changelog-matricula-presupuestaria.md`](modules/changelog-matricula-presupuestaria.md) | Changelog de correcciones post-spec: errores TypeScript, alineación Design System TIC v3, correcciones de UX y Atomic Design |
 
 ### API y Contratos
 
@@ -104,6 +112,20 @@
 | Lógica de encadenamiento movida del ApiService al Facade | `api.service.ts`, `facade.service.ts` (presupuestaria) |
 | Creación de pipes compartidos `FormatCurrencyPipe` y `FormatPercentPipe` | `shared/pipes/` + 3 componentes |
 | Eliminación de variable `loading` muerta en `MatriculaFinancieraComponent` | `matricula-financiera.component.ts` |
+| Error TS en `ActualizarParticipacionDTOPeticion` — campos incorrectos en objeto literal | `reporte-por-grupos.component.ts` |
+| Fuentes institucionales (Titillium Web, Open Sans, Material Symbols) agregadas a `index.html` | `src/index.html` |
+| Badge de período reemplazado por componente institucional `app-periodo-badge` | `resumen-matricula-estudiante.component.html` |
+| `p-progressSpinner` reemplazado por `app-uni-progress-bar` (barra lineal Design System TIC v3) | 6 templates |
+| Estados de pago corregidos a 3 estados reales (`true`/`false`/`null`) con colores correctos | 3 componentes TS |
+| Dropdown de estados reducido de 7 a 4 opciones reales | `matricula-financiera.component.ts` |
+| Columna "Valor SMLV" eliminada del listado (backend devuelve `1` para todos) | `matricula-financiera.component.html` |
+| Porcentaje de beca corregido (`\| percent` → `%` directo) | 2 templates |
+| Botón "Iniciar nueva matrícula" eliminado (no es responsabilidad del frontend) | `matricula-financiera.component.html/.ts` |
+| Campo `grupoNombre` tipado en modelo, DTO y mapper | `domain-models.ts`, `estudiante.dto.ts`, `mapper.service.ts` |
+| Datos faltantes del estudiante agregados a vistas de detalle y resumen | 2 templates |
+| Becas extraídas a tarjeta separada con patrón grid consistente | 2 templates |
+| Materias convertidas de tabla a grid `campo-label`/`campo-valor` | 2 templates |
+| Atomic Design: 6 componentes compartidos creados en `SharedModule` | `shared.module.ts` + 6 nuevos archivos |
 
 ---
 

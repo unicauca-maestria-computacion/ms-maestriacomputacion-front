@@ -263,13 +263,24 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   }
 
   private actualizarGrafica(porAñoRow: TableRow): void {
-    const colors = ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+    // Colores del Plan de Desarrollo Institucional — Design System TIC v3
+    const colors = [
+      '#000066', // Primario institucional
+      '#5056AC', // Primario light
+      '#1D72D3', // Terciario (azul información)
+      '#5BAE40', // Verde confirmación
+      '#FFB000', // Amarillo advertencia
+      '#DB141C', // Secundario light (rojo institucional)
+    ];
     this.basicData = {
       labels: this.groupColumns.map(g => g.nombre),
       datasets: [
         {
           label: 'Participación por Año (%)',
           backgroundColor: this.groupColumns.map((_, i) => colors[i % colors.length]),
+          borderColor: this.groupColumns.map((_, i) => colors[i % colors.length]),
+          borderWidth: 1,
+          borderRadius: 4,
           data: this.groupColumns.map(g => porAñoRow.values[g.nombre] ?? 0)
         }
       ]
@@ -278,21 +289,41 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       responsive: true,
       maintainAspectRatio: true,
       plugins: {
-        legend: { display: false, labels: { color: '#495057' } },
+        legend: {
+          display: false,
+          labels: {
+            color: '#454444',
+            font: { family: "'Open Sans', sans-serif", size: 12 }
+          }
+        },
         tooltip: {
+          backgroundColor: '#000066',
+          titleColor: '#FFFFFF',
+          bodyColor: '#FFFFFF',
+          titleFont: { family: "'Titillium Web', sans-serif", size: 14, weight: '600' },
+          bodyFont: { family: "'Open Sans', sans-serif", size: 12 },
+          padding: 10,
+          cornerRadius: 8,
           callbacks: {
             label: (ctx: { parsed: { y: number } }) => `${ctx.parsed.y.toFixed(2)} %`
           }
         }
       },
       scales: {
-        x: { ticks: { color: '#495057' }, grid: { color: '#ebedef', display: false } },
+        x: {
+          ticks: {
+            color: '#454444',
+            font: { family: "'Open Sans', sans-serif", size: 12 }
+          },
+          grid: { color: '#E5E2E1', display: false }
+        },
         y: {
           ticks: {
-            color: '#495057',
+            color: '#454444',
+            font: { family: "'Open Sans', sans-serif", size: 12 },
             callback: (value: number) => `${value} %`
           },
-          grid: { color: '#ebedef' }
+          grid: { color: '#E5E2E1' }
         }
       }
     };
@@ -554,6 +585,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
 
   abrirModalGastos() {
     this.displayGastosModal = true;
+    this.cdr.markForCheck();
   }
 
   onGastosChange() {

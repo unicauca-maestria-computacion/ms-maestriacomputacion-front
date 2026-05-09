@@ -40,6 +40,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   periodoActualTexto: string = '';
   sinPeriodos: boolean = false;
   errorPeriodos: boolean = false;
+  esEditable: boolean = true; // Habilitar edición para proyecciones
 
   configuracion: ConfiguracionReporteFinanciero | null = null;
   estudiantes: EstudianteProyeccion[] = [];

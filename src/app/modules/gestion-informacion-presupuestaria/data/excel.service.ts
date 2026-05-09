@@ -43,7 +43,7 @@ export class ExcelService {
         this._crearHojaResumenEjecutivo(workbook, periodo, config, data.estudiantes, false);
         this._crearHojaEstudiantes(workbook, data.estudiantes, config, false);
         this._crearHojaAnalisisDescuentos(workbook, data.estudiantes, config);
-        this._crearHojaDatosGraficas(workbook, data.estudiantes);
+        this._crearHojaDatosGraficas(workbook, data.estudiantes, false);
         this._guardarWorkbook(workbook, `Reporte_Final_${periodo.año}-${periodo.periodo}.xlsx`);
     }
 
@@ -57,6 +57,7 @@ export class ExcelService {
         this._crearHojaResumenEjecutivo(workbook, periodo, config, data.estudiantes, true);
         this._crearHojaEstudiantes(workbook, data.estudiantes, config, true);
         this._crearHojaAnalisisDescuentos(workbook, data.estudiantes, config);
+        this._crearHojaDatosGraficas(workbook, data.estudiantes, true);
         this._guardarWorkbook(workbook, `Proyeccion_Reporte_${periodo.año}-${periodo.periodo}.xlsx`);
     }
 
@@ -118,14 +119,17 @@ export class ExcelService {
         });
         ws.addRow([]);
         this._agregarEncabezadoSeccion(ws, 'ESTADÍSTICAS DE ESTUDIANTES', numCols);
-        const totalEst   = estudiantes.length;
-        const pagados    = estudiantes.filter(e => e.estaPago).length;
-        const pendientes = totalEst - pagados;
+        const totalEst    = estudiantes.length;
+        const pagados     = estudiantes.filter(e => e.estaPago === true).length;
+        const faltantes   = totalEst - pagados; // En Proyección son 'Pendientes', en Reporte son 'No Pagaron'
+        const labelFaltante = esProyeccion ? 'Estudiantes Pendientes' : 'Estudiantes No Pagaron';
+        const colorFaltante = esProyeccion ? COLOR.AMARILLO_ADV : 'FFEF5350';
+
         const pctCumplimiento = totalEst > 0 ? ((pagados / totalEst) * 100).toFixed(1) : '0.0';
         const estRows: [string, string | number][] = [
             ['Total Estudiantes', totalEst],
             ['Estudiantes Pagados', pagados],
-            ['Estudiantes Pendientes', pendientes],
+            [labelFaltante, faltantes],
             ['% Cumplimiento', `${pctCumplimiento}%`],
         ];
         estRows.forEach(([label, value], i) => {
@@ -135,8 +139,8 @@ export class ExcelService {
             if (label === 'Estudiantes Pagados') {
                 row.getCell(2).font = { name: 'Calibri', size: 10, bold: true, color: { argb: COLOR.VERDE_EXITO } };
             }
-            if (label === 'Estudiantes Pendientes') {
-                row.getCell(2).font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFEF5350' } };
+            if (label === labelFaltante) {
+                row.getCell(2).font = { name: 'Calibri', size: 10, bold: true, color: { argb: colorFaltante } };
             }
         });
         this._aplicarBordesHoja(ws);
@@ -202,7 +206,7 @@ export class ExcelService {
                 this._formatPercent(est.porcentajeBeca),
                 this._formatPercent(est.aplicaEgresado ? (config.porcentajeEgresadoFijo ?? 0.05) : 0),
                 this._formatCurrency(est.totalDescuentos ?? 0),
-                est.estaPago ? 'Pagado' : 'Pendiente',
+                est.estaPago === true ? 'Pagado' : (esProyeccion ? 'Pendiente' : 'No pago'),
             ];
             if (esProyeccion) {
                 rowValues.push(this._formatCurrency(est.totalNetoConDerechos ?? 0));
@@ -211,13 +215,14 @@ export class ExcelService {
             const bgColor = idx % 2 === 0 ? COLOR.BLANCO : COLOR.FILA_ALTERNA;
             this._estilizarFilaDatosCompleta(dataRow, bgColor, numCols);
             const estadoCell = dataRow.getCell(9);
-            if (est.estaPago) {
+            if (est.estaPago === true) {
                 estadoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR.VERDE_CLARO } };
                 estadoCell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: COLOR.VERDE_EXITO } };
                 pagados++;
             } else {
-                estadoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR.ROJO_PENDIENTE } };
-                estadoCell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFC62828' } };
+                const isWarning = esProyeccion;
+                estadoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: isWarning ? COLOR.AMARILLO_TOTAL : COLOR.ROJO_PENDIENTE } };
+                estadoCell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: isWarning ? COLOR.AMARILLO_ADV : 'FFC62828' } };
                 pendientes++;
             }
         });
@@ -262,7 +267,7 @@ export class ExcelService {
         ws.views = [{ state: 'frozen', xSplit: 0, ySplit: 4 }];
     }
 
-    private _crearHojaDatosGraficas(wb: ExcelJS.Workbook, estudiantes: ProyeccionEstudiante[]): void {
+    private _crearHojaDatosGraficas(wb: ExcelJS.Workbook, estudiantes: ProyeccionEstudiante[], esProyeccion: boolean): void {
         const ws = wb.addWorksheet('DATOS PARA GRÁFICAS');
         const numCols = 3;
         ws.columns = [{ width: 30 }, { width: 18 }, { width: 12 }];
@@ -278,13 +283,14 @@ export class ExcelService {
             this._estilizarCeldaHeader(hRow.getCell(i + 1), h);
         });
         hRow.height = 22;
-        const pagados    = estudiantes.filter(e => e.estaPago).length;
-        const pendientes = estudiantes.length - pagados;
+        const pagados    = estudiantes.filter(e => e.estaPago === true).length;
+        const faltantes  = estudiantes.length - pagados;
+        const labelFaltante = 'No Pagados / Pendientes'; // Etiqueta genérica para gráficas si se desea, o condicional
         const total      = estudiantes.length;
         const grafData: (string | number)[][] = [
-            ['Pagados',    pagados,    total ? `${((pagados / total) * 100).toFixed(1)}%`    : '0%'],
-            ['Pendientes', pendientes, total ? `${((pendientes / total) * 100).toFixed(1)}%` : '0%'],
-            ['Total',      total,      '100%'],
+            ['Pagados', pagados, total ? `${((pagados / total) * 100).toFixed(1)}%` : '0%'],
+            [esProyeccion ? 'Pendientes' : 'No Pagaron', faltantes, total ? `${((faltantes / total) * 100).toFixed(1)}%` : '0%'],
+            ['Total',   total,   '100%'],
         ];
         grafData.forEach((rowData, i) => {
             const row = ws.addRow(rowData);

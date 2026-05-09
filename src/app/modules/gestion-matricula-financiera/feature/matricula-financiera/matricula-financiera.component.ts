@@ -1,153 +1,175 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    OnDestroy,
+    OnInit
+} from '@angular/core';
+import {
+    BehaviorSubject,
+    Subject,
+    combineLatest
+} from 'rxjs';
+import {
+    debounceTime,
+    distinctUntilChanged,
+    map,
+    startWith,
+    takeUntil
+} from 'rxjs/operators';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { GestionMatriculaFinancieraFacadeService } from '../../data/facade.service';
-import { LoadingService } from 'src/app/shared/services/loading.service';
-import { Estudiante, PeriodoAcademico } from '../../models/domain-models';
+import { Estudiante } from '../../models/domain-models';
+import { getEstadoMatriculaLabel, getEstadoMatriculaSeverity } from '../../utils/estado-matricula.utils';
 
 @Component({
     selector: 'app-matricula-financiera',
     templateUrl: './matricula-financiera.component.html',
     styleUrls: ['./matricula-financiera.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
-    estudiantes: Estudiante[] = [];
-    estudiantesFiltrados: Estudiante[] = [];
+    // ── Filtros reactivos ───────────────────────────────────────────────────
+    readonly busqueda$ = new Subject<string>();
+    readonly estadoFiltro$ = new BehaviorSubject<string>('TODOS');
 
-    periodos: PeriodoAcademico[] = [];
-    periodosDropdown: { label: string; value: PeriodoAcademico }[] = [];
-    periodoSeleccionado: PeriodoAcademico | null = null;
+    // ── ViewModel del Facade ────────────────────────────────────────────────
+    readonly vm$ = this.facadeService.vm$;
 
-    semestres: { label: string; value: number }[] = [];
-    semestreSeleccionado: number | null = null;
+    // ── Lista filtrada (combina estado del Facade + filtros locales) ────────
+    readonly estudiantesFiltrados$ = combineLatest({
+        estudiantes: this.facadeService.estudiantes$,
+        termino: this.busqueda$.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            startWith('')
+        ),
+        estado: this.estadoFiltro$
+    }).pipe(
+        map(({ estudiantes, termino, estado }) => {
+            let resultado = estudiantes;
+
+            if (termino.trim()) {
+                const t = termino.toLowerCase();
+                resultado = resultado.filter(e =>
+                    e.nombre.toLowerCase().includes(t) ||
+                    e.apellido.toLowerCase().includes(t) ||
+                    e.codigo.toLowerCase().includes(t)
+                );
+            }
+
+            if (estado && estado !== 'TODOS') {
+                resultado = resultado.filter(e =>
+                    estado === 'true'  ? e.estaPago === true :
+                    estado === 'false' ? e.estaPago === false :
+                    estado === 'null'  ? e.estaPago == null :
+                    true
+                );
+            }
+
+            return resultado;
+        })
+    );
+
+    // ── Opciones de estado para el dropdown de filtro ───────────────────────
+    readonly estadosMatricula = [
+        { label: 'Todos los estados', value: 'TODOS' },
+        { label: 'PAGADO',            value: 'true'  },
+        { label: 'NO PAGADO',         value: 'false' },
+        { label: 'PENDIENTE',         value: 'null'  },
+    ];
 
     constructor(
         private facadeService: GestionMatriculaFinancieraFacadeService,
         private messageService: MessageService,
         private router: Router,
         private route: ActivatedRoute,
-        private cdr: ChangeDetectorRef,
-        private loadingService: LoadingService
+        private cdr: ChangeDetectorRef
     ) {}
 
     ngOnInit(): void {
-        this.cargarPeriodos();
+        this.cargarPeriodosYEstudiantes();
     }
 
-    cargarPeriodos(): void {
-        this.loadingService.show('Cargando períodos académicos');
-        this.facadeService.obtenerPeriodosAcademicos().pipe(takeUntil(this.destroy$)).subscribe({
-            next: (periodos) => {
-                this.periodos = periodos;
-                this.periodosDropdown = periodos.map(p => ({
-                    label: `${p.año}-${p.periodo}`,
-                    value: p
-                }));
+    private cargarPeriodosYEstudiantes(): void {
+        this.facadeService.obtenerPeriodosAcademicos()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: periodos => {
+                    const periodoGuardado = this.facadeService.getPeriodoFiltro();
+                    const periodo = periodoGuardado
+                        ? periodos.find(p => p.año === periodoGuardado.año && p.periodo === periodoGuardado.periodo) ?? periodos[0]
+                        : periodos[0];
 
-                const periodoGuardado = this.facadeService.getPeriodoFiltro();
-                const semestreGuardado = this.facadeService.getSemestreFiltro();
-
-                if (periodoGuardado && this.periodos.some(p => p.año === periodoGuardado.año && p.periodo === periodoGuardado.periodo)) {
-                    this.periodoSeleccionado = this.periodos.find(p => p.año === periodoGuardado.año && p.periodo === periodoGuardado.periodo) || null;
-                } else if (periodos.length > 0) {
-                    this.periodoSeleccionado = periodos[0];
-                    this.facadeService.setPeriodoFiltro(this.periodoSeleccionado);
-                }
-
-                if (semestreGuardado !== null) {
-                    this.semestreSeleccionado = semestreGuardado;
-                }
-
-                if (this.periodoSeleccionado) {
-                    this.cargarEstudiantes();
-                } else {
-                    this.loadingService.hide();
+                    if (periodo) {
+                        this.facadeService.setPeriodoFiltro(periodo);
+                        this.facadeService.obtenerEstudiantes(periodo)
+                            .pipe(takeUntil(this.destroy$))
+                            .subscribe({
+                                error: () => this.mostrarError('No fue posible cargar las matrículas. Por favor, intente nuevamente.')
+                            });
+                    }
                     this.cdr.markForCheck();
-                }
-            },
-            error: (_err) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No se pudieron cargar los períodos académicos. Intente nuevamente más tarde.'
-                });
-                this.loadingService.hide();
-                this.cdr.markForCheck();
-            }
-        });
+                },
+                error: () => this.mostrarError('No fue posible cargar los períodos académicos. Por favor, intente nuevamente.')
+            });
     }
 
-    cargarEstudiantes(): void {
-        if (!this.periodoSeleccionado) return;
-
-        this.loadingService.show('Cargando lista de estudiantes');
-        this.facadeService.obtenerEstudiantes(this.periodoSeleccionado).pipe(takeUntil(this.destroy$)).subscribe({
-            next: (estudiantes) => {
-                this.estudiantes = (estudiantes ?? []).sort((a, b) => (b.semestreFinanciero || 0) - (a.semestreFinanciero || 0));
-                this.extraerSemestres();
-                this.aplicarFiltros();
-                this.loadingService.hide();
-                this.cdr.markForCheck();
-            },
-            error: (_err) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No se pudieron cargar los estudiantes. Intente nuevamente más tarde.'
-                });
-                this.loadingService.hide();
-                this.cdr.markForCheck();
-            }
-        });
+    onPeriodoChange(periodo: any): void {
+        this.facadeService.setPeriodoFiltro(periodo);
+        this.facadeService.obtenerEstudiantes(periodo)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                error: () => this.mostrarError('No fue posible cargar las matrículas. Por favor, intente nuevamente.')
+            });
     }
 
-    extraerSemestres(): void {
-        const semestresUnicos = [...new Set(this.estudiantes.map(e => e.semestreFinanciero))].sort((a, b) => a - b);
-        this.semestres = [
-            { label: 'Todos', value: 0 },
-            ...semestresUnicos.map(s => ({ label: `${s}`, value: s }))
-        ];
-
-        if (this.semestreSeleccionado === null) {
-            this.semestreSeleccionado = 0;
-        }
+    onBusquedaChange(event: Event): void {
+        this.busqueda$.next((event.target as HTMLInputElement).value);
     }
 
-    onPeriodoChange(): void {
-        this.facadeService.setPeriodoFiltro(this.periodoSeleccionado);
-        this.cargarEstudiantes();
-    }
-
-    onFiltroChange(): void {
-        this.facadeService.setSemestreFiltro(this.semestreSeleccionado);
-        this.aplicarFiltros();
-    }
-
-    aplicarFiltros(): void {
-        this.estudiantesFiltrados = this.estudiantes.filter(estudiante => {
-            const cumpleSemestre = this.semestreSeleccionado === 0 ||
-                                 estudiante.semestreFinanciero === this.semestreSeleccionado;
-            return cumpleSemestre;
-        });
+    onEstadoChange(valor: string): void {
+        this.estadoFiltro$.next(valor);
     }
 
     verDetalle(estudiante: Estudiante): void {
         this.router.navigate(['detalle', estudiante.codigo], { relativeTo: this.route });
     }
 
-    getInputValue(event: Event): string {
-        return (event.target as HTMLInputElement).value;
+    trackByEstudiante(index: number, estudiante: Estudiante): string {
+        return estudiante.codigo;
+    }
+
+    getEstadoLabel(estaPago: boolean | undefined | null): string {
+        return getEstadoMatriculaLabel(estaPago);
+    }
+
+    getEstadoPagoSeverity(estaPago: boolean | undefined | null): 'success' | 'warning' | 'danger' | 'info' {
+        return getEstadoMatriculaSeverity(estaPago);
+    }
+
+    getPeriodoDropdownLabel(periodo: any): string {
+        if (!periodo) return '';
+        const anio = periodo.anio ?? periodo['año'] ?? '';
+        const tag = periodo.tagPeriodo ?? periodo.periodo ?? '';
+        return `${anio}-${tag}`;
+    }
+
+    private mostrarError(detalle: string): void {
+        this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: detalle
+        });
+        this.cdr.markForCheck();
     }
 
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
     }
-
 }

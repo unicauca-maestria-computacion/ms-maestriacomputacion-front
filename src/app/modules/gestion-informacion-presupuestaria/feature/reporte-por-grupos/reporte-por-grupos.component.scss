@@ -8,7 +8,6 @@
     max-width: 1400px;
 }
 
-
 .chart-container {
     width: 100%;
     max-width: 800px;
@@ -18,17 +17,23 @@
 .config-panel {
     background-color: var(--surface-ground, #f8f9fa);
     padding: 1.5rem;
-    border-radius: 8px;
-    border: 1px solid var(--surface-border, #dee2e6);
+    border-radius: 0 0 12px 12px;
+    border: 1px solid var(--color-border, #C9C8CC);
+    border-top: none;
+
+    @media screen and (min-width: 961px) {
+        border-radius: 0 0 12px 12px !important; // Sigue unido a su header azul
+        border-top: none !important;
+        margin-bottom: 1.5rem;
+    }
 }
 
-/* Layout del panel de configuración: una sola fila flex */
 .config-row {
     display: flex;
     flex-wrap: wrap;
     gap: 1.5rem 2.5rem;
     align-items: flex-end;
-    padding-top: 1.5rem;  /* espacio para el label flotante */
+    padding-top: 1.5rem;
     justify-content: center;
 }
 
@@ -36,13 +41,12 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    margin-left: auto;  /* empuja los botones al extremo derecho */
+    margin-left: auto;
     flex-shrink: 0;
 }
 
-
 .section-block {
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: visible;
 }
 
@@ -55,8 +59,9 @@
 }
 
 .percent-suffix {
+    font-family: 'Open Sans', sans-serif;
     font-weight: 600;
-    color: var(--text-color-secondary, #6c757d);
+    color: #777680;
     flex-shrink: 0;
 }
 
@@ -67,8 +72,23 @@
 }
 
 .config-percent-label {
-    font-size: 0.75rem;
-    color: var(--text-color-secondary, #6c757d);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
+    color: #777680;
+}
+
+.gastos-inputgroup {
+    width: 180px;
+
+    @media screen and (max-width: 768px) { width: 100%; }
+
+    input {
+        width: 100% !important;
+        text-align: right;
+        font-weight: 600;
+        font-family: 'Open Sans', sans-serif;
+        color: #454444;
+    }
 }
 
 :host ::ng-deep {
@@ -76,165 +96,281 @@
         width: 180px;
         display: inline-block;
 
-        p-inputnumber,
-        .p-inputnumber {
-            width: 100% !important;
-            display: inline-block;
-        }
+        p-inputnumber, .p-inputnumber { width: 100% !important; display: inline-block; }
 
         .p-inputnumber-input {
             width: 100% !important;
             text-align: right;
             font-weight: 600;
-            color: var(--text-color, #495057);
-            background-color: var(--surface-card, #ffffff);
+            font-family: 'Open Sans', sans-serif;
+            color: #454444;
         }
 
         .config-input-percent {
             width: 100% !important;
             text-align: right;
-            font-weight: 600;
-            color: var(--text-color, #495057);
-            background-color: var(--surface-card, #ffffff);
+            .config-percent-label {
+                font-family: 'Open Sans', sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+                color: #454444;
+                margin-bottom: 2px;
+            }
         }
 
-    }
+        .config-input, .config-input-percent, .percent-input {
+            .p-inputtext {
+                font-family: 'Open Sans', sans-serif !important;
+                border: 1px solid #C9C8CC !important;
+                border-radius: 8px !important;
+                color: #454444 !important;
+                height: 38px !important;
 
-}
+                &:enabled:focus {
+                    border-color: #000066 !important;
+                    box-shadow: 0 0 0 1px #000066 !important;
+                }
 
-.gastos-inputgroup {
-    width: 180px;
-
-    @media screen and (max-width: 768px) {
-        width: 100%;
-    }
-
-    input {
-        width: 100% !important;
-        text-align: right;
-        font-weight: 600;
-        color: var(--text-color, #495057);
-        background-color: var(--surface-card, #ffffff);
-    }
-    
-    :host ::ng-deep .p-inputtext {
-        width: 100% !important;
-    }
-}
-
-
-
-:host ::ng-deep .gastos-inputgroup {
-    .gastos-edit-button {
-        border-top-right-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-        border-right: none !important;
-        height: 38.08px !important;
-        background-color: var(--primary-color, #3b82f6) !important;
-        border: 1px solid var(--primary-color, #3b82f6) !important;
-        color: #ffffff !important;
-        transition: background-color 0.2s, box-shadow 0.2s, filter 0.2s;
-
-        &:enabled:hover {
-            background-color: var(--primary-color, #3b82f6) !important;
-            border-color: var(--primary-color, #3b82f6) !important;
-            filter: brightness(0.85); /* Standard PrimeNG-like darkening effect */
-        }
-
-        &:enabled:active {
-            filter: brightness(0.7);
+                &:disabled {
+                    background-color: #F8F9FA !important;
+                    border-color: #E5E2E1 !important;
+                    opacity: 1;
+                    color: #777680 !important;
+                }
+            }
         }
     }
 
+    .gastos-inputgroup {
+        display: flex !important;
+        align-items: stretch;
 
-    .p-float-label .p-inputtext {
-        border-top-left-radius: 0 !important;
-        border-bottom-left-radius: 0 !important;
-        border-left: 1px solid var(--surface-border, #ced4da) !important;
+        .gastos-edit-button {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-right: none !important;
+            height: 38px !important;
+            background-color: #000066 !important;
+            border: 1px solid #000066 !important;
+            color: #ffffff !important;
+            padding: 0 12px !important;
 
-        &:disabled {
-            opacity: 0.6; /* Standard disabled look */
-            cursor: default;
+            &:enabled:hover {
+                background-color: #5056AC !important;
+                border-color: #5056AC !important;
+            }
+        }
+
+        .p-inputnumber {
+            flex: 1;
+            
+            .p-inputtext {
+                width: 100% !important;
+                border-top-left-radius: 0 !important;
+                border-bottom-left-radius: 0 !important;
+                border-left: 1px solid #ced4da !important;
+                height: 38px !important;
+                text-align: right;
+                font-weight: 600;
+                background-color: #ffffff !important;
+                color: #454444 !important;
+
+                &:disabled {
+                    background-color: #ffffff !important; // Mantener blanco aunque sea readonly
+                    opacity: 1;
+                    cursor: default;
+                }
+            }
         }
     }
-}
 
-
-
-
-
-:host ::ng-deep {
-    .p-card .p-card-body {
-        padding: 1.5rem;
+    // Estilos para botones de acción del formulario
+    .config-row-actions {
+        .p-button-text {
+            transition: transform 0.2s;
+            &:enabled:hover { transform: scale(1.1); }
+        }
     }
+
+    .p-card .p-card-body { padding: 1.5rem; }
 
     .p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
         background-color: var(--surface-ground, #f8f9fa);
     }
 
+    // ── Encabezados de tabla — Design System TIC v3 ────────────────────────
+    // H6: Titillium Web, Regular 400, 14px, ls 0.1px  → Encabezados columna
+    // Body 3: Open Sans, Regular 400, 12px, ls 0.25px → Contenido celdas
     .p-datatable .p-datatable-thead > tr > th {
-        background-color: var(--surface-section, #f8f9fa);
-        color: var(--text-color, #495057);
-        font-weight: 700;
-        border-bottom: 2px solid var(--surface-border, #dee2e6);
+        background-color: var(--surface-ground, #f8f9fa) !important;
+        color: #000066 !important; // Azul institucional para el texto
+        font-family: 'Titillium Web', sans-serif !important;
+        font-size: 14px !important;
+        font-weight: 600 !important; // Negrita para compensar la falta de color de fondo
+        letter-spacing: 0.1px !important;
+        border: 1px solid var(--color-border, #C9C8CC) !important;
     }
 
-    /* Tabla de distribución */
-    .distribution-table {
+    .p-datatable-gridlines .p-datatable-tbody > tr > td {
         border: 1px solid var(--surface-border, #dee2e6) !important;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        letter-spacing: 0.25px;
+        color: #454444;
+    }
+
+    // Unificar tablas con paneles
+    .config-panel + div > .p-datatable,
+    .config-panel + .p-datatable {
+        border-top: none !important;
+        border-radius: 0 0 12px 12px !important;
+    }
+
+    .config-panel.no-radius-bottom,
+    .config-panel:has(+ div > .p-datatable),
+    .config-panel:has(+ .p-datatable) {
+        @media screen and (max-width: 960px) {
+            border-radius: 0 !important;
+        }
+    }
+
+    // ── Tablas unificadas (sin saltos entre paneles) ──────────────────────
+    .unified-table, .distribution-table {
+        border: 1px solid #C9C8CC !important;
         border-collapse: separate;
         border-spacing: 0;
-        border-radius: 4px;
-        overflow: hidden;
-
-        .p-datatable-tbody > tr {
-            border-bottom: 1px solid var(--surface-border, #dee2e6) !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        margin-top: 0; 
+        background-color: #ffffff;
+        .p-datatable-thead > tr > th {
+            background-color: #F6F6F6 !important;
+            color: #454444 !important;
+            font-family: 'Titillium Web', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            border-bottom: 1px solid #C9C8CC !important;
+            border-right: 1px solid #E0E0E0 !important;
+            border-top: none !important;
+            border-left: none !important;
+            padding: 12px 16px !important;
 
             &:last-child {
-                border-bottom: none !important;
+                border-right: none !important;
             }
+        }
+
+        .p-datatable-tbody > tr > td {
+            font-family: 'Open Sans', sans-serif !important;
+            font-size: 12px !important;
+            color: #454444 !important;
+            border-bottom: 1px solid #F0F0F0 !important;
+            border-right: 1px solid #F0F0F0 !important;
+            border-left: none !important;
+            padding: 10px 16px !important;
+
+            &:last-child {
+                border-right: none !important;
+            }
+        }
+
+        .p-datatable-tbody > tr:last-child > td {
+            border-bottom: none !important;
+        }
+
+        @media screen and (max-width: 960px) {
+            border-radius: 0 0 12px 12px !important;
+            border-top: none !important;
+            margin-top: 0 !important;
+
+            &.p-datatable-responsive-stack .p-datatable-tbody > tr {
+                margin-bottom: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                border-bottom: 1px solid var(--color-border, #C9C8CC) !important;
+                background: transparent !important;
+
+                &:last-child {
+                    border-bottom: none !important;
+                    border-radius: 0 0 12px 12px !important;
+                }
+            }
+        }
+    }
+
+    // Estilos específicos para la tabla de distribución (resumen)
+    .distribution-table {
+        .p-datatable-tbody > tr {
+            border-bottom: 1px solid var(--color-border, #C9C8CC) !important;
+
+            &:last-child { border-bottom: none !important; }
 
             > td {
-                border: none !important; /* Remove individual cell borders to avoid double lines */
+                border: none !important;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 padding: 0.75rem 1rem !important;
 
-                .p-column-title {
-                    display: none;
-                }
+                .p-column-title { display: none; }
 
                 .desktop-label {
+                    font-family: 'Open Sans', sans-serif;
                     font-weight: 600;
-                    color: var(--text-color, #495057);
+                    color: #454444;
                 }
 
                 .value {
+                    font-family: 'Open Sans', sans-serif;
                     text-align: right;
                     font-weight: 500;
+                    color: #454444;
                 }
             }
         }
 
         @media screen and (max-width: 960px) {
-            .p-datatable-tbody > tr {
-                > td {
-                    .p-column-title {
-                        display: block !important;
-                    }
-
-                    .desktop-label {
-                        display: none !important;
-                    }
-
-                    .value {
-                        font-weight: 600;
-                    }
-                }
+            .p-datatable-tbody > tr > td {
+                .p-column-title { display: block !important; }
+                .desktop-label { display: none !important; }
+                .value { font-weight: 600; }
             }
         }
     }
+
+    .p-datatable .p-datatable-tbody > tr > td .p-column-title { display: none; }
+
+    @media screen and (max-width: 960px) {
+        .p-datatable.p-datatable-responsive-stack .p-datatable-thead > tr > th,
+        .p-datatable.p-datatable-responsive-stack .p-datatable-tfoot > tr > td { display: none !important; }
+
+        .p-datatable.p-datatable-responsive-stack .p-datatable-tbody > tr > td {
+            display: flex !important;
+            width: 100% !important;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem !important;
+            border: none !important;
+            border-bottom: 1px solid var(--surface-border, #dee2e6) !important;
+        }
+
+        .p-datatable.p-datatable-responsive-stack .p-datatable-tbody > tr {
+            border-bottom: 2px solid #5056AC !important;
+            margin-bottom: 0.75rem;
+            display: block !important;
+            background: var(--surface-card, #ffffff);
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .p-datatable .p-datatable-tbody > tr > td .p-column-title {
+            display: inline !important;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            color: #777680;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px;
+        }
+    }
 }
-
-

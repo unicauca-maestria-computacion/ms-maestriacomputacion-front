@@ -1,35 +1,33 @@
-<p-dialog [header]="readonly ? 'Gastos Generales' : 'Gestión de Gastos Generales'" [(visible)]="display" [modal]="true"
-    [style]="{width: '60vw', 'min-width': '320px'}" [maximizable]="true"
-    [draggable]="false" [resizable]="false"
-    [closable]="!guardandoGastos" (onHide)="cerrar()">
+<p-dialog
+  [(visible)]="display"
+  [header]="'Gestionar Gastos Generales'"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '900px', 'max-width': '95vw', 'border-radius': '28px' }"
+  (onHide)="cerrar()">
 
-    <!-- Botón Agregar nuevo gasto (Ahora arriba) -->
-    <div class="mb-3 flex justify-content-end" *ngIf="!readonly">
-        <button pButton pRipple type="button" icon="pi pi-plus" label="Agregar Gasto"
-            class="p-button-outlined p-button-secondary"
-            pTooltip="Agregar nuevo gasto general" tooltipPosition="top"
-            (click)="agregarNuevaFilaGasto()"
-            [disabled]="nuevoGasto !== null || editingGastoKey !== null || guardandoGastos">
+    <div class="mb-3 flex justify-content-between align-items-center">
+        <p class="text-600 m-0">Agregue, edite o elimine los gastos generales del periodo.</p>
+        <button *ngIf="!readonly" pButton pRipple type="button" label="Agregar Gasto" icon="pi pi-plus"
+            class="p-button-rounded p-button-success" (click)="agregarNuevaFilaGasto()"
+            [disabled]="editingGastoKey !== null || nuevoGasto !== null || guardandoGastos">
         </button>
     </div>
 
-    <!-- Tabla editable de gastos -->
-    <div style="overflow-x: auto;">
+    <div class="table-responsive-wrapper" style="max-height: 500px; overflow-y: auto;">
         <p-table [value]="gastosEditables" dataKey="idGastoGeneral" editMode="row"
-            responsiveLayout="stack" breakpoint="960px"
-            styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped">
-
+            styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped unified-table">
             <ng-template pTemplate="header">
                 <tr>
-                    <th class="white-space-nowrap">Categoría</th>
-                    <th class="white-space-nowrap">Descripción</th>
-                    <th class="text-right white-space-nowrap">Monto</th>
-                    <th *ngIf="!readonly" style="width: 10rem;"></th>
+                    <th style="width:25%">Categoría</th>
+                    <th style="width:40%">Descripción</th>
+                    <th style="width:20%" class="text-right">Monto</th>
+                    <th style="width:15%" class="text-center" *ngIf="!readonly">Acciones</th>
                 </tr>
             </ng-template>
-
             <ng-template pTemplate="body" let-gasto let-editing="editing" let-ri="rowIndex">
-                <tr [pEditableRow]="gasto" [id]="gasto.idGastoGeneral < 0 ? 'nuevo-gasto-row' : null">
+                <tr [pEditableRow]="gasto" [id]="gasto.idGastoGeneral === -1 ? 'nuevo-gasto-row' : ''">
                     <!-- Categoría -->
                     <td>
                         <span class="p-column-title font-bold">Categoría</span>
@@ -151,7 +149,7 @@
 
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="4" class="text-center p-4 text-600">
+                    <td [attr.colspan]="readonly ? 3 : 4" class="text-center p-4 text-600">
                         <i class="pi pi-inbox mr-2"></i>No hay gastos generales registrados.
                     </td>
                 </tr>
@@ -159,18 +157,8 @@
         </p-table>
     </div>
 
-
-    <!-- Footer con botón cerrar -->
+    <!-- Footer para cierre visual y balance de radio de 28px -->
     <ng-template pTemplate="footer">
-        <div class="flex justify-content-end">
-            <button pButton pRipple type="button" label="Cerrar" icon="pi pi-times"
-                class="p-button-text p-button-secondary"
-                (click)="cerrar()" [disabled]="guardandoGastos">
-            </button>
-        </div>
+        <div class="py-2"></div>
     </ng-template>
 </p-dialog>
-
-
-
-

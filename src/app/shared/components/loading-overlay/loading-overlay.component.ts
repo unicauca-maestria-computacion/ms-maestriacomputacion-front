@@ -6,22 +6,16 @@ import { LoadingService } from '../../services/loading.service';
   template: `
     <p-blockUI [blocked]="(loadingService.loading$ | async) || false" [baseZIndex]="9999">
       <div class="loading-content flex flex-column align-items-center gap-3">
-        <p-progressSpinner 
-          strokeWidth="4" 
-          fill="var(--surface-ground)" 
-          animationDuration=".8s">
-        </p-progressSpinner>
-        <span class="text-white text-xl font-medium tracking-wider shadow-text">
-          {{ loadingService.message$ | async }}
-        </span>
+        <div style="width: 300px;">
+          <app-uni-progress-bar [label]="(loadingService.message$ | async) || ''"></app-uni-progress-bar>
+        </div>
       </div>
     </p-blockUI>
   `,
   styles: [`
     :host ::ng-deep .p-blockui {
-      background-color: rgba(0, 0, 0, 0.45);
+      background-color: rgba(255, 255, 255, 0.7) !important; // Fondo claro institucional
       backdrop-filter: blur(4px);
-      transition: all 0.3s ease-in-out;
     }
 
     .loading-content {
@@ -32,19 +26,17 @@ import { LoadingService } from '../../services/loading.service';
       z-index: 10000;
     }
 
-    .shadow-text {
-      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    .uni-loading-text {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #000066; // Azul institucional
+      letter-spacing: 0.5px;
     }
 
-    :host ::ng-deep .p-progressspinner-circle {
-      animation: p-progressspinner-dash 1.5s ease-in-out infinite, p-progressspinner-color 6s ease-in-out infinite;
-    }
-
-    @keyframes p-progressspinner-color {
-      100%, 0% { stroke: var(--primary-500); }
-      40% { stroke: var(--primary-400); }
-      66% { stroke: var(--primary-600); }
-      80%, 90% { stroke: var(--primary-300); }
+    :host ::ng-deep .uni-spinner .p-progressspinner-circle {
+      stroke: #000066 !important; // Forzar color primario TIC v3
+      animation: p-progressspinner-dash 1.5s ease-in-out infinite !important;
     }
   `]
 })

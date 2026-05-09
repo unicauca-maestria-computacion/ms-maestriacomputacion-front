@@ -16,8 +16,8 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
   private destroy$ = new Subject<void>();
 
   @Input() display: boolean = false;
-  @Input() activeReportCode: string = '';
-  @Input() activePeriod: PeriodoFinancieroDTORespuesta | null = null;
+  @Input() reporteActual: string = '';
+  @Input() periodoActual: PeriodoFinancieroDTORespuesta | null = null;
   @Output() displayChange = new EventEmitter<boolean>();
 
   reportOptions = [
@@ -44,8 +44,8 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    const periodChanged = !!changes['activePeriod'];
-    const reportChanged = !!changes['activeReportCode'];
+    const periodChanged = !!changes['periodoActual'];
+    const reportChanged = !!changes['reporteActual'];
     const visibilityChanged = !!changes['display'] && this.display === true;
 
     if ((periodChanged || reportChanged || visibilityChanged) && this.allPeriodOptions.length > 0) {
@@ -57,7 +57,7 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
     if (this.allPeriodOptions.length === 0) {
       this.cargarPeriodos();
     } else {
-      setTimeout(() => this.sincronizarSeleccion(), 0);
+      this.sincronizarSeleccion();
     }
   }
 
@@ -90,8 +90,9 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
               period: { ...p, año: anio, periodo: periodNum }
             };
           });
-        this.sincronizarSeleccion();
         this.loadingPeriods = false;
+        this.cdr.detectChanges();
+        this.sincronizarSeleccion();
       },
       error: () => {
         this.loadingPeriods = false;
@@ -136,10 +137,8 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
 
   onReportChange() {
     this.actualizarPeriodosDisponibles();
-    setTimeout(() => {
-      this.aplicarSeleccionPeriodo();
-      this.cdr.markForCheck();
-    }, 0);
+    this.aplicarSeleccionPeriodo();
+    this.cdr.detectChanges();
   }
 
   private aplicarSeleccionPeriodo(): void {
@@ -147,8 +146,8 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
 
     if (this.selectedReport === 'proyeccion-reporte') {
       this.selectedPeriodKey = this.periodOptions[0].value;
-    } else if (this.activePeriod) {
-      const key = this._extrayerLlavePeriodo(this.activePeriod);
+    } else if (this.periodoActual) {
+      const key = this._extrayerLlavePeriodo(this.periodoActual);
       const exists = this.periodOptions.some(opt => opt.value === key);
 
       if (exists) {
@@ -162,14 +161,13 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
   }
 
   sincronizarSeleccion() {
-    if (this.activeReportCode) {
-      this.selectedReport = this.activeReportCode;
+    if (this.reporteActual) {
+      this.selectedReport = this.reporteActual;
     }
     this.actualizarPeriodosDisponibles();
-    setTimeout(() => {
-      this.aplicarSeleccionPeriodo();
-      this.cdr.detectChanges();
-    }, 0);
+    this.cdr.detectChanges(); // Asegura que la lista de periodOptions se actualice en el DOM
+    this.aplicarSeleccionPeriodo();
+    this.cdr.detectChanges(); // Asegura que el valor seleccionado se refleje en el dropdown
   }
 
   ngOnDestroy(): void {

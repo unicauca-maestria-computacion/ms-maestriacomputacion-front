@@ -84,9 +84,9 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   }
 
   get totalGastosGenerales(): number {
-    if (!this.configuracion || !this.configuracion.objConfiguracionReporteGrupos.gastosGenerales) return 0;
-    return this.configuracion.objConfiguracionReporteGrupos.gastosGenerales.reduce((sum, g) => sum + g.monto, 0);
+    return this.configuracion?.objConfiguracionReporteGrupos.totalGastosGenerales ?? 0;
   }
+
 
   constructor(
     private facadeService: GestionInformacionPresupuestariaFacadeService,
@@ -102,11 +102,11 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         if (data) {
           this.configuracion = data;
-          this.normalizarPorcentajesParaDisplay(this.configuracion);
           this.procesarDatosTabla(this.configuracion);
           this.procesarDistribucion(this.configuracion);
           this.cdr.markForCheck();
         }
+
       });
   }
 
@@ -122,7 +122,6 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     this.facadeService.obtenerReporteGrupos(anio!).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
-        this.normalizarPorcentajesParaDisplay(this.configuracion);
         this.procesarDatosTabla(this.configuracion);
         this.procesarDistribucion(this.configuracion);
         this.loadingService.hide();
@@ -141,10 +140,6 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     });
   }
 
-  private toRatio(value: number | null | undefined): number {
-    if (value == null) return 0;
-    return Math.round((value / 100) * 10000) / 10000;
-  }
 
   get aUIPorcentajeDisplay(): number | null {
     const c = this.configuracion?.objConfiguracionReporteGrupos as unknown as Record<string, unknown> | undefined;
@@ -154,27 +149,6 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     return v > 1 ? v : v * 100;
   }
 
-  private normalizarPorcentajesParaDisplay(data: ReportePorGrupos): void {
-    const config = data.objConfiguracionReporteGrupos;
-    if (config.aUIPorcentaje != null && config.aUIPorcentaje <= 1) config.aUIPorcentaje = config.aUIPorcentaje * 100;
-    if (config.item1 != null && config.item1 <= 1) config.item1 = config.item1 * 100;
-    if (config.item2 != null && config.item2 <= 1) config.item2 = config.item2 * 100;
-    if (config.imprevistos != null && config.imprevistos <= 1) config.imprevistos = config.imprevistos * 100;
-
-    if (data.filasPorGrupo) {
-      for (const fila of data.filasPorGrupo) {
-        if (fila.porcentajePrimerSemestre != null && fila.porcentajePrimerSemestre <= 1) {
-          fila.porcentajePrimerSemestre = Math.round(fila.porcentajePrimerSemestre * 10000) / 100;
-        }
-        if (fila.porcentajeSegundoSemestre != null && fila.porcentajeSegundoSemestre <= 1) {
-          fila.porcentajeSegundoSemestre = Math.round(fila.porcentajeSegundoSemestre * 10000) / 100;
-        }
-        if (fila.participacionPorAnio != null && fila.participacionPorAnio <= 1) {
-          fila.participacionPorAnio = Math.round(fila.participacionPorAnio * 10000) / 100;
-        }
-      }
-    }
-  }
 
   procesarDatosTabla(data: ReportePorGrupos): void {
     const grupos = data.filasPorGrupo ?? [];
@@ -408,9 +382,8 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       }
       row.values[groupName] = v;
     }
-
-    row.total = this.groupColumns.reduce((acc, g) => acc + (row.values[g.nombre] ?? 0), 0);
   }
+
 
   onRowEditInit(row: TableRow) {
     if (this.isAnyEditActive) return;
@@ -419,9 +392,8 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   }
 
   onRowEditSave(row: TableRow) {
-    row.total = Object.values(row.values).reduce((a, b) => a + b, 0);
-
     this.editingRowKey = null;
+
     this.clonedRow = {};
 
     if (row.key !== 'porcentajePrimerSemestre' && row.key !== 'porcentajeSegundoSemestre') return;
@@ -430,9 +402,10 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
 
     const valoresPorGrupo = this.groupColumns.map(grupo => ({
       grupoId: grupo.grupoId,
-      porcentaje: this.toRatio(row.values[grupo.nombre] ?? 0),
+      porcentaje: row.values[grupo.nombre] ?? 0,
       semestre
     }));
+
 
     this.loadingService.show('Actualizando porcentajes de participación');
     const ejecutarSecuencial = (index: number) => {
@@ -480,7 +453,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
 
     const finish = (data: ReportePorGrupos) => {
       this.configuracion = data;
-      this.normalizarPorcentajesParaDisplay(this.configuracion);
+
       this.procesarDatosTabla(this.configuracion);
       this.procesarDistribucion(this.configuracion);
       this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Distribución actualizada correctamente.' });
@@ -495,7 +468,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
 
     if (aui !== undefined) {
       this.configuracion!.objConfiguracionReporteGrupos.aUIPorcentaje = aui;
-      this.facadeService.actualizarPorcentajeAUIUniversidad(this.periodoAcademicoId, this.toRatio(aui)).pipe(takeUntil(this.destroy$)).subscribe({
+      this.facadeService.actualizarPorcentajeAUIUniversidad(this.periodoAcademicoId, aui).pipe(takeUntil(this.destroy$)).subscribe({
         next: (data) => {
           if (excedentes !== undefined) {
             this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
@@ -559,12 +532,12 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     const item1 = this.clonedItems.item1 ?? 0;
     const item2 = this.clonedItems.item2 ?? 0;
     this.facadeService.actualizarPorcentajeItems({
-      item1: this.toRatio(item1),
-      item2: this.toRatio(item2)
+      item1: item1,
+      item2: item2
     }, this.periodoAcademicoId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
-        this.normalizarPorcentajesParaDisplay(this.configuracion);
+  
         this.procesarDatosTabla(this.configuracion);
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Items actualizados correctamente.' });
         this.loadingService.hide();
@@ -618,10 +591,10 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     this.loadingService.show('Actualizando imprevistos');
     this.editandoImprevistos = false;
     const valor = this.clonedImprevistos;
-    this.facadeService.actualizarPorcentajeImprevistos(this.periodoAcademicoId, this.toRatio(valor)).pipe(takeUntil(this.destroy$)).subscribe({
+    this.facadeService.actualizarPorcentajeImprevistos(this.periodoAcademicoId, valor).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
-        this.normalizarPorcentajesParaDisplay(this.configuracion);
+  
         this.procesarDatosTabla(this.configuracion);
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Imprevistos actualizados correctamente.' });
         this.loadingService.hide();
@@ -669,7 +642,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
           next: (data) => {
             if (index === valoresPorGrupo.length - 1) {
               this.configuracion = data;
-              this.normalizarPorcentajesParaDisplay(this.configuracion);
+        
               this.procesarDatosTabla(data);
               delete this.clonedBudgetRow[row.key];
               this.editingBudgetRowKey = null;

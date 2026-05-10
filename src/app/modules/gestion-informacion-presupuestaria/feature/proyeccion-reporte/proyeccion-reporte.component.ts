@@ -137,23 +137,20 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   }
 
   private mapearEstudianteProyeccion(e: ProyeccionEstudiante): EstudianteProyeccion {
-    const recursosComputacionales = this.configuracion!.recursosComputacionales || 0;
-    const biblioteca = this.configuracion!.biblioteca || 0;
-
     return {
       ...e,
-      porcentajeBeca: this.toPercent(e.porcentajeBeca),
-      nombreEstudiante: [e.nombre, e.apellido].filter(Boolean).join(' ') || e.codigoEstudiante,
+      nombreEstudiante: `${e.nombre ?? ''} ${e.apellido ?? ''}`.trim() || e.codigoEstudiante,
       matricula: e.valorMatricula || 0,
       valorBeca: e.valorDescuentoBeca || 0,
       valorEgresado: e.valorDescuentoEgresado || 0,
       valorVotacion: e.valorDescuentoVoto || 0,
-      recursosComputacionales: recursosComputacionales,
-      biblioteca: biblioteca,
+      recursosComputacionales: this.configuracion?.recursosComputacionales || 0,
+      biblioteca: this.configuracion?.biblioteca || 0,
       grupoDescuentos: e.totalDescuentos || 0,
       totalNeto: e.totalNetoConDerechos || 0
     } as EstudianteProyeccion;
   }
+
 
   onConfigSave(config: Partial<ConfiguracionReporteFinanciero>) {
     if (!this.configuracion) return;
@@ -211,9 +208,10 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       codigoEstudiante: estudiante.codigoEstudiante,
       estaPago: estudiante.estaPago,
       aplicaVotacion: estudiante.aplicaVotacion ?? false,
-      porcentajeBeca: this.toRatio(estudiante.porcentajeBeca),
+      porcentajeBeca: estudiante.porcentajeBeca,
       aplicaEgresado: estudiante.aplicaEgresado ?? false
     };
+
 
     this.facadeService.actualizarProyeccionEstudiante(
       proyeccionUpdate,
@@ -269,16 +267,6 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     }
   }
 
-  private toRatio(value: number | null | undefined): number {
-    if (value == null) return 0;
-    return value / 100;
-  }
-
-  private toPercent(value: number | null | undefined): number {
-    if (value == null) return 0;
-    const percent = value <= 1 ? value * 100 : value;
-    return Math.round(percent * 100) / 100;
-  }
 
   ngOnDestroy(): void {
     this.destroy$.next();

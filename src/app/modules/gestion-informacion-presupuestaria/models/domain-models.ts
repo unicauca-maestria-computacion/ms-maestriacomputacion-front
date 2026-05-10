@@ -77,6 +77,7 @@ export interface ConfiguracionReporteGrupos {
     excedentesMaestria: number;
     aUIValor: number;
     ingresosNetos: number;
+    totalGastosGenerales: number;
     valorADistribuir: number;
     item1: number;
     item2: number;
@@ -85,6 +86,7 @@ export interface ConfiguracionReporteGrupos {
     objPeriodoFinanciero: PeriodoFinanciero;
     gastosGenerales: GastoGeneral[];
 }
+
 
 export interface ReportePorGrupoFila {
     grupoId: number;

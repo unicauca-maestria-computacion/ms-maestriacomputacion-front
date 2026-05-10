@@ -14,6 +14,9 @@
 | Documento | Descripción |
 |-----------|-------------|
 | [`integration/frontend-backend-integration.md`](integration/frontend-backend-integration.md) | Cómo se acordaron los contratos de API, separación de responsabilidades, por qué los cambios en el backend no afectan al frontend, y cómo probar la integración |
+| [`arquitectura-cero-logica.md`](arquitectura-cero-logica.md) | Definición del estándar institucional de cero lógica financiera en el cliente (Frontend Delgado) |
+| [`contrato-backend-frontend.md`](contrato-backend-frontend.md) | Detalle técnico de estructuras JSON, endpoints y flujos de datos sin procesamiento local |
+
 
 ### Design System TIC v3
 
@@ -107,6 +110,8 @@
 
 | Corrección | Archivos afectados |
 |-----------|-------------------|
+| **Arquitectura Cero Lógica** | Eliminación de lógica aritmética y normalizaciones en 10+ componentes |
+| **Centralización en Backend** | Migración de cálculos de totales globales a DTOs de microservicios |
 | Eliminación de `console.log`/`console.error` en producción | 5 componentes feature |
 | Método `descargar()` vacío reemplazado con TODO documentado | `reporte-final`, `proyeccion-reporte` |
 | Lógica de encadenamiento movida del ApiService al Facade | `api.service.ts`, `facade.service.ts` (presupuestaria) |
@@ -126,6 +131,7 @@
 | Becas extraídas a tarjeta separada con patrón grid consistente | 2 templates |
 | Materias convertidas de tabla a grid `campo-label`/`campo-valor` | 2 templates |
 | Atomic Design: 6 componentes compartidos creados en `SharedModule` | `shared.module.ts` + 6 nuevos archivos |
+
 
 ---
 

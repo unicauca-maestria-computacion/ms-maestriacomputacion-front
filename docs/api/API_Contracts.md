@@ -38,11 +38,13 @@ interface EstudianteDTORespuesta {
   valorEnSMLV?: number | null;
   esEgresadoUnicauca?: boolean;
   aplicaVotacion?: boolean;
+  grupoNombre?: string;        // Nombre del grupo de investigación
   becas?: BecasDTORespuesta[];
   descuentos?: BecasDTORespuesta[];
   becasDescuentos: BecasDTORespuesta[];
   materias: MateriaDTORespuesta[];
-  estaPago?: boolean;
+  estaPago?: boolean;          // Estado de simulación o pago manual
+  estadoMatriculaFinanciera?: boolean; // Estado real de tesorería (true/false/null)
 }
 ```
 
@@ -81,7 +83,7 @@ interface PeriodoAcademicoDTORespuesta {
 
 ### POST `/gestion-matricula-financiera/iniciar`
 
-**Descripción:** Inicia un nuevo proceso de matrícula financiera.
+**Descripción:** Inicia un nuevo proceso de matrícula financiera (Responsabilidad compartida con tesorería).
 
 **Request:** `{}` (body vacío)
 
@@ -91,7 +93,7 @@ interface PeriodoAcademicoDTORespuesta {
 
 ### GET `/gestion-matricula-financiera/estudiantes/{codigo}/descuento-voto`
 
-**Descripción:** Verifica si un estudiante tiene descuento por votación.
+**Descripción:** Verifica si un estudiante tiene descuento por votación basado en certificados cargados.
 
 **Response:** `boolean`
 
@@ -140,9 +142,9 @@ interface ReporteProyeccionEstudiantesDTORespuesta {
   periodo: PeriodoAcademicoDto;
   configuracion: ConfiguracionReporteFinancieroDTORespuesta;
   estudiantes: ProyeccionEstudianteDTORespuesta[];
-  totalNeto?: number;
-  totalDescuentos?: number;
-  totalIngresos?: number;
+  totalNeto: number;       // Calculado en Backend
+  totalDescuentos: number; // Calculado en Backend
+  totalIngresos: number;   // Calculado en Backend
 }
 
 interface ConfiguracionReporteFinancieroDTORespuesta {
@@ -152,8 +154,8 @@ interface ConfiguracionReporteFinancieroDTORespuesta {
   valorSMLV: number;
   esReporteFinal: boolean;
   periodo: PeriodoAcademicoDto;
-  porcentajeVotacionFijo: number;  // ratio 0-1
-  porcentajeEgresadoFijo: number;  // ratio 0-1
+  porcentajeVotacionFijo: number;  // Valor nominal (ej: 10.0 para 10%)
+  porcentajeEgresadoFijo: number;  // Valor nominal (ej: 10.0 para 10%)
 }
 
 interface ProyeccionEstudianteDTORespuesta {
@@ -163,7 +165,7 @@ interface ProyeccionEstudianteDTORespuesta {
   apellido: string;
   estaPago: boolean;
   aplicaVotacion: boolean;
-  porcentajeBeca: number;          // ratio 0-1
+  porcentajeBeca: number;          // Valor nominal (ej: 25.0 para 25%)
   aplicaEgresado: boolean;
   grupoInvestigacion: string;
   valorEnSMLV: number;
@@ -192,13 +194,13 @@ interface ProyeccionEstudianteDTOPeticion {
   codigoEstudiante: string;
   estaPago: boolean;
   aplicaVotacion: boolean;
-  porcentajeBeca: number;    // ratio 0-1
+  porcentajeBeca: number;    // Valor nominal (ej: 25.0)
   aplicaEgresado: boolean;
   grupoInvestigacion?: string;
 }
 ```
 
-**Response:** `ReporteEstudiantesDTORespuesta` (mismo esquema que proyección)
+**Response:** `ReporteProyeccionEstudiantesDTORespuesta` (recalculado)
 
 ---
 
@@ -206,7 +208,7 @@ interface ProyeccionEstudianteDTOPeticion {
 
 **Query params:** `tagPeriodo: number`, `anio: number`
 
-**Response:** `ReporteEstudiantesDTORespuesta` (mismo esquema que proyección, con `esReporteFinal = true`)
+**Response:** `ReporteProyeccionEstudiantesDTORespuesta` (con `esReporteFinal = true`)
 
 ---
 
@@ -230,7 +232,7 @@ interface ConfiguracionReporteFinancieroDTOPeticion {
 }
 ```
 
-**Response:** `ReporteEstudiantesDTORespuesta`
+**Response:** `ReporteProyeccionEstudiantesDTORespuesta`
 
 ---
 
@@ -246,14 +248,20 @@ interface ConsultaReportePorGruposDTORespuesta {
   esEditable?: boolean;
   ingresoPeriodo1?: number;
   ingresoPeriodo2?: number;
-  auiPorcentaje: number;       // ratio 0-1
+  auiPorcentaje: number;
   auiValor: number;
   excedentesMaestria: number;
-  item1: number;               // ratio 0-1
-  item2: number;               // ratio 0-1
-  imprevistos: number;         // ratio 0-1
+  item1: number;
+  item2: number;
+  imprevistos: number;
   totalIngresos: number;
+  ingresosNetos: number;       // Calculado en Backend
+  totalGastosGenerales: number; // Calculado en Backend
   valorADistribuir: number;
+  totalItem1: number;          // Calculado en Backend
+  totalItem2: number;          // Calculado en Backend
+  totalImprevistos: number;    // Calculado en Backend
+  totalVigenciasAnteriores: number; // Calculado en Backend
   transferenciaUnicauca?: number;
   reportesPorGrupo: ReportePorGrupoDTORespuesta[];
   gastosGenerales: GastoGeneralDTORespuesta[];
@@ -263,9 +271,9 @@ interface ConsultaReportePorGruposDTORespuesta {
 interface ReportePorGrupoDTORespuesta {
   grupoId: number;
   nombreGrupo: string;
-  porcentajeParticipacion: number;   // ratio 0-1
-  porcentajePrimerSemestre: number;  // ratio 0-1
-  porcentajeSegundoSemestre: number; // ratio 0-1
+  porcentajeParticipacion: number;
+  porcentajePrimerSemestre: number;
+  porcentajeSegundoSemestre: number;
   vigenciasAnteriores: number;
   presupuestoPorGrupo: number;
   presupuestoPorGrupoItem1: number;
@@ -286,8 +294,8 @@ interface ReportePorGrupoDTORespuesta {
 interface ActualizarParticipacionDTOPeticion {
   periodoAcademicoId: number;
   grupoId: number;
-  porcentajeParticipacion: number;  // ratio 0-1
-  semestre?: string;                // 'PRIMER' | 'SEGUNDO'
+  porcentajeParticipacion: number; // Valor nominal (0-100)
+  semestre?: string;               // 'PRIMER' | 'SEGUNDO'
 }
 ```
 
@@ -296,7 +304,7 @@ interface ActualizarParticipacionDTOPeticion {
 ---
 
 ### PUT `/info-presupuestaria/reporte-por-grupos/aui`
-**Query params:** `periodoAcademicoId: number`, `porcentaje: number` (ratio 0-1)
+**Query params:** `periodoAcademicoId: number`, `porcentaje: number` (0-100)
 **Response:** `ConsultaReportePorGruposDTORespuesta`
 
 ### PUT `/info-presupuestaria/reporte-por-grupos/excedentes`
@@ -304,11 +312,11 @@ interface ActualizarParticipacionDTOPeticion {
 **Response:** `ConsultaReportePorGruposDTORespuesta`
 
 ### PUT `/info-presupuestaria/reporte-por-grupos/items`
-**Query params:** `periodoAcademicoId: number`, `item1: number`, `item2: number` (ratios 0-1)
+**Query params:** `periodoAcademicoId: number`, `item1: number`, `item2: number` (0-100)
 **Response:** `ConsultaReportePorGruposDTORespuesta`
 
 ### PUT `/info-presupuestaria/reporte-por-grupos/imprevistos`
-**Query params:** `periodoAcademicoId: number`, `porcentaje: number` (ratio 0-1)
+**Query params:** `periodoAcademicoId: number`, `porcentaje: number` (0-100)
 **Response:** `ConsultaReportePorGruposDTORespuesta`
 
 ### PUT `/info-presupuestaria/reporte-por-grupos/vigencias`
@@ -355,7 +363,8 @@ interface GastoGeneralDTOPeticion {
 
 ## Notas sobre convenciones
 
-1. **Porcentajes:** El backend usa ratios (0-1). El frontend convierte a porcentajes (0-100) para display y de vuelta a ratio al enviar.
-2. **Fechas:** Todas las fechas son strings ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`).
-3. **Montos:** Todos los montos monetarios son en COP (pesos colombianos).
-4. **Errores HTTP:** El `AuthInterceptor` maneja 401 (refresh/logout), 403 (forbidden), 404 y 500 globalmente.
+1. **Arquitectura Cero Lógica:** El backend es el único responsable de los cálculos financieros. El frontend recibe totales y desgloses ya procesados para visualización directa.
+2. **Porcentajes:** Se envían y reciben como valores nominales (ej: `25.0` para 25%). El backend realiza la escala interna si es necesario.
+3. **Fechas:** Todas las fechas son strings ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`).
+4. **Montos:** Todos los montos monetarios son en COP (pesos colombianos).
+5. **Errores HTTP:** El sistema usa `ProblemDetail` para comunicar errores de negocio con códigos institucionales.

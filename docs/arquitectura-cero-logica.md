@@ -27,3 +27,6 @@ Este documento detalla la transición hacia una arquitectura donde el Frontend a
 
 ---
 *Documentación generada como parte de la actualización de lineamientos institucionales 2026.*
+
+Para más detalle sobre las estructuras de datos y endpoints, consulte el [Contrato de Comunicación Backend-Frontend](file:///d:/Daniel/Projects/practica-u/ms-maestriacomputacion-front/docs/contrato-backend-frontend.md).
+

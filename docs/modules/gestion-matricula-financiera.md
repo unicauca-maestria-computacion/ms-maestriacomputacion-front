@@ -97,10 +97,12 @@ graph LR
 
 ## 3. Entidades del Dominio
 
-### `EstadoMatricula` (tipo)
-```typescript
-type EstadoMatricula = 'PENDIENTE' | 'AL_DIA' | 'MORA' | 'EXONERADO' | 'BECADO' | 'ANULADO';
-```
+### `Estado de Pago` (estaPago)
+El sistema utiliza una lógica de 3 estados para el campo `estaPago`:
+- `true`: Pagado (Verde).
+- `false`: No Pagado (Rojo).
+- `null/undefined`: Pendiente / Simulable (Naranja).
+
 
 ### `Estudiante`
 Entidad principal del módulo. Representa un estudiante con toda su información financiera.
@@ -118,12 +120,10 @@ Entidad principal del módulo. Representa un estudiante con toda su información
 | `valorEnSMLV` | `number \| null` | Valor de matrícula en SMLV |
 | `esEgresadoUnicauca` | `boolean?` | Si aplica descuento de egresado |
 | `aplicaVotacion` | `boolean?` | Si aplica descuento por votación |
-| `matriculasFinancieras` | `MatriculaFinanciera[]` | Historial de matrículas financieras |
-| `descuentos` | `DescuentoFinanciero[]` | Descuentos aplicados |
-| `becas` | `BecaFinanciera[]` | Becas asignadas |
-| `becasDescuentos` | `BecaFinanciera[]` | Becas con descuento combinado |
-| `materias` | `Materia[]` | Materias matriculadas |
-| `estaPago` | `boolean?` | Estado de pago (`true`=pagado, `false`=pendiente, `null`=indeterminado) |
+| `grupoNombre` | `string?` | Nombre del grupo de investigación |
+| `estaPago` | `boolean?` | Estado de pago de proyecciones / manual |
+| `estadoMatriculaFinanciera` | `boolean?` | Estado real de pago sincronizado con tesorería |
+
 
 ### `PeriodoAcademico`
 | Campo | Tipo | Descripción |

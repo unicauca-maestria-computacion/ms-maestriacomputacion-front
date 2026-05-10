@@ -340,4 +340,27 @@ O en el controlador:
 **Solución:**
 - **Encabezados Institucionales:** Se migró el título de "Listado de Estudiantes" en Matrícula al estándar `h2` con **Titillium Web** y color `#000066`, unificando la jerarquía visual con el módulo de Presupuesto.
 - **Normalización de Texto:** Se eliminó el resaltado azul y negrita en los nombres de los estudiantes en la tabla de Matrícula para favorecer un diseño más sobrio y homogéneo.
-- **Densidad de Tabla:** Se aplicó el estándar de **Alta Densidad (DS-006)** a la tabla de Matrícula, reduciendo fuentes y paddings para lograr una paridad visual del 100% entre ambos módulos.
+
+---
+
+## Jornada 2026-05-10 — Arquitectura de Cero Lógica (Zero Logic) y Consolidación de Backend
+
+### ARQ-002 — Migración de Cálculos Financieros al Backend
+**Contexto:** Se completó la transición hacia una arquitectura donde el Frontend es 100% pasivo en términos de lógica financiera.
+**Acciones:**
+- **Eliminación de Redundancia:** Se eliminaron todas las operaciones de suma (`.reduce()`) y multiplicación (normalización de porcentajes) en los componentes de Angular.
+- **DTOs Enriquecidos:** El backend ahora provee campos de totales globales (`totalItem1`, `totalItem2`, `totalImprevistos`, `totalVigenciasAnteriores`) calculados en el servidor.
+- **Sincronización de Totales:** La fila "Total" de los reportes por grupos ahora consume directamente los valores del DTO, asegurando paridad exacta con los reportes generados en Excel.
+
+### DTO-001 — Actualización de Contratos de API
+**Archivos:** `reporte-por-grupos.dto.ts`, `proyeccion-estudiante.dto.ts`
+**Cambios:**
+- **ConsultaReportePorGruposDTORespuesta:** Agregados campos `totalItem1`, `totalItem2`, `totalImprevistos`, `totalVigenciasAnteriores`, `ingresosNetos` y `totalGastosGenerales`.
+- **ProyeccionEstudianteDTORespuesta:** Agregado `estadoMatriculaFinanciera` (boolean) para diferenciar simulaciones de pagos reales validados por tesorería.
+
+### DOC-001 — Nueva Documentación de Contratos y Arquitectura
+**Nuevos Archivos:**
+- [`docs/arquitectura-cero-logica.md`](../arquitectura-cero-logica.md): Guía de principios de arquitectura pasiva.
+- [`docs/contrato-backend-frontend.md`](../contrato-backend-frontend.md): Detalle técnico de endpoints y estructuras JSON.
+
+---

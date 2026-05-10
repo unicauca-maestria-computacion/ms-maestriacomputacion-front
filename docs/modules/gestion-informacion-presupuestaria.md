@@ -177,9 +177,12 @@ Distribución del presupuesto entre grupos de investigación.
 |-------|------|-------------|
 | `filasPorGrupo` | `ReportePorGrupoFila[]` | Una fila por grupo de investigación |
 | `gastosGenerales` | `GastoGeneral[]` | Gastos generales del período |
-| `objConfiguracionReporteGrupos` | `ConfiguracionReporteGrupos` | Configuración de distribución |
-| `esEditable` | `boolean?` | Si el período permite edición |
+| `totalItem1` | `number` | Suma global del Item 1 (recibida de Back) |
+| `totalItem2` | `number` | Suma global del Item 2 (recibida de Back) |
+| `totalImprevistos` | `number` | Suma global de imprevistos (recibida de Back) |
+| `totalVigenciasAnteriores` | `number` | Suma global de vigencias (recibida de Back) |
 | `totalNeto` | `number` | Total neto a distribuir |
+
 
 ### `GastoGeneral`
 | Campo | Tipo | Descripción |
@@ -490,8 +493,9 @@ stateDiagram-v2
 
 ## 8. Decisiones de Diseño
 
-### Normalización de porcentajes para display
-El backend almacena porcentajes como ratios (0-1), pero la UI los muestra como porcentajes (0-100). El componente `ReportePorGruposComponent` normaliza los valores al recibirlos con `normalizarPorcentajesParaDisplay()` y los convierte de vuelta a ratio al enviarlos con `toRatio()`.
+### Arquitectura Cero Lógica
+A partir de la actualización 2026, el frontend ya no realiza cálculos de normalización de porcentajes ni sumas agregadas. El componente `ReportePorGruposComponent` consume directamente los campos `totalItem1`, `totalItem2`, etc., garantizando que el usuario visualice exactamente lo calculado por el motor financiero del microservicio.
+
 
 ### Separación de lógica de encadenamiento en el Facade
 El método `actualizarConfiguracionProyeccion()` requiere primero obtener el período de proyección, luego obtener el ID de la configuración, y finalmente actualizar. Esta lógica de encadenamiento vive en el Facade (via `switchMap`), no en el ApiService. El ApiService solo tiene métodos HTTP simples.

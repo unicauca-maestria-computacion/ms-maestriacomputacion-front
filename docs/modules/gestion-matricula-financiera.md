@@ -1,17 +1,21 @@
-# Documentación Técnica — Módulo Gestión Matrícula Financiera
+﻿# Documentación Técnica — Módulo Gestión Matrícula Financiera
 
 **Proyecto:** ms-maestriacomputacion-front
 **Módulo:** `gestion-matricula-financiera`
 **Autor:** Daniel Felipe Contreras Tobar
 **Fecha:** 2026-05-04
-**Patrón arquitectónico:** Pattern B — Arquitectura Hexagonal (variante)
+**Patrón arquitectónico:** Pattern B — Arquitectura Hexagonal (Thin Client)
 **Stack:** Angular 13, TypeScript 4.4, PrimeNG 13, RxJS 7.4
+**Estado Visual:** Sin Lineamientos TIC (Consistencia con Master)
 
 ---
 
 ## 1. Descripción General
 
 El módulo de **Gestión de Matrícula Financiera** permite al Coordinador de la Maestría en Computación consultar y gestionar el estado financiero de los estudiantes matriculados. Adicionalmente, permite a los estudiantes consultar el resumen de su propia matrícula financiera.
+
+> [!IMPORTANT]
+> Este módulo opera bajo la arquitectura de **"Lógica Cero"**. Todos los cálculos financieros son realizados por el backend. El frontend actúa únicamente como una capa de presentación y captura de datos. Para más detalles, ver [Decisiones de Arquitectura](../../management/frontend-architecture-decisions.md).
 
 ### Funcionalidades principales
 
@@ -31,11 +35,11 @@ El módulo de **Gestión de Matrícula Financiera** permite al Coordinador de la
 
 ```
 gestion-matricula-financiera/
-├── data/                          ← Capa de datos (Application + Infrastructure)
-│   ├── api.service.ts             ← Llamadas HTTP puras al backend
-│   ├── facade.service.ts          ← Estado reactivo + orquestación de casos de uso
-│   └── mapper.service.ts          ← Transformación DTO ↔ Dominio
-├── dto/                           ← Contratos con el backend (request/response)
+├── data/                          â† Capa de datos (Application + Infrastructure)
+│   ├── api.service.ts             â† Llamadas HTTP puras al backend
+│   ├── facade.service.ts          â† Estado reactivo + orquestación de casos de uso
+│   └── mapper.service.ts          â† Transformación DTO â†” Dominio
+├── dto/                           â† Contratos con el backend (request/response)
 │   ├── api-error.ts
 │   ├── beca-financiera.dto.ts
 │   ├── descuento-financiero.dto.ts
@@ -45,14 +49,14 @@ gestion-matricula-financiera/
 │   ├── matricula-academica.dto.ts
 │   ├── matricula-financiera.dto.ts
 │   └── periodo-academico.dto.ts
-├── feature/                       ← Componentes de página (Smart)
-│   ├── matricula-financiera/      ← Listado principal (ROLE_COORDINADOR)
-│   ├── detalle-estudiante/        ← Detalle de un estudiante (ROLE_COORDINADOR)
-│   └── resumen-matricula-estudiante/ ← Vista del estudiante (ROLE_ESTUDIANTE)
+├── feature/                       â† Componentes de página (Smart)
+│   ├── matricula-financiera/      â† Listado principal (ROLE_COORDINADOR)
+│   ├── detalle-estudiante/        â† Detalle de un estudiante (ROLE_COORDINADOR)
+│   └── resumen-matricula-estudiante/ â† Vista del estudiante (ROLE_ESTUDIANTE)
 ├── models/
-│   └── domain-models.ts           ← Entidades del dominio (TypeScript puro)
-├── ui/                            ← Componentes presentacionales (Dumb)
-│   └── matricula-status-badge/    ← Badge de estado de matrícula
+│   └── domain-models.ts           â† Entidades del dominio (TypeScript puro)
+├── ui/                            â† Componentes presentacionales (Dumb)
+│   └── matricula-status-badge/    â† Badge de estado de matrícula
 ├── gestion-matricula-financiera-routing.module.ts
 └── gestion-matricula-financiera.module.ts
 ```
@@ -71,7 +75,7 @@ graph LR
   end
   subgraph "Aplicación (data/)"
     F["GestionMatriculaFinancieraFacadeService\nBehaviorSubject + orquestación"]
-    M["GestionMatriculaFinancieraMapperService\nDTO ↔ Dominio"]
+    M["GestionMatriculaFinancieraMapperService\nDTO â†” Dominio"]
   end
   subgraph "Infraestructura (data/)"
     A["GestionMatriculaFinancieraApiService\nHttpClient puro"]
@@ -97,12 +101,10 @@ graph LR
 
 ## 3. Entidades del Dominio
 
-### `Estado de Pago` (estaPago)
-El sistema utiliza una lógica de 3 estados para el campo `estaPago`:
-- `true`: Pagado (Verde).
-- `false`: No Pagado (Rojo).
-- `null/undefined`: Pendiente / Simulable (Naranja).
-
+### `EstadoMatricula` (tipo)
+```typescript
+type EstadoMatricula = 'PENDIENTE' | 'AL_DIA' | 'MORA' | 'EXONERADO' | 'BECADO' | 'ANULADO';
+```
 
 ### `Estudiante`
 Entidad principal del módulo. Representa un estudiante con toda su información financiera.
@@ -120,10 +122,12 @@ Entidad principal del módulo. Representa un estudiante con toda su información
 | `valorEnSMLV` | `number \| null` | Valor de matrícula en SMLV |
 | `esEgresadoUnicauca` | `boolean?` | Si aplica descuento de egresado |
 | `aplicaVotacion` | `boolean?` | Si aplica descuento por votación |
-| `grupoNombre` | `string?` | Nombre del grupo de investigación |
-| `estaPago` | `boolean?` | Estado de pago de proyecciones / manual |
-| `estadoMatriculaFinanciera` | `boolean?` | Estado real de pago sincronizado con tesorería |
-
+| `matriculasFinancieras` | `MatriculaFinanciera[]` | Historial de matrículas financieras |
+| `descuentos` | `DescuentoFinanciero[]` | Descuentos aplicados |
+| `becas` | `BecaFinanciera[]` | Becas asignadas |
+| `becasDescuentos` | `BecaFinanciera[]` | Becas con descuento combinado |
+| `materias` | `Materia[]` | Materias matriculadas |
+| `estaPago` | `boolean?` | Estado de pago (`true`=pagado, `false`=pendiente, `null`=indeterminado) |
 
 ### `PeriodoAcademico`
 | Campo | Tipo | Descripción |
@@ -301,14 +305,14 @@ Componente presentacional que muestra un badge visual con el estado de matrícul
 | `mostrarIcono` | `boolean` | Si mostrar el ícono emoji (default: `true`) |
 
 **Mapeo de estados a íconos:**
-| Estado | Ícono |
+| Estado | Ácono |
 |--------|-------|
-| PENDIENTE | ⏳ |
+| PENDIENTE | â³ |
 | AL_DIA | ✅ |
-| MORA | ⚠️ |
+| MORA | âš ï¸ |
 | EXONERADO | 🎓 |
-| BECADO | 🏅 |
-| ANULADO | ❌ |
+| BECADO | ðŸ… |
+| ANULADO | âŒ |
 
 ---
 

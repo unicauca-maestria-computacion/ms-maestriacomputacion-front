@@ -1,4 +1,4 @@
-# Documento de Integración Frontend-Backend
+﻿# Documento de Integración Frontend-Backend
 
 **Proyecto:** Sistema de Gestión de Maestría en Computación
 **Fecha:** 2026-05-05
@@ -11,27 +11,27 @@
 El sistema está compuesto por tres repositorios independientes que se comunican mediante APIs REST:
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
 │                    Sistema Maestría en Computación                   │
 │                                                                       │
-│  ┌──────────────────────┐    HTTP/REST    ┌──────────────────────┐  │
-│  │  ms-maestriacompu-   │ ─────────────► │  ms-matricula-       │  │
+│  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    HTTP/REST    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  │
+│  │  ms-maestriacompu-   │ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º │  ms-matricula-       │  │
 │  │  tacion-front        │                │  financiera          │  │
 │  │  Angular 13          │                │  Spring Boot 3       │  │
 │  │  Puerto: 4200        │                │  Puerto: 8092        │  │
-│  │                      │ ─────────────► │                      │  │
+│  │                      │ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º │                      │  │
 │  │                      │    HTTP/REST   │  ms-info-            │  │
 │  │                      │                │  presupuestaria      │  │
 │  │                      │                │  Spring Boot 3       │  │
-│  └──────────────────────┘                │  Puerto: 8080        │  │
-│                                           └──────────────────────┘  │
+│  └──â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                │  Puerto: 8080        │  │
+│                                           └──â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  │
 │                                                    │                  │
-│                                           ┌────────▼─────────┐      │
+│                                           â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”      │
 │                                           │  BD Compartida   │      │
 │                                           │  MySQL           │      │
 │                                           │  appmaestria     │      │
-│                                           └──────────────────┘      │
-└─────────────────────────────────────────────────────────────────────┘
+│                                           └──â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜      │
+└──â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### Principio fundamental de la integración
@@ -75,7 +75,7 @@ public class StudentResponse {
     private String periodoIngreso;
     private Integer semestreFinanciero;
     private Integer semestreAcademico;
-    private Integer valorEnSMLV;        // ← calculado por el backend
+    private Integer valorEnSMLV;        // â† calculado por el backend
     private Boolean esEgresadoUnicauca;
     private Boolean aplicaVotacion;
     private List<MateriaResponse> materias;
@@ -98,7 +98,7 @@ export interface EstudianteDTORespuesta {
     periodoIngreso: string;
     semestreFinanciero: number;
     semestreAcademico?: number;
-    valorEnSMLV?: number | null;   // ← el frontend solo lo muestra
+    valorEnSMLV?: number | null;   // â† el frontend solo lo muestra
     esEgresadoUnicauca?: boolean;
     aplicaVotacion?: boolean;
     becasDescuentos: BecasDTORespuesta[];
@@ -126,12 +126,30 @@ public class ProyeccionEstudianteResponse {
     private BigDecimal valorDescuentoEgresado;
     private BigDecimal totalDescuentos;
     private BigDecimal valorNeto;
-    private BigDecimal totalNetoConDerechos;  // ← valor final que muestra el frontend
+    private BigDecimal totalNetoConDerechos;  // â† valor final que muestra el frontend
 }
 ```
 
-El frontend los recibe y los muestra directamente, sin recalcular. Las becas y descuentos ya vienen con el valor en pesos calculado.
+El frontend los recibe y los muestra directamente, sin recalcular:
 
+```typescript
+// ms-maestriacomputacion-front: proyeccion-estudiante.dto.ts
+export interface ProyeccionEstudianteDTORespuesta {
+    codigoEstudiante: string;
+    estaPago: boolean;
+    aplicaVotacion: boolean;
+    porcentajeBeca: number;
+    aplicaEgresado: boolean;
+    // Campos calculados recibidos del backend — el frontend solo los presenta:
+    valorMatricula?: number;
+    valorDescuentoVoto?: number;
+    valorDescuentoBeca?: number;
+    valorDescuentoEgresado?: number;
+    totalDescuentos?: number;
+    valorNeto?: number;
+    totalNetoConDerechos?: number;
+}
+```
 
 ---
 
@@ -144,7 +162,7 @@ El frontend los recibe y los muestra directamente, sin recalcular. Las becas y d
 El backend calcula el `valorEnSMLV` de cada estudiante según las reglas del Acuerdo 044/2012 de la Universidad del Cauca. Esta lógica vive en `ManageEnrolledStudentsUseCaseImpl.java`:
 
 ```java
-// La lógica de negocio está AQUÍ, en el backend — el frontend nunca la ve
+// La lógica de negocio está AQUÁ, en el backend — el frontend nunca la ve
 private Integer calculateSmlv(Estudiante student) {
     Integer semester = student.getSemestreFinanciero();
     if (semester == null) return null;
@@ -187,9 +205,9 @@ BigDecimal totalNetoConDerechos = netoEstudiante.add(derechosComplementarios);
 
 El frontend tiene tres responsabilidades exclusivas:
 
-1. **Presentar los datos** — mostrar los valores calculados por el backend en tablas y formularios.
-2. **Capturar entradas del usuario** — recoger los cambios que el usuario quiere hacer (ej. cambiar el porcentaje de beca de un estudiante).
-3. **Enviar las entradas al backend** — mandar los datos modificados para que el backend recalcule.
+1. **Presentar los datos** — mostrar los valores calculados por el backend en tablas y formularios
+2. **Capturar entradas del usuario** — recoger los cambios que el usuario quiere hacer (ej. cambiar el porcentaje de beca de un estudiante)
+3. **Enviar las entradas al backend** — mandar los datos modificados para que el backend recalcule
 
 ```typescript
 // El frontend SOLO envía lo que el usuario cambió
@@ -198,12 +216,11 @@ export interface ProyeccionEstudianteDTOPeticion {
     codigoEstudiante: string;
     estaPago: boolean;
     aplicaVotacion: boolean;
-    porcentajeBeca: number;    // ← Valor nominal (ej. 25.0)
+    porcentajeBeca: number;    // â† el usuario cambió esto
     aplicaEgresado: boolean;
     // NO se envían valorMatricula, descuentos, etc. — el backend los recalcula
 }
 ```
-
 
 ---
 
@@ -372,21 +389,32 @@ private String grupoInvestigacion;   // solo grupos válidos
 **Frontend recibe y muestra** sin recalcular nada:
 ```typescript
 // ReporteFinalVM — solo reorganiza para presentación
-const totalNeto = e.totalNetoConDerechos || 0;  // ← valor del backend
+const totalNeto = e.totalNetoConDerechos || 0;  // â† valor del backend
 ```
 
-### 6.3 Convención de porcentajes acordada (Actualización 2026)
+### 6.3 Convención de porcentajes acordada
 
-Para simplificar la comunicación y evitar errores de redondeo en el cliente, **los porcentajes se manejan como valores nominales (0-100) en todas las capas de integración**.
+Un punto crítico que se acordó explícitamente: **los porcentajes se manejan como ratios (0-1) en el backend y en la comunicación, pero se muestran como porcentajes (0-100) en la UI**.
 
 | Capa | Representación | Ejemplo |
 |------|---------------|---------|
-| DTO Backend → Frontend | Valor Nominal | `"porcentajeBeca": 25.0` |
-| DTO Frontend → Backend | Valor Nominal | `porcentajeBeca: 25.0` |
-| Pantalla (UI) | Valor Nominal | `25 %` |
+| Base de datos | Ratio (0-1) | `0.25` |
+| DTO Backend → Frontend | Ratio (0-1) | `"porcentajeBeca": 0.25` |
+| DTO Frontend → Backend | Ratio (0-1) | `porcentajeBeca: 0.25` |
+| Pantalla (UI) | Porcentaje (0-100) | `25 %` |
 
-El frontend ya no realiza conversiones de ratio a porcentaje, delegando cualquier ajuste de escala al Backend si este lo requiere para persistencia.
+El frontend hace la conversión solo para display:
+```typescript
+// Conversión ratio → porcentaje para mostrar en la tabla
+private toPercent(value: number): number {
+    return value <= 1 ? value * 100 : value;
+}
 
+// Conversión porcentaje → ratio para enviar al backend
+private toRatio(value: number): number {
+    return value / 100;
+}
+```
 
 ---
 
@@ -396,7 +424,7 @@ El frontend ya no realiza conversiones de ratio a porcentaje, delegando cualquie
 
 El frontend solo depende de los campos del DTO de respuesta, no de cómo el backend los calcula. Esto se demostró en la práctica durante el desarrollo:
 
-**Ejemplo real:** El backend cambió la regla de cálculo del `valorEnSMLV` para semestres ≥ 9 (se agregó el caso `semester >= 9 → return 1`). El frontend no requirió ningún cambio porque el campo `valorEnSMLV` seguía existiendo en el mismo lugar del DTO.
+**Ejemplo real:** El backend cambió la regla de cálculo del `valorEnSMLV` para semestres â‰¥ 9 (se agregó el caso `semester >= 9 → return 1`). El frontend no requirió ningún cambio porque el campo `valorEnSMLV` seguía existiendo en el mismo lugar del DTO.
 
 **Ejemplo real:** El backend agregó la regla de exclusividad entre descuento por beca y descuento por egresado (se aplica el mayor). El frontend no cambió nada — los campos `valorDescuentoBeca` y `valorDescuentoEgresado` seguían llegando con los valores correctos.
 
@@ -409,7 +437,7 @@ El `GestionMatriculaFinancieraMapperService` y el `GestionInformacionPresupuesta
 // solo se actualiza esta línea en el mapper:
 mappearDeRespuestaAEstudiante(dto: EstudianteDTORespuesta): Estudiante {
     return {
-        valorEnSMLV: dto.valorEnSMLV ?? null,  // ← solo aquí
+        valorEnSMLV: dto.valorEnSMLV ?? null,  // â† solo aquí
         // ... resto del código sin cambios
     };
 }
@@ -444,7 +472,7 @@ El equipo acordó que las validaciones de negocio son responsabilidad del backen
 | `tagPeriodo` no nulo | **Backend** | `@NotNull` en `PeriodoAcademicoRequest.java` |
 | `porcentajeBeca` no negativo en UI | **Frontend** | Validación en `onRowEditSave()` antes de enviar |
 | `porcentajeBeca` no mayor a 100% en UI | **Frontend** | Validación en `onRowEditSave()` antes de enviar |
-| Suma de porcentajes de grupos ≤ 100% | **Frontend** | `getMaxPercent()` en `ReportePorGruposComponent` |
+| Suma de porcentajes de grupos â‰¤ 100% | **Frontend** | `getMaxPercent()` en `ReportePorGruposComponent` |
 | Edición concurrente bloqueada | **Frontend** | `isAnyEditActive` en componentes |
 
 ---
@@ -479,7 +507,7 @@ return this.apiService.obtenerEstudiantes(dto).pipe(
     map(dtos => this.mapper.mappearDeListaRespuestaAEstudiante(dtos)),
     tap(estudiantes => this._estudiantes.next(estudiantes)),
     catchError(error => {
-        this._error.next(error);   // ← el componente lo muestra como toast
+        this._error.next(error);   // â† el componente lo muestra como toast
         return throwError(() => error);
     }),
     finalize(() => this._loading.next(false))

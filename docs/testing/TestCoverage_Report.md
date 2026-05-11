@@ -1,4 +1,4 @@
-# Reporte de Cobertura de Tests — ms-maestriacomputacion-front
+﻿# Reporte de Cobertura de Tests — ms-maestriacomputacion-front
 
 **Fecha:** 2026-05-04
 **Herramienta:** Karma + Jasmine + Istanbul
@@ -62,12 +62,12 @@
 
 | # | Test | Estado evaluado | Estado |
 |---|------|-----------------|--------|
-| 1 | `shouldReturnCorrectIconoWhenEstadoIsPendiente` | PENDIENTE → ⏳ | ✅ |
+| 1 | `shouldReturnCorrectIconoWhenEstadoIsPendiente` | PENDIENTE → â³ | ✅ |
 | 2 | `shouldReturnCorrectIconoWhenEstadoIsAlDia` | AL_DIA → ✅ | ✅ |
-| 3 | `shouldReturnCorrectIconoWhenEstadoIsMora` | MORA → ⚠️ | ✅ |
+| 3 | `shouldReturnCorrectIconoWhenEstadoIsMora` | MORA → âš ï¸ | ✅ |
 | 4 | `shouldReturnCorrectIconoWhenEstadoIsExonerado` | EXONERADO → 🎓 | ✅ |
-| 5 | `shouldReturnCorrectIconoWhenEstadoIsBecado` | BECADO → 🏅 | ✅ |
-| 6 | `shouldReturnCorrectIconoWhenEstadoIsAnulado` | ANULADO → ❌ | ✅ |
+| 5 | `shouldReturnCorrectIconoWhenEstadoIsBecado` | BECADO → ðŸ… | ✅ |
+| 6 | `shouldReturnCorrectIconoWhenEstadoIsAnulado` | ANULADO → âŒ | ✅ |
 | 7 | `shouldReturnEmptyStringWhenEstadoIsUnknown` | Estado desconocido → '' | ✅ |
 | 8 | `shouldRenderWithOnPushChangeDetection` | Renderizado OnPush | ✅ |
 
@@ -121,8 +121,8 @@
 | # | Test | Caso | Estado |
 |---|------|------|--------|
 | 1 | `shouldFormatPositiveNumberAsCOPCurrencyWhenValueIsValid` | Número positivo → COP | ✅ |
-| 2 | `shouldReturnDashWhenValueIsNull` | null → '–' | ✅ |
-| 3 | `shouldReturnDashWhenValueIsUndefined` | undefined → '–' | ✅ |
+| 2 | `shouldReturnDashWhenValueIsNull` | null → 'â€“' | ✅ |
+| 3 | `shouldReturnDashWhenValueIsUndefined` | undefined → 'â€“' | ✅ |
 | 4 | `shouldFormatZeroCorrectlyWhenValueIsZero` | 0 → '$0' | ✅ |
 
 #### `pipes/format-percent.pipe.spec.ts` — 6 tests
@@ -132,8 +132,8 @@
 | 1 | `shouldFormatNumberWithTwoDecimalsWhenNoDecimalsSpecified` | 25.5 → '25.50 %' | ✅ |
 | 2 | `shouldFormatNumberWithZeroDecimalsWhenDecimalsIsZero` | 25.5, 0 → '26 %' | ✅ |
 | 3 | `shouldFormatNumberWithOneDecimalWhenDecimalsIsOne` | 25.5, 1 → '25.5 %' | ✅ |
-| 4 | `shouldReturnDashWhenValueIsNull` | null → '–' | ✅ |
-| 5 | `shouldReturnDashWhenValueIsUndefined` | undefined → '–' | ✅ |
+| 4 | `shouldReturnDashWhenValueIsNull` | null → 'â€“' | ✅ |
+| 5 | `shouldReturnDashWhenValueIsUndefined` | undefined → 'â€“' | ✅ |
 | 6 | `shouldFormatZeroCorrectlyWhenValueIsZero` | 0 → '0.00 %' | ✅ |
 
 ---

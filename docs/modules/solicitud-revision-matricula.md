@@ -1,4 +1,4 @@
-# Documentación Técnica — Solicitud de Revisión de Matrícula (RE_MATR)
+﻿# Documentación Técnica — Solicitud de Revisión de Matrícula (RE_MATR)
 
 **Proyecto:** Sistema de Gestión de Maestría en Computación
 **Funcionalidad:** Nueva solicitud: Revisión de Matrícula
@@ -36,7 +36,7 @@ INSERT INTO requisitos_solicitud (titulo_documento, descripcion, articulo, tener
 VALUES (
     'Consideraciones importantes antes de solicitar una revisión:',
     'I. Antes de solicitar una revisión, es necesario verificar que toda la información
-     en el apartado "MATRÍCULAS" sea correcta.
+     en el apartado "MATRÁCULAS" sea correcta.
      II. Si la matrícula aún no ha sido generada y se considera que esto es un error,
      se puede solicitar una revisión.
      III. En caso de identificar un error en la matrícula académica o financiera,
@@ -95,7 +95,7 @@ cargarDatosIniciales(): void {
     this.facadeService.obtenerPeriodosAcademicos().pipe(...).subscribe({
         next: (periodos) => {
             if (periodos?.length > 0) {
-                this.periodoActual = periodos[0];  // ← nuevo: muestra período en header
+                this.periodoActual = periodos[0];  // â† nuevo: muestra período en header
                 this.facadeService.setPeriodoFiltro(this.periodoActual);
             }
             // luego carga el estudiante...
@@ -107,7 +107,7 @@ cargarDatosIniciales(): void {
 cargarEstudiante(id: string): void {
     this.facadeService.obtenerEstudiante(id).pipe(...).subscribe({
         error: (_err) => {
-            this.estudiante = null;  // ← muestra estado vacío + botón revisión
+            this.estudiante = null;  // â† muestra estado vacío + botón revisión
             this.loadingService.hide();
             this.cdr.markForCheck();
         }
@@ -273,7 +273,7 @@ Con la adición de `RE_MATR`, el catálogo completo de tipos de solicitud activo
 | `SO_BECA` | Solicitud Beca/Descuento | ACTIVO | Solicitudes |
 | `SO_OTRA` | Otra | ACTIVO | Solicitudes |
 | `CER_VOTO` | Registro de certificado de votación | ACTIVO | Solicitudes |
-| **`RE_MATR`** | **Revisión de matrícula** | **ACTIVO** | **Matrícula Financiera** ← nuevo |
+| **`RE_MATR`** | **Revisión de matrícula** | **ACTIVO** | **Matrícula Financiera** â† nuevo |
 
 ---
 

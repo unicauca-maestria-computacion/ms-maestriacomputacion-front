@@ -2,13 +2,13 @@
 
 **Proyecto:** Sistema de Gestión de Maestría en Computación — Frontend Angular
 **Módulos:** gestion-matricula-financiera, gestion-informacion-presupuestaria
-**Fecha de cierre:** 2026-05-04
+**Fecha de cierre:** 2026-05-11
 
 ---
 
 ## 1. Resumen Ejecutivo
 
-El desarrollo del frontend Angular para los módulos de Gestión de Matrícula Financiera e Información Presupuestaria se realizó siguiendo la metodología **Scrum Lite** durante 6 sprints de 2 semanas cada uno (12 semanas en total). El proyecto se completó al 100% con las 22 historias de usuario implementadas, 71 tests unitarios escritos y documentación técnica completa generada.
+El desarrollo del frontend Angular para los módulos de Gestión de Matrícula Financiera e Información Presupuestaria se realizó siguiendo la metodología **Scrum Lite** durante 7 sprints (14 semanas en total). El proyecto se completó al 100% con las 25 historias de usuario implementadas (incluyendo la refactorización arquitectónica Pattern B), tests unitarios escritos y documentación técnica exhaustiva.
 
 ---
 
@@ -16,15 +16,15 @@ El desarrollo del frontend Angular para los módulos de Gestión de Matrícula F
 
 | Métrica | Valor |
 |---------|-------|
-| Total de sprints | 6 (incluyendo Sprint 0 de setup) |
-| Duración total | 12 semanas |
-| Total de historias de usuario | 22 |
-| Historias completadas | 22 (100%) |
-| Total de Story Points | 134 |
-| Velocidad promedio | 22.3 SP/sprint (sprints 1-5) |
+| Total de sprints | 7 (incluyendo Sprint 0 de setup) |
+| Duración total | 14 semanas |
+| Total de historias de usuario | 25 |
+| Historias completadas | 25 (100%) |
+| Total de Story Points | 151 |
+| Velocidad promedio | 22.8 SP/sprint (sprints 1-6) |
 | Tests unitarios escritos | 71 |
 | Cobertura estimada | ~93% en módulos cubiertos |
-| Documentos generados | 10 |
+| Documentos generados | 15 |
 
 ---
 
@@ -62,6 +62,14 @@ El desarrollo del frontend Angular para los módulos de Gestión de Matrícula F
 | HU-021 | Valores financieros calculados por el backend | 3 | ✅ Done |
 | HU-022 | Manejo de errores y estados de carga | 3 | ✅ Done |
 
+### Refactorización Arquitectónica (3 HU)
+
+| HU-ID | Historia | SP | Estado |
+|-------|----------|----|--------|
+| HU-023 | Migración Selectiva de Lógica (Pattern B) | 8 | ✅ Done |
+| HU-024 | Estandarización de Documentación "Thin Client" | 3 | ✅ Done |
+| HU-025 | Coexistencia de Lineamientos Visuales | 3 | ✅ Done |
+
 ---
 
 ## 4. Principales Logros
@@ -74,9 +82,11 @@ El desarrollo del frontend Angular para los módulos de Gestión de Matrícula F
 
 4. **Exportación a Excel profesional** — El `ExcelService` genera workbooks con múltiples hojas, formato con colores, totales y filtros usando ExcelJS.
 
-5. **Documentación completa** — 10 documentos técnicos generados incluyendo contratos de API, módulos, tests, edge cases y proceso Scrum.
+5. **Sincronización selectiva entre ramas** — Se logró unificar la lógica técnica de vanguardia (proveniente de la rama institucional) manteniendo la estabilidad visual requerida en la rama principal.
 
 6. **Cero lógica financiera en el frontend** — Todos los cálculos de matrícula, descuentos y totales son responsabilidad del backend. El frontend solo presenta los datos.
+
+7. **Documentación de Decisiones Arquitectónicas (ADR)** — Se formalizó el porqué de cada decisión técnica, asegurando la trazabilidad del proyecto.
 
 ---
 
@@ -84,25 +94,27 @@ El desarrollo del frontend Angular para los módulos de Gestión de Matrícula F
 
 | Desafío | Cómo se resolvió |
 |---------|-----------------|
-| Normalización de porcentajes (ratio 0-1 vs. porcentaje 0-100) | Se implementó `normalizarPorcentajesParaDisplay()` en el componente y `toRatio()` al enviar al backend |
-| Control de edición concurrente en tablas complejas | Se implementó el flag `isAnyEditActive` que bloquea ediciones simultáneas |
-| Encadenamiento de llamadas HTTP en el ApiService | Se movió la lógica de `switchMap` al Facade, manteniendo el ApiService puro |
-| Generación de Excel con múltiples hojas y formato | Se usó ExcelJS con una arquitectura de métodos privados por hoja |
-| Manejo de nulos en DTOs del backend | El Mapper aplica defaults explícitos (`?? 0`, `?? []`, `?? ''`) para todos los campos opcionales |
+| Normalización de porcentajes (ratio 0-1 vs. porcentaje 0-100) | Se implementó el manejo nominal desde el backend para evitar multiplicaciones en el cliente. |
+| Control de edición concurrente en tablas complejas | Se implementó el flag `isAnyEditActive` que bloquea ediciones simultáneas. |
+| Encadenamiento de llamadas HTTP en el ApiService | Se movió la lógica de `switchMap` al Facade, manteniendo el ApiService puro. |
+| Generación de Excel con múltiples hojas y formato | Se usó ExcelJS con una arquitectura de métodos privados por hoja. |
+| Migración selectiva de lógica sin afectar la UI | Se realizó una auditoría manual y técnica para extraer solo servicios y modelos de la rama institucional. |
+| Consistencia de documentación entre dos realidades visuales | Se creó una matriz de estado actual que define qué sigue lineamientos y qué no. |
+| Manejo de nulos en DTOs del backend | El Mapper aplica defaults explícitos (`?? 0`, `?? []`, `?? ''`) para todos los campos opcionales. |
 
 ---
 
 ## 6. Lecciones Aprendidas
 
-1. **Definir los contratos de API antes de implementar** — Los DTOs deben estar acordados con el backend antes de escribir el Mapper. Los cambios tardíos en los DTOs generan refactorizaciones costosas.
+1. **La documentación es parte del código** — Sincronizar la documentación técnica al mismo tiempo que la lógica evita la "desviación de realidad" entre lo que se dice y lo que se hace.
 
-2. **El Facade es el corazón del módulo** — Invertir tiempo en diseñar bien el Facade (qué estado expone, qué operaciones tiene) facilita enormemente la implementación de los componentes.
+2. **Separar Lógica de Visual es vital** — Gracias al Pattern B, pudimos cambiar toda la lógica interna de los módulos sin romper ni un solo estilo CSS de la interfaz original.
 
-3. **Los tests del Mapper son los más rápidos de escribir y los más valiosos** — Detectan errores de mapeo que de otra forma solo aparecerían en runtime.
+3. **Definir los contratos de API antes de implementar** — Los DTOs deben estar acordados con el backend antes de escribir el Mapper para evitar refactorizaciones costosas.
 
-4. **Scrum Lite funciona bien para proyectos académicos** — Las ceremonias cortas y el daily asíncrono se adaptaron bien a los horarios del equipo.
+4. **Los tests del Mapper son críticos en migraciones** — Detectan errores de mapeo inmediatamente después de traer los nuevos DTOs del backend.
 
-5. **Documentar mientras se implementa, no al final** — Los comentarios en el código (`reporte-final.vm.ts` tiene comentarios JSDoc explicando el propósito) facilitan la generación posterior de documentación.
+5. **Scrum Lite es flexible** — Permitió añadir un Sprint 6 de refactorización cuando se identificó la necesidad de sincronizar las ramas.
 
 ---
 
@@ -110,13 +122,11 @@ El desarrollo del frontend Angular para los módulos de Gestión de Matrícula F
 
 Scrum Lite demostró ser la metodología correcta para este proyecto por las siguientes razones:
 
-- **Adaptabilidad:** Cuando el backend cambió el contrato de un endpoint en el Sprint 3, el equipo pudo ajustar el trabajo en el siguiente sprint sin afectar el cronograma general.
+- **Adaptabilidad:** Cuando surgió la necesidad de sincronizar con la rama institucional, el equipo pudo pivotar rápidamente sin perder el foco en la estabilidad visual.
 
-- **Visibilidad:** El Director de Grupo pudo monitorear el progreso sprint a sprint con las demos y el burndown chart, sin necesidad de reuniones de seguimiento adicionales.
+- **Visibilidad:** El uso de ADRs (Architectural Decision Records) mejoró la transparencia sobre el porqué de la coexistencia de ramas.
 
-- **Calidad:** La Definition of Done con criterios de tests y code review garantizó que cada historia entregada fuera de calidad producción.
-
-- **Velocidad sostenible:** El equipo mantuvo una velocidad consistente durante los 6 sprints sin burnout, gracias a las estimaciones realistas y la protección del scope en cada sprint.
+- **Calidad:** La "Lógica Cero" en el frontend garantiza que la calidad de los datos dependa de una única fuente de verdad (Backend).
 
 ---
 
@@ -127,12 +137,9 @@ Scrum Lite demostró ser la metodología correcta para este proyecto por las sig
 | Índice general | `docs/README.md` |
 | Product Backlog | `docs/management/product-backlog.md` |
 | Sprint Backlog | `docs/management/sprint-backlog.md` |
-| Justificación de metodología | `docs/scrum/proceso/justificacion-metodologia.md` |
-| Métricas de velocidad | `docs/scrum/metricas/velocidad-sprints.md` |
-| Documentación módulo matrícula | `docs/modules/gestion-matricula-financiera.md` |
-| Documentación módulo presupuestaria | `docs/modules/gestion-informacion-presupuestaria.md` |
-| Contratos de API | `docs/api/API_Contracts.md` |
-| Plan de pruebas unitarias | `docs/testing/unit-test-plan.md` |
-| Reporte de cobertura | `docs/testing/TestCoverage_Report.md` |
-| Catálogo de edge cases | `docs/testing/EdgeCases_Catalog.md` |
-| Checklist de producción | `docs/testing/production-readiness-checklist.md` |
+| Decisiones de Arquitectura | `docs/management/frontend-architecture-decisions.md` |
+| Arquitectura Cero Lógica | `docs/architecture/arquitectura-cero-logica.md` |
+| Contrato API | `docs/api/contrato-backend-frontend.md` |
+| Patrón Visual Legacy | `docs/design-system/legacy-visual-pattern.md` |
+| Design System TIC v3 | `docs/design-system/design-system-tic-v3.md` |
+| Resumen Scrum | `docs/scrum/resumen-final.md` |

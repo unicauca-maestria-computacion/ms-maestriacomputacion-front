@@ -2,9 +2,9 @@
 
 **Proyecto:** Sistema de Gestión de Maestría en Computación — Frontend Angular
 **Product Owner:** Director de Grupo
-**Última actualización:** 2026-05-04
-**Total de historias:** 22
-**Historias completadas:** 22 (100%)
+**Última actualización:** 2026-05-11
+**Total de historias:** 25
+**Historias completadas:** 25 (100%)
 
 > **Nota:** Este backlog cubre únicamente los módulos implementados por el Desarrollador Frontend:
 > `gestion-matricula-financiera` e `gestion-informacion-presupuestaria`.
@@ -18,7 +18,8 @@
 |----------|-------|----------|------|-------------|-------|
 | EP-01 | Gestión de Matrícula Financiera | 7 | 7 | 0 | 0 |
 | EP-02 | Gestión de Información Presupuestaria | 15 | 15 | 0 | 0 |
-| **Total** | | **22** | **22** | **0** | **0** |
+| EP-03 | Refactorización Arquitectónica (Pattern B) | 3 | 3 | 0 | 0 |
+| **Total** | | **25** | **25** | **0** | **0** |
 
 ---
 
@@ -380,3 +381,56 @@
 - CA-4: Los errores HTTP 401 redirigen al login; los 403 redirigen a la página de acceso denegado
 
 **Prioridad:** Alta | **Story Points:** 3 | **Estado:** ✅ Done
+
+---
+
+## EP-03: Refactorización Arquitectónica (Pattern B)
+
+**Módulos Afectados:** Todos los módulos financieros
+**Objetivo:** Desacoplar la UI de la lógica de negocio y sincronizar con los estándares institucionales.
+
+---
+
+### HU-023 — Migración Selectiva de Lógica (Pattern B)
+
+**Como** Arquitecto de Software,
+**quiero** migrar la lógica reactiva desde la rama de lineamientos a la rama principal,
+**para** tener una arquitectura robusta basada en Facades y Mappers sin forzar el cambio visual.
+
+**Criterios de Aceptación:**
+- CA-1: Se extraen exitosamente los servicios, DTOs y Mappers de la rama `lineamientos-u`. 
+- CA-2: Los componentes feature se refactorizan para usar el patrón reactivo (`vm$ | async`).
+- CA-3: Se mantiene la integridad visual original del sistema (Master style).
+- CA-4: El sistema pasa todas las pruebas de integración con el backend.
+
+**Prioridad:** Alta | **Story Points:** 8 | **Estado:** ✅ Done
+
+---
+
+### HU-024 — Estandarización de Documentación `Thin Client`
+
+**Como** Desarrollador,
+**quiero** documentar formalmente la política de `Lógica Cero` en el frontend,
+**para** asegurar que futuros mantenimientos no reintroduzcan cálculos en la UI.
+
+**Criterios de Aceptación:**
+- CA-1: Se crea un documento central de decisiones arquitectónicas (ADR).
+- CA-2: Se detallan los flujos de datos y la matriz de responsabilidades Backend vs Frontend.
+- CA-3: Se integra la documentación técnica de la rama institucional como referencia técnica.
+
+**Prioridad:** Alta | **Story Points:** 3 | **Estado:** ✅ Done
+
+---
+
+### HU-025 — Coexistencia de Lineamientos Visuales
+
+**Como** Equipo de Desarrollo,
+**quiero** separar claramente la documentación de los lineamientos TIC v3 de los patrones visuales actuales,
+**para** evitar malentendidos sobre el estado visual de esta rama.
+
+**Criterios de Aceptación:**
+- CA-1: Se crea una carpeta específica para Sistemas de Diseño (`docs/design-system/`).
+- CA-2: Se documenta el `Patrón Visual Consolidado` (Legacy) aplicado en esta rama.
+- CA-3: Se mantiene el Design System TIC v3 como referencia para futuras migraciones.
+
+**Prioridad:** Media | **Story Points:** 3 | **Estado:** ✅ Done

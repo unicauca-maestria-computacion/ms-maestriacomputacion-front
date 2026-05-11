@@ -1,4 +1,4 @@
-# Documentación — ms-maestriacomputacion-front
+﻿# Documentación — ms-maestriacomputacion-front
 
 **Proyecto:** Sistema de Gestión de Maestría en Computación — Frontend Angular
 **Autor:** Daniel Felipe Contreras Tobar
@@ -7,25 +7,39 @@
 
 ---
 
-## Índice de Documentación
+## Ándice de Documentación
 
-### Integración Frontend-Backend
-
+### ðŸ—ï¸ Arquitectura y Decisiones Técnicas
 | Documento | Descripción |
 |-----------|-------------|
-| [`integration/frontend-backend-integration.md`](integration/frontend-backend-integration.md) | Cómo se acordaron los contratos de API, separación de responsabilidades, por qué los cambios en el backend no afectan al frontend, y cómo probar la integración |
-| [`arquitectura-cero-logica.md`](arquitectura-cero-logica.md) | Definición del estándar institucional de cero lógica financiera en el cliente (Frontend Delgado) |
-| [`contrato-backend-frontend.md`](contrato-backend-frontend.md) | Detalle técnico de estructuras JSON, endpoints y flujos de datos sin procesamiento local |
+| [`management/frontend-architecture-decisions.md`](management/frontend-architecture-decisions.md) | Estrategia de Cliente Delgado, Migración Pattern B y Coexistencia Visual. |
+| [`architecture/arquitectura-cero-logica.md`](architecture/arquitectura-cero-logica.md) | **[NUEVO]** Principios detallados de la delegación de lógica al Backend. |
 
-
-### Design System TIC v3
-
+### ðŸ”Œ API e Integración
 | Documento | Descripción |
 |-----------|-------------|
-| [`design-system/design-system-tic-v3.md`](design-system/design-system-tic-v3.md) | Colores institucionales, tipografía, border radius, íconos y estados de pago aplicados en los módulos |
-| [`design-system/atomic-design.md`](design-system/atomic-design.md) | Catálogo de átomos y moléculas compartidos: `app-uni-progress-bar`, `app-periodo-badge`, `app-campo-dato`, `app-page-header`, `app-estado-vacio`, `app-uni-card-header` |
+| [`integration/frontend-backend-integration.md`](integration/frontend-backend-integration.md) | Cómo se acordaron los contratos, responsabilidades y pruebas de integración. |
+| [`api/contrato-backend-frontend.md`](api/contrato-backend-frontend.md) | **[NUEVO]** Detalle de endpoints y estructuras JSON con campos calculados. |
+| [`api/API_Contracts.md`](api/API_Contracts.md) | Definiciones técnicas de las interfaces TypeScript para la API. |
 
-### Gestión y Proceso Scrum
+### ðŸŽ¨ Sistemas de Diseño y Estado Visual
+> [!IMPORTANT]
+> Esta rama usa el **Estado Visual Legacy** (sin lineamientos TIC v3) para asegurar la compatibilidad con el resto del sistema maestro, aunque utiliza la **Lógica Pattern B** de última generación.
+
+| Documento | Estado | Descripción |
+|-----------|--------|-------------|
+| [`design-system/legacy-visual-pattern.md`](design-system/legacy-visual-pattern.md) | **APLICADO** | Estándar visual de esta rama (Consistencia con Master). |
+| [`design-system/design-system-tic-v3.md`](design-system/design-system-tic-v3.md) | **REFERENCIA** | Lineamientos oficiales TIC v3 2026 (No aplicados aquí). |
+| [`modules/tic-v3-compliance-report.md`](modules/tic-v3-compliance-report.md) | **HISTÁ“RICO** | Justificación de la transición técnica y visual. |
+
+### ðŸ“¦ Módulos Financieros
+| Documento | Descripción |
+|-----------|-------------|
+| [`modules/gestion-matricula-financiera.md`](modules/gestion-matricula-financiera.md) | Detalle técnico del módulo de Matrícula (Lógica Pattern B). |
+| [`modules/gestion-informacion-presupuestaria.md`](modules/gestion-informacion-presupuestaria.md) | Detalle técnico del módulo de Presupuesto y Reportes. |
+| [`modules/solicitud-revision-matricula.md`](modules/solicitud-revision-matricula.md) | Proceso de integración con el módulo de Solicitudes (RE_MATR). |
+
+### ðŸ“Š Gestión y Proceso Scrum
 
 | Documento | Descripción |
 |-----------|-------------|
@@ -41,7 +55,6 @@
 |-----------|-------------|
 | [`modules/gestion-matricula-financiera.md`](modules/gestion-matricula-financiera.md) | Documentación técnica completa del módulo de Gestión de Matrícula Financiera |
 | [`modules/gestion-informacion-presupuestaria.md`](modules/gestion-informacion-presupuestaria.md) | Documentación técnica completa del módulo de Gestión de Información Presupuestaria |
-| [`modules/changelog-matricula-presupuestaria.md`](modules/changelog-matricula-presupuestaria.md) | Changelog de correcciones post-spec: errores TypeScript, alineación Design System TIC v3, correcciones de UX y Atomic Design |
 
 ### API y Contratos
 
@@ -73,7 +86,7 @@
 **Arquitectura:**
 - Pattern B (Hexagonal variante) con capas `data/`, `feature/`, `ui/`, `models/`, `dto/`
 - Facade con BehaviorSubject para gestión de estado reactivo
-- Mapper para transformación DTO ↔ Dominio
+- Mapper para transformación DTO â†” Dominio
 - ApiService puro (solo HttpClient)
 - Lazy loading + RoleGuard en todas las rutas
 
@@ -95,7 +108,7 @@
 **Arquitectura:**
 - Pattern B (Hexagonal variante) con capas `data/`, `feature/`, `ui/`, `models/`, `dto/`
 - Facade con BehaviorSubject para gestión de estado reactivo
-- Mapper para transformación DTO ↔ Dominio
+- Mapper para transformación DTO â†” Dominio
 - ApiService puro (sin lógica de encadenamiento)
 - View Model (`ReporteFinalVM`) para separar lógica de presentación
 - `TotalesReporteService` para normalización de totales
@@ -110,28 +123,11 @@
 
 | Corrección | Archivos afectados |
 |-----------|-------------------|
-| **Arquitectura Cero Lógica** | Eliminación de lógica aritmética y normalizaciones en 10+ componentes |
-| **Centralización en Backend** | Migración de cálculos de totales globales a DTOs de microservicios |
 | Eliminación de `console.log`/`console.error` en producción | 5 componentes feature |
 | Método `descargar()` vacío reemplazado con TODO documentado | `reporte-final`, `proyeccion-reporte` |
 | Lógica de encadenamiento movida del ApiService al Facade | `api.service.ts`, `facade.service.ts` (presupuestaria) |
 | Creación de pipes compartidos `FormatCurrencyPipe` y `FormatPercentPipe` | `shared/pipes/` + 3 componentes |
 | Eliminación de variable `loading` muerta en `MatriculaFinancieraComponent` | `matricula-financiera.component.ts` |
-| Error TS en `ActualizarParticipacionDTOPeticion` — campos incorrectos en objeto literal | `reporte-por-grupos.component.ts` |
-| Fuentes institucionales (Titillium Web, Open Sans, Material Symbols) agregadas a `index.html` | `src/index.html` |
-| Badge de período reemplazado por componente institucional `app-periodo-badge` | `resumen-matricula-estudiante.component.html` |
-| `p-progressSpinner` reemplazado por `app-uni-progress-bar` (barra lineal Design System TIC v3) | 6 templates |
-| Estados de pago corregidos a 3 estados reales (`true`/`false`/`null`) con colores correctos | 3 componentes TS |
-| Dropdown de estados reducido de 7 a 4 opciones reales | `matricula-financiera.component.ts` |
-| Columna "Valor SMLV" eliminada del listado (backend devuelve `1` para todos) | `matricula-financiera.component.html` |
-| Porcentaje de beca corregido (`\| percent` → `%` directo) | 2 templates |
-| Botón "Iniciar nueva matrícula" eliminado (no es responsabilidad del frontend) | `matricula-financiera.component.html/.ts` |
-| Campo `grupoNombre` tipado en modelo, DTO y mapper | `domain-models.ts`, `estudiante.dto.ts`, `mapper.service.ts` |
-| Datos faltantes del estudiante agregados a vistas de detalle y resumen | 2 templates |
-| Becas extraídas a tarjeta separada con patrón grid consistente | 2 templates |
-| Materias convertidas de tabla a grid `campo-label`/`campo-valor` | 2 templates |
-| Atomic Design: 6 componentes compartidos creados en `SharedModule` | `shared.module.ts` + 6 nuevos archivos |
-
 
 ---
 

@@ -1,4 +1,4 @@
-# Checklist de Preparación para Producción — ms-maestriacomputacion-front
+﻿# Checklist de Preparación para Producción — ms-maestriacomputacion-front
 
 **Fecha:** 2026-05-04
 **Módulos:** gestion-matricula-financiera, gestion-informacion-presupuestaria
@@ -27,29 +27,29 @@ Verifican que cada pieza de código funciona de forma aislada.
 
 ---
 
-## 2. Pruebas de Integración ⚠️ PARCIALES
+## 2. Pruebas de Integración âš ï¸ PARCIALES
 
 Verifican que los componentes funcionan correctamente juntos (componente + facade + template).
 
 | Escenario | Estado | Notas |
 |-----------|--------|-------|
-| MatriculaFinancieraComponent carga y filtra estudiantes | ⚠️ Manual | Requiere TestBed completo con HttpClientTestingModule |
-| DetalleEstudianteComponent carga datos por ID de ruta | ⚠️ Manual | Requiere RouterTestingModule |
-| ProyeccionReporteComponent edita y guarda fila | ⚠️ Manual | Flujo complejo con múltiples estados |
-| ReportePorGruposComponent actualiza porcentajes | ⚠️ Manual | Requiere mock de ConfirmationService |
+| MatriculaFinancieraComponent carga y filtra estudiantes | âš ï¸ Manual | Requiere TestBed completo con HttpClientTestingModule |
+| DetalleEstudianteComponent carga datos por ID de ruta | âš ï¸ Manual | Requiere RouterTestingModule |
+| ProyeccionReporteComponent edita y guarda fila | âš ï¸ Manual | Flujo complejo con múltiples estados |
+| ReportePorGruposComponent actualiza porcentajes | âš ï¸ Manual | Requiere mock de ConfirmationService |
 
 **Recomendación:** Crear al menos un test de integración por componente de página (Smart) antes de producción.
 
 ---
 
-## 3. Pruebas de Edge Cases ⚠️ PARCIALES
+## 3. Pruebas de Edge Cases âš ï¸ PARCIALES
 
 Ver catálogo completo en `EdgeCases_Catalog.md`.
 
 | Estado | Cantidad |
 |--------|----------|
 | ✅ Cubiertos por tests unitarios | 17 |
-| ⚠️ Pendientes validación manual | 14 |
+| âš ï¸ Pendientes validación manual | 14 |
 | **Total identificados** | **31** |
 
 **Edge cases críticos pendientes (bloquean producción):**
@@ -61,58 +61,58 @@ Ver catálogo completo en `EdgeCases_Catalog.md`.
 
 ---
 
-## 4. Pruebas de Seguridad ⚠️ PENDIENTES
+## 4. Pruebas de Seguridad âš ï¸ PENDIENTES
 
 | Verificación | Estado | Notas |
 |-------------|--------|-------|
-| RoleGuard bloquea acceso sin rol correcto | ⚠️ Pendiente | Validar manualmente con usuario ROLE_ESTUDIANTE |
-| AuthGuard redirige a login sin token | ⚠️ Pendiente | Validar manualmente |
-| No hay datos sensibles en `localStorage` sin cifrar | ⚠️ Pendiente | Revisar AuthService |
+| RoleGuard bloquea acceso sin rol correcto | âš ï¸ Pendiente | Validar manualmente con usuario ROLE_ESTUDIANTE |
+| AuthGuard redirige a login sin token | âš ï¸ Pendiente | Validar manualmente |
+| No hay datos sensibles en `localStorage` sin cifrar | âš ï¸ Pendiente | Revisar AuthService |
 | No hay `console.log` con datos de usuarios | ✅ Corregido | Eliminados en esta sesión |
-| Inputs no ejecutan XSS | ⚠️ Pendiente | Angular escapa por defecto, pero validar |
+| Inputs no ejecutan XSS | âš ï¸ Pendiente | Angular escapa por defecto, pero validar |
 
 ---
 
-## 5. Pruebas de Rendimiento ⚠️ PENDIENTES
+## 5. Pruebas de Rendimiento âš ï¸ PENDIENTES
 
 | Verificación | Estado | Notas |
 |-------------|--------|-------|
-| Tabla de estudiantes con 500+ registros | ⚠️ Pendiente | Verificar paginación y rendimiento |
-| Tabla de proyección con 200+ estudiantes | ⚠️ Pendiente | Verificar scroll y renderizado |
+| Tabla de estudiantes con 500+ registros | âš ï¸ Pendiente | Verificar paginación y rendimiento |
+| Tabla de proyección con 200+ estudiantes | âš ï¸ Pendiente | Verificar scroll y renderizado |
 | Lazy loading de módulos activo | ✅ Verificado | Configurado en routing |
 | `OnPush` en componentes dumb | ✅ Verificado | Todos los componentes UI tienen OnPush |
-| `trackBy` en `*ngFor` dinámicos | ⚠️ Pendiente | Verificar en templates de tablas |
+| `trackBy` en `*ngFor` dinámicos | âš ï¸ Pendiente | Verificar en templates de tablas |
 
 ---
 
-## 6. Pruebas de Accesibilidad ⚠️ PENDIENTES
+## 6. Pruebas de Accesibilidad âš ï¸ PENDIENTES
 
 Basadas en WCAG 2.1 AA.
 
 | Verificación | Estado |
 |-------------|--------|
-| Todos los botones tienen `aria-label` o texto visible | ⚠️ Pendiente |
-| Inputs de formulario tienen `label` asociado | ⚠️ Pendiente |
-| Contraste de colores ≥ 4.5:1 | ⚠️ Pendiente (PrimeNG cumple por defecto) |
-| Navegación por teclado funcional | ⚠️ Pendiente |
-| Mensajes de error accesibles con `aria-describedby` | ⚠️ Pendiente |
+| Todos los botones tienen `aria-label` o texto visible | âš ï¸ Pendiente |
+| Inputs de formulario tienen `label` asociado | âš ï¸ Pendiente |
+| Contraste de colores â‰¥ 4.5:1 | âš ï¸ Pendiente (PrimeNG cumple por defecto) |
+| Navegación por teclado funcional | âš ï¸ Pendiente |
+| Mensajes de error accesibles con `aria-describedby` | âš ï¸ Pendiente |
 
 ---
 
-## 7. Pruebas Responsive ⚠️ PENDIENTES
+## 7. Pruebas Responsive âš ï¸ PENDIENTES
 
 | Breakpoint | Estado |
 |-----------|--------|
-| Mobile (375px) | ⚠️ Pendiente |
-| Tablet (768px) | ⚠️ Pendiente |
-| Desktop (1280px) | ⚠️ Pendiente |
-| Wide (1920px) | ⚠️ Pendiente |
+| Mobile (375px) | âš ï¸ Pendiente |
+| Tablet (768px) | âš ï¸ Pendiente |
+| Desktop (1280px) | âš ï¸ Pendiente |
+| Wide (1920px) | âš ï¸ Pendiente |
 
 Las tablas usan `responsiveLayout="stack"` de PrimeNG, lo que debería funcionar en mobile.
 
 ---
 
-## 8. Pruebas de Regresión ⚠️ PENDIENTES
+## 8. Pruebas de Regresión âš ï¸ PENDIENTES
 
 Verificar que los cambios realizados no rompieron funcionalidad existente:
 
@@ -140,7 +140,7 @@ Verificar que los cambios realizados no rompieron funcionalidad existente:
 
 ### Tests
 - [x] 71 tests unitarios pasando
-- [x] Cobertura ≥ 80% en Facades y Mappers
+- [x] Cobertura â‰¥ 80% en Facades y Mappers
 - [ ] Al menos 1 test de integración por componente Smart
 - [ ] Edge cases críticos validados manualmente
 

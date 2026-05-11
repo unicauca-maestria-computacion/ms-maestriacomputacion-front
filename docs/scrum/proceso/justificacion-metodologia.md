@@ -1,7 +1,7 @@
 # Justificación de la Metodología — Scrum Lite
 
 **Proyecto:** Sistema de Gestión de Maestría en Computación — Frontend Angular
-**Fecha:** 2026-05-04
+**Fecha:** 2026-05-11
 
 ---
 
@@ -51,10 +51,6 @@ El Scrum Guide 2020 permite equipos de hasta 3 personas y no prescribe ceremonia
 | **Developer (Backend)** | Desarrollador Backend | Implementar API REST, lógica de negocio, base de datos, documentar endpoints |
 | **Developer (Frontend)** | Daniel Felipe Contreras Tobar | Implementar SPA Angular, módulos asignados, tests unitarios, documentación frontend |
 
-### Nota sobre la combinación de roles PO + SM
-
-En equipos de 3 personas es común que el Director de Grupo asuma ambos roles. La clave es ser consciente del conflicto potencial: como PO quiere más features, como SM debe proteger la capacidad del equipo. En este proyecto se resolvió siendo transparente en el Sprint Planning sobre la capacidad real del equipo.
-
 ---
 
 ## 4. Ceremonias Adoptadas
@@ -77,6 +73,7 @@ En equipos de 3 personas es común que el Director de Grupo asuma ambos roles. L
 | Discord / WhatsApp | Daily standup asíncrono |
 | Google Docs | Actas de ceremonias |
 | Kiro (AI IDE) | Asistencia en implementación y documentación |
+| Antigravity (AI IDE) | Refactorización arquitectónica y consolidación de documentación |
 
 ---
 

@@ -215,7 +215,7 @@ export class GestionCursoComponent implements OnInit, OnDestroy {
 
         if (id === undefined || id === null) return;
 
-        const curso = this.cursos.find(c => c.id === id);
+        const curso = this.cursos.find((c) => c.id === id);
         const nombreCurso = curso
             ? `"${curso.asignatura}" (Grupo ${curso.grupo})`
             : 'este curso';

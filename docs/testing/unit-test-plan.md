@@ -1,4 +1,4 @@
-# Plan de Pruebas Unitarias — ms-maestriacomputacion-front
+﻿# Plan de Pruebas Unitarias — ms-maestriacomputacion-front
 
 **Fecha:** 2026-05-04
 **Framework:** Jasmine + Karma + Istanbul
@@ -112,13 +112,13 @@ it('shouldXWhenY', (done) => {
 
 | TC-ID | Caso de Prueba | Input | Resultado Esperado |
 |-------|---------------|-------|-------------------|
-| TC-MF-C-01 | Ícono para estado PENDIENTE | `estado = 'PENDIENTE'` | `icono = '⏳'` |
-| TC-MF-C-02 | Ícono para estado AL_DIA | `estado = 'AL_DIA'` | `icono = '✅'` |
-| TC-MF-C-03 | Ícono para estado MORA | `estado = 'MORA'` | `icono = '⚠️'` |
-| TC-MF-C-04 | Ícono para estado EXONERADO | `estado = 'EXONERADO'` | `icono = '🎓'` |
-| TC-MF-C-05 | Ícono para estado BECADO | `estado = 'BECADO'` | `icono = '🏅'` |
-| TC-MF-C-06 | Ícono para estado ANULADO | `estado = 'ANULADO'` | `icono = '❌'` |
-| TC-MF-C-07 | Ícono para estado desconocido | `estado = 'DESCONOCIDO'` | `icono = ''` |
+| TC-MF-C-01 | Ácono para estado PENDIENTE | `estado = 'PENDIENTE'` | `icono = 'â³'` |
+| TC-MF-C-02 | Ácono para estado AL_DIA | `estado = 'AL_DIA'` | `icono = '✅'` |
+| TC-MF-C-03 | Ácono para estado MORA | `estado = 'MORA'` | `icono = 'âš ï¸'` |
+| TC-MF-C-04 | Ácono para estado EXONERADO | `estado = 'EXONERADO'` | `icono = '🎓'` |
+| TC-MF-C-05 | Ácono para estado BECADO | `estado = 'BECADO'` | `icono = 'ðŸ…'` |
+| TC-MF-C-06 | Ácono para estado ANULADO | `estado = 'ANULADO'` | `icono = 'âŒ'` |
+| TC-MF-C-07 | Ácono para estado desconocido | `estado = 'DESCONOCIDO'` | `icono = ''` |
 | TC-MF-C-08 | Componente renderiza correctamente | `estado = 'AL_DIA'` | Componente instanciado, ícono accesible |
 
 ---
@@ -179,14 +179,14 @@ it('shouldXWhenY', (done) => {
 | TC-ID | Caso de Prueba | Input | Resultado Esperado |
 |-------|---------------|-------|-------------------|
 | TC-SH-P-01 | FormatCurrency con número positivo | `1000000` | Contiene `'1.000.000'` |
-| TC-SH-P-02 | FormatCurrency con null | `null` | `'–'` |
-| TC-SH-P-03 | FormatCurrency con undefined | `undefined` | `'–'` |
+| TC-SH-P-02 | FormatCurrency con null | `null` | `'â€“'` |
+| TC-SH-P-03 | FormatCurrency con undefined | `undefined` | `'â€“'` |
 | TC-SH-P-04 | FormatCurrency con cero | `0` | Contiene `'0'` |
 | TC-SH-P-05 | FormatPercent con 2 decimales (default) | `25.5` | `'25.50 %'` |
 | TC-SH-P-06 | FormatPercent con 0 decimales | `25.5, 0` | `'26 %'` |
 | TC-SH-P-07 | FormatPercent con 1 decimal | `25.5, 1` | `'25.5 %'` |
-| TC-SH-P-08 | FormatPercent con null | `null` | `'–'` |
-| TC-SH-P-09 | FormatPercent con undefined | `undefined` | `'–'` |
+| TC-SH-P-08 | FormatPercent con null | `null` | `'â€“'` |
+| TC-SH-P-09 | FormatPercent con undefined | `undefined` | `'â€“'` |
 | TC-SH-P-10 | FormatPercent con cero | `0` | `'0.00 %'` |
 
 ---
@@ -196,8 +196,8 @@ it('shouldXWhenY', (done) => {
 Una suite de tests se considera **APROBADA** cuando:
 
 - [ ] Todos los tests pasan (`0 failures`)
-- [ ] Cobertura de líneas ≥ 80% en Facades y Mappers
-- [ ] Cobertura de líneas ≥ 60% en componentes dumb
+- [ ] Cobertura de líneas â‰¥ 80% en Facades y Mappers
+- [ ] Cobertura de líneas â‰¥ 60% en componentes dumb
 - [ ] Sin `fdescribe` ni `fit` en el código
 - [ ] Sin `console.log` en los tests
 - [ ] Todos los tests tienen al menos un `expect()`

@@ -103,6 +103,7 @@ export class GestionMatriculaFinancieraMapperService {
             valorEnSMLV: dto.valorEnSMLV ?? null,
             esEgresadoUnicauca: dto.esEgresadoUnicauca ?? false,
             aplicaVotacion: dto.aplicaVotacion ?? false,
+            grupoNombre: dto.grupoNombre,
             matriculasFinancieras: [],
             descuentos: (dto.descuentos ?? []).map(b => this.mappearDeRespuestaABecaFinanciera(b)),
             becas: (dto.becas ?? []).map(b => this.mappearDeRespuestaABecaFinanciera(b)),

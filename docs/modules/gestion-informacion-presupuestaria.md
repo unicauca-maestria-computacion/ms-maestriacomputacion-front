@@ -1,17 +1,21 @@
-# Documentación Técnica — Módulo Gestión Información Presupuestaria
+﻿# Documentación Técnica — Módulo Gestión Información Presupuestaria
 
 **Proyecto:** ms-maestriacomputacion-front
 **Módulo:** `gestion-informacion-presupuestaria`
 **Autor:** Daniel Felipe Contreras Tobar
 **Fecha:** 2026-05-04
-**Patrón arquitectónico:** Pattern B — Arquitectura Hexagonal (variante)
+**Patrón arquitectónico:** Pattern B — Arquitectura Hexagonal (Thin Client)
 **Stack:** Angular 13, TypeScript 4.4, PrimeNG 13, RxJS 7.4, ExcelJS
+**Estado Visual:** Sin Lineamientos TIC (Consistencia con Master)
 
 ---
 
 ## 1. Descripción General
 
 El módulo de **Gestión de Información Presupuestaria** permite al Coordinador de la Maestría en Computación gestionar y visualizar la información financiera del programa. Incluye tres vistas principales: proyección de ingresos del período activo, reporte financiero final de períodos cerrados, y distribución del presupuesto por grupos de investigación.
+
+> [!IMPORTANT]
+> Este módulo opera bajo la arquitectura de **"Lógica Cero"**. Todos los cálculos financieros son realizados por el backend. El frontend actúa únicamente como una capa de presentación y captura de datos. Para más detalles, ver [Decisiones de Arquitectura](../../management/frontend-architecture-decisions.md).
 
 ### Funcionalidades principales
 
@@ -32,13 +36,13 @@ El módulo de **Gestión de Información Presupuestaria** permite al Coordinador
 
 ```
 gestion-informacion-presupuestaria/
-├── data/                                    ← Capa de datos
-│   ├── api.service.ts                       ← Llamadas HTTP puras
-│   ├── facade.service.ts                    ← Estado reactivo + orquestación
-│   ├── mapper.service.ts                    ← Transformación DTO ↔ Dominio
-│   ├── totales-reporte.service.ts           ← Servicio auxiliar de totales
-│   └── excel.service.ts                     ← Generación de archivos Excel
-├── dto/                                     ← Contratos con el backend
+├── data/                                    â† Capa de datos
+│   ├── api.service.ts                       â† Llamadas HTTP puras
+│   ├── facade.service.ts                    â† Estado reactivo + orquestación
+│   ├── mapper.service.ts                    â† Transformación DTO â†” Dominio
+│   ├── totales-reporte.service.ts           â† Servicio auxiliar de totales
+│   └── excel.service.ts                     â† Generación de archivos Excel
+├── dto/                                     â† Contratos con el backend
 │   ├── api-error.ts
 │   ├── configuracion-reporte-financiero.dto.ts
 │   ├── configuracion-reporte-grupos.dto.ts
@@ -52,20 +56,20 @@ gestion-informacion-presupuestaria/
 │   ├── reporte-por-grupos.dto.ts
 │   ├── reporte-proyeccion-estudiantes.dto.ts
 │   └── valor-grupo.dto.ts
-├── feature/                                 ← Componentes de página (Smart)
-│   ├── reporte-final/                       ← Reporte financiero final
-│   ├── proyeccion-reporte/                  ← Proyección del período activo
-│   ├── reporte-por-grupos/                  ← Distribución por grupos
-│   ├── periodo-financiero-selector/         ← Selector de período con flechas
-│   ├── gastos-generales-dialog/             ← Modal de gestión de gastos
-│   └── descargar-reporte-dialog/            ← Modal de descarga Excel
+├── feature/                                 â† Componentes de página (Smart)
+│   ├── reporte-final/                       â† Reporte financiero final
+│   ├── proyeccion-reporte/                  â† Proyección del período activo
+│   ├── reporte-por-grupos/                  â† Distribución por grupos
+│   ├── periodo-financiero-selector/         â† Selector de período con flechas
+│   ├── gastos-generales-dialog/             â† Modal de gestión de gastos
+│   └── descargar-reporte-dialog/            â† Modal de descarga Excel
 ├── models/
-│   ├── domain-models.ts                     ← Entidades del dominio
-│   └── reporte-final.vm.ts                  ← View Model del reporte final
-├── ui/                                      ← Componentes presentacionales (Dumb)
-│   ├── opciones-presupuesto/                ← Tabs de navegación entre reportes
-│   ├── presupuesto-filter/                  ← Filtro reactivo con debounce
-│   └── presupuesto-form/                    ← Formulario de partidas (scaffold)
+│   ├── domain-models.ts                     â† Entidades del dominio
+│   └── reporte-final.vm.ts                  â† View Model del reporte final
+├── ui/                                      â† Componentes presentacionales (Dumb)
+│   ├── opciones-presupuesto/                â† Tabs de navegación entre reportes
+│   ├── presupuesto-filter/                  â† Filtro reactivo con debounce
+│   └── presupuesto-form/                    â† Formulario de partidas (scaffold)
 ├── gestion-informacion-presupuestaria-routing.module.ts
 └── gestion-informacion-presupuestaria.module.ts
 ```
@@ -283,7 +287,7 @@ Servicio de generación de archivos Excel usando la librería `ExcelJS`. Genera 
 |--------|-------------|-----------------|
 | `generarExcelReporteFinal(data)` | Reporte final en Excel | Resumen Ejecutivo, Estudiantes, Análisis Descuentos, Datos para Gráficas |
 | `generarExcelProyeccionReporte(data)` | Proyección en Excel | Resumen Ejecutivo, Proyección Estudiantes, Análisis Descuentos |
-| `generarExcelReportePorGrupos(data)` | Reporte por grupos en Excel | Resumen General, Distribución Financiera, Gastos Generales, Ítems y Presupuesto, una hoja por grupo |
+| `generarExcelReportePorGrupos(data)` | Reporte por grupos en Excel | Resumen General, Distribución Financiera, Gastos Generales, Átems y Presupuesto, una hoja por grupo |
 
 ---
 
@@ -351,7 +355,7 @@ El componente más complejo del módulo. Gestiona la distribución del presupues
 **Secciones de la pantalla:**
 1. Participación y Aporte por Grupo
 2. Distribución de Ingresos y Gastos (AUI, Excedentes, Gastos Generales)
-3. Asignación por Ítems (Ítem 1, Ítem 2)
+3. Asignación por Átems (Átem 1, Átem 2)
 4. Imprevistos y Montos Finales (Vigencias Anteriores)
 
 ---
@@ -455,7 +459,7 @@ El backend almacena porcentajes como ratios (0-1), pero la UI los muestra como p
 El método `actualizarConfiguracionProyeccion()` requiere primero obtener el período de proyección, luego obtener el ID de la configuración, y finalmente actualizar. Esta lógica de encadenamiento vive en el Facade (via `switchMap`), no en el ApiService. El ApiService solo tiene métodos HTTP simples.
 
 ### View Model para el Reporte Final
-El `ReporteFinalVM` y su función factory `mapToReporteFinalVM()` siguen el principio de Responsabilidad Única (SRP): el componente solo renderiza, el View Model calcula. Esto facilita el testing unitario de la lógica de presentación.
+El `ReporteFinalVM` y su función factory `mapToReporteFinalVM()` siguen el principio de Responsabilidad Ášnica (SRP): el componente solo renderiza, el View Model calcula. Esto facilita el testing unitario de la lógica de presentación.
 
 ### Control de edición concurrente
 El flag `isAnyEditActive` previene que el usuario edite múltiples secciones simultáneamente, evitando condiciones de carrera en las peticiones al backend.

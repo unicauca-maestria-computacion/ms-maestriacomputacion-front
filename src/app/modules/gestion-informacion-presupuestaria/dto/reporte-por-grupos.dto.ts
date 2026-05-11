@@ -32,9 +32,19 @@ export interface ConsultaReportePorGruposDTORespuesta {
     item2: number;
     imprevistos: number;
     totalIngresos: number;
+    /** Ingresos netos = totalIngresos - auiValor - excedentesMaestria */
+    ingresosNetos?: number;
+    /** Suma de gastos generales globales de la maestría */
+    totalGastosGenerales?: number;
     valorADistribuir: number;
+    totalItem1?: number;
+    totalItem2?: number;
+    totalImprevistos?: number;
+    totalVigenciasAnteriores?: number;
     transferenciaUnicauca?: number;
     reportesPorGrupo: ReportePorGrupoDTORespuesta[];
+
     gastosGenerales: GastoGeneralDTORespuesta[];
     idConfiguracionReporteGrupos: number;
 }
+

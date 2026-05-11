@@ -1,29 +1,30 @@
 <div class="col-12">
     <p-toast position="top-right"></p-toast>
     <p-card>
-        <div class="page-content">
-            <app-opciones-presupuesto [activeTab]="'reporte-final'" [currentPeriod]="periodoSeleccionado" (onDescargar)="descargar()">
-            </app-opciones-presupuesto>
-    
-            <!-- Selector de Periodo Académico -->
-            <app-periodo-financiero-selector [modo]="'cerrados'"
-                [mensajeVacio]="'No hay períodos académicos finalizados para mostrar.'"
-                (periodoSeleccionado)="onPeriodoChange($event)"
-                (sinPeriodos)="sinPeriodos = $event"
-                (errorCargaChange)="errorPeriodos = $event">
-            </app-periodo-financiero-selector>
-        </div>
+        <ng-container *ngIf="vm$ | async as vm">
+            <div class="page-content">
+                <app-opciones-presupuesto [activeTab]="'reporte-final'" [currentPeriod]="vm.periodoSeleccionado" (onDescargar)="descargar()">
+                </app-opciones-presupuesto>
+        
+                <!-- Selector de Periodo Académico -->
+                <app-periodo-financiero-selector [modo]="'cerrados'"
+                    [mensajeVacio]="'No hay períodos académicos finalizados para mostrar.'"
+                    (periodoSeleccionado)="onPeriodoChange($event)"
+                    (sinPeriodosChange)="sinPeriodos = $event"
+                    (errorCargaChange)="errorPeriodos = $event">
+                </app-periodo-financiero-selector>
+            </div>
 
 
 
-        <!-- Sin datos -->
-        <div *ngIf="!configuracion && !sinPeriodos && !errorPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
-            <i class="pi pi-inbox text-4xl text-400"></i>
-            <span class="text-600 text-lg">Seleccione un período académico para cargar el reporte.</span>
-        </div>
+            <!-- Sin datos -->
+            <div *ngIf="!vm.configuracion && !sinPeriodos && !errorPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
+                <i class="pi pi-inbox text-4xl text-400"></i>
+                <span class="text-600 text-lg">Seleccione un período académico para cargar el reporte.</span>
+            </div>
 
-        <!-- Contenido del Reporte -->
-        <div *ngIf="configuracion" class="table-container">
+            <!-- Contenido del Reporte -->
+            <div *ngIf="vm.configuracion" class="table-container">
 
             <!-- Panel de Configuración -->
             <div class="config-panel mb-4">
@@ -34,7 +35,7 @@
 
                 <div class="config-row">
                     <span class="p-float-label">
-                        <p-inputNumber id="float-biblioteca" [ngModel]="configuracion.biblioteca"
+                        <p-inputNumber id="float-biblioteca" [ngModel]="vm.configuracion?.biblioteca"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                             [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
@@ -42,7 +43,7 @@
                     </span>
 
                     <span class="p-float-label">
-                        <p-inputNumber id="float-recursos" [ngModel]="configuracion.recursosComputacionales"
+                        <p-inputNumber id="float-recursos" [ngModel]="vm.configuracion?.recursosComputacionales"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                             [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
@@ -50,7 +51,7 @@
                     </span>
 
                     <span class="p-float-label">
-                        <p-inputNumber id="float-smlv" [ngModel]="configuracion.valorSMLV"
+                        <p-inputNumber id="float-smlv" [ngModel]="vm.configuracion?.valorSMLV"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                             [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
@@ -62,7 +63,7 @@
 
             <!-- Tabla de estudiantes -->
             <div class="table-responsive-wrapper">
-                <p-table [value]="estudiantes" responsiveLayout="stack" breakpoint="960px"
+                <p-table [value]="vm.estudiantes" responsiveLayout="stack" breakpoint="960px"
                     styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped">
 
                     <ng-template pTemplate="header">
@@ -149,18 +150,19 @@
             <div class="totales-container mt-3">
                 <div class="total-item">
                     <span class="total-label">Total Bruto:</span>
-                    <span class="total-value">{{ totalBruto | formatCurrency }}</span>
+                    <span class="total-value">{{ vm.totalBruto | formatCurrency }}</span>
                 </div>
                 <div class="total-item">
                     <span class="total-label">Total Descuentos:</span>
-                    <span class="total-value">{{ totalDescuentosCalculado | formatCurrency }}</span>
+                    <span class="total-value">{{ vm.totalDescuentosCalculado | formatCurrency }}</span>
                 </div>
                 <div class="total-item highlight">
                     <span class="total-label">Ingresos Totales Después de Descuentos:</span>
-                    <span class="total-value">{{ totalIngresosNetos | formatCurrency }}</span>
+                    <span class="total-value">{{ vm.totalIngresosNetos | formatCurrency }}</span>
                 </div>
             </div>
         </div>
+        </ng-container>
     </p-card>
 </div>
 

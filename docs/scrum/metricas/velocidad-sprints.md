@@ -1,7 +1,7 @@
 # Métricas de Velocidad — Sprints
 
 **Proyecto:** ms-maestriacomputacion-front
-**Fecha:** 2026-05-04
+**Fecha:** 2026-05-11
 
 ---
 
@@ -13,16 +13,17 @@
 | Sprint 1 | Listado y filtros de matrícula | 21 | 21 | 100% | HU-001, HU-002, HU-003, HU-004 |
 | Sprint 2 | Detalle y resumen de matrícula | 17 | 17 | 100% | HU-005, HU-006, HU-007 |
 | Sprint 3 | Reporte final y proyección (base) | 23 | 23 | 100% | HU-008, HU-009, HU-010 |
-| Sprint 4 | Edición de proyección y grupos | 26 | 26 | 100% | HU-011, HU-012, HU-013, HU-014, HU-015, HU-016, HU-017, HU-018 |
-| Sprint 5 | Gastos, Excel, tests y docs | 33 | 33 | 100% | HU-019, HU-020, HU-021, HU-022 |
-| **Total** | | **134** | **134** | **100%** | **22/22 HU** |
+| Sprint 4 | Edición de proyección y grupos | 26 | 26 | 100% | HU-011 a HU-018 |
+| Sprint 5 | Gastos, Excel, tests y docs | 33 | 33 | 100% | HU-019 a HU-022 |
+| Sprint 6 | Refactorización y Sincronización | 17 | 17 | 100% | HU-023, HU-024, HU-025 |
+| **Total** | | **151** | **151** | **100%** | **25/25 HU** |
 
 ---
 
 ## Velocidad Promedio
 
-- **Sprints de desarrollo (1-5):** 24 SP/sprint promedio
-- **Tendencia:** Creciente — el equipo ganó velocidad conforme avanzó el proyecto
+- **Sprints de desarrollo (1-6):** 22.8 SP/sprint promedio
+- **Tendencia:** Sostenida — el equipo mantuvo una capacidad alta incluso durante las fases de refactorización.
 
 ---
 
@@ -31,14 +32,14 @@
 ```mermaid
 xychart-beta
   title "Velocidad por Sprint (Story Points)"
-  x-axis ["Sprint 0", "Sprint 1", "Sprint 2", "Sprint 3", "Sprint 4", "Sprint 5"]
+  x-axis ["Sprint 0", "Sprint 1", "Sprint 2", "Sprint 3", "Sprint 4", "Sprint 5", "Sprint 6"]
   y-axis "Story Points" 0 --> 40
-  bar [14, 21, 17, 23, 26, 33]
+  bar [14, 21, 17, 23, 26, 33, 17]
 ```
 
 ---
 
-## Burndown Chart — Sprint 5 (ejemplo)
+## Burndown Chart — Sprint 5 (Ejemplo de madurez)
 
 | Día | SP Restantes Ideal | SP Restantes Real |
 |-----|-------------------|-------------------|
@@ -77,16 +78,18 @@ xychart-beta
 | Sprint 3 | 5 | 4 | 4 | 4.3 |
 | Sprint 4 | 4 | 5 | 4 | 4.3 |
 | Sprint 5 | 5 | 5 | 5 | 5.0 |
-| **Promedio** | **4.3** | **4.3** | **4.3** | **4.3** |
+| Sprint 6 | 5 | 5 | 5 | 5.0 |
+| **Promedio** | **4.4** | **4.4** | **4.4** | **4.4** |
 
-**Tendencia:** Positiva — el equipo terminó el proyecto con alta satisfacción.
+**Tendencia:** Óptima — la consolidación técnica y documental del último sprint generó alta satisfacción en los interesados.
 
 ---
 
-## Análisis
+## Análisis detallado
 
 El equipo mantuvo una velocidad consistente durante todo el proyecto. Los sprints más complejos (Sprint 4 y 5) tuvieron mayor cantidad de SP pero se completaron al 100% gracias a:
 
-1. **Estimaciones realistas** — el equipo aprendió a estimar mejor en los primeros sprints
-2. **Arquitectura clara** — el Pattern B hexagonal redujo la ambigüedad en la implementación
-3. **Comunicación directa** — al ser un equipo de 3 personas, los impedimentos se resolvieron rápidamente
+1. **Estimaciones realistas** — el equipo aprendió a estimar mejor en los primeros sprints tras la curva de aprendizaje inicial.
+2. **Arquitectura clara** — el Pattern B hexagonal redujo la ambigüedad en la implementación, permitiendo que el Frontend avance de forma predecible.
+3. **Comunicación directa** — al ser un equipo pequeño, los impedimentos técnicos se resolvieron en tiempo real, minimizando los cuellos de botella.
+4. **Sincronización de Ramas** — el Sprint 6 demostró que una arquitectura bien diseñada permite migraciones de lógica complejas sin degradar la velocidad del equipo.

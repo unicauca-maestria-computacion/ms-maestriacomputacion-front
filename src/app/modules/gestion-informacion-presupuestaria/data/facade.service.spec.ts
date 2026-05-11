@@ -91,6 +91,7 @@ describe('GestionInformacionPresupuestariaFacadeService', () => {
       aUIPorcentaje: 0.10, aUIValor: 1000000, excedentesMaestria: 500000,
       ingresosNetos: 10000000, valorADistribuir: 8000000,
       item1: 0.30, item2: 0.20, imprevistos: 0.05,
+      totalGastosGenerales: 0,
       gastosGenerales: [],
       objPeriodoFinanciero: { periodo: 2, año: 2024 }
     }

@@ -1,4 +1,4 @@
-# Catálogo de Edge Cases — ms-maestriacomputacion-front
+﻿# Catálogo de Edge Cases — ms-maestriacomputacion-front
 
 **Fecha:** 2026-05-04
 **Módulos:** gestion-matricula-financiera, gestion-informacion-presupuestaria
@@ -12,7 +12,7 @@ Un edge case es un escenario en los límites del comportamiento esperado del sis
 
 ---
 
-## MÓDULO 1: gestion-matricula-financiera
+## MÁ“DULO 1: gestion-matricula-financiera
 
 ### EC-MF-01 — Lista de estudiantes vacía
 
@@ -52,7 +52,7 @@ Un edge case es un escenario en los límites del comportamiento esperado del sis
 | **Categoría** | Datos extremos |
 | **Escenario** | El campo `valorEnSMLV` llega como `null` desde el backend |
 | **Entrada** | `EstudianteDTORespuesta.valorEnSMLV = null` |
-| **Resultado esperado** | El mapper preserva el `null`. El template muestra `–` o campo vacío sin error |
+| **Resultado esperado** | El mapper preserva el `null`. El template muestra `â€“` o campo vacío sin error |
 | **Resultado real** | — |
 | **Estado** | ✅ Cubierto por mapper (preserva `null`) |
 | **Riesgo** | BAJO |
@@ -115,7 +115,7 @@ Un edge case es un escenario en los límites del comportamiento esperado del sis
 | **Resultado esperado** | El `AuthInterceptor` detecta el 401, intenta refresh. Si falla, redirige a `/login` |
 | **Resultado real** | — |
 | **Estado** | Pendiente validación manual (depende del interceptor global) |
-| **Riesgo** | CRÍTICO — sin manejo, el usuario ve pantalla en blanco |
+| **Riesgo** | CRÁTICO — sin manejo, el usuario ve pantalla en blanco |
 
 ---
 
@@ -194,7 +194,7 @@ Un edge case es un escenario en los límites del comportamiento esperado del sis
 
 ---
 
-## MÓDULO 2: gestion-informacion-presupuestaria
+## MÁ“DULO 2: gestion-informacion-presupuestaria
 
 ### EC-IP-01 — Sin períodos activos disponibles
 
@@ -434,7 +434,7 @@ Un edge case es un escenario en los límites del comportamiento esperado del sis
 | **Resultado esperado** | `RoleGuard` bloquea el acceso y redirige a `/forbidden` |
 | **Resultado real** | — |
 | **Estado** | Pendiente validación manual |
-| **Riesgo** | CRÍTICO — exposición de datos financieros |
+| **Riesgo** | CRÁTICO — exposición de datos financieros |
 
 ---
 
@@ -449,7 +449,7 @@ Un edge case es un escenario en los límites del comportamiento esperado del sis
 | **Resultado esperado** | El `AuthInterceptor` intenta refresh. Si falla, redirige a `/login` |
 | **Resultado real** | — |
 | **Estado** | Pendiente validación manual |
-| **Riesgo** | CRÍTICO |
+| **Riesgo** | CRÁTICO |
 
 ---
 

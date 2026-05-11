@@ -64,6 +64,7 @@ export interface Estudiante {
     valorEnSMLV?: number | null;
     esEgresadoUnicauca?: boolean;
     aplicaVotacion?: boolean;
+    grupoNombre?: string;
     matriculasFinancieras: MatriculaFinanciera[];
     descuentos: DescuentoFinanciero[];
     becas: BecaFinanciera[];

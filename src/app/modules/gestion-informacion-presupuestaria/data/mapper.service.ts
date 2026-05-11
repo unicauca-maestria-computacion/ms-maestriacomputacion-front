@@ -132,12 +132,14 @@ export class GestionInformacionPresupuestariaMapperService {
     mappearDeRespuestaAReportePorGrupos(dto: ConsultaReportePorGruposDTORespuesta): ReportePorGrupos {
         const gastos = (dto.gastosGenerales ?? []).map(g => this.mappearDeRespuestaAGastoGeneral(g));
         const filasPorGrupo = (dto.reportesPorGrupo ?? []).map(f => this.mappearDeRespuestaAReportePorGrupoFila(f));
+        
         const objConfiguracionReporteGrupos: ConfiguracionReporteGrupos = {
             id: dto.idConfiguracionReporteGrupos,
             aUIPorcentaje: dto.auiPorcentaje ?? 0,
             aUIValor: dto.auiValor ?? 0,
             excedentesMaestria: dto.excedentesMaestria ?? 0,
-            ingresosNetos: dto.totalIngresos ?? 0,
+            ingresosNetos: dto.ingresosNetos ?? 0,
+            totalGastosGenerales: dto.totalGastosGenerales ?? 0,
             valorADistribuir: dto.valorADistribuir ?? 0,
             item1: dto.item1 ?? 0,
             item2: dto.item2 ?? 0,
@@ -146,6 +148,7 @@ export class GestionInformacionPresupuestariaMapperService {
             objPeriodoFinanciero: this.mappearDeRespuestaAPeriodoFinanciero(dto.periodo),
             gastosGenerales: gastos
         };
+
         return {
             gastosGenerales: gastos,
             filasPorGrupo,
@@ -160,13 +163,17 @@ export class GestionInformacionPresupuestariaMapperService {
             participacionPrimerSemestre: 100,
             participacionSegundoSemestre: 100,
             participacionPorAnio: 100,
-            presupuestoPorGrupoItem1: (dto.valorADistribuir ?? 0) * (dto.item1 ?? 0),
-            presupuestoPorGrupoItem2: (dto.valorADistribuir ?? 0) * (dto.item2 ?? 0),
+            // Estos son los totales agregados para la fila "Total" en la tabla principal (ahora vienen del back)
+            presupuestoPorGrupoItem1: dto.totalItem1 ?? 0,
+            presupuestoPorGrupoItem2: dto.totalItem2 ?? 0,
             presupuestoPorGrupo: dto.valorADistribuir ?? 0,
-            imprevistos: (dto.valorADistribuir ?? 0) * (dto.imprevistos ?? 0),
+            imprevistos: dto.totalImprevistos ?? 0,
             presupuestoPorGrupoImprevistos: dto.valorADistribuir ?? 0,
-            vigenciasAnteriores: filasPorGrupo.reduce((s, f) => s + (f.vigenciasAnteriores ?? 0), 0),
+            // Sincronización de vigencias anteriores (ahora viene del back)
+            vigenciasAnteriores: dto.totalVigenciasAnteriores ?? 0,
+
             objConfiguracionReporteGrupos
         };
     }
+
 }

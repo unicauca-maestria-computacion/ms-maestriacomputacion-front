@@ -24,17 +24,17 @@
 
         <div *ngIf="configuracion" class="mt-4 table-container">
 
-            <!-- Título Global -->
-            <div class="flex justify-content-center align-items-center mb-4">
-                <h2 class="m-0 text-center text-700 text-xl">Reporte Por Grupos</h2>
-            </div>
-
-            <!-- Gráfico -->
-            <div class="flex justify-content-center mb-5">
-                <div class="chart-container">
-                    <p-chart type="bar" [data]="basicData" [options]="basicOptions"></p-chart>
+                <!-- Título Global -->
+                <div class="flex justify-content-center align-items-center mb-4">
+                    <h2 class="m-0 text-center text-700 text-xl">Reporte Por Grupos</h2>
                 </div>
-            </div>
+
+                <!-- Gráfico -->
+                <div class="flex justify-content-center mb-5">
+                    <div class="chart-container">
+                        <p-chart type="bar" [data]="basicData" [options]="basicOptions"></p-chart>
+                    </div>
+                </div>
 
             <!-- ===== Sección 1: Participación y Aporte ===== -->
             <div class="section-block mb-5">
@@ -47,7 +47,7 @@
                             <p-inputNumber id="float-ingresos" *ngIf="editandoIngresos" [(ngModel)]="clonedIngresos"
                                 mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" styleClass="config-input">
                             </p-inputNumber>
-                            <p-inputNumber *ngIf="!editandoIngresos" [ngModel]="configuracion.objConfiguracionReporteGrupos.ingresosNetos"
+                            <p-inputNumber *ngIf="!editandoIngresos" [ngModel]="configuracion?.objConfiguracionReporteGrupos.ingresosNetos"
                                 mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                                 [readonly]="true" [disabled]="true" styleClass="config-input">
                             </p-inputNumber>
@@ -55,7 +55,7 @@
                         </span>
 
                         <span class="p-float-label">
-                            <p-inputNumber id="float-unicauca" [ngModel]="configuracion.transferenciaUnicauca"
+                            <p-inputNumber id="float-unicauca" [ngModel]="configuracion?.transferenciaUnicauca"
                                 mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                                 [readonly]="true" [disabled]="true" styleClass="config-input">
                             </p-inputNumber>
@@ -193,7 +193,7 @@
                             <p-inputNumber id="float-excedentes" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.excedentesMaestria"
                                 mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" styleClass="config-input">
                             </p-inputNumber>
-                            <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.objConfiguracionReporteGrupos.excedentesMaestria"
+                            <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion?.objConfiguracionReporteGrupos.excedentesMaestria"
                                 mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                                 [readonly]="true" [disabled]="true" styleClass="config-input">
                             </p-inputNumber>
@@ -271,7 +271,7 @@
                                 (keydown)="onPercentKeyDown($event)"
                                 (input)="onConfigPercentInput($event, 'item1')"
                                 class="config-input-percent">
-                            <p-inputNumber *ngIf="!editandoItems" [ngModel]="configuracion.objConfiguracionReporteGrupos.item1"
+                            <p-inputNumber *ngIf="!editandoItems" [ngModel]="configuracion?.objConfiguracionReporteGrupos.item1"
                                 suffix=" %" [minFractionDigits]="2"
                                 [readonly]="true" [disabled]="true" styleClass="config-input">
                             </p-inputNumber>
@@ -285,7 +285,7 @@
                                 (keydown)="onPercentKeyDown($event)"
                                 (input)="onConfigPercentInput($event, 'item2')"
                                 class="config-input-percent">
-                            <p-inputNumber *ngIf="!editandoItems" [ngModel]="configuracion.objConfiguracionReporteGrupos.item2"
+                            <p-inputNumber *ngIf="!editandoItems" [ngModel]="configuracion?.objConfiguracionReporteGrupos.item2"
                                 suffix=" %" [minFractionDigits]="2"
                                 [readonly]="true" [disabled]="true" styleClass="config-input">
                             </p-inputNumber>
@@ -363,7 +363,7 @@
                                 (keydown)="onPercentKeyDown($event)"
                                 (input)="onConfigPercentInput($event, 'imprevistos')"
                                 class="config-input-percent">
-                            <p-inputNumber *ngIf="!editandoImprevistos" [ngModel]="configuracion.objConfiguracionReporteGrupos.imprevistos"
+                            <p-inputNumber *ngIf="!editandoImprevistos" [ngModel]="configuracion?.objConfiguracionReporteGrupos.imprevistos"
                                 suffix=" %" [minFractionDigits]="2"
                                 [readonly]="true" [disabled]="true" styleClass="config-input"
                                 pTooltip="Reserva del 5% calculada sobre el presupuesto bruto anual del grupo" tooltipPosition="top">
@@ -474,7 +474,7 @@
             <!-- Modal Gastos Generales -->
             <app-gastos-generales-dialog
                 [(display)]="displayGastosModal"
-                [gastos]="configuracion.objConfiguracionReporteGrupos.gastosGenerales"
+                [gastos]="configuracion?.objConfiguracionReporteGrupos.gastosGenerales"
                 [idConfiguracionReporteGrupos]="configuracion?.objConfiguracionReporteGrupos?.id ?? null"
                 [periodoAcademicoId]="periodoSeleccionado?.id ?? null"
                 [readonly]="!esEditable"
@@ -486,6 +486,7 @@
         </div>
     </p-card>
 </div>
+
 
 
 

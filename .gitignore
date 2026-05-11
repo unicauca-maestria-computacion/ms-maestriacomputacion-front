@@ -1,50 +1,79 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-# compiled output
+# --- Compiled Output ---
 /dist
 /tmp
 /out-tsc
-# Only exists if Bazel was run
 /bazel-out
+/.angular/cache
+/.sass-cache
 
-# dependencies
+# --- Dependencies ---
 /node_modules
+/typings
 
-# profiling files
-chrome-profiler-events*.json
+# --- Environment & Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
 
-# IDEs and editors
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+/libpeerconnection.log
+testem.log
+
+# --- Testing & Coverage ---
+/coverage
+/test-results
+/e2e/screenshots
+/e2e/videos
+
+# --- IDEs and Editors ---
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+*.code-workspace
+
+# IntelliJ / WebStorm
 /.idea
+*.iml
+*.iws
+*.ipr
+
+# Other editors
 .project
 .classpath
 .c9/
 *.launch
 .settings/
 *.sublime-workspace
+.swp
+.swo
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.history/*
-
-# misc
-/.angular/cache
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
+# --- System Files ---
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
+ehthumbs.db
 
-.vscode
-.scannerwork/report-task.txt
-.scannerwork/.sonar_lock
+# --- Tools ---
+.scannerwork/
+.sonar/
+.eslintcache
+.stylelintcache
+
+# --- Project Specific ---
+connect.lock

@@ -162,6 +162,28 @@
 | Sprint 3 | 23 | 23 | 100% |
 | Sprint 4 | 26 | 26 | 100% |
 | Sprint 5 | 33 | 33 | 100% |
-| **Total** | **134** | **134** | **100%** |
+| Sprint 6 | 17 | 17 | 100% |
+| **Total** | **151** | **151** | **100%** |
 
-**Velocidad promedio:** 22.3 SP/sprint (excluyendo Sprint 0 de setup)
+**Velocidad promedio:** 22.8 SP/sprint (excluyendo Sprint 0 de setup)
+
+---
+
+## Sprint 6 — Refactorización Arquitectónica y Sincronización de Doc
+
+**Período:** Semanas 13-14 (Actual)
+**Sprint Goal:** Migrar la arquitectura Pattern B desde la rama de lineamientos y consolidar la documentación técnica sin afectar el diseño visual legacy.
+
+### Tareas
+
+| T-ID | HU | Tarea | Asignado | SP | Estado |
+|------|-----|-------|----------|----|--------|
+| T-052 | HU-023 | Extraer servicios y modelos de la rama `lineamientos-u` | Frontend | 3 | ✅ Done |
+| T-053 | HU-023 | Refactorizar componentes financieros a patrón reactivo (vm$) | Frontend | 5 | ✅ Done |
+| T-054 | HU-024 | Crear documento de Decisiones de Arquitectura (ADR) | Frontend | 2 | ✅ Done |
+| T-055 | HU-024 | Integrar principios de `Cero Lógica` en la documentación | Frontend | 2 | ✅ Done |
+| T-056 | HU-025 | Organizar carpeta `docs/design-system/` con clara separación | Frontend | 2 | ✅ Done |
+| T-057 | HU-025 | Documentar el Patrón Visual Consolidado (Legacy) | Frontend | 2 | ✅ Done |
+| T-058 | --- | Actualizar índice de documentación (README.md) | Frontend | 1 | ✅ Done |
+
+**SP Comprometidos:** 17 | **SP Completados:** 17 | **Velocidad:** 100%

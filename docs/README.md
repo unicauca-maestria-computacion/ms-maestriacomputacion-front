@@ -1,4 +1,4 @@
-# Documentación — ms-maestriacomputacion-front
+﻿# Documentación — ms-maestriacomputacion-front
 
 **Proyecto:** Sistema de Gestión de Maestría en Computación — Frontend Angular
 **Autor:** Daniel Felipe Contreras Tobar
@@ -7,15 +7,39 @@
 
 ---
 
-## Índice de Documentación
+## Ándice de Documentación
 
-### Integración Frontend-Backend
-
+### ðŸ—ï¸ Arquitectura y Decisiones Técnicas
 | Documento | Descripción |
 |-----------|-------------|
-| [`integration/frontend-backend-integration.md`](integration/frontend-backend-integration.md) | Cómo se acordaron los contratos de API, separación de responsabilidades, por qué los cambios en el backend no afectan al frontend, y cómo probar la integración |
+| [`management/frontend-architecture-decisions.md`](management/frontend-architecture-decisions.md) | Estrategia de Cliente Delgado, Migración Pattern B y Coexistencia Visual. |
+| [`architecture/arquitectura-cero-logica.md`](architecture/arquitectura-cero-logica.md) | **[NUEVO]** Principios detallados de la delegación de lógica al Backend. |
 
-### Gestión y Proceso Scrum
+### ðŸ”Œ API e Integración
+| Documento | Descripción |
+|-----------|-------------|
+| [`integration/frontend-backend-integration.md`](integration/frontend-backend-integration.md) | Cómo se acordaron los contratos, responsabilidades y pruebas de integración. |
+| [`api/contrato-backend-frontend.md`](api/contrato-backend-frontend.md) | **[NUEVO]** Detalle de endpoints y estructuras JSON con campos calculados. |
+| [`api/API_Contracts.md`](api/API_Contracts.md) | Definiciones técnicas de las interfaces TypeScript para la API. |
+
+### ðŸŽ¨ Sistemas de Diseño y Estado Visual
+> [!IMPORTANT]
+> Esta rama usa el **Estado Visual Legacy** (sin lineamientos TIC v3) para asegurar la compatibilidad con el resto del sistema maestro, aunque utiliza la **Lógica Pattern B** de última generación.
+
+| Documento | Estado | Descripción |
+|-----------|--------|-------------|
+| [`design-system/legacy-visual-pattern.md`](design-system/legacy-visual-pattern.md) | **APLICADO** | Estándar visual de esta rama (Consistencia con Master). |
+| [`design-system/design-system-tic-v3.md`](design-system/design-system-tic-v3.md) | **REFERENCIA** | Lineamientos oficiales TIC v3 2026 (No aplicados aquí). |
+| [`modules/tic-v3-compliance-report.md`](modules/tic-v3-compliance-report.md) | **HISTÁ“RICO** | Justificación de la transición técnica y visual. |
+
+### ðŸ“¦ Módulos Financieros
+| Documento | Descripción |
+|-----------|-------------|
+| [`modules/gestion-matricula-financiera.md`](modules/gestion-matricula-financiera.md) | Detalle técnico del módulo de Matrícula (Lógica Pattern B). |
+| [`modules/gestion-informacion-presupuestaria.md`](modules/gestion-informacion-presupuestaria.md) | Detalle técnico del módulo de Presupuesto y Reportes. |
+| [`modules/solicitud-revision-matricula.md`](modules/solicitud-revision-matricula.md) | Proceso de integración con el módulo de Solicitudes (RE_MATR). |
+
+### ðŸ“Š Gestión y Proceso Scrum
 
 | Documento | Descripción |
 |-----------|-------------|
@@ -62,7 +86,7 @@
 **Arquitectura:**
 - Pattern B (Hexagonal variante) con capas `data/`, `feature/`, `ui/`, `models/`, `dto/`
 - Facade con BehaviorSubject para gestión de estado reactivo
-- Mapper para transformación DTO ↔ Dominio
+- Mapper para transformación DTO â†” Dominio
 - ApiService puro (solo HttpClient)
 - Lazy loading + RoleGuard en todas las rutas
 
@@ -84,7 +108,7 @@
 **Arquitectura:**
 - Pattern B (Hexagonal variante) con capas `data/`, `feature/`, `ui/`, `models/`, `dto/`
 - Facade con BehaviorSubject para gestión de estado reactivo
-- Mapper para transformación DTO ↔ Dominio
+- Mapper para transformación DTO â†” Dominio
 - ApiService puro (sin lógica de encadenamiento)
 - View Model (`ReporteFinalVM`) para separar lógica de presentación
 - `TotalesReporteService` para normalización de totales

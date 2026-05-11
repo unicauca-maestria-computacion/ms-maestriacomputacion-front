@@ -1,28 +1,29 @@
 <div class="col-12">
     <p-toast position="top-right"></p-toast>
     <p-card>
-        <div class="page-content">
-            <app-opciones-presupuesto [activeTab]="'proyeccion-reporte'" [currentPeriod]="periodoSeleccionado" (onDescargar)="descargar()">
-            </app-opciones-presupuesto>
-    
-            <!-- Selector de Periodo Académico -->
-            <app-periodo-financiero-selector [modo]="'activos'"
-                [mensajeVacio]="'No hay períodos académicos activos para mostrar.'"
-                (periodoSeleccionado)="onPeriodoChange($event)"
-                (sinPeriodosChange)="sinPeriodos = $event"
-                (errorCargaChange)="errorPeriodos = $event">
-            </app-periodo-financiero-selector>
-        </div>
+        <ng-container *ngIf="vm$ | async as vm">
+            <div class="page-content">
+                <app-opciones-presupuesto [activeTab]="'proyeccion-reporte'" [currentPeriod]="vm.periodoSeleccionado" (onDescargar)="descargar()">
+                </app-opciones-presupuesto>
+        
+                <!-- Selector de Periodo Académico -->
+                <app-periodo-financiero-selector [modo]="'activos'"
+                    [mensajeVacio]="'No hay períodos académicos activos para mostrar.'"
+                    (periodoSeleccionado)="onPeriodoChange($event)"
+                    (sinPeriodosChange)="sinPeriodos = $event"
+                    (errorCargaChange)="errorPeriodos = $event">
+                </app-periodo-financiero-selector>
+            </div>
 
 
-        <!-- Sin datos -->
-        <div *ngIf="!configuracion && !sinPeriodos && !errorPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
-            <i class="pi pi-inbox text-4xl text-400"></i>
-            <span class="text-600 text-lg">Seleccione un período académico para cargar la proyección.</span>
-        </div>
+            <!-- Sin datos -->
+            <div *ngIf="!vm.configuracion && !sinPeriodos && !errorPeriodos" class="flex flex-column align-items-center justify-content-center py-8 gap-3">
+                <i class="pi pi-inbox text-4xl text-400"></i>
+                <span class="text-600 text-lg">Seleccione un período académico para cargar la proyección.</span>
+            </div>
 
-        <!-- Contenido del Reporte -->
-        <div *ngIf="configuracion" class="table-container">
+            <!-- Contenido del Reporte -->
+            <div *ngIf="vm.configuracion" class="table-container">
 
             <!-- Panel de Configuración -->
             <div class="config-panel mb-4">
@@ -33,10 +34,10 @@
                 <div class="config-row">
 
                     <span class="p-float-label">
-                        <p-inputNumber id="float-biblioteca" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.biblioteca"
+                        <p-inputNumber id="float-biblioteca" *ngIf="vm.editandoCabecera" [(ngModel)]="clonedCabecera.biblioteca"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" styleClass="config-input">
                         </p-inputNumber>
-                        <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.biblioteca"
+                        <p-inputNumber *ngIf="!vm.editandoCabecera" [ngModel]="vm.configuracion?.biblioteca"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                             [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
@@ -44,10 +45,10 @@
                     </span>
 
                     <span class="p-float-label">
-                        <p-inputNumber id="float-recursos" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.recursosComputacionales"
+                        <p-inputNumber id="float-recursos" *ngIf="vm.editandoCabecera" [(ngModel)]="clonedCabecera.recursosComputacionales"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" styleClass="config-input">
                         </p-inputNumber>
-                        <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.recursosComputacionales"
+                        <p-inputNumber *ngIf="!vm.editandoCabecera" [ngModel]="vm.configuracion?.recursosComputacionales"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                             [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
@@ -55,10 +56,10 @@
                     </span>
 
                     <span class="p-float-label">
-                        <p-inputNumber id="float-smlv" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.valorSMLV"
+                        <p-inputNumber id="float-smlv" *ngIf="vm.editandoCabecera" [(ngModel)]="clonedCabecera.valorSMLV"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" styleClass="config-input">
                         </p-inputNumber>
-                        <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion.valorSMLV"
+                        <p-inputNumber *ngIf="!vm.editandoCabecera" [ngModel]="vm.configuracion?.valorSMLV"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                             [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
@@ -68,12 +69,12 @@
 
                     <!-- Controles de Edición de Cabecera -->
                     <div class="config-row-actions">
-                        <button *ngIf="!editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
+                        <button *ngIf="!vm.editandoCabecera" pButton pRipple type="button" icon="pi pi-pencil"
                             class="p-button-rounded p-button-text p-button-secondary"
                             pTooltip="Editar configuración" tooltipPosition="top"
                             (click)="onHeaderEditInit()" [disabled]="isAnyEditActive">
                         </button>
-                        <ng-container *ngIf="editandoCabecera">
+                        <ng-container *ngIf="vm.editandoCabecera">
                             <button pButton pRipple type="button" icon="pi pi-check"
                                 class="p-button-rounded p-button-text p-button-success"
                                 pTooltip="Guardar cambios" tooltipPosition="top"
@@ -92,7 +93,7 @@
 
             <!-- Tabla de estudiantes editable -->
             <div class="table-responsive-wrapper">
-                <p-table [value]="estudiantes" dataKey="codigoEstudiante" editMode="row"
+                <p-table [value]="vm.estudiantes" dataKey="codigoEstudiante" editMode="row"
                     responsiveLayout="stack" breakpoint="960px"
                     styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped">
 
@@ -153,11 +154,11 @@
                                         <div class="flex align-items-center justify-content-center gap-2">
                                             <p-checkbox [(ngModel)]="estudiante.aplicaVotacion" [binary]="true">
                                             </p-checkbox>
-                                            <span>{{ configuracion ? (configuracion.porcentajeVotacionFijo * 100 | number:'1.0-0') + '%' : '10%' }}</span>
+                                            <span>{{ vm.configuracion ? (vm.configuracion.porcentajeVotacionFijo * 100 | number:'1.0-0') + '%' : '10%' }}</span>
                                         </div>
                                     </ng-template>
                                     <ng-template pTemplate="output">
-                                        {{ estudiante.aplicaVotacion ? (configuracion ? (configuracion.porcentajeVotacionFijo * 100 | number:'1.0-0') + '%' : '10%') : '0%' }}
+                                        {{ estudiante.aplicaVotacion ? (vm.configuracion ? (vm.configuracion.porcentajeVotacionFijo * 100 | number:'1.0-0') + '%' : '10%') : '0%' }}
                                     </ng-template>
                                 </p-cellEditor>
                             </td>
@@ -191,11 +192,11 @@
                                         <div class="flex align-items-center justify-content-center gap-2">
                                             <p-checkbox [(ngModel)]="estudiante.aplicaEgresado" [binary]="true">
                                             </p-checkbox>
-                                            <span>{{ configuracion ? (configuracion.porcentajeEgresadoFijo * 100 | number:'1.0-0') + '%' : '5%' }}</span>
+                                            <span>{{ vm.configuracion ? (vm.configuracion.porcentajeEgresadoFijo * 100 | number:'1.0-0') + '%' : '5%' }}</span>
                                         </div>
                                     </ng-template>
                                     <ng-template pTemplate="output">
-                                        {{ estudiante.aplicaEgresado ? (configuracion ? (configuracion.porcentajeEgresadoFijo * 100 | number:'1.0-0') + '%' : '5%') : '0%' }}
+                                        {{ estudiante.aplicaEgresado ? (vm.configuracion ? (vm.configuracion.porcentajeEgresadoFijo * 100 | number:'1.0-0') + '%' : '5%') : '0%' }}
                                     </ng-template>
                                 </p-cellEditor>
                             </td>
@@ -263,18 +264,19 @@
             <div class="totales-container mt-3">
                 <div class="total-item">
                     <span class="total-label">Total Neto:</span>
-                    <span class="total-value">{{ totalNetoCalculado | formatCurrency }}</span>
+                    <span class="total-value">{{ vm.totalNetoCalculado | formatCurrency }}</span>
                 </div>
                 <div class="total-item">
                     <span class="total-label">Total Descuentos:</span>
-                    <span class="total-value">{{ totalDescuentosCalculado | formatCurrency }}</span>
+                    <span class="total-value">{{ vm.totalDescuentosCalculado | formatCurrency }}</span>
                 </div>
                 <div class="total-item highlight">
                     <span class="total-label">Ingresos Totales Después de Descuentos:</span>
-                    <span class="total-value">{{ totalIngresosCalculado | formatCurrency }}</span>
+                    <span class="total-value">{{ vm.totalIngresosCalculado | formatCurrency }}</span>
                 </div>
             </div>
         </div>
+        </ng-container>
     </p-card>
 </div>
 

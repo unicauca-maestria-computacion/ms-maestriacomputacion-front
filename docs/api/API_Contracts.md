@@ -1,4 +1,4 @@
-# Contratos de API — ms-maestriacomputacion-front
+﻿# Contratos de API — ms-maestriacomputacion-front
 
 **Fecha:** 2026-05-04
 **Módulos:** gestion-matricula-financiera, gestion-informacion-presupuestaria

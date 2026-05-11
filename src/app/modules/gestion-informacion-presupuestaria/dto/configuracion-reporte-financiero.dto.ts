@@ -16,5 +16,5 @@ export interface ConfiguracionReporteFinancieroDTOPeticion {
     recursosComputacionales: number;
     valorSMLV: number;
     esReporteFinal: boolean;
-    objPeriodoFinanciero?: any;
+    objPeriodoFinanciero?: PeriodoAcademicoDto;
 }

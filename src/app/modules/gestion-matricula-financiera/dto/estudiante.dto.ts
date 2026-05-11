@@ -14,6 +14,7 @@ export interface EstudianteDTORespuesta {
     valorEnSMLV?: number | null;
     esEgresadoUnicauca?: boolean;
     aplicaVotacion?: boolean;
+    grupoNombre?: string;
     becas?: BecasDTORespuesta[];
     descuentos?: BecasDTORespuesta[];
     becasDescuentos: BecasDTORespuesta[];

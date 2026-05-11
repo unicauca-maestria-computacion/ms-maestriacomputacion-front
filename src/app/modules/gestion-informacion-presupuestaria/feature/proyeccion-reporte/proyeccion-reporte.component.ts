@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from '@angular/core';
+import { Observable, Subject, combineLatest, BehaviorSubject } from 'rxjs';
+import { takeUntil, map } from 'rxjs/operators';
 import { MessageService } from 'primeng/api';
 import { GestionInformacionPresupuestariaFacadeService } from '../../data/facade.service';
 import { ConfiguracionReporteFinanciero, ProyeccionEstudiante, ReporteProyeccionEstudiantes } from '../../models/domain-models';
@@ -23,6 +23,21 @@ interface EstudianteProyeccion extends ProyeccionEstudiante {
   totalNeto: number;
 }
 
+interface ProyeccionReporteVM {
+  cargando: boolean;
+  periodoSeleccionado: PeriodoFinancieroDTORespuesta | null;
+  periodoActualTexto: string;
+  configuracion: ConfiguracionReporteFinanciero | null;
+  estudiantes: EstudianteProyeccion[];
+  totalNetoCalculado: number;
+  totalDescuentosCalculado: number;
+  totalIngresosCalculado: number;
+  editandoCabecera: boolean;
+  editingRowKey: string | null;
+  loading: boolean;
+  error: any;
+}
+
 @Component({
   selector: 'app-proyeccion-reporte',
   templateUrl: './proyeccion-reporte.component.html',
@@ -34,32 +49,46 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  cargando: boolean = false;
-  guardando: boolean = false;
+  vm$: Observable<ProyeccionReporteVM>;
+
+  // Local state for component-specific UI state
+  private _periodoSeleccionado = new BehaviorSubject<PeriodoFinancieroDTORespuesta | null>(null);
+  private _periodoActualTexto = new BehaviorSubject<string>('');
+  private _configuracion = new BehaviorSubject<ConfiguracionReporteFinanciero | null>(null);
+  private _estudiantes = new BehaviorSubject<EstudianteProyeccion[]>([]);
+  private _totalNeto = new BehaviorSubject<number>(0);
+  private _totalDescuentos = new BehaviorSubject<number>(0);
+  private _totalIngresos = new BehaviorSubject<number>(0);
+  private _editandoCabecera = new BehaviorSubject<boolean>(false);
+  private _editingRowKey = new BehaviorSubject<string | null>(null);
+
   periodoSeleccionado: PeriodoFinancieroDTORespuesta | null = null;
-  periodoActualTexto: string = '';
-  sinPeriodos: boolean = false;
-  errorPeriodos: boolean = false;
-
-  configuracion: ConfiguracionReporteFinanciero | null = null;
-  estudiantes: EstudianteProyeccion[] = [];
   clonedEstudiantes: { [s: string]: EstudianteProyeccion; } = {};
-
-  totalNetoCalculado: number = 0;
-  totalDescuentosCalculado: number = 0;
-  totalIngresosCalculado: number = 0;
-
-  editandoCabecera: boolean = false;
   clonedCabecera: Partial<ConfiguracionReporteFinanciero> = {};
+  editandoCabecera: boolean = false;
   editingRowKey: string | null = null;
 
   constructor(
     private messageService: MessageService,
     private facadeService: GestionInformacionPresupuestariaFacadeService,
-    private cdr: ChangeDetectorRef,
     private totalesService: TotalesReporteService,
     private loadingService: LoadingService
-  ) { }
+  ) {
+    this.vm$ = combineLatest({
+      cargando: this.facadeService.loading$,
+      periodoSeleccionado: this._periodoSeleccionado.asObservable(),
+      periodoActualTexto: this._periodoActualTexto.asObservable(),
+      configuracion: this._configuracion.asObservable(),
+      estudiantes: this._estudiantes.asObservable(),
+      totalNetoCalculado: this._totalNeto.asObservable(),
+      totalDescuentosCalculado: this._totalDescuentos.asObservable(),
+      totalIngresosCalculado: this._totalIngresos.asObservable(),
+      editandoCabecera: this._editandoCabecera.asObservable(),
+      editingRowKey: this._editingRowKey.asObservable(),
+      loading: this.facadeService.loading$,
+      error: this.facadeService.error$
+    });
+  }
 
   get isAnyEditActive(): boolean {
     return this.editandoCabecera || this.editingRowKey !== null;
@@ -78,68 +107,73 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     const tagPeriodo = periodo?.tagPeriodo ?? periodo?.periodo ?? undefined;
     const anio = periodo?.anio ?? periodo?.año ?? undefined;
 
-    this.facadeService.obtenerProyeccionEstudiantes(tagPeriodo, anio).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (data) => {
-        this.procesarRespuesta(data);
-        this.loadingService.hide();
-        this.cdr.markForCheck();
-      },
-      error: (_err) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la proyección.' });
-        this.loadingService.hide();
-        this.cdr.markForCheck();
-      }
-    });
+    this.facadeService.obtenerProyeccionEstudiantes(tagPeriodo, anio)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.procesarRespuesta(data);
+          this.loadingService.hide();
+        },
+        error: (_err) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la proyección.' });
+          this.loadingService.hide();
+        }
+      });
   }
 
   procesarRespuesta(data: ReporteProyeccionEstudiantes) {
     if (data.periodo) {
-      this.periodoActualTexto = `${data.periodo.año}-${data.periodo.periodo}`;
+      this._periodoActualTexto.next(`${data.periodo.año}-${data.periodo.periodo}`);
     }
     if (data.objConfiguracion) {
-      this.configuracion = data.objConfiguracion;
+      this._configuracion.next(data.objConfiguracion);
     }
-    if (data.estudiantes && this.configuracion) {
-      this.estudiantes = data.estudiantes.map(e => this.mapearEstudianteProyeccion(e));
+    if (data.estudiantes && data.objConfiguracion) {
+      const estudiantesProyeccion = data.estudiantes.map(e => this.mapearEstudianteProyeccion(e, data.objConfiguracion!));
+      this._estudiantes.next(estudiantesProyeccion);
     }
     const totales = this.totalesService.fromBackend({
       totalNeto: data.totalNeto,
       totalDescuentos: data.totalDescuentos,
       totalIngresos: data.totalIngresos
     });
-    this.totalNetoCalculado      = totales.totalNeto;
-    this.totalDescuentosCalculado = totales.totalDescuentos;
-    this.totalIngresosCalculado  = totales.totalIngresos;
+    this._totalNeto.next(totales.totalNeto);
+    this._totalDescuentos.next(totales.totalDescuentos);
+    this._totalIngresos.next(totales.totalIngresos);
   }
 
   actualizarSoloFilaModificada(data: ReporteProyeccionEstudiantes): void {
     if (data.objConfiguracion) {
-      this.configuracion = data.objConfiguracion;
+      this._configuracion.next(data.objConfiguracion);
     }
     if (data.periodo) {
-      this.periodoActualTexto = `${data.periodo.año}-${data.periodo.periodo}`;
+      this._periodoActualTexto.next(`${data.periodo.año}-${data.periodo.periodo}`);
     }
-    if (!data.estudiantes || !this.configuracion || data.estudiantes.length === 0) return;
+    if (!data.estudiantes || !data.objConfiguracion || data.estudiantes.length === 0) return;
+    
+    const currentEstudiantes = this._estudiantes.value;
     for (const e of data.estudiantes) {
-      const actualizado = this.mapearEstudianteProyeccion(e);
-      const index = this.findIndexById(e.codigoEstudiante);
-      if (index >= 0) {
-        this.estudiantes[index] = actualizado;
+      const actualizado = this.mapearEstudianteProyeccion(e, data.objConfiguracion);
+      const idx = currentEstudiantes.findIndex(est => est.codigoEstudiante === actualizado.codigoEstudiante);
+      if (idx >= 0) {
+        currentEstudiantes[idx] = actualizado;
       }
     }
+    this._estudiantes.next([...currentEstudiantes]);
+    
     const totales = this.totalesService.fromBackend({
       totalNeto: data.totalNeto,
       totalDescuentos: data.totalDescuentos,
       totalIngresos: data.totalIngresos
     });
-    this.totalNetoCalculado      = totales.totalNeto;
-    this.totalDescuentosCalculado = totales.totalDescuentos;
-    this.totalIngresosCalculado  = totales.totalIngresos;
+    this._totalNeto.next(totales.totalNeto);
+    this._totalDescuentos.next(totales.totalDescuentos);
+    this._totalIngresos.next(totales.totalIngresos);
   }
 
-  private mapearEstudianteProyeccion(e: ProyeccionEstudiante): EstudianteProyeccion {
-    const recursosComputacionales = this.configuracion!.recursosComputacionales || 0;
-    const biblioteca = this.configuracion!.biblioteca || 0;
+  private mapearEstudianteProyeccion(e: ProyeccionEstudiante, config: ConfiguracionReporteFinanciero): EstudianteProyeccion {
+    const recursosComputacionales = config.recursosComputacionales || 0;
+    const biblioteca = config.biblioteca || 0;
 
     return {
       ...e,
@@ -157,10 +191,8 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   }
 
   onHeaderEditInit() {
-    if (!this.configuracion) return;
-
     if (this.editingRowKey) {
-      const estudianteEnEdicion = this.estudiantes.find(e => e.codigoEstudiante === this.editingRowKey);
+      const estudianteEnEdicion = this._estudiantes.value.find(e => e.codigoEstudiante === this.editingRowKey);
       const nombre = estudianteEnEdicion?.nombreEstudiante ?? 'un estudiante';
       this.messageService.add({
         severity: 'warn',
@@ -171,38 +203,48 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     }
 
     this.editandoCabecera = true;
-    this.clonedCabecera = { ...this.configuracion };
+    this._editandoCabecera.next(true);
+    
+    const config = this._configuracion.value;
+    if (config) {
+      this.clonedCabecera = { ...config };
+    }
   }
 
   onHeaderEditSave() {
-    if (!this.configuracion) return;
+    const config = this._configuracion.value;
+    if (!config) return;
 
     this.loadingService.show('Actualizando configuración');
     this.editandoCabecera = false;
+    this._editandoCabecera.next(false);
 
     const configUpdate: ConfiguracionReporteFinancieroDTOPeticion = {
       biblioteca: this.clonedCabecera.biblioteca!,
       recursosComputacionales: this.clonedCabecera.recursosComputacionales!,
       valorSMLV: this.clonedCabecera.valorSMLV!,
-      esReporteFinal: this.configuracion.esReporteFinal
+      esReporteFinal: config.esReporteFinal
     };
 
-    this.facadeService.actualizarConfiguracionProyeccion(configUpdate).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (data) => {
-        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Configuración actualizada correctamente' });
-        this.procesarRespuesta(data);
-        this.loadingService.hide();
-        this.clonedCabecera = {};
-      },
-      error: (_err) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar configuración.' });
-        this.loadingService.hide();
-      }
-    });
+    this.facadeService.actualizarConfiguracionProyeccion(configUpdate)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Configuración actualizada correctamente' });
+          this.procesarRespuesta(data);
+          this.loadingService.hide();
+          this.clonedCabecera = {};
+        },
+        error: (_err) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar configuración.' });
+          this.loadingService.hide();
+        }
+      });
   }
 
   onHeaderEditCancel() {
     this.editandoCabecera = false;
+    this._editandoCabecera.next(false);
     this.clonedCabecera = {};
   }
 
@@ -211,6 +253,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       return;
     }
     this.editingRowKey = estudiante.codigoEstudiante;
+    this._editingRowKey.next(this.editingRowKey);
     this.clonedEstudiantes[estudiante.codigoEstudiante] = { ...estudiante };
   }
 
@@ -235,6 +278,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
 
     this.loadingService.show(`Guardando cambios de ${estudiante.nombreEstudiante}`);
     this.editingRowKey = null;
+    this._editingRowKey.next(null);
 
     const proyeccionUpdate: ProyeccionEstudianteDTOPeticion = {
       codigoEstudiante: estudiante.codigoEstudiante,
@@ -254,32 +298,28 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
         delete this.clonedEstudiantes[estudiante.codigoEstudiante];
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estudiante actualizado correctamente' });
         this.loadingService.hide();
-        this.cdr.markForCheck();
       },
       error: (_err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar estudiante.' });
         this.onRowEditCancel(estudiante, this.findIndexById(estudiante.codigoEstudiante));
         this.loadingService.hide();
-        this.cdr.markForCheck();
       }
     });
   }
 
   onRowEditCancel(estudiante: EstudianteProyeccion, index: number) {
-    this.estudiantes[index] = this.clonedEstudiantes[estudiante.codigoEstudiante];
+    const currentEstudiantes = this._estudiantes.value;
+    if (currentEstudiantes && currentEstudiantes[index]) {
+      currentEstudiantes[index] = this.clonedEstudiantes[estudiante.codigoEstudiante];
+      this._estudiantes.next([...currentEstudiantes]);
+    }
     delete this.clonedEstudiantes[estudiante.codigoEstudiante];
     this.editingRowKey = null;
+    this._editingRowKey.next(null);
   }
 
   findIndexById(id: string): number {
-    let index = -1;
-    for (let i = 0; i < this.estudiantes.length; i++) {
-      if (this.estudiantes[i].codigoEstudiante === id) {
-        index = i;
-        break;
-      }
-    }
-    return index;
+    return this._estudiantes.value.findIndex(e => e.codigoEstudiante === id);
   }
 
   onPercentInput(event: Event, estudiante: EstudianteProyeccion, campo: keyof EstudianteProyeccion): void {

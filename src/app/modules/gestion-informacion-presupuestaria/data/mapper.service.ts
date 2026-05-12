@@ -108,19 +108,23 @@ export class GestionInformacionPresupuestariaMapperService {
     }
 
     mappearDeRespuestaAReportePorGrupoFila(dto: ReportePorGrupoDTORespuesta): ReportePorGrupoFila {
+        const porcentajePrimerSemestre = dto.porcentajePrimerSemestre ?? 0;
+        const porcentajeSegundoSemestre = dto.porcentajeSegundoSemestre ?? 0;
+        const participacionPorAnio = dto.participacionPorAnio ?? 0;
+
         return {
             grupoId: dto.grupoId,
             nombreGrupo: dto.nombreGrupo,
             porcentajeParticipacion: dto.porcentajeParticipacion,
-            porcentajePrimerSemestre: dto.porcentajePrimerSemestre ?? dto.porcentajeParticipacion,
-            porcentajeSegundoSemestre: dto.porcentajeSegundoSemestre ?? dto.porcentajeParticipacion,
+            porcentajePrimerSemestre,
+            porcentajeSegundoSemestre,
             vigenciasAnteriores: dto.vigenciasAnteriores,
             presupuestoPorGrupo: dto.presupuestoPorGrupo,
             aportePrimerSemestre: dto.aportePrimerSemestre,
             aporteSegundoSemestre: dto.aporteSegundoSemestre,
-            participacionPrimerSemestre: dto.porcentajePrimerSemestre ?? dto.porcentajeParticipacion,
-            participacionSegundoSemestre: dto.porcentajeSegundoSemestre ?? dto.porcentajeParticipacion,
-            participacionPorAnio: dto.porcentajeParticipacion,
+            participacionPrimerSemestre: porcentajePrimerSemestre,
+            participacionSegundoSemestre: porcentajeSegundoSemestre,
+            participacionPorAnio,
             presupuestoPorGrupoItem1: dto.presupuestoPorGrupoItem1 ?? 0,
             presupuestoPorGrupoItem2: dto.presupuestoPorGrupoItem2 ?? 0,
             imprevistos: dto.imprevistosValor ?? 0,
@@ -137,7 +141,7 @@ export class GestionInformacionPresupuestariaMapperService {
             aUIPorcentaje: dto.auiPorcentaje ?? 0,
             aUIValor: dto.auiValor ?? 0,
             excedentesMaestria: dto.excedentesMaestria ?? 0,
-            ingresosNetos: dto.totalIngresos ?? 0,
+            ingresosNetos: dto.ingresosNetos ?? dto.totalIngresos ?? 0,
             valorADistribuir: dto.valorADistribuir ?? 0,
             item1: dto.item1 ?? 0,
             item2: dto.item2 ?? 0,
@@ -154,18 +158,18 @@ export class GestionInformacionPresupuestariaMapperService {
             ingresoPeriodo1: dto.ingresoPeriodo1 ?? 0,
             ingresoPeriodo2: dto.ingresoPeriodo2 ?? 0,
             transferenciaUnicauca: dto.transferenciaUnicauca ?? 0,
-            totalNeto: dto.valorADistribuir ?? 0,
-            aportePrimerSemestre: dto.ingresoPeriodo1 ?? 0,
-            aporteSegundoSemestre: dto.ingresoPeriodo2 ?? 0,
-            participacionPrimerSemestre: 100,
-            participacionSegundoSemestre: 100,
-            participacionPorAnio: 100,
-            presupuestoPorGrupoItem1: (dto.valorADistribuir ?? 0) * (dto.item1 ?? 0),
-            presupuestoPorGrupoItem2: (dto.valorADistribuir ?? 0) * (dto.item2 ?? 0),
-            presupuestoPorGrupo: dto.valorADistribuir ?? 0,
-            imprevistos: (dto.valorADistribuir ?? 0) * (dto.imprevistos ?? 0),
-            presupuestoPorGrupoImprevistos: dto.valorADistribuir ?? 0,
-            vigenciasAnteriores: filasPorGrupo.reduce((s, f) => s + (f.vigenciasAnteriores ?? 0), 0),
+            totalNeto: dto.totalNeto ?? 0,
+            aportePrimerSemestre: dto.aportePrimerSemestre ?? 0,
+            aporteSegundoSemestre: dto.aporteSegundoSemestre ?? 0,
+            participacionPrimerSemestre: dto.participacionPrimerSemestre ?? 0,
+            participacionSegundoSemestre: dto.participacionSegundoSemestre ?? 0,
+            participacionPorAnio: dto.participacionPorAnio ?? 0,
+            presupuestoPorGrupoItem1: dto.presupuestoPorGrupoItem1 ?? 0,
+            presupuestoPorGrupoItem2: dto.presupuestoPorGrupoItem2 ?? 0,
+            presupuestoPorGrupo: dto.presupuestoPorGrupo ?? 0,
+            imprevistos: dto.imprevistosValor ?? 0,
+            presupuestoPorGrupoImprevistos: dto.presupuestoPorGrupoImprevistos ?? 0,
+            vigenciasAnteriores: dto.vigenciasAnteriores ?? 0,
             objConfiguracionReporteGrupos
         };
     }

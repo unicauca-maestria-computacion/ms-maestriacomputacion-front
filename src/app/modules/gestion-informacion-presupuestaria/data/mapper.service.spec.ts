@@ -230,6 +230,7 @@ describe('GestionInformacionPresupuestariaMapperService', () => {
       porcentajeParticipacion: 0.40,
       porcentajePrimerSemestre: 0.40,
       porcentajeSegundoSemestre: 0.40,
+      participacionPorAnio: 0.40,
       vigenciasAnteriores: 100000,
       presupuestoPorGrupo: 4000000,
       presupuestoPorGrupoItem1: 2000000,
@@ -254,6 +255,7 @@ describe('GestionInformacionPresupuestariaMapperService', () => {
     expect(result.presupuestoPorGrupoItem1).toBe(2000000);
     expect(result.presupuestoPorGrupoItem2).toBe(1500000);
     expect(result.imprevistos).toBe(200000);
+    expect(result.participacionPorAnio).toBe(0.40);
   });
 
   // ─── ReportePorGrupos ─────────────────────────────────────────────────────────
@@ -265,6 +267,7 @@ describe('GestionInformacionPresupuestariaMapperService', () => {
       porcentajeParticipacion: 0.40,
       porcentajePrimerSemestre: 0.40,
       porcentajeSegundoSemestre: 0.40,
+      participacionPorAnio: 0.40,
       vigenciasAnteriores: 100000,
       presupuestoPorGrupo: 4000000,
       presupuestoPorGrupoItem1: 2000000,
@@ -292,6 +295,18 @@ describe('GestionInformacionPresupuestariaMapperService', () => {
       totalIngresos: 10000000,
       valorADistribuir: 8000000,
       transferenciaUnicauca: 200000,
+      totalNeto: 8000000,
+      aportePrimerSemestre: 5000000,
+      aporteSegundoSemestre: 5000000,
+      participacionPrimerSemestre: 1,
+      participacionSegundoSemestre: 1,
+      participacionPorAnio: 1,
+      presupuestoPorGrupoItem1: 2400000,
+      presupuestoPorGrupoItem2: 1600000,
+      presupuestoPorGrupo: 8000000,
+      imprevistosValor: 400000,
+      presupuestoPorGrupoImprevistos: 7600000,
+      vigenciasAnteriores: 100000,
       reportesPorGrupo: [grupoDto],
       gastosGenerales: [gastoDto],
       idConfiguracionReporteGrupos: 3
@@ -310,6 +325,8 @@ describe('GestionInformacionPresupuestariaMapperService', () => {
     expect(result.anio).toBe(2024);
     expect(result.esEditable).toBeTrue();
     expect(result.totalNeto).toBe(8000000);
+    expect(result.filasPorGrupo[0].participacionPorAnio).toBe(0.40);
+    expect(result.participacionPorAnio).toBe(1);
   });
 
   it('shouldMapReportePorGruposWithEmptyArraysWhenDtoHasNullCollections', () => {

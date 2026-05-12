@@ -96,7 +96,7 @@ export interface ReportePorGrupoFila {
     presupuestoPorGrupo: number;
     aportePrimerSemestre: number;
     aporteSegundoSemestre: number;
-    // Campos calculados/derivados usados por componentes y excel
+    // Campos agregados recibidos del backend y usados por componentes y excel
     participacionPrimerSemestre: number;
     participacionSegundoSemestre: number;
     participacionPorAnio: number;
@@ -115,7 +115,7 @@ export interface ReportePorGrupos {
     esEditable?: boolean;
     ingresoPeriodo1?: number;
     ingresoPeriodo2?: number;
-    // Campos agregados usados por componentes y excel
+    // Campos agregados recibidos del backend y usados por componentes y excel
     totalNeto: number;
     aportePrimerSemestre: number;
     aporteSegundoSemestre: number;

@@ -161,6 +161,16 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     if (config.item2 != null && config.item2 <= 1) config.item2 = config.item2 * 100;
     if (config.imprevistos != null && config.imprevistos <= 1) config.imprevistos = config.imprevistos * 100;
 
+    if (data.participacionPrimerSemestre != null && data.participacionPrimerSemestre <= 2) {
+      data.participacionPrimerSemestre = Math.round(data.participacionPrimerSemestre * 10000) / 100;
+    }
+    if (data.participacionSegundoSemestre != null && data.participacionSegundoSemestre <= 2) {
+      data.participacionSegundoSemestre = Math.round(data.participacionSegundoSemestre * 10000) / 100;
+    }
+    if (data.participacionPorAnio != null && data.participacionPorAnio <= 2) {
+      data.participacionPorAnio = Math.round(data.participacionPorAnio * 10000) / 100;
+    }
+
     if (data.filasPorGrupo) {
       for (const fila of data.filasPorGrupo) {
         if (fila.porcentajePrimerSemestre != null && fila.porcentajePrimerSemestre <= 1) {
@@ -169,7 +179,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
         if (fila.porcentajeSegundoSemestre != null && fila.porcentajeSegundoSemestre <= 1) {
           fila.porcentajeSegundoSemestre = Math.round(fila.porcentajeSegundoSemestre * 10000) / 100;
         }
-        if (fila.participacionPorAnio != null && fila.participacionPorAnio <= 1) {
+        if (fila.participacionPorAnio != null && fila.participacionPorAnio <= 2) {
           fila.participacionPorAnio = Math.round(fila.participacionPorAnio * 10000) / 100;
         }
       }
@@ -182,7 +192,13 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       ? grupos.map(g => ({ nombre: g.nombreGrupo, grupoId: g.grupoId }))
       : [{ nombre: 'Total', grupoId: 0 }];
 
-    const concepts: { label: string, key: keyof ReportePorGrupoFila, isPercentage: boolean, isEditable: boolean }[] = [
+    const concepts: {
+      label: string,
+      key: keyof ReportePorGrupoFila,
+      totalKey?: keyof ReportePorGrupos,
+      isPercentage: boolean,
+      isEditable: boolean
+    }[] = [
       { label: 'Total Neto', key: 'totalNeto', isPercentage: false, isEditable: false },
       { label: 'Aporte grupo primer semestre', key: 'aportePrimerSemestre', isPercentage: false, isEditable: false },
       { label: 'Aporte grupo segundo semestre', key: 'aporteSegundoSemestre', isPercentage: false, isEditable: false },
@@ -191,15 +207,22 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       { label: 'Participación por año', key: 'participacionPorAnio', isPercentage: true, isEditable: false }
     ];
 
+    const totalKeys: Partial<Record<keyof ReportePorGrupoFila, keyof ReportePorGrupos>> = {
+      porcentajePrimerSemestre: 'participacionPrimerSemestre',
+      porcentajeSegundoSemestre: 'participacionSegundoSemestre',
+      participacionPorAnio: 'participacionPorAnio'
+    };
+
     this.tableRows = concepts.map(concept => {
       const values: { [groupName: string]: number } = {};
+      const totalKey = concept.totalKey ?? totalKeys[concept.key] ?? (concept.key as keyof ReportePorGrupos);
       if (grupos.length > 0) {
         grupos.forEach(g => { values[g.nombreGrupo] = (g[concept.key] as number) ?? 0; });
       } else {
-        values['Total'] = (data[concept.key as keyof ReportePorGrupos] as number) ?? 0;
+        values['Total'] = (data[totalKey] as number) ?? 0;
       }
 
-      const total = (data[concept.key as keyof ReportePorGrupos] as number) ?? 0;
+      const total = (data[totalKey] as number) ?? 0;
 
       return {
         concept: concept.label,

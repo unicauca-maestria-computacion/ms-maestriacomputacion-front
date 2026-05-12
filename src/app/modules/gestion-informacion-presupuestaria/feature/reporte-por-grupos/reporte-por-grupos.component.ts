@@ -514,13 +514,13 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   onIngresosEditInit() {
     if (this.isAnyEditActive) return;
     this.editandoIngresos = true;
-    this.clonedIngresos = this.configuracion!.objConfiguracionReporteGrupos.ingresosNetos;
+    this.clonedIngresos = this.configuracion!.totalIngresos;
   }
 
   onIngresosEditSave() {
     this.guardandoIngresos = true;
     this.editandoIngresos = false;
-    this.configuracion!.objConfiguracionReporteGrupos.ingresosNetos = this.clonedIngresos;
+    this.configuracion!.totalIngresos = this.clonedIngresos;
     this.guardandoIngresos = false;
   }
 

@@ -156,6 +156,7 @@ export class GestionInformacionPresupuestariaMapperService {
             esEditable: dto.esEditable ?? false,
             ingresoPeriodo1: dto.ingresoPeriodo1 ?? 0,
             ingresoPeriodo2: dto.ingresoPeriodo2 ?? 0,
+            totalIngresos: dto.totalIngresos ?? 0,
             transferenciaUnicauca: dto.transferenciaUnicauca ?? 0,
             totalNeto: dto.totalNeto ?? dto.valorADistribuir ?? 0,
             aportePrimerSemestre: dto.aportePrimerSemestre ?? dto.ingresoPeriodo1 ?? 0,

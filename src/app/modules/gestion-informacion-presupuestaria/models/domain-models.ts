@@ -117,6 +117,7 @@ export interface ReportePorGrupos {
     esEditable?: boolean;
     ingresoPeriodo1?: number;
     ingresoPeriodo2?: number;
+    totalIngresos: number;
     // Campos agregados usados por componentes y excel
     totalNeto: number;
     aportePrimerSemestre: number;

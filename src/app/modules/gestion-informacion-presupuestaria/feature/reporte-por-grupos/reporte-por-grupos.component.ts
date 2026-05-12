@@ -161,6 +161,22 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     if (config.item2 != null && config.item2 <= 1) config.item2 = config.item2 * 100;
     if (config.imprevistos != null && config.imprevistos <= 1) config.imprevistos = config.imprevistos * 100;
 
+    if (data.porcentajePrimerSemestre != null && data.porcentajePrimerSemestre <= 1) {
+      data.porcentajePrimerSemestre = Math.round(data.porcentajePrimerSemestre * 10000) / 100;
+    }
+    if (data.porcentajeSegundoSemestre != null && data.porcentajeSegundoSemestre <= 1) {
+      data.porcentajeSegundoSemestre = Math.round(data.porcentajeSegundoSemestre * 10000) / 100;
+    }
+    if (data.participacionPrimerSemestre != null && data.participacionPrimerSemestre <= 1) {
+      data.participacionPrimerSemestre = Math.round(data.participacionPrimerSemestre * 10000) / 100;
+    }
+    if (data.participacionSegundoSemestre != null && data.participacionSegundoSemestre <= 1) {
+      data.participacionSegundoSemestre = Math.round(data.participacionSegundoSemestre * 10000) / 100;
+    }
+    if (data.participacionPorAnio != null && data.participacionPorAnio <= 1) {
+      data.participacionPorAnio = Math.round(data.participacionPorAnio * 10000) / 100;
+    }
+
     if (data.filasPorGrupo) {
       for (const fila of data.filasPorGrupo) {
         if (fila.porcentajePrimerSemestre != null && fila.porcentajePrimerSemestre <= 1) {

@@ -121,6 +121,8 @@ export interface ReportePorGrupos {
     totalNeto: number;
     aportePrimerSemestre: number;
     aporteSegundoSemestre: number;
+    porcentajePrimerSemestre: number;
+    porcentajeSegundoSemestre: number;
     participacionPrimerSemestre: number;
     participacionSegundoSemestre: number;
     participacionPorAnio: number;

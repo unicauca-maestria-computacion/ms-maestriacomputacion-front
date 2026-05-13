@@ -1,4 +1,4 @@
-﻿# Contratos de API — ms-maestriacomputacion-front
+# Contratos de API — ms-maestriacomputacion-front
 
 **Fecha:** 2026-05-04
 **Módulos:** gestion-matricula-financiera, gestion-informacion-presupuestaria
@@ -253,7 +253,21 @@ interface ConsultaReportePorGruposDTORespuesta {
   item2: number;               // ratio 0-1
   imprevistos: number;         // ratio 0-1
   totalIngresos: number;
+  ingresosNetos?: number;
+  totalGastosGenerales?: number;
   valorADistribuir: number;
+  totalItem1?: number;
+  totalItem2?: number;
+  totalImprevistos?: number;
+  totalVigenciasAnteriores?: number;
+  totalNeto?: number;
+  aportePrimerSemestre?: number;
+  aporteSegundoSemestre?: number;
+  porcentajePrimerSemestre?: number;
+  porcentajeSegundoSemestre?: number;
+  participacionPrimerSemestre?: number;
+  participacionSegundoSemestre?: number;
+  participacionPorAnio?: number;
   transferenciaUnicauca?: number;
   reportesPorGrupo: ReportePorGrupoDTORespuesta[];
   gastosGenerales: GastoGeneralDTORespuesta[];

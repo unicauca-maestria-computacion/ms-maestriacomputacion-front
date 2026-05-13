@@ -62,7 +62,7 @@
                             styleClass="config-input">
                         </p-inputNumber>
                         <p-inputNumber *ngIf="!editandoIngresos"
-                            [ngModel]="configuracion.objConfiguracionReporteGrupos.ingresosNetos"
+                            [ngModel]="configuracion.totalIngresos"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                             [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>

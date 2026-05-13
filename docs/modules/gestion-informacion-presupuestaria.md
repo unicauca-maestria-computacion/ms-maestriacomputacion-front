@@ -1,4 +1,4 @@
-﻿# Documentación Técnica — Módulo Gestión Información Presupuestaria
+# Documentación Técnica — Módulo Gestión Información Presupuestaria
 
 **Proyecto:** ms-maestriacomputacion-front
 **Módulo:** `gestion-informacion-presupuestaria`
@@ -179,7 +179,15 @@ Distribución del presupuesto entre grupos de investigación.
 | `gastosGenerales` | `GastoGeneral[]` | Gastos generales del período |
 | `objConfiguracionReporteGrupos` | `ConfiguracionReporteGrupos` | Configuración de distribución |
 | `esEditable` | `boolean?` | Si el período permite edición |
+| `totalIngresos` | `number` | Total de ingresos obtenidos |
 | `totalNeto` | `number` | Total neto a distribuir |
+| `aportePrimerSemestre` | `number` | Total de aportes del primer semestre |
+| `aporteSegundoSemestre` | `number` | Total de aportes del segundo semestre |
+| `porcentajePrimerSemestre` | `number` | Porcentaje general primer semestre |
+| `porcentajeSegundoSemestre` | `number` | Porcentaje general segundo semestre |
+| `participacionPrimerSemestre` | `number` | Participación general primer semestre |
+| `participacionSegundoSemestre` | `number` | Participación general segundo semestre |
+| `participacionPorAnio` | `number` | Participación general anual |
 
 ### `GastoGeneral`
 | Campo | Tipo | Descripción |

@@ -50,13 +50,28 @@
             [options]="estadosMatricula"
             optionLabel="label"
             optionValue="value"
-            [ngModel]="'TODOS'"
+            [ngModel]="estadoFiltro$ | async"
             placeholder=" "
             styleClass="custom-dropdown"
             (onChange)="onEstadoChange($event.value)"
             aria-label="Filtrar por estado de matrícula">
           </p-dropdown>
           <label for="estado-selector">Estado de matrícula</label>
+        </span>
+
+        <span class="p-float-label">
+          <p-dropdown
+            inputId="semestre-selector"
+            [options]="vm.semestres"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="semestreFiltro$ | async"
+            placeholder=" "
+            styleClass="custom-dropdown"
+            (onChange)="onSemestreChange($event.value)"
+            aria-label="Filtrar por semestre financiero">
+          </p-dropdown>
+          <label for="semestre-selector">Semestre financiero</label>
         </span>
       </div>
     </div>

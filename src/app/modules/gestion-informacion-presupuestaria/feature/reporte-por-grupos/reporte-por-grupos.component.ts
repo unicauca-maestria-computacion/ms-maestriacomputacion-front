@@ -199,7 +199,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     const auiValor = (configAny['aUIValor'] ?? configAny['auivalor']) as number | undefined;
     this.distributionSummary = [
       { label: 'AUI Universidad', value: auiValor ?? 0 },
-      { label: 'Ingresos Netos', value: config.ingresosNetos },
+      { label: 'Ingresos Matrículas', value: data.totalIngresos },
       { label: 'Transferencia Unicauca', value: data.transferenciaUnicauca ?? 0 },
       { label: 'Excedentes Maestria', value: config.excedentesMaestria },
       { label: 'Valor a Distribuir (Ingresos-Gastos)', value: config.valorADistribuir, isBold: true }
@@ -502,13 +502,13 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   onIngresosEditInit() {
     if (this.isAnyEditActive) return;
     this.editandoIngresos = true;
-    this.clonedIngresos = this.configuracion!.objConfiguracionReporteGrupos.ingresosNetos;
+    this.clonedIngresos = this.configuracion!.totalIngresos;
   }
 
   onIngresosEditSave() {
     this.guardandoIngresos = true;
     this.editandoIngresos = false;
-    this.configuracion!.objConfiguracionReporteGrupos.ingresosNetos = this.clonedIngresos;
+    this.configuracion!.totalIngresos = this.clonedIngresos;
     this.guardandoIngresos = false;
   }
 

@@ -26,7 +26,13 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
     readonly busqueda$ = new Subject<string>();
     readonly estadoFiltro$ = new BehaviorSubject<string>('TODOS');
-    readonly vm$ = this.facadeService.vm$;
+    readonly semestreFiltro$ = this.facadeService.semestreSeleccionadoFiltro$;
+    readonly vm$ = this.facadeService.vm$.pipe(
+        map(vm => ({
+            ...vm,
+            semestres: this.obtenerOpcionesSemestre(vm.estudiantes)
+        }))
+    );
 
     readonly estudiantesFiltrados$ = combineLatest({
         estudiantes: this.facadeService.estudiantes$,
@@ -35,9 +41,10 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
             distinctUntilChanged(),
             startWith('')
         ),
-        estado: this.estadoFiltro$
+        estado: this.estadoFiltro$,
+        semestre: this.semestreFiltro$
     }).pipe(
-        map(({ estudiantes, termino, estado }) => {
+        map(({ estudiantes, termino, estado, semestre }) => {
             let resultado = estudiantes;
             if (termino.trim()) {
                 const t = termino.toLowerCase();
@@ -54,6 +61,9 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
                     estado === 'null'  ? e.estaPago == null :
                     true
                 );
+            }
+            if (semestre !== null && semestre !== 0) {
+                resultado = resultado.filter((e: Estudiante) => e.semestreFinanciero === semestre);
             }
             return resultado;
         })
@@ -147,6 +157,10 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
         this.estadoFiltro$.next(valor);
     }
 
+    onSemestreChange(valor: number): void {
+        this.facadeService.setSemestreFiltro(valor);
+    }
+
     verDetalle(estudiante: Estudiante): void {
         this.router.navigate(['detalle', estudiante.codigo], { relativeTo: this.route });
     }
@@ -165,9 +179,20 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
     getPeriodoDropdownLabel(periodo: PeriodoAcademico | null): string {
         if (!periodo) return '';
-        const anio = periodo.año ?? '';
-        const tag = periodo.periodo ?? '';
-        return `${anio}-${tag}`;
+        const anio = (periodo as any)['año'] ?? (periodo as any)['a\u00f1o'] ?? '';
+        const tag = periodo.tagPeriodo ?? periodo.periodo ?? '';
+        return `${anio} - ${tag}`;
+    }
+
+    private obtenerOpcionesSemestre(estudiantes: Estudiante[]): { label: string; value: number }[] {
+        const semestresUnicos = [...new Set((estudiantes ?? []).map(e => e.semestreFinanciero))]
+            .filter((semestre): semestre is number => semestre !== null && semestre !== undefined)
+            .sort((a, b) => a - b);
+
+        return [
+            { label: 'Todos los semestres', value: 0 },
+            ...semestresUnicos.map(s => ({ label: `Semestre ${s}`, value: s }))
+        ];
     }
 
     private mostrarError(detalle: string): void {

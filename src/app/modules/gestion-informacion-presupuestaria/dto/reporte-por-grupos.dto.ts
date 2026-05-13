@@ -41,6 +41,14 @@ export interface ConsultaReportePorGruposDTORespuesta {
     totalItem2?: number;
     totalImprevistos?: number;
     totalVigenciasAnteriores?: number;
+    totalNeto?: number;
+    aportePrimerSemestre?: number;
+    aporteSegundoSemestre?: number;
+    porcentajePrimerSemestre?: number;
+    porcentajeSegundoSemestre?: number;
+    participacionPrimerSemestre?: number;
+    participacionSegundoSemestre?: number;
+    participacionPorAnio?: number;
     transferenciaUnicauca?: number;
     reportesPorGrupo: ReportePorGrupoDTORespuesta[];
 

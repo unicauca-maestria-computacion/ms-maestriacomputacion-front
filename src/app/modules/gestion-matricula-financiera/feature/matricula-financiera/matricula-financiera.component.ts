@@ -9,9 +9,12 @@ import { Estudiante, PeriodoAcademico } from '../../models/domain-models';
 
 interface MatriculaFinancieraVM {
     estudiantes: Estudiante[];
+    estudiantesFiltrados: Estudiante[];
     periodos: PeriodoAcademico[];
+    periodosDropdown: { label: string; value: PeriodoAcademico }[];
     periodoSeleccionado: PeriodoAcademico | null;
     semestreSeleccionado: number | null;
+    semestres: { label: string; value: number }[];
     loading: boolean;
     error: any;
 }
@@ -27,7 +30,6 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
 
     vm$: Observable<MatriculaFinancieraVM>;
-    estudiantesFiltrados$: Observable<Estudiante[]>;
 
     semestres: { label: string; value: number }[] = [];
 
@@ -45,19 +47,21 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
             semestreSeleccionado: this.facadeService.semestreSeleccionadoFiltro$,
             loading: this.facadeService.loading$,
             error: this.facadeService.error$
-        });
-
-        this.estudiantesFiltrados$ = combineLatest({
-            estudiantes: this.facadeService.estudiantes$,
-            semestreSeleccionado: this.facadeService.semestreSeleccionadoFiltro$
         }).pipe(
-            map(({ estudiantes, semestreSeleccionado }) => {
-                return estudiantes.filter(estudiante => {
-                    const cumpleSemestre = semestreSeleccionado === 0 ||
-                                         estudiante.semestreFinanciero === semestreSeleccionado;
-                    return cumpleSemestre;
-                });
-            })
+            map(({ estudiantes, periodos, periodoSeleccionado, semestreSeleccionado, loading, error }) => ({
+                estudiantes,
+                estudiantesFiltrados: this.filtrarEstudiantes(estudiantes, semestreSeleccionado),
+                periodos,
+                periodosDropdown: periodos.map(periodo => ({
+                    label: this.obtenerEtiquetaPeriodo(periodo),
+                    value: periodo
+                })),
+                periodoSeleccionado,
+                semestreSeleccionado,
+                semestres: this.obtenerOpcionesSemestre(estudiantes),
+                loading,
+                error
+            }))
         );
     }
 
@@ -124,11 +128,7 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
     }
 
     extraerSemestres(estudiantes: Estudiante[]): void {
-        const semestresUnicos = [...new Set(estudiantes.map(e => e.semestreFinanciero))].sort((a, b) => a - b);
-        this.semestres = [
-            { label: 'Todos', value: 0 },
-            ...semestresUnicos.map(s => ({ label: `${s}`, value: s }))
-        ];
+        this.semestres = this.obtenerOpcionesSemestre(estudiantes);
 
         const semestreGuardado = this.facadeService.getSemestreFiltro();
         if (semestreGuardado === null) {
@@ -155,6 +155,31 @@ export class MatriculaFinancieraComponent implements OnInit, OnDestroy {
 
     getInputValue(event: Event): string {
         return (event.target as HTMLInputElement).value;
+    }
+
+    private filtrarEstudiantes(estudiantes: Estudiante[], semestreSeleccionado: number | null): Estudiante[] {
+        return (estudiantes ?? []).filter(estudiante =>
+            semestreSeleccionado === null ||
+            semestreSeleccionado === 0 ||
+            estudiante.semestreFinanciero === semestreSeleccionado
+        );
+    }
+
+    private obtenerOpcionesSemestre(estudiantes: Estudiante[]): { label: string; value: number }[] {
+        const semestresUnicos = [...new Set((estudiantes ?? []).map(e => e.semestreFinanciero))]
+            .filter((semestre): semestre is number => semestre !== null && semestre !== undefined)
+            .sort((a, b) => a - b);
+
+        return [
+            { label: 'Todos', value: 0 },
+            ...semestresUnicos.map(s => ({ label: `${s}`, value: s }))
+        ];
+    }
+
+    private obtenerEtiquetaPeriodo(periodo: PeriodoAcademico): string {
+        const anio = (periodo as any)['a\u00f1o'] ?? (periodo.fechaInicio ? new Date(periodo.fechaInicio).getFullYear() : '');
+        const tagPeriodo = periodo.tagPeriodo ?? periodo.periodo ?? '';
+        return `${anio} - ${tagPeriodo}`;
     }
 
     ngOnDestroy(): void {

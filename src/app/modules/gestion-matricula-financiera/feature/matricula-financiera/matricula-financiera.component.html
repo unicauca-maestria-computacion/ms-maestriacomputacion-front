@@ -25,7 +25,7 @@
                                     optionLabel="label"
                                     optionValue="value"
                                     styleClass="w-full md:w-15rem"
-                                    (onChange)="onPeriodoChange()">
+                                    (onChange)="onPeriodoChange($event.value)">
                                 </p-dropdown>
                                 <label for="filtro-periodo">Período Académico</label>
                             </span>
@@ -39,7 +39,7 @@
                                     optionValue="value"
                                     styleClass="w-full md:w-15rem"
                                     placeholder="&nbsp;"
-                                    (onChange)="onFiltroChange()">
+                                    (onChange)="onFiltroChange($event.value)">
                                 </p-dropdown>
                                 <label for="filtro-semestre">Semestre Financiero</label>
                             </span>

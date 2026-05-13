@@ -23,6 +23,14 @@ Este documento detalla los endpoints, DTOs y estructuras JSON utilizadas en los 
   "totalItem2": 13400000, // NUEVO: Suma global Item 2
   "totalImprevistos": 6700000, // NUEVO: Suma global Imprevistos
   "totalVigenciasAnteriores": 12000000, // NUEVO: Suma global Vigencias
+  "totalNeto": 100000000, // NUEVO: Total neto
+  "aportePrimerSemestre": 50000000, // NUEVO: Aporte del semestre 1
+  "aporteSegundoSemestre": 50000000, // NUEVO: Aporte del semestre 2
+  "porcentajePrimerSemestre": 50.0, // NUEVO: Porcentaje del semestre 1
+  "porcentajeSegundoSemestre": 50.0, // NUEVO: Porcentaje del semestre 2
+  "participacionPrimerSemestre": 50.0, // NUEVO: Participación del semestre 1
+  "participacionSegundoSemestre": 50.0, // NUEVO: Participación del semestre 2
+  "participacionPorAnio": 100.0, // NUEVO: Participación anual
   "reportesPorGrupo": [
     {
       "nombreGrupo": "GTI",
@@ -101,6 +109,7 @@ Se añadieron los siguientes campos para permitir la visualización de la fila *
 4.  `totalVigenciasAnteriores`: Reemplaza la suma manual `.reduce()` de las vigencias de cada grupo.
 5.  `ingresosNetos`: Se expuso para mostrar la base real antes de gastos generales.
 6.  `totalGastosGenerales`: Se expuso para centralizar la suma de las categorías de gastos.
+7.  `totalNeto`, `aportePrimerSemestre`, `aporteSegundoSemestre`, `porcentajePrimerSemestre`, `porcentajeSegundoSemestre`, `participacionPrimerSemestre`, `participacionSegundoSemestre`, `participacionPorAnio`: Nuevos campos agregados para delegar al backend los cálculos de porcentajes y totales agregados (evitando errores de redondeo o datos nulos en la UI).
 
 ### ProyeccionEstudianteDTORespuesta
 Se habilitó el campo `estadoMatriculaFinanciera` (boolean) para diferenciar entre una **simulación** (`estaPago`) y un **pago real** en el sistema bancario. 

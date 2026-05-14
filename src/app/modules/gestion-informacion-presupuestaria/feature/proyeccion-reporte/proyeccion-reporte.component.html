@@ -158,7 +158,7 @@
                                         </div>
                                     </ng-template>
                                     <ng-template pTemplate="output">
-                                        {{ estudiante.aplicaVotacion ? (vm.configuracion ? (vm.configuracion.porcentajeVotacionFijo * 100 | number:'1.0-0') + '%' : '10%') : '0%' }}
+                                        {{ estudiante.aplicaVotacion ? (vm.configuracion ? (vm.configuracion.porcentajeVotacionFijo * 100 | number:'1.0-0') + '%' : '10%') : '–' }}
                                     </ng-template>
                                 </p-cellEditor>
                             </td>
@@ -196,7 +196,7 @@
                                         </div>
                                     </ng-template>
                                     <ng-template pTemplate="output">
-                                        {{ estudiante.aplicaEgresado ? (vm.configuracion ? (vm.configuracion.porcentajeEgresadoFijo * 100 | number:'1.0-0') + '%' : '5%') : '0%' }}
+                                        {{ estudiante.aplicaEgresado ? (vm.configuracion ? (vm.configuracion.porcentajeEgresadoFijo * 100 | number:'1.0-0') + '%' : '5%') : '–' }}
                                     </ng-template>
                                 </p-cellEditor>
                             </td>

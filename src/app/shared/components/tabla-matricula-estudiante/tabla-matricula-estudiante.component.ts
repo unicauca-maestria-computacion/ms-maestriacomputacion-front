@@ -12,10 +12,10 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
 
     @Input() estudiante: Estudiante | null = null;
 
-    becaResolucion: string = '-';
+    becaResolucion: string = '–';
     becaPorcentaje: string = '';
-    becaTipo: string = '—';
-    becaEstado: string = '—';
+    becaTipo: string = '–';
+    becaEstado: string = '–';
     becaAvalado: string | null = null;
     descuentoVoto: string = 'NO';
     descuentoEgresado: string = 'NO';
@@ -33,10 +33,10 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
     private procesarDatosFinancieros(): void {
         if (!this.estudiante) return;
 
-        this.becaResolucion = '-';
+        this.becaResolucion = '–';
         this.becaPorcentaje = '';
-        this.becaTipo = '—';
-        this.becaEstado = '—';
+        this.becaTipo = '–';
+        this.becaEstado = '–';
         this.becaAvalado = null;
         
         // Usar los campos booleanos unificados del backend
@@ -53,17 +53,17 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
         if (listaBecas?.length) {
             this.tieneBeca = true;
             const beca = listaBecas[0];
-            this.becaResolucion = beca.resolucion || '-';
+            this.becaResolucion = beca.resolucion || '–';
             this.becaPorcentaje = beca.porcentaje ? `${beca.porcentaje}%` : '';
             this.becaTipo = beca.tipo || '';
-            this.becaEstado = beca.estado || '—';
+            this.becaEstado = beca.estado || '–';
             this.becaAvalado = beca.avaladoConcejo || null;
         } else {
             this.tieneBeca = false;
-            this.becaResolucion = '-';
+            this.becaResolucion = '–';
             this.becaPorcentaje = '';
-            this.becaTipo = '—';
-            this.becaEstado = '—';
+            this.becaTipo = '–';
+            this.becaEstado = '–';
             this.becaAvalado = null;
         }
         

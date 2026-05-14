@@ -1,4 +1,4 @@
-﻿# Documentación — ms-maestriacomputacion-front
+﻿tpod# Documentación — ms-maestriacomputacion-front
 
 **Proyecto:** Sistema de Gestión de Maestría en Computación — Frontend Angular
 **Autor:** Daniel Felipe Contreras Tobar

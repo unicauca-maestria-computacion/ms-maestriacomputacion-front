@@ -1,6 +1,6 @@
 # Contratos de API — ms-maestriacomputacion-front
 
-**Fecha:** 2026-05-04
+**Fecha:** 2026-05-13
 **Módulos:** gestion-matricula-financiera, gestion-informacion-presupuestaria
 
 ---
@@ -369,7 +369,7 @@ interface GastoGeneralDTOPeticion {
 
 ## Notas sobre convenciones
 
-1. **Porcentajes:** El backend usa ratios (0-1). El frontend convierte a porcentajes (0-100) para display y de vuelta a ratio al enviar.
+1. **Porcentajes:** El backend usa ratios (0-1). El frontend utiliza pipes de visualización (`formatPercent`) para mostrarlos como 0-100% sin alterar el valor numérico en el estado.
 2. **Fechas:** Todas las fechas son strings ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`).
 3. **Montos:** Todos los montos monetarios son en COP (pesos colombianos).
 4. **Errores HTTP:** El `AuthInterceptor` maneja 401 (refresh/logout), 403 (forbidden), 404 y 500 globalmente.

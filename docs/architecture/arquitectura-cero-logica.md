@@ -11,7 +11,7 @@ Este documento detalla la transición hacia una arquitectura donde el Frontend a
 ## Cambios Realizados
 
 ### Módulo de Información Presupuestaria
-*   **Centralización de Totales**: Se añadieron campos de totales globales (`totalItem1`, `totalItem2`, `totalImprevistos`, `totalVigenciasAnteriores`) al DTO de respuesta del Backend.
+*   **Centralización de Totales**: Se añadieron campos de totales globales (`totalIngresos`, `totalNeto`, `aportePrimerSemestre`, `aporteSegundoSemestre`, `participacionPorAnio`, etc.) al DTO de respuesta del Backend. Esto elimina la necesidad de sumatorias manuales en el cliente.
 *   **Eliminación de Normalización**: Se eliminó la función `normalizarPorcentajesParaDisplay` que multiplicaba valores por 100 en el cliente.
 *   **Eliminación de Agregaciones Manuales**: Se eliminaron los métodos `.reduce()` que sumaban porcentajes para validación en tiempo real. Ahora el componente espera la respuesta del servidor para actualizar los totales.
 *   **Limpieza de Proyecciones**: Se eliminaron las funciones `toPercent` y `toRatio`, permitiendo que el Backend maneje la escala de los valores recibidos.

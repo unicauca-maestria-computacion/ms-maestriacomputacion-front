@@ -1,4 +1,4 @@
-﻿# Documentación Técnica — Módulo Gestión Matrícula Financiera
+# Documentación Técnica — Módulo Gestión Matrícula Financiera
 
 **Proyecto:** ms-maestriacomputacion-front
 **Módulo:** `gestion-matricula-financiera`
@@ -224,13 +224,20 @@ Pantalla principal del módulo. Muestra la lista de estudiantes matriculados con
 - Paginación (10, 25, 50 registros por página)
 - Navegación al detalle del estudiante
 
-**Flujo de datos:**
+**Flujo de datos reactivo:**
 ```
-ngOnInit → cargarPeriodos() → Facade.obtenerPeriodosAcademicos()
-                            → cargarEstudiantes() → Facade.obtenerEstudiantes(periodo)
-                                                  → extraerSemestres()
-                                                  → aplicarFiltros()
+ngOnInit → vm$ = combineLatest({
+                estudiantes$, periodos$, 
+                periodoSeleccionado$, semestreSeleccionado$
+             }).pipe(
+                map(...) → filtra estudiantes y construye dropdowns reactivamente
+             )
 ```
+
+**Métodos de filtrado:**
+- `filtrarEstudiantes()`: Aplica el filtro de semestre sobre la lista base.
+- `obtenerOpcionesSemestre()`: Extrae dinámicamente los semestres disponibles en los datos.
+- `obtenerEtiquetaPeriodo()`: Construye el label descriptivo para los períodos.
 
 ---
 

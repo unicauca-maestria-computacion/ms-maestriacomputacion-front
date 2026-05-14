@@ -99,7 +99,7 @@
                             </td>
                             <td class="text-center">
                                 <span class="p-column-title font-bold">% Votación</span>
-                                {{ estudiante.porcentajeVotacion | formatPercent:0 }}
+                                {{ (estudiante.porcentajeVotacion && estudiante.porcentajeVotacion > 0) ? (estudiante.porcentajeVotacion | formatPercent:0) : '–' }}
                             </td>
                             <td class="text-center">
                                 <span class="p-column-title font-bold">% Beca</span>
@@ -111,7 +111,7 @@
                             </td>
                             <td class="text-center">
                                 <span class="p-column-title font-bold">% Egresado</span>
-                                {{ estudiante.porcentajeEgresado | formatPercent:0 }}
+                                {{ (estudiante.porcentajeEgresado && estudiante.porcentajeEgresado > 0) ? (estudiante.porcentajeEgresado | formatPercent:0) : '–' }}
                             </td>
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Rec. Comp.</span>

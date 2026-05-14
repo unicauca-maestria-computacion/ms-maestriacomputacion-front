@@ -460,8 +460,8 @@ stateDiagram-v2
 
 ## 8. Decisiones de Diseño
 
-### Normalización de porcentajes para display
-El backend almacena porcentajes como ratios (0-1), pero la UI los muestra como porcentajes (0-100). El componente `ReportePorGruposComponent` normaliza los valores al recibirlos con `normalizarPorcentajesParaDisplay()` y los convierte de vuelta a ratio al enviarlos con `toRatio()`.
+### Eliminación de normalización manual
+Siguiendo la arquitectura de **"Lógica Cero"**, el componente ya no realiza multiplicaciones por 100 para mostrar porcentajes. Los valores se reciben del backend y se formatean directamente en el HTML utilizando el pipe `formatPercent`, manteniendo la integridad de los datos originales.
 
 ### Separación de lógica de encadenamiento en el Facade
 El método `actualizarConfiguracionProyeccion()` requiere primero obtener el período de proyección, luego obtener el ID de la configuración, y finalmente actualizar. Esta lógica de encadenamiento vive en el Facade (via `switchMap`), no en el ApiService. El ApiService solo tiene métodos HTTP simples.

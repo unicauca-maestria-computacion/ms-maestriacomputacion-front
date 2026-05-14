@@ -1,5 +1,8 @@
 # Contrato de Comunicación Backend-Frontend (Finanzas Maestría)
 
+**Fecha:** 2026-05-13
+**Módulos:** gestion-matricula-financiera, gestion-informacion-presupuestaria
+
 Este documento detalla los endpoints, DTOs y estructuras JSON utilizadas en los módulos de **Matrícula Financiera** e **Información Presupuestaria**, tras la refactorización para centralizar la lógica de negocio en el Backend.
 
 ---

@@ -67,19 +67,19 @@
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
                     <span class="detalle-label">No. Res. de Beca</span>
-                    <span class="detalle-valor">{{ becaResolucion || '—' }}</span>
+                    <span class="detalle-valor">{{ becaResolucion || '–' }}</span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
                     <span class="detalle-label">% Beca</span>
-                    <span class="detalle-valor">{{ becaPorcentaje || '—' }}</span>
+                    <span class="detalle-valor">{{ becaPorcentaje || '–' }}</span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
                     <span class="detalle-label">Tipo de beca</span>
-                    <span class="detalle-valor">{{ becaTipo || '—' }}</span>
+                    <span class="detalle-valor">{{ becaTipo || '–' }}</span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
@@ -90,7 +90,7 @@
                             [value]="becaEstado"
                             [severity]="becaEstado === 'RESUELTA' || becaEstado === 'FINALIZADA' ? 'success' : 'info'">
                         </p-tag>
-                        <ng-template #noBecaStatus>—</ng-template>
+                        <ng-template #noBecaStatus>–</ng-template>
                     </span>
 
                 </div>
@@ -102,11 +102,11 @@
                         <ng-container *ngIf="tieneBeca; else noBecaAval">
                             <p-tag *ngIf="becaAvalado === 'SI'" value="Avalada" severity="success"></p-tag>
                             <p-tag *ngIf="becaAvalado === 'NO'" value="No Avalada" severity="danger"></p-tag>
-                            <span *ngIf="becaAvalado === null">—</span>
+                            <span *ngIf="becaAvalado === null">–</span>
                         </ng-container>
 
 
-                        <ng-template #noBecaAval>—</ng-template>
+                        <ng-template #noBecaAval>–</ng-template>
                     </span>
                 </div>
             </div>
@@ -158,7 +158,7 @@
                         </td>
                         <td>
                             <span class="p-column-title">Docente</span>
-                            {{ materia.objDocente?.nombre || '—' }}
+                            {{ materia.objDocente?.nombre || '–' }}
                         </td>
                         <td>
                             <span class="p-column-title">Grupo Clase</span>

@@ -254,7 +254,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       { label: 'Presupuesto por grupo', key: 'presupuestoPorGrupo', isEditable: false },
       { label: 'Imprevistos', key: 'imprevistos', isEditable: false },
       { label: 'Presupuesto por grupo imprevistos', key: 'presupuestoPorGrupoImprevistos', isEditable: false },
-      { label: 'Vigencias Anteriores', key: 'vigenciasAnteriores', isEditable: false }
+      { label: 'Excedentes Maestría', key: 'vigenciasAnteriores', isEditable: false }
     ];
 
     this.budgetTableRows = budgetConcepts.map(concept => {
@@ -643,7 +643,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       valor: row.values[grupo.nombre] ?? 0
     }));
 
-    this.loadingService.show('Actualizando vigencias anteriores');
+    this.loadingService.show('Actualizando excedentes maestría');
     const ejecutarSecuencial = (index: number) => {
       if (index >= valoresPorGrupo.length) return;
       const { grupoId, valor } = valoresPorGrupo[index];
@@ -657,7 +657,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
               this.procesarDatosTabla(data);
               delete this.clonedBudgetRow[row.key];
               this.editingBudgetRowKey = null;
-              this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Vigencias anteriores actualizadas.' });
+              this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Excedentes maestría actualizados.' });
               this.loadingService.hide();
               this.cdr.markForCheck();
             } else {
@@ -665,7 +665,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
             }
           },
           error: () => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron actualizar las vigencias anteriores.' });
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron actualizar los excedentes maestría.' });
             this.loadingService.hide();
           }
         });

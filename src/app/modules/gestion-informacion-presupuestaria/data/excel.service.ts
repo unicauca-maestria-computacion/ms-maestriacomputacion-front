@@ -346,7 +346,7 @@ export class ExcelService {
             ['Presupuesto Total',        this._formatCurrency(data.presupuestoPorGrupo)],
             ['Imprevistos (Valor)',      this._formatCurrency(data.imprevistos)],
             ['Presupuesto + Imprevistos', this._formatCurrency(data.presupuestoPorGrupoImprevistos)],
-            ['Vigencias Anteriores',    this._formatCurrency(data.vigenciasAnteriores)],
+            ['Excedentes Maestría',    this._formatCurrency(data.vigenciasAnteriores)],
         ];
         itemsRows.forEach(([label, value], i) => {
             const row = ws.addRow([label, value]);
@@ -362,7 +362,7 @@ export class ExcelService {
             'Grupo', 'Total Neto', 'Aporte 1er Sem', 'Aporte 2do Sem',
             'Partic. 1er Sem (%)', 'Partic. 2do Sem (%)', 'Partic. Año (%)',
             'Presup. Item 1', 'Presup. Item 2', 'Presup. Total',
-            'Imprevistos', 'Presup. + Imprevistos', 'Vigencias Anteriores',
+            'Imprevistos', 'Presup. + Imprevistos', 'Excedentes Maestría',
         ];
         const numCols = headers.length;
         const lastCol = this._colLetra(numCols);
@@ -576,7 +576,7 @@ export class ExcelService {
         addDataRow('Presupuesto Ítem 2',     this._formatCurrency(fila.presupuestoPorGrupoItem2));
         addDataRow('Presupuesto Base Total', this._formatCurrency(fila.presupuestoPorGrupo));
         addDataRow('Imprevistos (reserva)',  this._formatCurrency(fila.imprevistos));
-        addDataRow('Vigencias Anteriores',  this._formatCurrency(fila.vigenciasAnteriores));
+        addDataRow('Excedentes Maestría',  this._formatCurrency(fila.vigenciasAnteriores));
         addHighlightRow('Presupuesto Bruto Total', this._formatCurrency(fila.presupuestoPorGrupoImprevistos));
         this._aplicarBordesHoja(ws);
     }

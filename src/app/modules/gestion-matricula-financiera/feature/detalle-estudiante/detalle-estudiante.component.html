@@ -192,22 +192,7 @@
 
     </ng-container>
 
-    <!-- Sección de revisión — SIEMPRE visible -->
-    <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3 mt-3 p-3 banner-revision">
-      <div class="flex align-items-center gap-3">
-        <span class="material-symbols-rounded icon-revision" aria-hidden="true">info</span>
-        <span class="texto-revision">
-          Si tiene dudas sobre su costo de matrícula o no aparece su información, puede solicitar una revisión.
-        </span>
-      </div>
-      <p-button
-        label="Solicitar Revisión"
-        icon="pi pi-send"
-        styleClass="p-button-rounded btn-institucional flex-shrink-0"
-        aria-label="Solicitar revisión de matrícula financiera"
-        (onClick)="solicitarRevision()">
-      </p-button>
-    </div>
+    <!-- No banner-revision here as this is the coordinator view of another student's detail -->
 
   </ng-container>
 </div>

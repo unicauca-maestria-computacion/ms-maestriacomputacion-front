@@ -121,10 +121,10 @@
         </div>
       </p-card>
 
-      <!-- Tarjeta: Becas y Descuentos -->
+      <!-- Tarjeta: Becas -->
       <p-card styleClass="mb-4 uni-card">
         <ng-template pTemplate="header">
-          <app-uni-card-header titulo="Becas y Descuentos Aplicados" icono="sell"></app-uni-card-header>
+          <app-uni-card-header titulo="Becas Aplicadas" icono="sell"></app-uni-card-header>
         </ng-template>
         
         <ng-container *ngIf="est.becasDescuentos?.length; else sinBecas">
@@ -158,7 +158,7 @@
         <ng-template #sinBecas>
           <div class="p-3 text-center" style="color: #777680;">
             <span class="material-symbols-rounded" style="font-size: 36px; vertical-align: middle; margin-right: 8px;">sell</span>
-            <span>No se registran becas o descuentos aplicados para este período.</span>
+            <span>No se registran becas aplicadas para este período.</span>
           </div>
         </ng-template>
       </p-card>

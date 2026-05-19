@@ -286,7 +286,7 @@
                             (input)="onConfigPercentInput($event, 'item1')"
                             class="config-input-percent">
                         <p-inputNumber *ngIf="!editandoItems"
-                            [ngModel]="configuracion.objConfiguracionReporteGrupos.item1"
+                            [ngModel]="item1Display"
                             suffix=" %" [minFractionDigits]="2"
                             [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
@@ -302,7 +302,7 @@
                             (input)="onConfigPercentInput($event, 'item2')"
                             class="config-input-percent">
                         <p-inputNumber *ngIf="!editandoItems"
-                            [ngModel]="configuracion.objConfiguracionReporteGrupos.item2"
+                            [ngModel]="item2Display"
                             suffix=" %" [minFractionDigits]="2"
                             [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
@@ -390,7 +390,7 @@
                             (input)="onConfigPercentInput($event, 'imprevistos')"
                             class="config-input-percent">
                         <p-inputNumber *ngIf="!editandoImprevistos"
-                            [ngModel]="configuracion.objConfiguracionReporteGrupos.imprevistos"
+                            [ngModel]="imprevistosDisplay"
                             suffix=" %" [minFractionDigits]="2"
                             [readonly]="true" [disabled]="true" styleClass="config-input"
                             pTooltip="Reserva del 5% calculada sobre el presupuesto bruto anual del grupo"

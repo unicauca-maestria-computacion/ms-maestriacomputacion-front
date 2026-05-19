@@ -149,6 +149,30 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     return v > 1 ? v : v * 100;
   }
 
+  get item1Display(): number | null {
+    const c = this.configuracion?.objConfiguracionReporteGrupos;
+    if (!c) return null;
+    const v = c.item1;
+    if (typeof v !== 'number') return null;
+    return v > 1 ? v : v * 100;
+  }
+
+  get item2Display(): number | null {
+    const c = this.configuracion?.objConfiguracionReporteGrupos;
+    if (!c) return null;
+    const v = c.item2;
+    if (typeof v !== 'number') return null;
+    return v > 1 ? v : v * 100;
+  }
+
+  get imprevistosDisplay(): number | null {
+    const c = this.configuracion?.objConfiguracionReporteGrupos;
+    if (!c) return null;
+    const v = c.imprevistos;
+    if (typeof v !== 'number') return null;
+    return v > 1 ? v : v * 100;
+  }
+
 
   procesarDatosTabla(data: ReportePorGrupos): void {
     const grupos = data.filasPorGrupo ?? [];
@@ -442,7 +466,10 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   onHeaderEditInit() {
     if (this.isAnyEditActive) return;
     this.editandoCabecera = true;
-    this.clonedCabecera = { ...this.configuracion?.objConfiguracionReporteGrupos };
+    this.clonedCabecera = {
+      ...this.configuracion?.objConfiguracionReporteGrupos,
+      aUIPorcentaje: this.aUIPorcentajeDisplay ?? 0
+    };
   }
 
   onHeaderEditSave() {
@@ -521,8 +548,8 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     if (this.isAnyEditActive) return;
     this.editandoItems = true;
     this.clonedItems = {
-      item1: this.configuracion!.objConfiguracionReporteGrupos.item1,
-      item2: this.configuracion!.objConfiguracionReporteGrupos.item2
+      item1: this.item1Display ?? 0,
+      item2: this.item2Display ?? 0
     };
   }
 
@@ -584,7 +611,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   onImprevistosEditInit() {
     if (this.isAnyEditActive) return;
     this.editandoImprevistos = true;
-    this.clonedImprevistos = this.configuracion!.objConfiguracionReporteGrupos.imprevistos;
+    this.clonedImprevistos = this.imprevistosDisplay ?? 0;
   }
 
   onImprevistosEditSave() {

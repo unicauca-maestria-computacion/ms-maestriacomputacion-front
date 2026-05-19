@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { BecaFinanciera, Materia, PeriodoAcademico } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../data/facade.service';
+import { RadicarService } from '../../../gestion-solicitudes/services/radicar.service';
 import { getEstadoMatriculaSeverity, getEstadoMatriculaLabel } from '../../utils/estado-matricula.utils';
 
 @Component({
@@ -33,6 +34,7 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private router: Router,
         private facadeService: GestionMatriculaFinancieraFacadeService,
+        private radicarService: RadicarService,
         private messageService: MessageService,
         private cdr: ChangeDetectorRef
     ) {}
@@ -65,6 +67,13 @@ export class DetalleEstudianteComponent implements OnInit, OnDestroy {
 
     volverAlListado(): void {
         this.router.navigate(['/gestion-matricula-financiera']);
+    }
+
+    /** Navega al flujo de radicación con RE_MATR preseleccionado */
+    solicitarRevision(): void {
+        this.radicarService.restrablecerValores();
+        this.radicarService.codigoSolicitudPreseleccionado = 'RE_MATR';
+        this.router.navigate(['/gestionsolicitudes/portafolio/radicar']);
     }
 
     trackByBeca(index: number, beca: BecaFinanciera): string {

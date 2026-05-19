@@ -73,6 +73,10 @@ Se adaptaron las vistas de los estudiantes para reflejar un esquema visual limpi
     *   **Pendiente (`null` / `undefined`):** Amarillo institucional (`--color-warning` / `#FFB000`).
 2.  **Tarjeta de Solicitud de Revisión (Vista Coordinador):**
     *   Integración de una tarjeta de control (`p-card`) estilizada en el detalle del estudiante (`detalle-estudiante.component.html`), permitiendo al coordinador iniciar y enviar revisiones con botones que utilizan la paleta corporativa y micro-interacciones hover consistentes.
+3.  **Rediseño de la Tarjeta de Becas y Descuentos (Estudiante y Coordinador):**
+    *   Se eliminó la restricción de ocultar la tarjeta de Becas y Descuentos cuando el estudiante no posee beneficios en el período activo.
+    *   Se rediseñó para ser **siempre visible**, incorporando un contenedor de estado vacío con un icono semántico (`sell`) y un mensaje informativo de alta legibilidad (*"No se registran becas o descuentos aplicados para este período."*). Esto evita la incertidumbre y garantiza la consistencia visual y estructural de la ficha académica.
+    *   Los badges de estado para las becas resueltas/finalizadas ahora se muestran con colores de estado e iconos normalizados en ambas interfaces.
 
 ### B. Módulo de Información Presupuestaria
 1.  **Estandarización Terminológica ("Excedentes Maestría"):**

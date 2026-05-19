@@ -122,35 +122,45 @@
       </p-card>
 
       <!-- Tarjeta: Becas y Descuentos -->
-      <p-card styleClass="mb-4 uni-card" *ngIf="est.becasDescuentos?.length">
+      <p-card styleClass="mb-4 uni-card">
         <ng-template pTemplate="header">
           <app-uni-card-header titulo="Becas y Descuentos Aplicados" icono="sell"></app-uni-card-header>
         </ng-template>
-        <ng-container *ngFor="let beca of est.becasDescuentos; trackBy: trackByBeca; let i = index">
-          <div class="grid p-2" [class.border-top-separator]="i > 0">
-            <div class="col-12 md:col-3 mb-2">
-              <span class="campo-label">Tipo</span>
-              <span class="campo-valor">{{ beca.tipo }}</span>
-            </div>
-            <div class="col-12 md:col-3 mb-2">
-              <span class="campo-label">Porcentaje</span>
-              <span class="campo-valor">{{ beca.porcentaje }}%</span>
-            </div>
-            <div class="col-12 md:col-3 mb-2">
-              <span class="campo-label">Resolución</span>
-              <span class="campo-valor">{{ beca.resolucion }}</span>
-            </div>
-            <div class="col-12 md:col-3 mb-2">
-              <span class="campo-label">Estado</span>
-              <div class="mt-1">
-                <app-uni-status-badge 
-                  [labelOverride]="beca.estado"
-                  [status]="beca.estado === 'RESUELTA' || beca.estado === 'FINALIZADA'">
-                </app-uni-status-badge>
+        
+        <ng-container *ngIf="est.becasDescuentos?.length; else sinBecas">
+          <ng-container *ngFor="let beca of est.becasDescuentos; trackBy: trackByBeca; let i = index">
+            <div class="grid p-2" [class.border-top-separator]="i > 0">
+              <div class="col-12 md:col-3 mb-2">
+                <span class="campo-label">Tipo</span>
+                <span class="campo-valor">{{ beca.tipo }}</span>
+              </div>
+              <div class="col-12 md:col-3 mb-2">
+                <span class="campo-label">Porcentaje</span>
+                <span class="campo-valor">{{ beca.porcentaje }}%</span>
+              </div>
+              <div class="col-12 md:col-3 mb-2">
+                <span class="campo-label">Resolución</span>
+                <span class="campo-valor">{{ beca.resolucion }}</span>
+              </div>
+              <div class="col-12 md:col-3 mb-2">
+                <span class="campo-label">Estado</span>
+                <div class="mt-1">
+                  <app-uni-status-badge 
+                    [labelOverride]="beca.estado"
+                    [status]="beca.estado === 'RESUELTA' || beca.estado === 'FINALIZADA'">
+                  </app-uni-status-badge>
+                </div>
               </div>
             </div>
-          </div>
+          </ng-container>
         </ng-container>
+        
+        <ng-template #sinBecas>
+          <div class="p-3 text-center" style="color: #777680;">
+            <span class="material-symbols-rounded" style="font-size: 36px; vertical-align: middle; margin-right: 8px;">sell</span>
+            <span>No se registran becas o descuentos aplicados para este período.</span>
+          </div>
+        </ng-template>
       </p-card>
 
       <!-- Tarjeta: Materias Matriculadas -->

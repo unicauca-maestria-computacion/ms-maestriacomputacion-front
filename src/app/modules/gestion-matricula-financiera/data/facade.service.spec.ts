@@ -46,7 +46,7 @@ describe('GestionMatriculaFinancieraFacadeService', () => {
   beforeEach(() => {
     apiSpy = jasmine.createSpyObj<GestionMatriculaFinancieraApiService>(
       'GestionMatriculaFinancieraApiService',
-      ['obtenerEstudiantes', 'obtenerEstudiante', 'obtenerPeriodosAcademicos', 'iniciarNuevaMatriculaFinanciera']
+      ['obtenerEstudiantes', 'obtenerEstudiante', 'obtenerPeriodosAcademicos']
     );
     mapperSpy = jasmine.createSpyObj<GestionMatriculaFinancieraMapperService>(
       'GestionMatriculaFinancieraMapperService',

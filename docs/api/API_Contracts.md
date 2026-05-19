@@ -79,15 +79,6 @@ interface PeriodoAcademicoDTORespuesta {
 
 ---
 
-### POST `/gestion-matricula-financiera/iniciar`
-
-**Descripción:** Inicia un nuevo proceso de matrícula financiera.
-
-**Request:** `{}` (body vacío)
-
-**Response:** `boolean`
-
----
 
 ### GET `/gestion-matricula-financiera/estudiantes/{codigo}/descuento-voto`
 

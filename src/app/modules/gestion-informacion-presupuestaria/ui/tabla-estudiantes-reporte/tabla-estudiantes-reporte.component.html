@@ -179,9 +179,8 @@
                         (click)="rowEditInit.emit(estudiante)"
                         class="p-button-rounded p-button-text"
                         style="color: #000066; width:36px; height:36px; padding:0;"
-                        [pTooltip]="estudiante.estadoMatriculaFinanciera === null || estudiante.estadoMatriculaFinanciera === undefined ? 'Editar fila' : 'No es posible editar un registro con estado real en MF'" 
+                        [pTooltip]="(estudiante.estadoMatriculaFinanciera === null || estudiante.estadoMatriculaFinanciera === undefined) ? 'Editar fila' : 'Editar fila (El estado de pago no se puede modificar)'" 
                         tooltipPosition="top"
-                        [disabled]="estudiante.estadoMatriculaFinanciera !== null && estudiante.estadoMatriculaFinanciera !== undefined"
                         [attr.aria-label]="'Editar ' + estudiante.nombreEstudiante">
                         <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">edit</span>
                     </button>

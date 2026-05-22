@@ -15,6 +15,9 @@ RUN npm run build --prod
 # Imagen ligera de Nginx para servir el contenido
 FROM nginx:alpine
 
+# Copiar la configuración personalizada de Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Copiar los archivos de compilación de Angular desde el contenedor de construcción
 COPY --from=build /app/dist/maestria-computacion-front /usr/share/nginx/html
 
@@ -23,7 +26,7 @@ COPY ./src/assets/env.template.js /usr/share/nginx/html/assets/env.template.js
 
 # Copiar el script de inicialización que reemplaza las variables de entorno
 COPY ./init.sh /init.sh
-RUN chmod +x /init.sh
+RUN sed -i 's/\r$//' /init.sh && chmod +x /init.sh
 
 # Configurar el script de entrada
 ENTRYPOINT ["/init.sh"]

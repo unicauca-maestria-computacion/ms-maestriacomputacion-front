@@ -9,6 +9,7 @@ import { AuthToken } from '../models/authToken';
 import jwt_decode from 'jwt-decode';
 
 interface Usuario {
+    id?: number;
     username: string;
     email: string;
     role: string[];
@@ -38,6 +39,56 @@ export class AutenticacionService {
         private menuService: MenuService,
         private router: Router
     ) {
+        // Autologin para pruebas/simulación (/coordinador y /estudiante)
+        const href = window.location.href.toLowerCase();
+        if (href.includes('/coordinador/') || href.endsWith('/coordinador')) {
+            const mockUser: Usuario = {
+                id: 1,
+                username: 'alberto',
+                email: 'alberto@unicauca.edu.co',
+                role: ['ROLE_COORDINADOR'],
+                phoneNumber: '3110000000',
+                academicCode: 'DOC001',
+                firstName: 'ALBERTO',
+                lastName: 'COORDINADOR',
+                idType: 'CEDULA_CIUDADANIA',
+                idNumber: '1061700000'
+            };
+            localStorage.setItem('mockAuth', 'true');
+            localStorage.setItem('loggedInUser', JSON.stringify(mockUser));
+            localStorage.setItem('token', 'mock-token-coordinador');
+            this.isLoggedInStatus = true;
+            this.loggedInUser = mockUser;
+            
+            this.menuService.emitAlertLogin();
+            this.loginSuccess$.emit();
+            window.location.replace(window.location.origin + '/#/');
+            return;
+        } else if (href.includes('/estudiante/') || href.endsWith('/estudiante')) {
+            const mockUser: Usuario = {
+                id: 121,
+                username: 'bperdomo',
+                email: 'bperdomo@unicauca.edu.co',
+                role: ['ROLE_ESTUDIANTE'],
+                phoneNumber: '300121',
+                academicCode: '67_1002963109',
+                firstName: 'BRAYAN DANIEL',
+                lastName: 'PERDOMO',
+                idType: 'CEDULA_CIUDADANIA',
+                idNumber: '1002963109'
+            };
+            localStorage.setItem('mockAuth', 'true');
+            localStorage.setItem('loggedInUser', JSON.stringify(mockUser));
+            localStorage.setItem('token', 'mock-token-estudiante');
+            this.isLoggedInStatus = true;
+            this.loggedInUser = mockUser;
+            
+            this.menuService.emitAlertLogin();
+            this.loginSuccess$.emit();
+            window.location.replace(window.location.origin + '/#/');
+            return;
+        }
+
         // Recuperar el usuario autenticado del localStorage al iniciar
         const storedUser = localStorage.getItem('loggedInUser');
         if (storedUser) {
@@ -47,6 +98,11 @@ export class AutenticacionService {
 
         // Suscribirse al estado de autenticación sin sobrescribir loggedInUser
         this.afAuth.authState.subscribe((user) => {
+            // Evitamos cerrar sesión si es una autenticación simulada (mockAuth)
+            if (localStorage.getItem('mockAuth') === 'true') {
+                return;
+            }
+
             if (user && user.email?.endsWith('@unicauca.edu.co')) {
                 this.isLoggedInStatus = true;
 
@@ -156,6 +212,7 @@ export class AutenticacionService {
             localStorage.removeItem('token');
             localStorage.removeItem('est');
             localStorage.removeItem('estEgresado');
+            localStorage.removeItem('mockAuth');
             this.router.navigate(['']);
 
             // Emitir evento de logout

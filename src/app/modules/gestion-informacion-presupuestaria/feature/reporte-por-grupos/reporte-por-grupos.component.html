@@ -187,19 +187,7 @@
                         </p-inputNumber>
                     </div>
 
-                    <div class="config-percent-field">
-                        <label class="config-percent-label">Excedentes Maestría</label>
-                        <p-inputNumber id="float-excedentes"
-                            *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.excedentesMaestria"
-                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            styleClass="config-input">
-                        </p-inputNumber>
-                        <p-inputNumber *ngIf="!editandoCabecera"
-                            [ngModel]="configuracion.objConfiguracionReporteGrupos.excedentesMaestria"
-                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            [readonly]="true" [disabled]="true" styleClass="config-input">
-                        </p-inputNumber>
-                    </div>
+
 
                     <div class="config-percent-field">
                         <label class="config-percent-label">Gastos Generales</label>

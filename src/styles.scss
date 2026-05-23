@@ -324,3 +324,45 @@ p-menubarsub {
     }
 }
 
+// === SISTEMA DE ICONOS INSTITUCIONAL EN NAVBAR (Material Symbols Rounded) ===
+// Transforma las clases pi de la barra de navegación para que utilicen ligaduras de Material Symbols.
+.p-menubar {
+    .p-menuitem-icon.pi {
+        font-family: 'Material Symbols Rounded' !important;
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 20px !important; // Tamaño adecuado para la barra
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+
+        // Mapeo preciso de clases PrimeIcons a ligaduras de Material Symbols Rounded:
+        &.pi-home::before { content: "home" !important; }
+        &.pi-sliders-h::before { content: "settings" !important; }
+        &.pi-user::before { content: "person" !important; }
+        &.pi-clone::before { content: "library_books" !important; }
+        &.pi-inbox::before { content: "inbox" !important; }
+        &.pi-id-card::before { content: "badge" !important; }
+        &.pi-list::before { content: "format_list_bulleted" !important; }
+        &.pi-chart-bar::before { content: "bar_chart" !important; }
+        &.pi-envelope::before { content: "mail" !important; }
+        &.pi-users::before { content: "group" !important; }
+        &.pi-calendar::before { content: "calendar_today" !important; }
+        &.pi-book::before { content: "school" !important; }
+        &.pi-file::before { content: "description" !important; }
+        &.pi-chart-line::before { content: "trending_up" !important; }
+        &.pi-star::before { content: "grade" !important; }
+        &.pi-money-bill::before { content: "payments" !important; }
+        &.pi-sign-out::before { content: "logout" !important; }
+        &.pi-bars::before { content: "menu" !important; }
+        &.pi-question::before { content: "quiz" !important; }
+        &.pi-check-circle::before { content: "check_circle" !important; }
+    }
+}
+

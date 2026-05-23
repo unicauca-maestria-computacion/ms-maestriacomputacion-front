@@ -26,23 +26,21 @@
         </ng-template>
 
         <ng-template pTemplate="body" let-estudiante let-editing="editing" let-ri="rowIndex">
-            <tr [pEditableRow]="editable ? estudiante : null">
-
-                <!-- Pago (Triple Estado: True=Pagado, False=No Pagado, Null=Simulable) -->
+            <tr [pEditableRow]="editable ? estudiante : null">                <!-- Pago (Triple Estado: True=Pagado, De resto=Simulable) -->
                 <td class="text-center">
                     <ng-container *ngIf="editable; else pagoReadonly">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
-                                <!-- ESTADO 3: NULL/UNDEFINED (Simulable mediante Checkbox) -->
-                                <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera === null || estudiante.estadoMatriculaFinanciera === undefined"
+                                <!-- Si el pago es Real True, mostramos el badge PAGADO -->
+                                <app-uni-status-badge *ngIf="estudiante.estadoMatriculaFinanciera === true"
+                                    [status]="true">
+                                </app-uni-status-badge>
+
+                                <!-- De resto (False o Null), mostramos el Checkbox editable -->
+                                <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true"
                                     [(ngModel)]="estudiante.estaPago" [binary]="true"
                                     styleClass="uni-checkbox">
                                 </p-checkbox>
-
-                                <!-- ESTADO 1 y 2: TRUE o FALSE (Fijos desde MF) -->
-                                <app-uni-status-badge *ngIf="estudiante.estadoMatriculaFinanciera === true || estudiante.estadoMatriculaFinanciera === false"
-                                    [status]="estudiante.estadoMatriculaFinanciera">
-                                </app-uni-status-badge>
                             </ng-template>
                             <ng-template pTemplate="output">
                                 <ng-container *ngTemplateOutlet="pagoReadonly"></ng-container>
@@ -51,22 +49,19 @@
                     </ng-container>
                     <ng-template #pagoReadonly>
                         <!-- Visualización de prioridad: Real (MF) > Simulado (estaPago) -->
-                        <ng-container [ngSwitch]="estudiante.estadoMatriculaFinanciera">
-                            <!-- Si es True o False (Real), mostramos ese valor institucional fijo -->
-                            <app-uni-status-badge *ngSwitchCase="true" [status]="true"></app-uni-status-badge>
-                            <app-uni-status-badge *ngSwitchCase="false" [status]="false"></app-uni-status-badge>
-                            
-                            <!-- Si es Null/Undefined, mostramos el checkbox simulado (deshabilitado en modo lectura) -->
-                            <p-checkbox *ngSwitchDefault 
+                        <ng-container *ngIf="estudiante.estadoMatriculaFinanciera === true; else simulableCheckbox">
+                            <app-uni-status-badge [status]="true"></app-uni-status-badge>
+                        </ng-container>
+                        <ng-template #simulableCheckbox>
+                            <p-checkbox 
                                 [ngModel]="estudiante.estaPago" 
                                 [binary]="true" 
                                 [disabled]="true" 
                                 styleClass="uni-checkbox">
                             </p-checkbox>
-                        </ng-container>
+                        </ng-template>
                     </ng-template>
-
-                </td>
+                </td>/td>
 
 
 

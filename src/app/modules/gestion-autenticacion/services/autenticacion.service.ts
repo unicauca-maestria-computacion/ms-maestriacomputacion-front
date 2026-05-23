@@ -1,5 +1,5 @@
 import { gestion_autenticacion } from 'src/environments/environment';
-import { Injectable, EventEmitter } from '@angular/core';
+import { Injectable, EventEmitter, NgZone } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import firebase from 'firebase/compat/app';
 import { Router } from '@angular/router';
@@ -28,6 +28,7 @@ export class AutenticacionService {
     private isLoggedInStatus: boolean = false;
     private userRole: string = '';
     private loggedInUser: Usuario | null = null;
+    private isMockSession: boolean = false;
     loginSuccess$: EventEmitter<void> = new EventEmitter<void>();
     logoutSuccess$: EventEmitter<void> = new EventEmitter<void>();
 
@@ -37,12 +38,21 @@ export class AutenticacionService {
         private afAuth: AngularFireAuth,
         private http: HttpClient,
         private menuService: MenuService,
-        private router: Router
+        private router: Router,
+        private ngZone: NgZone
     ) {
         // Autologin para pruebas/simulación (/coordinador y /estudiante)
         const href = window.location.href.toLowerCase();
-        if (href.includes('/coordinador/') || href.endsWith('/coordinador')) {
-            const mockUser: Usuario = {
+        let isMock = false;
+        let mockUser: Usuario | null = null;
+        let mockToken = '';
+
+        console.log('[AutenticacionService] Constructor inicializado. URL actual:', href);
+
+        if (href.includes('coordinador')) {
+            isMock = true;
+            this.isMockSession = true;
+            mockUser = {
                 id: 1,
                 username: 'alberto',
                 email: 'alberto@unicauca.edu.co',
@@ -54,18 +64,12 @@ export class AutenticacionService {
                 idType: 'CEDULA_CIUDADANIA',
                 idNumber: '1061700000'
             };
-            localStorage.setItem('mockAuth', 'true');
-            localStorage.setItem('loggedInUser', JSON.stringify(mockUser));
-            localStorage.setItem('token', 'mock-token-coordinador');
-            this.isLoggedInStatus = true;
-            this.loggedInUser = mockUser;
-            
-            this.menuService.emitAlertLogin();
-            this.loginSuccess$.emit();
-            window.location.replace(window.location.origin + '/#/');
-            return;
-        } else if (href.includes('/estudiante/') || href.endsWith('/estudiante')) {
-            const mockUser: Usuario = {
+            mockToken = 'mock-token-coordinador';
+            console.log('[AutenticacionService] Detectado acceso directo de Coordinador:', mockUser);
+        } else if (href.includes('estudiante')) {
+            isMock = true;
+            this.isMockSession = true;
+            mockUser = {
                 id: 121,
                 username: 'bperdomo',
                 email: 'bperdomo@unicauca.edu.co',
@@ -77,20 +81,31 @@ export class AutenticacionService {
                 idType: 'CEDULA_CIUDADANIA',
                 idNumber: '1002963109'
             };
+            mockToken = 'mock-token-estudiante';
+            console.log('[AutenticacionService] Detectado acceso directo de Estudiante:', mockUser);
+        }
+
+        if (isMock && mockUser) {
+            console.log('[AutenticacionService] Aplicando sesión simulada en localStorage...');
             localStorage.setItem('mockAuth', 'true');
             localStorage.setItem('loggedInUser', JSON.stringify(mockUser));
-            localStorage.setItem('token', 'mock-token-estudiante');
-            this.isLoggedInStatus = true;
-            this.loggedInUser = mockUser;
+            localStorage.setItem('token', mockToken);
             
-            this.menuService.emitAlertLogin();
-            this.loginSuccess$.emit();
-            window.location.replace(window.location.origin + '/#/');
+            console.log('[AutenticacionService] Redirigiendo limpiamente a la raíz "/" para evitar desincronización de rutas...');
+            window.location.replace(window.location.origin + '/');
             return;
         }
 
         // Recuperar el usuario autenticado del localStorage al iniciar
         const storedUser = localStorage.getItem('loggedInUser');
+        const currentMockAuthStatus = localStorage.getItem('mockAuth');
+        console.log('[AutenticacionService] Carga inicial de localStorage - storedUser:', storedUser ? 'existe' : 'null', 'mockAuth:', currentMockAuthStatus);
+        
+        if (currentMockAuthStatus === 'true') {
+            this.isMockSession = true;
+            console.log('[AutenticacionService] Sesión simulada restaurada de localStorage.');
+        }
+
         if (storedUser) {
             this.isLoggedInStatus = true;
             this.loggedInUser = JSON.parse(storedUser);
@@ -98,12 +113,17 @@ export class AutenticacionService {
 
         // Suscribirse al estado de autenticación sin sobrescribir loggedInUser
         this.afAuth.authState.subscribe((user) => {
+            const mockAuthVal = localStorage.getItem('mockAuth');
+            console.log('[AutenticacionService] Emisión afAuth.authState - user:', user ? user.email : 'null', 'mockAuth:', mockAuthVal, 'isMockSession:', this.isMockSession);
+            
             // Evitamos cerrar sesión si es una autenticación simulada (mockAuth)
-            if (localStorage.getItem('mockAuth') === 'true') {
+            if (this.isMockSession || mockAuthVal === 'true') {
+                console.log('[AutenticacionService] Ignorando Firebase authState porque mockAuth está activo.');
                 return;
             }
 
             if (user && user.email?.endsWith('@unicauca.edu.co')) {
+                console.log('[AutenticacionService] Autenticación real de Firebase detectada exitosamente.');
                 this.isLoggedInStatus = true;
 
                 // Configura solo los valores básicos, si no se ha autenticado con backend aún
@@ -128,6 +148,7 @@ export class AutenticacionService {
                 this.menuService.emitAlertLogin();
                 this.loginSuccess$.emit();
             } else {
+                console.log('[AutenticacionService] Usuario no autenticado en Firebase y mockAuth inactivo. Ejecutando logout...');
                 this.logout();
             }
         });
@@ -204,6 +225,7 @@ export class AutenticacionService {
     }
 
     logout(): void {
+        console.log('[AutenticacionService] logout() invocado. Limpiando localStorage...');
         this.afAuth.signOut().then(() => {
             this.isLoggedInStatus = false;
             this.loggedInUser = null;
@@ -213,6 +235,7 @@ export class AutenticacionService {
             localStorage.removeItem('est');
             localStorage.removeItem('estEgresado');
             localStorage.removeItem('mockAuth');
+            console.log('[AutenticacionService] localStorage limpiado. Navegando a ""...');
             this.router.navigate(['']);
 
             // Emitir evento de logout

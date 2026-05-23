@@ -243,7 +243,6 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       { label: 'AUI Universidad', value: auiValor ?? 0 },
       { label: 'Ingresos Netos', value: config.ingresosNetos },
       { label: 'Transferencia Unicauca', value: data.transferenciaUnicauca ?? 0 },
-      { label: 'Excedentes Maestria', value: config.excedentesMaestria },
       { label: 'Valor a Distribuir (Ingresos-Gastos)', value: config.valorADistribuir, isBold: true }
     ];
   }
@@ -461,7 +460,6 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     this.loadingService.show('Actualizando distribución');
     this.editandoCabecera = false;
     const aui = this.clonedCabecera.aUIPorcentaje;
-    const excedentes = this.clonedCabecera.excedentesMaestria;
 
     const finish = (data: ReportePorGrupos) => {
       this.configuracion = data;
@@ -481,28 +479,13 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     if (aui !== undefined) {
       this.configuracion!.objConfiguracionReporteGrupos.aUIPorcentaje = aui;
       this.facadeService.actualizarPorcentajeAUIUniversidad(this.periodoAcademicoId, this.toRatio(aui)).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (data) => {
-          if (excedentes !== undefined) {
-            this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
-            this.facadeService.actualizarValorExcedentesMaestria(this.periodoAcademicoId, excedentes).pipe(takeUntil(this.destroy$)).subscribe({
-              next: (d) => finish(d),
-              error: () => onError('No se pudo actualizar excedentes.')
-            });
-          } else {
-            finish(data);
-          }
-        },
-        error: () => onError('No se pudo actualizar AUI.')
-      });
-    } else if (excedentes !== undefined) {
-      this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
-      this.facadeService.actualizarValorExcedentesMaestria(this.periodoAcademicoId, excedentes).pipe(takeUntil(this.destroy$)).subscribe({
         next: (data) => finish(data),
-        error: () => onError('No se pudo actualizar excedentes.')
+        error: () => onError('No se pudo actualizar AUI.')
       });
     } else {
       this.guardandoCabecera = false;
       this.clonedCabecera = {};
+      this.loadingService.hide();
     }
   }
 

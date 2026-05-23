@@ -15,6 +15,8 @@ import { HomeComponent } from './core/components/home/home.component';
                     component: AppMainComponent,
                     children: [
                         { path: '', component: HomeComponent },
+                        { path: 'coordinador', component: HomeComponent },
+                        { path: 'estudiante', component: HomeComponent },
                         {
                             path: 'autenticacion',
                             loadChildren: () =>

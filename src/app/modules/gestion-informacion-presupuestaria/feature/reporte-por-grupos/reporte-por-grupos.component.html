@@ -189,16 +189,7 @@
                             <label for="float-aui">AUI Universidad (%)</label>
                         </span>
 
-                        <span class="p-float-label">
-                            <p-inputNumber id="float-excedentes" *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.excedentesMaestria"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" styleClass="config-input">
-                            </p-inputNumber>
-                            <p-inputNumber *ngIf="!editandoCabecera" [ngModel]="configuracion?.objConfiguracionReporteGrupos.excedentesMaestria"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                                [readonly]="true" [disabled]="true" styleClass="config-input">
-                            </p-inputNumber>
-                            <label for="float-excedentes">Excedentes Maestría</label>
-                        </span>
+
 
                         <div class="p-inputgroup gastos-inputgroup">
                             <button type="button" pButton pRipple [icon]="esEditable ? 'pi pi-pencil' : 'pi pi-eye'"

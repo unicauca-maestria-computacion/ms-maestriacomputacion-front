@@ -122,7 +122,7 @@
                                 {{ group.nombre }}
                             </th>
                             <th class="text-center font-bold white-space-nowrap">TOTAL</th>
-
+                            <th *ngIf="esEditable" style="width: 8rem;"></th>
                         </tr>
                     </ng-template>
 
@@ -158,6 +158,32 @@
                                 <span class="p-column-title font-bold">TOTAL</span>
                                 {{ row.isPercentage ? (row.total | formatPercent) : (row.total | formatCurrency) }}
                             </td>
+                            <td *ngIf="esEditable" class="text-center">
+                                <button *ngIf="row.isEditable && !editing" pButton pRipple type="button"
+                                    pInitEditableRow
+                                    (click)="onRowEditInit(row)"
+                                    class="p-button-rounded p-button-text"
+                                    style="color: #000066; width:36px; height:36px; padding:0;"
+                                    pTooltip="Editar fila" tooltipPosition="top">
+                                    <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">edit</span>
+                                </button>
+                                <div *ngIf="editing" class="flex justify-content-center gap-1">
+                                    <button pButton pRipple type="button" pSaveEditableRow
+                                        (click)="onRowEditSave(row)"
+                                        class="p-button-rounded p-button-text"
+                                        style="color: #5BAE40; width:36px; height:36px; padding:0;"
+                                        pTooltip="Guardar" tooltipPosition="top">
+                                        <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">check_circle</span>
+                                    </button>
+                                    <button pButton pRipple type="button" pCancelEditableRow
+                                        (click)="onRowEditCancel(row, ri)"
+                                        class="p-button-rounded p-button-text"
+                                        style="color: #FF6D0A; width:36px; height:36px; padding:0;"
+                                        pTooltip="Cancelar" tooltipPosition="top">
+                                        <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">cancel</span>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     </ng-template>
                 </p-table>
@@ -186,9 +212,19 @@
                             [readonly]="true" [disabled]="true" styleClass="config-input">
                         </p-inputNumber>
                     </div>
-
-
-
+                    <div class="config-percent-field">
+                        <label class="config-percent-label">Excedentes Maestría</label>
+                        <p-inputNumber id="float-excedentes"
+                            *ngIf="editandoCabecera" [(ngModel)]="clonedCabecera.excedentesMaestria"
+                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                            styleClass="config-input">
+                        </p-inputNumber>
+                        <p-inputNumber *ngIf="!editandoCabecera"
+                            [ngModel]="configuracion.objConfiguracionReporteGrupos.excedentesMaestria"
+                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
+                            [readonly]="true" [disabled]="true" styleClass="config-input">
+                        </p-inputNumber>
+                    </div>
                     <div class="config-percent-field">
                         <label class="config-percent-label">Gastos Generales</label>
                         <div class="p-inputgroup gastos-inputgroup">
@@ -431,11 +467,12 @@
                                 {{ group.nombre }}
                             </th>
                             <th class="text-center font-bold white-space-nowrap">TOTAL</th>
+                            <th *ngIf="esEditable" style="width: 8rem;"></th>
                         </tr>
                     </ng-template>
 
-                    <ng-template pTemplate="body" let-row let-ri="rowIndex">
-                        <tr>
+                    <ng-template pTemplate="body" let-row let-editing="editing" let-ri="rowIndex">
+                        <tr [pEditableRow]="row">
                             <td class="font-bold" style="font-family: 'Open Sans', sans-serif; color: #454444;">
                                 <span class="p-column-title font-bold">Concepto</span>
                                 {{ row.concept }}
@@ -460,6 +497,32 @@
                             <td class="text-right font-bold" style="color: #000066;">
                                 <span class="p-column-title font-bold">TOTAL</span>
                                 {{ row.total | formatCurrency }}
+                            </td>
+                            <td *ngIf="esEditable" class="text-center">
+                                <button *ngIf="row.isEditable && !editing" pButton pRipple type="button"
+                                    pInitEditableRow
+                                    (click)="onBudgetRowEditInit(row)"
+                                    class="p-button-rounded p-button-text"
+                                    style="color: #000066; width:36px; height:36px; padding:0;"
+                                    pTooltip="Editar fila" tooltipPosition="top">
+                                    <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">edit</span>
+                                </button>
+                                <div *ngIf="editing" class="flex justify-content-center gap-1">
+                                    <button pButton pRipple type="button" pSaveEditableRow
+                                        (click)="onBudgetRowEditSave(row)"
+                                        class="p-button-rounded p-button-text"
+                                        style="color: #5BAE40; width:36px; height:36px; padding:0;"
+                                        pTooltip="Guardar" tooltipPosition="top">
+                                        <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">check_circle</span>
+                                    </button>
+                                    <button pButton pRipple type="button" pCancelEditableRow
+                                        (click)="onBudgetRowEditCancel(row, ri)"
+                                        class="p-button-rounded p-button-text"
+                                        style="color: #FF6D0A; width:36px; height:36px; padding:0;"
+                                        pTooltip="Cancelar" tooltipPosition="top">
+                                        <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">cancel</span>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     </ng-template>

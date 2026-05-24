@@ -13,5 +13,5 @@ COPY ./src/assets/env.template.js /usr/share/nginx/html/assets/env.template.js
 COPY ./init.sh /init.sh
 RUN sed -i 's/\r$//' /init.sh && chmod +x /init.sh
 ENTRYPOINT ["/init.sh"]
-EXPOSE 80
+EXPOSE 82
 CMD ["nginx", "-g", "daemon off;"]

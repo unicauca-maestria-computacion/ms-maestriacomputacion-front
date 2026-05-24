@@ -103,7 +103,7 @@ jobs:
             --name "frontend-sin-lineamientos-app" \
             --network "maestria-network" \
             --network-alias "frontend-sin-lineamientos" \
-            -p 82:80 \
+            -p 82:82 \
             --restart "always" \
             --memory "192m" \
             --memory-swap "192m" \

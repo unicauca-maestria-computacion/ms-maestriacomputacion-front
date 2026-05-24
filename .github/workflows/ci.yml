@@ -103,7 +103,7 @@ jobs:
             --name "frontend-app" \
             --network "maestria-network" \
             --network-alias "frontend" \
-            -p 81:80 \
+            -p 81:81 \
             --restart "always" \
             --memory "192m" \
             --memory-swap "192m" \

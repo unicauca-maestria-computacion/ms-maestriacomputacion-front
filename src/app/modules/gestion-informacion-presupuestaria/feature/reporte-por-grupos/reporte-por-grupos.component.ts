@@ -243,6 +243,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       { label: 'AUI Universidad', value: auiValor ?? 0 },
       { label: 'Ingresos Netos', value: config.ingresosNetos },
       { label: 'Transferencia Unicauca', value: data.transferenciaUnicauca ?? 0 },
+      { label: 'Excedentes Maestria', value: config.excedentesMaestria },
       { label: 'Valor a Distribuir (Ingresos-Gastos)', value: config.valorADistribuir, isBold: true }
     ];
   }
@@ -453,13 +454,18 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   onHeaderEditInit() {
     if (this.isAnyEditActive) return;
     this.editandoCabecera = true;
-    this.clonedCabecera = { ...this.configuracion?.objConfiguracionReporteGrupos };
+    this.clonedCabecera = {
+      ...this.configuracion?.objConfiguracionReporteGrupos,
+      aUIPorcentaje: this.aUIPorcentajeDisplay ?? 0,
+      excedentesMaestria: this.configuracion?.objConfiguracionReporteGrupos?.excedentesMaestria ?? 0
+    };
   }
 
   onHeaderEditSave() {
     this.loadingService.show('Actualizando distribución');
     this.editandoCabecera = false;
     const aui = this.clonedCabecera.aUIPorcentaje;
+    const excedentes = this.clonedCabecera.excedentesMaestria;
 
     const finish = (data: ReportePorGrupos) => {
       this.configuracion = data;
@@ -477,10 +483,26 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     };
 
     if (aui !== undefined) {
-      this.configuracion!.objConfiguracionReporteGrupos.aUIPorcentaje = aui;
+      this.configuracion!.objConfiguracionReporteGrupos.aUIPorcentaje = this.toRatio(aui);
       this.facadeService.actualizarPorcentajeAUIUniversidad(this.periodoAcademicoId, this.toRatio(aui)).pipe(takeUntil(this.destroy$)).subscribe({
+        next: (data) => {
+          if (excedentes !== undefined) {
+            this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
+            this.facadeService.actualizarValorExcedentesMaestria(this.periodoAcademicoId, excedentes).pipe(takeUntil(this.destroy$)).subscribe({
+              next: (d) => finish(d),
+              error: () => onError('No fue posible actualizar los excedentes. Por favor, verifique su conexión.')
+            });
+          } else {
+            finish(data);
+          }
+        },
+        error: () => onError('No fue posible actualizar el AUI. Por favor, intente nuevamente.')
+      });
+    } else if (excedentes !== undefined) {
+      this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
+      this.facadeService.actualizarValorExcedentesMaestria(this.periodoAcademicoId, excedentes).pipe(takeUntil(this.destroy$)).subscribe({
         next: (data) => finish(data),
-        error: () => onError('No se pudo actualizar AUI.')
+        error: () => onError('No fue posible actualizar los excedentes. Por favor, verifique su conexión.')
       });
     } else {
       this.guardandoCabecera = false;

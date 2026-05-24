@@ -1,0 +1,24 @@
+name: CI Practica Profesional ms-maestriacomputacion-front-sin-lineamientos
+
+on:
+  push:
+    branches: ['despliegue-de-pruebas']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login Dockerhub
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t $DOCKER_USERNAME/practica-profesional-frontend-sin-lineamientos:latest .
+          docker push $DOCKER_USERNAME/practica-profesional-frontend-sin-lineamientos:latest

@@ -4,3 +4,6 @@ dist
 .gitignore
 Dockerfile
 .env
+
+# Excluir documentación con caracteres especiales que rompen BuildKit (ej. ñ)
+sistema de*

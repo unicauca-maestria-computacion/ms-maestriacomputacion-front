@@ -71,26 +71,30 @@ export class InfopersonalComponent implements OnInit {
     }
 
     obtenerInfoDeSolicitante() {
-        this.gestorHttp;
+        const user = this.auth.getLoggedInUser();
+        const datosDeAuth = {
+            id: user.id,
+            nombres: user.firstName,
+            apellidos: user.lastName,
+            correo: user.email,
+            celular: user.phoneNumber,
+            codigoAcademico: user.academicCode,
+            tipoDocumento: user.idType,
+            numeroDocumento: user.idNumber,
+        };
 
         this.gestorHttp
-            .obtenerInfoPersonalSolicitante(this.auth.getLoggedInUser().email)
-            .subscribe((respuesta) => {
-                if (respuesta) {
-                    const mappedData = {
-                        id: respuesta.id,
-                        nombres: this.auth.getLoggedInUser().firstName,
-                        apellidos: this.auth.getLoggedInUser().lastName,
-                        correo: this.auth.getLoggedInUser().email,
-                        celular: this.auth.getLoggedInUser().phoneNumber,
-                        codigoAcademico:
-                            this.auth.getLoggedInUser().academicCode,
-                        tipoDocumento: this.auth.getLoggedInUser().idType,
-                        numeroDocumento: this.auth.getLoggedInUser().idNumber,
-                    };
-
-                    this.formInfoPersonal.patchValue(mappedData);
-                }
+            .obtenerInfoPersonalSolicitante(user.email)
+            .subscribe({
+                next: (respuesta) => {
+                    this.formInfoPersonal.patchValue({
+                        ...datosDeAuth,
+                        id: respuesta?.id ?? user.id,
+                    });
+                },
+                error: () => {
+                    this.formInfoPersonal.patchValue(datosDeAuth);
+                },
             });
     }
 }

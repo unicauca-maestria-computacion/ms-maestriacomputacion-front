@@ -109,17 +109,17 @@ jobs:
             --memory-swap "192m" \
             --label project="practica-u" \
             --label service="lineamientos" \
-            -e API_URL="http://localhost:8081/api/" \
-            -e GESTION_SOLICITUDES_API_URL="http://localhost:8081/ms-gestion-solicitudes/msmaestriac/" \
-            -e GESTION_AUTENTICACION_API_URL="http://localhost:8096/api/auth/google" \
-            -e GESTION_EXPERTOS_API_URL="http://localhost:8081/api/" \
-            -e GESTION_EGRESADOS_API_URL="http://localhost:8081/api/" \
-            -e GESTION_TRABAJO_GRADO_API_URL="http://localhost:8081/api/" \
-            -e GESTION_DOCENTES_ESTUDIANTES_API_URL="http://localhost:8081/api/" \
-            -e MATRICULA_ACADEMICA_API_URL="http://localhost:8081/matricula-academica/api/" \
-            -e EVALUACION_DOCENTE_API_URL="http://localhost:8081/api/" \
-            -e GESTION_MATRICULA_FINANCIERA_API_URL="http://localhost:8081/matricula-financiera/api/v1/gestion-matricula-financiera/" \
-            -e GESTION_INFORMACION_PRESUPUESTARIA_API_URL="http://localhost:8081/informacion-presupuestaria/api/" \
+            -e API_URL="https://api.contrerasdaniel.com/api/" \
+            -e GESTION_SOLICITUDES_API_URL="https://api.contrerasdaniel.com/ms-gestion-solicitudes/msmaestriac/" \
+            -e GESTION_AUTENTICACION_API_URL="https://api.contrerasdaniel.com/api/auth/google" \
+            -e GESTION_EXPERTOS_API_URL="https://api.contrerasdaniel.com/api/" \
+            -e GESTION_EGRESADOS_API_URL="https://api.contrerasdaniel.com/api/" \
+            -e GESTION_TRABAJO_GRADO_API_URL="https://api.contrerasdaniel.com/api/" \
+            -e GESTION_DOCENTES_ESTUDIANTES_API_URL="https://api.contrerasdaniel.com/api/" \
+            -e MATRICULA_ACADEMICA_API_URL="https://api.contrerasdaniel.com/matricula-academica/api/" \
+            -e EVALUACION_DOCENTE_API_URL="https://api.contrerasdaniel.com/api/" \
+            -e GESTION_MATRICULA_FINANCIERA_API_URL="https://api.contrerasdaniel.com/matricula-financiera/api/v1/gestion-matricula-financiera/" \
+            -e GESTION_INFORMACION_PRESUPUESTARIA_API_URL="https://api.contrerasdaniel.com/informacion-presupuestaria/api/" \
             $DOCKER_USERNAME/practica-profesional-frontend:latest
 
       - name: Clean Old Images of This Service

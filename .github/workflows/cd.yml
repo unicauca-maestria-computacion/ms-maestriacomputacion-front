@@ -1,15 +1,11 @@
 name: CD Practica Profesional ms-maestriacomputacion-front-sin-lineamientos
 
 on:
-  workflow_run:
-    workflows: ['CI Practica Profesional ms-maestriacomputacion-front-sin-lineamientos']
-    types:
-      - completed
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: [self-hosted, sin-lineamientos]
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 

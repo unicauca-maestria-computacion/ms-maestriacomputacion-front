@@ -91,6 +91,14 @@ export class AppTopBarComponent implements OnInit {
                     }
                 });
             }
+            // Estudiante ve solo su resumen de matrícula financiera
+            if (user && user.role.includes('ROLE_ESTUDIANTE')) {
+                this.items.forEach((item) => {
+                    if (item.label === 'MATRÍCULA FINANCIERA') {
+                        item.routerLink = '/gestion-matricula-financiera/resumen';
+                    }
+                });
+            }
             this.updateMenuForLoggedInUser();
         } else {
             this.filterMenuItems(null);
@@ -212,9 +220,8 @@ export class AppTopBarComponent implements OnInit {
                 return user?.role?.includes('ROLE_COORDINADOR');
             }
 
-            if (item.label === 'VER MATRÍCULA') {
-                // Solo mostrar si el usuario es estudiante
-                return user?.role?.includes('ROLE_ESTUDIANTE');
+            if (item.label === 'MATRÍCULA FINANCIERA') {
+                return user?.role?.includes('ROLE_COORDINADOR') || user?.role?.includes('ROLE_ESTUDIANTE');
             }
 
             return true;

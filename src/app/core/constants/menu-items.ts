@@ -190,6 +190,11 @@ export const menuItems: MenuItem[] = [
 
     },
     {
+        label: 'MATRÍCULA FINANCIERA',
+        icon: 'pi pi-fw pi-money-bill',
+        routerLink: '/gestion-matricula-financiera',
+    },
+    {
         label: 'SOLICITUDES',
         icon: 'pi pi-fw pi-inbox',
         routerLink: '/gestionsolicitudes/portafolio/opciones',
@@ -198,11 +203,6 @@ export const menuItems: MenuItem[] = [
         label: 'PRESUPUESTO',
         icon: 'pi pi-fw pi-chart-line',
         routerLink: '/informacion-presupuestaria',
-    },
-    {
-        label: 'MATRÍCULA FINANCIERA',
-        icon: 'pi pi-fw pi-money-bill',
-        routerLink: '/gestion-matricula-financiera',
     },
     {
         label: 'TRABAJOS DE GRADO',

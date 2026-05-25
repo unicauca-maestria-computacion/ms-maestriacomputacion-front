@@ -107,11 +107,6 @@ export const menuItems: MenuItem[] = [
                 ],
             },
             {
-                label: 'Matrícula Financiera',
-                icon: 'pi pi-fw pi-id-card',
-                routerLink: '/gestion-matricula-financiera',
-            },
-            {
                 label: 'Listado de Matrículas',
                 icon: 'pi pi-fw pi-list',
                 routerLink: '/gestion-matricula-academica/listado-matriculas',
@@ -205,6 +200,11 @@ export const menuItems: MenuItem[] = [
         routerLink: '/informacion-presupuestaria',
     },
     {
+        label: 'MATRÍCULA FINANCIERA',
+        icon: 'pi pi-fw pi-money-bill',
+        routerLink: '/gestion-matricula-financiera',
+    },
+    {
         label: 'TRABAJOS DE GRADO',
         icon: 'pi pi-fw pi-book',
         items: [
@@ -229,11 +229,6 @@ export const menuItems: MenuItem[] = [
         label: 'EVALUACIÓN DOCENTE',
         icon: 'pi pi-fw pi-star',
         routerLink: '/evaluacion-docente',
-    },
-    {
-        label: 'VER MATRÍCULA',
-        icon: 'pi pi-fw pi-money-bill',
-        routerLink: '/gestion-matricula-financiera/resumen',
     },
     {
         label: 'LOGIN',

@@ -73,19 +73,6 @@ export class GestionMatriculaFinancieraFacadeService {
         );
     }
 
-    iniciarNuevaMatriculaFinanciera(): Observable<boolean> {
-        this._loading.next(true);
-        this._error.next(null);
-
-        return this.apiService.iniciarNuevaMatriculaFinanciera().pipe(
-            catchError(error => {
-                this._error.next(error);
-                return throwError(() => error);
-            }),
-            finalize(() => this._loading.next(false))
-        );
-    }
-
     obtenerPeriodosAcademicos(): Observable<PeriodoAcademico[]> {
         this._loading.next(true);
         this._error.next(null);

@@ -127,6 +127,11 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Navega al módulo de Gestión de Solicitudes con el tipo "Revisión de matrícula"
+   * (código RE_MATR) preseleccionado en el formulario de radicación.
+   * Antes de navegar, restablece cualquier estado previo del servicio de radicación.
+   */
   solicitarRevision(): void {
     this.radicarService.restrablecerValores();
     this.radicarService.codigoSolicitudPreseleccionado = 'RE_MATR';

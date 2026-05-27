@@ -64,8 +64,12 @@ export class SelectorComponent implements OnInit {
                                     // Asignar un nuevo array en lugar de modificar el existente
                                     this.tiposDeSolicitud = [...this.tiposDeSolicitud, ...solicitudesEstudiante];
                                     this.carga = false;
+                                    this.recuperarTipoEscogido();
                                 },
-                                () => { this.carga = false; }
+                                () => { 
+                                    this.carga = false;
+                                    this.recuperarTipoEscogido();
+                                }
                             );
                             break;
                         

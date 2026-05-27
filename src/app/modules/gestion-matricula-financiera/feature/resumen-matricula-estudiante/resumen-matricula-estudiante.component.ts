@@ -7,11 +7,10 @@ import {
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { BecaFinanciera, Materia, PeriodoAcademico } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../data/facade.service';
-import { RadicarService } from '../../../gestion-solicitudes/services/radicar.service';
 import { AutenticacionService } from '../../../gestion-autenticacion/services/autenticacion.service';
 import { getEstadoMatriculaSeverity, getEstadoMatriculaLabel } from '../../utils/estado-matricula.utils';
 
@@ -31,9 +30,7 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
 
     constructor(
         private route: ActivatedRoute,
-        private router: Router,
         private facadeService: GestionMatriculaFinancieraFacadeService,
-        private radicarService: RadicarService,
         private messageService: MessageService,
         private cdr: ChangeDetectorRef,
         private autenticacionService: AutenticacionService
@@ -64,11 +61,13 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
         });
     }
 
-    /** Navega al flujo de radicación con RE_MATR preseleccionado */
+    /** Simula el envío exitoso de una solicitud de revisión */
     solicitarRevision(): void {
-        this.radicarService.restrablecerValores();
-        this.radicarService.codigoSolicitudPreseleccionado = 'RE_MATR';
-        this.router.navigate(['/gestionsolicitudes/portafolio/radicar']);
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Solicitud enviada',
+            detail: 'Tu solicitud de revisión de matrícula ha sido registrada exitosamente. La coordinación del programa la revisará pronto.'
+        });
     }
 
     getPeriodoLabel(periodos: PeriodoAcademico[]): string {

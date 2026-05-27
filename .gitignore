@@ -19,7 +19,7 @@
 *.pem
 *.key
 
-# --- Logs ---
+# --- Logs (Ignorar todos los archivos log) ---
 *.log
 npm-debug.log*
 yarn-debug.log*

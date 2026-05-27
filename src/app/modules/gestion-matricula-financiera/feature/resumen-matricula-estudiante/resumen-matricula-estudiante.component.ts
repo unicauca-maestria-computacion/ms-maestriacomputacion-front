@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable, Subject, combineLatest } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Estudiante, PeriodoAcademico } from '../../models/domain-models';
 import { GestionMatriculaFinancieraFacadeService } from '../../data/facade.service';
-import { RadicarService } from '../../../gestion-solicitudes/services/radicar.service';
 import { AutenticacionService } from '../../../gestion-autenticacion/services/autenticacion.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';
 
@@ -31,9 +30,7 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private facadeService: GestionMatriculaFinancieraFacadeService,
-    private radicarService: RadicarService,
     private messageService: MessageService,
     private autenticacionService: AutenticacionService,
     private loadingService: LoadingService
@@ -128,9 +125,11 @@ export class ResumenMatriculaEstudianteComponent implements OnInit, OnDestroy {
   }
 
   solicitarRevision(): void {
-    this.radicarService.restrablecerValores();
-    this.radicarService.codigoSolicitudPreseleccionado = 'RE_MATR';
-    this.router.navigate(['/gestionsolicitudes/portafolio/radicar']);
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Solicitud enviada',
+      detail: 'Tu solicitud de revisión de matrícula ha sido registrada exitosamente. La coordinación del programa la revisará pronto.'
+    });
   }
 
   getPeriodoLabel(periodo: PeriodoAcademico | null): string {

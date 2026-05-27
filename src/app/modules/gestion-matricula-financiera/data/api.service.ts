@@ -33,10 +33,6 @@ export class GestionMatriculaFinancieraApiService {
         return this.http.get<PeriodoAcademicoDTORespuesta[]>(backendGestionMatriculaFinanciera('periodos'));
     }
 
-    iniciarNuevaMatriculaFinanciera(): Observable<boolean> {
-        return this.http.post<boolean>(backendGestionMatriculaFinanciera('iniciar'), {});
-    }
-
     obtenerSolicitudesCertificadoVotacion(): Observable<SolicitudCertificadoVotacion[]> {
         return this.http.get<SolicitudCertificadoVotacion[]>(
             backendGestionSolicitudes('gestionSolicitud/obtener-solicitudes-certificado-votacion')

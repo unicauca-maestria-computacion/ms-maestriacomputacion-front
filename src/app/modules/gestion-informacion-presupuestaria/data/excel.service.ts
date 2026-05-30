@@ -40,7 +40,11 @@ export class ExcelService {
         workbook.created = new Date();
         const periodo = data.periodo;
         const config = data.objConfiguracion;
-        this._crearHojaResumenEjecutivo(workbook, periodo, config, data.estudiantes, false);
+        this._crearHojaResumenEjecutivo(workbook, periodo, config, data.estudiantes, false, {
+            totalIngresos: data.totalIngresos,
+            totalDescuentos: data.totalDescuentos,
+            totalNeto: data.totalNeto
+        });
         this._crearHojaEstudiantes(workbook, data.estudiantes, config, false);
         this._crearHojaAnalisisDescuentos(workbook, data.estudiantes, config);
         this._crearHojaDatosGraficas(workbook, data.estudiantes);
@@ -54,7 +58,11 @@ export class ExcelService {
         workbook.created = new Date();
         const periodo = data.periodo;
         const config = data.objConfiguracion;
-        this._crearHojaResumenEjecutivo(workbook, periodo, config, data.estudiantes, true);
+        this._crearHojaResumenEjecutivo(workbook, periodo, config, data.estudiantes, true, {
+            totalIngresos: data.totalIngresos,
+            totalDescuentos: data.totalDescuentos,
+            totalNeto: data.totalNeto
+        });
         this._crearHojaEstudiantes(workbook, data.estudiantes, config, true);
         this._crearHojaAnalisisDescuentos(workbook, data.estudiantes, config);
         this._guardarWorkbook(workbook, `Proyeccion_Reporte_${periodo.año}-${periodo.periodo}.xlsx`);
@@ -82,7 +90,8 @@ export class ExcelService {
         periodo: PeriodoFinanciero,
         config: ConfiguracionReporteFinanciero,
         estudiantes: ProyeccionEstudiante[],
-        esProyeccion: boolean
+        esProyeccion: boolean,
+        totales: { totalIngresos?: number; totalDescuentos?: number; totalNeto?: number }
     ): void {
         const titulo = esProyeccion
             ? 'PROYECCIÓN DE INGRESOS - MAESTRÍA EN COMPUTACIÓN'
@@ -108,9 +117,9 @@ export class ExcelService {
         ws.addRow([]);
         this._agregarEncabezadoSeccion(ws, esProyeccion ? 'RESUMEN PROYECTADO' : 'RESUMEN DE INGRESOS', numCols);
         const kpiRows: [string, number][] = [
-            ['Total Ingresos Brutos', config.totalIngresos ?? 0],
-            ['Total Descuentos', config.totalDescuentos ?? 0],
-            ['Total Neto', config.totalNeto ?? 0],
+            ['Total Ingresos Brutos', totales.totalIngresos ?? 0],
+            ['Total Descuentos', totales.totalDescuentos ?? 0],
+            ['Total Neto', totales.totalNeto ?? 0],
         ];
         kpiRows.forEach(([label, value]) => {
             const row = ws.addRow([label, this._formatCurrency(value)]);

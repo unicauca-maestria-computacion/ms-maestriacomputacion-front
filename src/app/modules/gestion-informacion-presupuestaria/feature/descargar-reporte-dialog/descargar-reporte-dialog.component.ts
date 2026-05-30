@@ -122,8 +122,8 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
     if (this.selectedReport === 'reporte-final') {
       this.periodOptions = this.allPeriodOptions.slice(1).map(o => ({ name: o.name, value: o.value }));
     } else if (this.selectedReport === 'proyeccion-reporte') {
-      const latest = this.allPeriodOptions[0];
-      this.periodOptions = latest ? [{ name: latest.name, value: latest.value }] : [];
+      const activePeriods = this.allPeriodOptions.filter(o => o.period?.activo);
+      this.periodOptions = activePeriods.map(o => ({ name: o.name, value: o.value }));
     } else {
       this.periodOptions = this.allPeriodOptions.map(o => ({ name: o.name, value: o.value }));
     }
@@ -146,7 +146,10 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
     if (this.periodOptions.length === 0) return;
 
     if (this.selectedReport === 'proyeccion-reporte') {
-      this.selectedPeriodKey = this.periodOptions[0].value;
+      const exists = this.periodOptions.some(opt => opt.value === this.selectedPeriodKey);
+      if (!exists) {
+        this.selectedPeriodKey = this.periodOptions[0].value;
+      }
     } else if (this.activePeriod) {
       const key = this._extrayerLlavePeriodo(this.activePeriod);
       const exists = this.periodOptions.some(opt => opt.value === key);
@@ -202,7 +205,7 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
         this.descargarReporteFinal(periodo);
         break;
       case 'proyeccion-reporte':
-        this.descargarProyeccionReporte();
+        this.descargarProyeccionReporte(periodo);
         break;
       case 'reporte-por-grupos':
         this.descargarReportePorGrupos(periodo);
@@ -242,8 +245,8 @@ export class DescargarReporteDialogComponent implements OnInit, OnDestroy, OnCha
     });
   }
 
-  private descargarProyeccionReporte() {
-    this.facadeService.obtenerProyeccionEstudiantes().pipe(takeUntil(this.destroy$)).subscribe({
+  private descargarProyeccionReporte(periodo: { año: number | undefined; periodo: number | undefined }) {
+    this.facadeService.obtenerProyeccionEstudiantes(periodo.periodo!, periodo.año!).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         if (!data || !data.estudiantes || data.estudiantes.length === 0) {
           this.loadingDownload = false;

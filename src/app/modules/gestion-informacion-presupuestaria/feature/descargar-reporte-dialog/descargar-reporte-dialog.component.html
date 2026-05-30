@@ -33,12 +33,15 @@
                     appendTo="body"
                     inputId="dropdown-period"
                     placeholder="&nbsp;"
-                    [disabled]="!selectedReport || periodOptions.length === 0 || selectedReport === 'proyeccion-reporte'">
+                    [disabled]="!selectedReport || periodOptions.length === 0 || (selectedReport === 'proyeccion-reporte' && periodOptions.length <= 1)">
                 </p-dropdown>
                 <label for="dropdown-period">Período Académico</label>
             </span>
-            <small *ngIf="selectedReport === 'proyeccion-reporte'" class="text-500 mt-1 block">
-                La proyección corresponde siempre al período en curso.
+            <small *ngIf="selectedReport === 'proyeccion-reporte' && periodOptions.length <= 1" class="text-500 mt-1 block">
+                La proyección corresponde al período en curso.
+            </small>
+            <small *ngIf="selectedReport === 'proyeccion-reporte' && periodOptions.length > 1" class="text-500 mt-1 block">
+                Seleccione el período académico activo para la proyección.
             </small>
         </div>
     </div>

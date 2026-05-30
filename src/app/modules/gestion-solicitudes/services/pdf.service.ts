@@ -646,8 +646,10 @@ export class PdfService {
             textDestinatario = `${
                 this.servicioGestor.InfoDecano.titulo
             }\n${this.servicioGestor.InfoDecano.nombreCompleto.toUpperCase()}\nPresidente Consejo\nFacultad de Ingeniería Electrónica y Telecomunicaciones\nUniversidad del Cauca\n`;
-        }else if (destinatario === 'coordinador') {
-            textDestinatario = `${""}`;
+        } else if (destinatario === 'coordinador') {
+            textDestinatario = `${
+                this.servicioGestor.InfoCoordinador?.titulo ?? this.servicioGestor.InfoCoordinador?.tratamiento ?? 'Profesor(a)'
+            }\n${(this.servicioGestor.InfoCoordinador?.nombreCompleto ?? '').toUpperCase()}\nCoordinador(a) del Programa\nMaestría en Computación\nUniversidad del Cauca\n`;
         }
 
         // Agregar el primer bloque de texto dinámico

@@ -237,7 +237,7 @@ export class ExcelService {
         });
         const totalRowValues: (string | number)[] = [
             'TOTALES', '', '', '', '', '', '', '',
-            `Pagados: ${pagados} | Pendientes: ${pendientes}`,
+            `Pagados: ${pagados} | ${esProyeccion ? 'Pendientes' : 'No pagados'}: ${pendientes}`,
         ];
         if (esProyeccion) totalRowValues.push('');
         const totalRow = ws.addRow(totalRowValues);

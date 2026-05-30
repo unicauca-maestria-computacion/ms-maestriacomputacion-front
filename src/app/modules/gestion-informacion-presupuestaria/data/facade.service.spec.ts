@@ -75,9 +75,12 @@ describe('GestionInformacionPresupuestariaFacadeService', () => {
   const mockReporteGrupos: ReportePorGrupos = {
     gastosGenerales: [],
     filasPorGrupo: [],
+    totalIngresos: 10000000,
     totalNeto: 8000000,
     aportePrimerSemestre: 0,
     aporteSegundoSemestre: 0,
+    porcentajePrimerSemestre: 50,
+    porcentajeSegundoSemestre: 50,
     participacionPrimerSemestre: 100,
     participacionSegundoSemestre: 100,
     participacionPorAnio: 100,
@@ -89,7 +92,7 @@ describe('GestionInformacionPresupuestariaFacadeService', () => {
     vigenciasAnteriores: 0,
     objConfiguracionReporteGrupos: {
       aUIPorcentaje: 0.10, aUIValor: 1000000, excedentesMaestria: 500000,
-      ingresosNetos: 10000000, valorADistribuir: 8000000,
+      ingresosNetos: 10000000, totalGastosGenerales: 500000, valorADistribuir: 8000000,
       item1: 0.30, item2: 0.20, imprevistos: 0.05,
       gastosGenerales: [],
       objPeriodoFinanciero: { periodo: 2, año: 2024 }

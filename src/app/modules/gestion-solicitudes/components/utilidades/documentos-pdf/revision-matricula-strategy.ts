@@ -19,7 +19,7 @@ export class SolicitudRevisionMatricula implements DocumentoPDFStrategy {
         const asunto = `Asunto: Solicitud de Revisión de Matrícula\n`;
         const cuerpoSolicitud = `${this.servicioRadicar.formRevisionMatricula.get('solicitudRevision').value}`;
 
-        let cursorY = this.servicioPDF.agregarContenidoComun(documento, marcaDeAgua);
+        let cursorY = this.servicioPDF.agregarContenidoComun(documento, marcaDeAgua, 'coordinador');
         cursorY = this.servicioPDF.agregarAsuntoYSolicitud(documento, cursorY, asunto, cuerpoSolicitud, marcaDeAgua);
         cursorY = this.servicioPDF.agregarEspaciosDeFirmas(
             documento,

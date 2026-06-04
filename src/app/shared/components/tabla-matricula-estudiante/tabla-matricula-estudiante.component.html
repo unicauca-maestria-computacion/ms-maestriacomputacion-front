@@ -6,10 +6,14 @@
     <div class="seccion-header">
         <i class="pi pi-wallet mr-2"></i>
         Matrícula Financiera
-        <p-tag *ngIf="esNuevo" value="Nuevo" severity="info" class="ml-2"></p-tag>
-        <p-tag *ngIf="estudiante.estaPago === true" value="PAGADO" severity="success" class="ml-2" icon="pi pi-check"></p-tag>
-        <p-tag *ngIf="estudiante.estaPago === false" value="NO PAGADO" severity="danger" class="ml-2" icon="pi pi-times"></p-tag>
-        <p-tag *ngIf="estudiante.estaPago === null || estudiante.estaPago === undefined" value="PENDIENTE" severity="warning" class="ml-2" icon="pi pi-clock"></p-tag>
+        <p-tag *ngIf="esNuevo" value="Nuevo" severity="info" class="ml-2"
+               pTooltip="Estudiante sin registro financiero previo en este período. Los datos mostrados son heredados de su información académica."></p-tag>
+        <p-tag *ngIf="estudiante.estaPago === true" value="PAGADO" severity="success" class="ml-2" icon="pi pi-check"
+               pTooltip="El pago fue registrado en el sistema oficial de pagos (SIMCA). Este estado se sincroniza automáticamente."></p-tag>
+        <p-tag *ngIf="estudiante.estaPago === false" value="NO PAGADO" severity="danger" class="ml-2" icon="pi pi-times"
+               pTooltip="No se ha registrado el pago en SIMCA para este período. Si ya realizó el pago, contacte a la coordinación del programa."></p-tag>
+        <p-tag *ngIf="estudiante.estaPago === null || estudiante.estaPago === undefined" value="PENDIENTE" severity="warning" class="ml-2" icon="pi pi-clock"
+               pTooltip="Aún no se ha sincronizado la información de pago desde SIMCA. Este estado se actualizará automáticamente."></p-tag>
     </div>
 
     <div class="seccion-contenido">
@@ -31,7 +35,8 @@
             <!-- Fila 2: Valor Matrícula y Semestre Financiero -->
             <div class="col-12 md:col-6">
                 <div class="detalle-campo">
-                    <span class="detalle-label">Valor de Matrícula en SMMLV</span>
+                    <span class="detalle-label"
+                          pTooltip="Valor base de la matrícula expresado en SMMLV. Se calcula automáticamente según el semestre financiero y las materias matriculadas. No incluye descuentos, becas ni derechos complementarios. El valor final en pesos depende de la configuración del período académico.">Valor de Matrícula en SMMLV</span>
                     <span class="detalle-valor" *ngIf="estudiante.valorEnSMLV != null">{{ estudiante.valorEnSMLV }} SMMLV</span>
                     <span class="detalle-valor text-400" *ngIf="estudiante.valorEnSMLV == null">Sin proyección</span>
                 </div>
@@ -46,7 +51,8 @@
             <!-- Fila 3: Descuentos y Beca -->
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label">¿Aplica Descuento de Voto?</span>
+                    <span class="detalle-label"
+                          pTooltip="Corresponde a una solicitud de certificado de votación aprobada. El trámite se realiza a través del módulo de Solicitudes.">¿Aplica Descuento de Voto?</span>
                     <span class="detalle-valor">
                         <p-tag [value]="descuentoVoto === 'SI' ? 'Sí' : 'No'"
                             [severity]="descuentoVoto === 'SI' ? 'success' : 'warning'">
@@ -56,7 +62,8 @@
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label">Descuento por Egresado (UNICAUCA)</span>
+                    <span class="detalle-label"
+                          pTooltip="Aplica a egresados de la Universidad del Cauca que además cuentan con descuento de votación y están dentro de los primeros 4 semestres financieros. El descuento de egresado no se acumula con becas: se aplica el mayor de los dos beneficios.">Descuento por Egresado (UNICAUCA)</span>
                     <span class="detalle-valor">
                         <p-tag [value]="descuentoEgresado === 'SI' ? 'Sí' : 'No'"
                             [severity]="descuentoEgresado === 'SI' ? 'success' : 'warning'">
@@ -66,27 +73,31 @@
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label">No. Res. de Beca</span>
+                    <span class="detalle-label"
+                          pTooltip="Número de la resolución emitida por el Concejo de Facultad que aprueba la beca.">No. Res. de Beca</span>
                     <span class="detalle-valor">{{ becaResolucion || '–' }}</span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label">% Beca</span>
+                    <span class="detalle-label"
+                          pTooltip="Porcentaje de descuento sobre el valor de la matrícula, aprobado por el Concejo de Facultad.">% Beca</span>
                     <span class="detalle-valor">{{ becaPorcentaje || '–' }}</span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label">Tipo de beca</span>
+                    <span class="detalle-label"
+                          pTooltip="Clasificación de la beca según lo establecido en la resolución del Concejo de Facultad.">Tipo de beca</span>
                     <span class="detalle-valor">{{ becaTipo || '–' }}</span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label">Estado Solicitud</span>
+                    <span class="detalle-label"
+                          pTooltip="Estado de la solicitud de beca en el flujo de aprobación: radicada, evaluada por el comité, aprobada por el concejo.">Estado Solicitud</span>
                     <span class="detalle-valor">
-                        <p-tag *ngIf="tieneBeca; else noBecaStatus" 
+                        <p-tag *ngIf="tieneBeca; else noBecaStatus"
                             [value]="becaEstado"
                             [severity]="becaEstado === 'RESUELTA' || becaEstado === 'FINALIZADA' ? 'success' : 'info'">
                         </p-tag>
@@ -97,7 +108,8 @@
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label">¿Avalado por Concejo?</span>
+                    <span class="detalle-label"
+                          pTooltip="Indica si la beca fue aprobada (avalada) por el Concejo de Facultad. Solo las becas avaladas aplican en el reporte financiero final.">¿Avalado por Concejo?</span>
                     <span class="detalle-valor">
                         <ng-container *ngIf="tieneBeca; else noBecaAval">
                             <p-tag *ngIf="becaAvalado === 'SI'" value="Avalada" severity="success"></p-tag>

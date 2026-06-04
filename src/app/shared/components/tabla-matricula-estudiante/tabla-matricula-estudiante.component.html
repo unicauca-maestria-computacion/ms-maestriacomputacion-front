@@ -13,7 +13,7 @@
         <p-tag *ngIf="estudiante.estaPago === false" value="NO PAGADO" severity="danger" class="ml-2" icon="pi pi-times"
                pTooltip="Sin pago registrado. Si ya pagó, solicite una revisión."></p-tag>
         <p-tag *ngIf="estudiante.estaPago === null || estudiante.estaPago === undefined" value="PENDIENTE" severity="warning" class="ml-2" icon="pi pi-clock"
-               pTooltip="Pendiente de sincronización con SIMCA."></p-tag>
+               pTooltip="Pendiente de pago."></p-tag>
     </div>
 
     <div class="seccion-contenido">

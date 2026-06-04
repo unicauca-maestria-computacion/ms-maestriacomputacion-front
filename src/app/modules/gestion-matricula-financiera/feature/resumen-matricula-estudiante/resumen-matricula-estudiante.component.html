@@ -88,14 +88,14 @@
         <div class="grid p-2">
           <div class="col-12 md:col-3 mb-3">
             <span class="campo-label"
-                  pTooltip="Valor base de tu matrícula. No incluye descuentos ni becas.">Valor en SMLV</span>
+                  pTooltip="Valor base de tu matrícula. Los descuentos y becas se aplican después.">Valor en SMLV</span>
             <span class="valor-monetario">
               {{ est.valorEnSMLV | number:'1.2-2' }}
             </span>
           </div>
           <div class="col-12 md:col-3 mb-3">
             <span class="campo-label"
-                  pTooltip="Sincronizado desde SIMCA. Si ya pagó y no se refleja, solicite revisión.">Estado de pago</span>
+                  pTooltip="Si ya pagaste y no se refleja, solicita una revisión.">Estado de pago</span>
             <div class="mt-1">
               <app-uni-status-badge [status]="est.estaPago"></app-uni-status-badge>
             </div>

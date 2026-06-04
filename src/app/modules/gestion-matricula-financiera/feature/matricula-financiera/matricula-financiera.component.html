@@ -137,7 +137,9 @@
             </td>
             <td class="text-center">
               <span class="p-column-title font-bold">Estado</span>
-              <app-uni-status-badge [status]="estudiante.estaPago"></app-uni-status-badge>
+              <app-uni-status-badge [status]="estudiante.estaPago"
+                [tooltip]="estudiante.estaPago === true ? 'Pagado.' : estudiante.estaPago === false ? 'No registra pago.' : 'Pendiente de pago.'">
+              </app-uni-status-badge>
             </td>
             <td class="text-center">
               <p-button

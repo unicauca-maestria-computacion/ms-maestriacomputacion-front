@@ -97,7 +97,9 @@
             <span class="campo-label"
                   pTooltip="Si ya pagaste y no se refleja, solicita una revisión.">Estado de pago</span>
             <div class="mt-1">
-              <app-uni-status-badge [status]="est.estaPago"></app-uni-status-badge>
+              <app-uni-status-badge [status]="est.estaPago"
+                [tooltip]="est.estaPago === true ? 'Tu matrícula está paga.' : est.estaPago === false ? 'No registra pago. Si ya pagaste, solicita una revisión.' : 'Pendiente de pago.'">
+              </app-uni-status-badge>
             </div>
           </div>
           <div class="col-12 md:col-3 mb-3">

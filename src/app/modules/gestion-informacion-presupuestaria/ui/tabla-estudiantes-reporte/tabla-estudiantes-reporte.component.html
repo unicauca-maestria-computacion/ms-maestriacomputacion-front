@@ -41,7 +41,7 @@
                                 <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true"
                                     [(ngModel)]="estudiante.estaPago" [binary]="true"
                                     styleClass="uni-checkbox"
-                                    pTooltip="Simular pago. Solo estudiantes pagados se contabilizan en los totales.">
+                                    pTooltip="No registra pago. Márquelo para simular que pagó.">
                                 </p-checkbox>
                             </ng-template>
                             <ng-template pTemplate="output">
@@ -61,7 +61,7 @@
                                 [binary]="true"
                                 [disabled]="true"
                                 styleClass="uni-checkbox"
-                                pTooltip="Estado simulado. Active edición para cambiar.">
+                                pTooltip="No registra pago.">
                             </p-checkbox>
                         </ng-template>
                     </ng-template>

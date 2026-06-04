@@ -61,17 +61,20 @@
             <span class="campo-valor">{{ est.periodoIngreso }}</span>
           </div>
           <div class="col-12 md:col-4 mb-3" *ngIf="est.grupoNombre">
-            <span class="campo-label">Grupo</span>
+            <span class="campo-label"
+                  pTooltip="Grupo de investigación al que pertenece el estudiante. Se hereda automáticamente del último período registrado.">Grupo</span>
             <span class="campo-valor">{{ est.grupoNombre }}</span>
           </div>
           <div class="col-12 md:col-4 mb-3" *ngIf="est.esEgresadoUnicauca !== undefined">
-            <span class="campo-label">Egresado Unicauca</span>
+            <span class="campo-label"
+                  pTooltip="Indica si el estudiante es egresado de la Universidad del Cauca. Aplica para un descuento adicional si cumple con las condiciones de votación y semestre.">Egresado Unicauca</span>
             <span class="campo-valor" [class.texto-exito]="est.esEgresadoUnicauca">
               {{ est.esEgresadoUnicauca ? 'Sí' : 'No' }}
             </span>
           </div>
           <div class="col-12 md:col-4 mb-3" *ngIf="est.aplicaVotacion !== undefined">
-            <span class="campo-label">Aplica votación</span>
+            <span class="campo-label"
+                  pTooltip="Proviene de una solicitud de certificado de votación aprobada. El trámite se realiza a través del módulo de Solicitudes.">Aplica votación</span>
             <span class="campo-valor">{{ est.aplicaVotacion ? 'Sí' : 'No' }}</span>
           </div>
         </div>
@@ -84,13 +87,15 @@
         </ng-template>
         <div class="grid p-2">
           <div class="col-12 md:col-3 mb-3">
-            <span class="campo-label">Valor en SMLV</span>
+            <span class="campo-label"
+                  pTooltip="Valor base de la matrícula expresado en SMMLV. Se calcula automáticamente según su semestre financiero y las materias matriculadas. No incluye descuentos, becas ni derechos complementarios. El valor final en pesos depende de la configuración del período académico.">Valor en SMLV</span>
             <span class="valor-monetario">
               {{ est.valorEnSMLV | number:'1.2-2' }}
             </span>
           </div>
           <div class="col-12 md:col-3 mb-3">
-            <span class="campo-label">Estado de pago</span>
+            <span class="campo-label"
+                  pTooltip="Sincronizado desde el sistema oficial de pagos (SIMCA). Si ya realizó su pago y no se refleja, solicite una revisión.">Estado de pago</span>
             <div class="mt-1">
               <app-uni-status-badge [status]="est.estaPago"></app-uni-status-badge>
             </div>
@@ -109,7 +114,8 @@
       <!-- Tarjeta: Becas -->
       <p-card styleClass="mb-4 uni-card">
         <ng-template pTemplate="header">
-          <app-uni-card-header titulo="Becas Aplicadas" icono="sell"></app-uni-card-header>
+          <app-uni-card-header titulo="Becas Aplicadas" icono="sell"
+            pTooltip="Las becas y descuentos mostrados provienen de solicitudes aprobadas por el Concejo de Facultad. No son editables desde este módulo. Para gestionar becas, use el módulo de Solicitudes."></app-uni-card-header>
         </ng-template>
         
         <ng-container *ngIf="est.becasDescuentos?.length; else sinBecas">

@@ -40,7 +40,8 @@
                                 <!-- De resto (False o Null), mostramos el Checkbox editable -->
                                 <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true"
                                     [(ngModel)]="estudiante.estaPago" [binary]="true"
-                                    styleClass="uni-checkbox">
+                                    styleClass="uni-checkbox"
+                                    pTooltip="Marque esta casilla para simular que el estudiante ya pagó su matrícula. Esto afecta los cálculos de la proyección: solo los estudiantes marcados como pagados se contabilizan en los totales.">
                                 </p-checkbox>
                             </ng-template>
                             <ng-template pTemplate="output">

@@ -3,7 +3,8 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 @Component({
   selector: 'app-uni-status-badge',
   template: `
-    <span class="estado-badge" [ngClass]="'estado-badge--' + severity">
+    <span class="estado-badge" [ngClass]="'estado-badge--' + severity"
+          [pTooltip]="tooltip || null">
       {{ label }}
     </span>
   `,
@@ -13,9 +14,12 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 export class UniStatusBadgeComponent {
   /** Estado de pago: true (Pagado), false (No Pago), null (Pendiente) */
   @Input() status: boolean | undefined | null = null;
-  
+
   /** Texto personalizado si no se quiere usar el de pago por defecto */
   @Input() labelOverride: string | null = null;
+
+  /** Tooltip opcional. Si no se provee, no se muestra tooltip. */
+  @Input() tooltip: string | null = null;
 
   get label(): string {
     if (this.labelOverride) return this.labelOverride;

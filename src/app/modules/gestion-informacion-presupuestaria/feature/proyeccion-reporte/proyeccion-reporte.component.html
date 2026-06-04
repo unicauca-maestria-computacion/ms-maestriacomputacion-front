@@ -123,13 +123,13 @@
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
                                         <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true" [(ngModel)]="estudiante.estaPago" [binary]="true"
-                                            pTooltip="Simular pago. Solo estudiantes pagados se contabilizan en los totales."></p-checkbox>
+                                            pTooltip="No registra pago. Márquelo para simular que pagó."></p-checkbox>
                                         <p-tag *ngIf="estudiante.estadoMatriculaFinanciera === true" value="PAGADO" severity="success" icon="pi pi-check"
                                             pTooltip="Pago registrado. No editable."></p-tag>
                                     </ng-template>
                                     <ng-template pTemplate="output">
                                         <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true" [(ngModel)]="estudiante.estaPago" [binary]="true" [disabled]="true"
-                                            pTooltip="Estado simulado. Active edición para cambiar."></p-checkbox>
+                                            pTooltip="No registra pago."></p-checkbox>
                                         <p-tag *ngIf="estudiante.estadoMatriculaFinanciera === true" value="PAGADO" severity="success" icon="pi pi-check"
                                             pTooltip="Pago registrado."></p-tag>
                                     </ng-template>

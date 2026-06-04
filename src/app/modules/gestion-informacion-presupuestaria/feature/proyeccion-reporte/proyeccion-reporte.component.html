@@ -122,12 +122,16 @@
                                 <span class="p-column-title font-bold">Pago</span>
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
-                                        <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true" [(ngModel)]="estudiante.estaPago" [binary]="true"></p-checkbox>
-                                        <p-tag *ngIf="estudiante.estadoMatriculaFinanciera === true" value="PAGADO" severity="success" icon="pi pi-check"></p-tag>
+                                        <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true" [(ngModel)]="estudiante.estaPago" [binary]="true"
+                                            pTooltip="Simular pago. Solo estudiantes pagados se contabilizan en los totales."></p-checkbox>
+                                        <p-tag *ngIf="estudiante.estadoMatriculaFinanciera === true" value="PAGADO" severity="success" icon="pi pi-check"
+                                            pTooltip="Pago registrado en SIMCA. No editable."></p-tag>
                                     </ng-template>
                                     <ng-template pTemplate="output">
-                                        <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true" [(ngModel)]="estudiante.estaPago" [binary]="true" [disabled]="true"></p-checkbox>
-                                        <p-tag *ngIf="estudiante.estadoMatriculaFinanciera === true" value="PAGADO" severity="success" icon="pi pi-check"></p-tag>
+                                        <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true" [(ngModel)]="estudiante.estaPago" [binary]="true" [disabled]="true"
+                                            pTooltip="Estado simulado. Active edición para cambiar."></p-checkbox>
+                                        <p-tag *ngIf="estudiante.estadoMatriculaFinanciera === true" value="PAGADO" severity="success" icon="pi pi-check"
+                                            pTooltip="Pago registrado en SIMCA."></p-tag>
                                     </ng-template>
                                 </p-cellEditor>
                             </td>

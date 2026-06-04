@@ -34,14 +34,14 @@
                                 <!-- Si el pago es Real True, mostramos el badge PAGADO -->
                                 <app-uni-status-badge *ngIf="estudiante.estadoMatriculaFinanciera === true"
                                     [status]="true"
-                                    pTooltip="Pago registrado en el sistema oficial (SIMCA). Este valor NO es editable porque proviene de la fuente oficial de pagos de la universidad.">
+                                    pTooltip="Pago registrado en SIMCA. No editable.">
                                 </app-uni-status-badge>
 
                                 <!-- De resto (False o Null), mostramos el Checkbox editable -->
                                 <p-checkbox *ngIf="estudiante.estadoMatriculaFinanciera !== true"
                                     [(ngModel)]="estudiante.estaPago" [binary]="true"
                                     styleClass="uni-checkbox"
-                                    pTooltip="Marque esta casilla para simular que el estudiante ya pagó su matrícula. Esto afecta los cálculos de la proyección: solo los estudiantes marcados como pagados se contabilizan en los totales.">
+                                    pTooltip="Simular pago. Solo estudiantes pagados se contabilizan en los totales.">
                                 </p-checkbox>
                             </ng-template>
                             <ng-template pTemplate="output">
@@ -53,7 +53,7 @@
                         <!-- Visualización de prioridad: Real (MF) > Simulado (estaPago) -->
                         <ng-container *ngIf="estudiante.estadoMatriculaFinanciera === true; else simulableCheckbox">
                             <app-uni-status-badge [status]="true"
-                                pTooltip="Pago registrado en SIMCA. No editable."></app-uni-status-badge>
+                                pTooltip="Pago registrado en SIMCA."></app-uni-status-badge>
                         </ng-container>
                         <ng-template #simulableCheckbox>
                             <p-checkbox
@@ -61,7 +61,7 @@
                                 [binary]="true"
                                 [disabled]="true"
                                 styleClass="uni-checkbox"
-                                pTooltip="Estado de pago simulado (proyección). Para cambiarlo, active el modo de edición.">
+                                pTooltip="Estado simulado. Active edición para cambiar.">
                             </p-checkbox>
                         </ng-template>
                     </ng-template>

@@ -124,19 +124,23 @@
           <ng-container *ngFor="let beca of est.becasDescuentos; trackBy: trackByBeca; let i = index">
             <div class="grid p-2" [class.border-top-separator]="i > 0">
               <div class="col-12 md:col-3 mb-2">
-                <span class="campo-label">Tipo</span>
+                <span class="campo-label"
+                      pTooltip="Tipo de beca según la resolución del Concejo.">Tipo</span>
                 <span class="campo-valor">{{ beca.tipo }}</span>
               </div>
               <div class="col-12 md:col-3 mb-2">
-                <span class="campo-label">Porcentaje</span>
+                <span class="campo-label"
+                      pTooltip="Porcentaje de descuento aprobado por el Concejo.">Porcentaje</span>
                 <span class="campo-valor">{{ beca.porcentaje }}%</span>
               </div>
               <div class="col-12 md:col-3 mb-2">
-                <span class="campo-label">Resolución</span>
+                <span class="campo-label"
+                      pTooltip="Resolución del Concejo que aprueba la beca.">Resolución</span>
                 <span class="campo-valor">{{ beca.resolucion }}</span>
               </div>
               <div class="col-12 md:col-3 mb-2">
-                <span class="campo-label">Estado</span>
+                <span class="campo-label"
+                      pTooltip="Estado de la solicitud de beca.">Estado</span>
                 <div class="mt-1">
                   <app-uni-status-badge 
                     [labelOverride]="beca.estado"

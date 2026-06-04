@@ -34,7 +34,7 @@
                                 <!-- Si el pago es Real True, mostramos el badge PAGADO -->
                                 <app-uni-status-badge *ngIf="estudiante.estadoMatriculaFinanciera === true"
                                     [status]="true"
-                                    tooltip="Pago registrado en SIMCA. No editable.">
+                                    tooltip="Pago registrado. No editable.">
                                 </app-uni-status-badge>
 
                                 <!-- De resto (False o Null), mostramos el Checkbox editable -->
@@ -53,7 +53,7 @@
                         <!-- Visualización de prioridad: Real (MF) > Simulado (estaPago) -->
                         <ng-container *ngIf="estudiante.estadoMatriculaFinanciera === true; else simulableCheckbox">
                             <app-uni-status-badge [status]="true"
-                                tooltip="Pago registrado en SIMCA."></app-uni-status-badge>
+                                tooltip="Pago registrado."></app-uni-status-badge>
                         </ng-container>
                         <ng-template #simulableCheckbox>
                             <p-checkbox

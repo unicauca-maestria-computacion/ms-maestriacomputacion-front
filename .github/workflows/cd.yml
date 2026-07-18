@@ -52,7 +52,7 @@ jobs:
               -e SPRING_PROFILES_ACTIVE="dev" \
               -e EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE="http://directory:8761/eureka/" \
               -e EUREKA_CLIENT_SERVICEURL_DEFAULTZONE="http://directory:8761/eureka/" \
-              -e JWT_SECRET="mySecretKeyForTestingDeploymentOfPracticaU2026!!!" \
+              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
               -e JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8 -XX:+UseSerialGC -Xms64m -Xmx192m" \
               $DOCKER_USERNAME/practica-profesional-gateway:latest
           else
@@ -104,17 +104,20 @@ jobs:
 
       - name: Clean Old Images of This Service
         run: |
-          echo "Cleaning old images for frontend service..."
+          echo "Cleaning old images for frontend-lineamientos service..."
+          docker ps -a --filter "label=service=lineamientos" --filter "status=exited" -q | xargs -r docker rm 2>/dev/null || true
+          echo "Pruning dangling images..."
+          docker image prune -f
           CURRENT_IMAGE=$(docker inspect frontend-app --format='{{.Image}}' 2>/dev/null || echo "")
           if [ -n "$CURRENT_IMAGE" ]; then
-            docker images --filter "label=service=lineamientos" --format "{{.ID}}" | while read img; do
-              if [ "$img" != "${CURRENT_IMAGE:7:12}" ]; then
-                echo "Removing old image: $img"
-                docker rmi -f $img 2>/dev/null || true
+            CURRENT_SHORT="${CURRENT_IMAGE:7:12}"
+            docker images $DOCKER_USERNAME/practica-profesional-frontend --format "{{.ID}} {{.Tag}}" | while read img_id tag; do
+              if [ "$tag" != "latest" ] && [ "${img_id:0:12}" != "$CURRENT_SHORT" ]; then
+                echo "Removing old tagged image: $img_id ($tag)"
+                docker rmi -f "$img_id" 2>/dev/null || true
               fi
             done
           fi
-          docker images $DOCKER_USERNAME/practica-profesional-frontend --format "{{.ID}} {{.Tag}}" | grep -v "latest" | awk '{print $1}' | xargs -r docker rmi -f 2>/dev/null || true
 
       - name: Clean Stopped Containers of This Service
         run: |

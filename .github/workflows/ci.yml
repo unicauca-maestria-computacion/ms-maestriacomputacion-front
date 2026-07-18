@@ -133,8 +133,8 @@ jobs:
         run: |
           echo "Cleaning old images for frontend-lineamientos service..."
           docker ps -a --filter "label=service=lineamientos" --filter "status=exited" -q | xargs -r docker rm 2>/dev/null || true
-          echo "Pruning dangling images..."
-          docker image prune -f
+          echo 'Removing dangling images for this service...'
+          docker images --filter 'dangling=true' --filter 'label=service=lineamientos' -q | xargs -r docker rmi -f 2>/dev/null || true
           CURRENT_IMAGE=$(docker inspect frontend-app --format='{{.Image}}' 2>/dev/null || echo "")
           if [ -n "$CURRENT_IMAGE" ]; then
             CURRENT_SHORT="${CURRENT_IMAGE:7:12}"

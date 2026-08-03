@@ -24,12 +24,12 @@ export class GestionInformacionPresupuestariaApiService {
         return this.http.get<PeriodoAcademicoDto[]>(backendInfoPresupuestaria('periodos/activos'));
     }
 
-    obtenerPeriodosInactivos(): Observable<PeriodoAcademicoDto[]> {
-        return this.http.get<PeriodoAcademicoDto[]>(backendInfoPresupuestaria('periodos/cerrados'));
+    obtenerPeriodosFinalizados(): Observable<PeriodoAcademicoDto[]> {
+        return this.http.get<PeriodoAcademicoDto[]>(backendInfoPresupuestaria('periodos/finalizados'));
     }
 
-    obtenerPeriodosActivosYCerrados(): Observable<PeriodoAcademicoDto[]> {
-        return this.http.get<PeriodoAcademicoDto[]>(backendInfoPresupuestaria('periodos/activos-y-cerrados'));
+    obtenerPeriodosActivosYFinalizados(): Observable<PeriodoAcademicoDto[]> {
+        return this.http.get<PeriodoAcademicoDto[]>(backendInfoPresupuestaria('periodos/activos-y-finalizados'));
     }
 
     obtenerPeriodoProyeccion(): Observable<PeriodoAcademicoDto> {

@@ -77,15 +77,15 @@ export class GestionInformacionPresupuestariaFacadeService {
         );
     }
 
-    obtenerPeriodosCerrados(): Observable<PeriodoAcademicoDto[]> {
+    obtenerPeriodosFinalizados(): Observable<PeriodoAcademicoDto[]> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.obtenerPeriodosInactivos().pipe(
+        return this.apiService.obtenerPeriodosFinalizados().pipe(
             map(periodos => (periodos || []).map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo }))),
             catchError(err => {
                 this._error.next({
                     mensaje: 'No se pudieron cargar los períodos académicos finalizados.',
-                    codigoError: 'FE-PERIODOS-CERRADOS',
+                    codigoError: 'FE-PERIODOS-FINALIZADOS',
                     codigoHttp: err.status || 500,
                     url: err.url || '',
                     metodo: 'GET'
@@ -96,15 +96,15 @@ export class GestionInformacionPresupuestariaFacadeService {
         );
     }
 
-    obtenerPeriodosActivosYCerrados(): Observable<PeriodoAcademicoDto[]> {
+    obtenerPeriodosActivosYFinalizados(): Observable<PeriodoAcademicoDto[]> {
         this._loading.next(true);
         this._error.next(null);
-        return this.apiService.obtenerPeriodosActivosYCerrados().pipe(
+        return this.apiService.obtenerPeriodosActivosYFinalizados().pipe(
             map(periodos => (periodos || []).map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo }))),
             catchError(err => {
                 this._error.next({
                     mensaje: 'No se pudieron cargar los períodos académicos.',
-                    codigoError: 'FE-PERIODOS-ACT-CERR',
+                    codigoError: 'FE-PERIODOS-ACT-FIN',
                     codigoHttp: err.status || 500,
                     url: err.url || '',
                     metodo: 'GET'

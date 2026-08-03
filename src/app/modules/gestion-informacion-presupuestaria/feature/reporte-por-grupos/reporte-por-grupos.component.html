@@ -11,7 +11,7 @@
     <!-- Selector de Período -->
     <div class="flex justify-content-center mb-4">
         <app-periodo-financiero-selector
-            [modo]="'anios-activos-y-cerrados'"
+            [modo]="'anios-activos-y-finalizados'"
             [mensajeVacio]="'No hay períodos académicos para mostrar.'"
             (periodoSeleccionado)="onPeriodoChange($event)"
             (esUltimoPeriodoChange)="esUltimoPeriodo = $event"

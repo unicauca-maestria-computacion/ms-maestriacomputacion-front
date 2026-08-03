@@ -4,7 +4,7 @@ import { takeUntil } from 'rxjs/operators';
 import { GestionInformacionPresupuestariaFacadeService } from '../../data/facade.service';
 import { PeriodoFinancieroDTORespuesta } from '../../dto/periodo-financiero.dto';
 
-export type PeriodoSelectorModo = 'todos' | 'activos' | 'cerrados' | 'activos-y-cerrados' | 'anios-activos-y-cerrados';
+export type PeriodoSelectorModo = 'todos' | 'activos' | 'finalizados' | 'activos-y-finalizados' | 'anios-activos-y-finalizados';
 
 @Component({
   selector: 'app-periodo-financiero-selector',
@@ -46,15 +46,15 @@ export class PeriodoFinancieroSelectorComponent implements OnInit, OnDestroy {
     this.errorCarga = null;
 
     const fuente$: Observable<PeriodoFinancieroDTORespuesta[]> =
-      this.modo === 'activos'                  ? this.facadeService.obtenerPeriodosActivos() :
-      this.modo === 'cerrados'                 ? this.facadeService.obtenerPeriodosCerrados() :
-      this.modo === 'activos-y-cerrados'       ? this.facadeService.obtenerPeriodosActivosYCerrados() :
-      this.modo === 'anios-activos-y-cerrados' ? this.facadeService.obtenerPeriodosActivosYCerrados() :
+      this.modo === 'activos'                    ? this.facadeService.obtenerPeriodosActivos() :
+      this.modo === 'finalizados'                ? this.facadeService.obtenerPeriodosFinalizados() :
+      this.modo === 'activos-y-finalizados'      ? this.facadeService.obtenerPeriodosActivosYFinalizados() :
+      this.modo === 'anios-activos-y-finalizados' ? this.facadeService.obtenerPeriodosActivosYFinalizados() :
                                                  this.facadeService.obtenerPeriodosFinancieros();
 
     fuente$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (periodos) => {
-        if (this.modo === 'anios-activos-y-cerrados') {
+        if (this.modo === 'anios-activos-y-finalizados') {
           const vistos = new Set<number>();
           this.periodos = periodos.filter(p => {
             const anio = p.anio ?? p.año ?? 0;
@@ -86,7 +86,7 @@ export class PeriodoFinancieroSelectorComponent implements OnInit, OnDestroy {
 
   actualizarPeriodoActual(): void {
     const periodo = this.periodos[this.currentIndex];
-    if (this.modo === 'anios-activos-y-cerrados') {
+    if (this.modo === 'anios-activos-y-finalizados') {
       this.periodoActualTexto = `${periodo.año ?? periodo.anio}`;
     } else {
       this.periodoActualTexto = `${periodo.año ?? periodo.anio} - ${periodo.periodo ?? periodo.tagPeriodo}`;

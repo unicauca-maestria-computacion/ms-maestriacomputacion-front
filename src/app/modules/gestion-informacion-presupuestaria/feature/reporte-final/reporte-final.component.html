@@ -11,7 +11,7 @@
     <!-- Selector de Período -->
     <div class="flex justify-content-center mb-4">
         <app-periodo-financiero-selector
-            [modo]="'cerrados'"
+            [modo]="'finalizados'"
             [mensajeVacio]="'No hay períodos académicos finalizados para mostrar.'"
             (periodoSeleccionado)="onPeriodoChange($event)"
             (sinPeriodos)="sinPeriodos = $event"

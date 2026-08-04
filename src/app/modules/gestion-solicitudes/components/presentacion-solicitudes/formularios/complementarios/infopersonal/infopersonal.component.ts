@@ -90,6 +90,8 @@ export class InfopersonalComponent implements OnInit {
                     this.formInfoPersonal.patchValue({
                         ...datosDeAuth,
                         id: respuesta?.id ?? user.id,
+                        tipoDocumento: datosDeAuth.tipoDocumento || respuesta?.tipoDocumento || '',
+                        numeroDocumento: datosDeAuth.numeroDocumento || respuesta?.numeroDocumento || '',
                     });
                 },
                 error: () => {

@@ -52,7 +52,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
 
     cargarPeriodos(): void {
         this.cargando = true;
-        this.http.get<PeriodoAcademico[]>(`${this.financieraApi}/periodos`).subscribe({
+        this.http.get<PeriodoAcademico[]>(`${this.financieraApi}periodos`).subscribe({
             next: (data) => {
                 this.periodos = (data || [])
                     .filter(p => p.estado === 'FINALIZADO' || p.estado === 'CERRADO')
@@ -72,7 +72,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
         const periodoId = this.periodoSeleccionado.id;
         const periodoLabel = `${this.periodoSeleccionado.anio}-${this.periodoSeleccionado.tagPeriodo}`;
 
-        this.http.get<ReporteRow[]>(`${this.financieraApi}/reporte-centro-postgrados/${periodoId}`).subscribe({
+        this.http.get<ReporteRow[]>(`${this.financieraApi}reporte-centro-postgrados/${periodoId}`).subscribe({
             next: (data) => {
                 try {
                     this.generarExcel(data, periodoLabel);

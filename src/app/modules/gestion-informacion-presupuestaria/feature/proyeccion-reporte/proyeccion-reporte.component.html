@@ -7,7 +7,7 @@
                 </app-opciones-presupuesto>
         
                 <!-- Selector de Periodo Académico -->
-                <app-periodo-financiero-selector [modo]="'activos'"
+                <app-periodo-financiero-selector [modo]="'activos-y-proyeccion'"
                     [mensajeVacio]="'No hay períodos académicos activos para mostrar.'"
                     (periodoSeleccionado)="onPeriodoChange($event)"
                     (sinPeriodosChange)="sinPeriodos = $event"

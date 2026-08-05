@@ -114,7 +114,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
         window.location.reload();
       },
       error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'No se pudo crear la proyección' });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.detail || err?.error?.message || 'No se pudo crear la proyección' });
         this.loadingService.hide();
       }
     });

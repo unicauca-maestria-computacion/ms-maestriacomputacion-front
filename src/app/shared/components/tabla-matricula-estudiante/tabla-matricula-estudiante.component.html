@@ -6,14 +6,10 @@
     <div class="seccion-header">
         <i class="pi pi-wallet mr-2"></i>
         Matrícula Financiera
-        <p-tag *ngIf="esNuevo" value="Nuevo" severity="info" class="ml-2"
-               pTooltip="Sin registro financiero en este período."></p-tag>
-        <p-tag *ngIf="estudiante.estaPago === true" value="PAGADO" severity="success" class="ml-2" icon="pi pi-check"
-               pTooltip="Tu matrícula está paga."></p-tag>
-        <p-tag *ngIf="estudiante.estaPago === false" value="NO PAGADO" severity="danger" class="ml-2" icon="pi pi-times"
-               pTooltip="Tu matrícula no registra pago. Si ya pagaste, solicita una revisión."></p-tag>
-        <p-tag *ngIf="estudiante.estaPago === null || estudiante.estaPago === undefined" value="PENDIENTE" severity="warning" class="ml-2" icon="pi pi-clock"
-               pTooltip="Pendiente de pago."></p-tag>
+        <app-uni-status-badge *ngIf="esNuevo" labelOverride="Nuevo" status="info" class="ml-2"></app-uni-status-badge>
+        <app-uni-status-badge *ngIf="estudiante.estaPago === true" [status]="true" class="ml-2"></app-uni-status-badge>
+        <app-uni-status-badge *ngIf="estudiante.estaPago === false" [status]="false" class="ml-2"></app-uni-status-badge>
+        <app-uni-status-badge *ngIf="estudiante.estaPago === null || estudiante.estaPago === undefined" [status]="null" class="ml-2"></app-uni-status-badge>
     </div>
 
     <div class="seccion-contenido">
@@ -35,8 +31,7 @@
             <!-- Fila 2: Valor Matrícula y Semestre Financiero -->
             <div class="col-12 md:col-6">
                 <div class="detalle-campo">
-                    <span class="detalle-label"
-                          pTooltip="Valor base de tu matrícula. No incluye descuentos ni becas.">Valor de Matrícula en SMMLV</span>
+                    <span class="detalle-label">Valor de Matrícula en SMMLV</span>
                     <span class="detalle-valor" *ngIf="estudiante.valorEnSMLV != null">{{ estudiante.valorEnSMLV }} SMMLV</span>
                     <span class="detalle-valor text-400" *ngIf="estudiante.valorEnSMLV == null">Sin proyección</span>
                 </div>
@@ -51,74 +46,67 @@
             <!-- Fila 3: Descuentos y Beca -->
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label"
-                          pTooltip="Descuento por certificado de votación aprobado.">¿Aplica Descuento de Voto?</span>
+                    <span class="detalle-label">¿Aplica Descuento de Voto?</span>
                     <span class="detalle-valor">
-                        <p-tag [value]="descuentoVoto === 'SI' ? 'Sí' : 'No'"
-                            [severity]="descuentoVoto === 'SI' ? 'success' : 'warning'">
-                        </p-tag>
+                        <app-uni-status-badge [labelOverride]="descuentoVoto === 'SI' ? 'Sí' : 'No'"
+                            [status]="descuentoVoto === 'SI'">
+                        </app-uni-status-badge>
                     </span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label"
-                          pTooltip="Descuento adicional por ser egresado de Unicauca.">Descuento por Egresado (UNICAUCA)</span>
+                    <span class="detalle-label">Descuento por Egresado (UNICAUCA)</span>
                     <span class="detalle-valor">
-                        <p-tag [value]="descuentoEgresado === 'SI' ? 'Sí' : 'No'"
-                            [severity]="descuentoEgresado === 'SI' ? 'success' : 'warning'">
-                        </p-tag>
+                        <app-uni-status-badge [labelOverride]="descuentoEgresado === 'SI' ? 'Sí' : 'No'"
+                            [status]="descuentoEgresado === 'SI'">
+                        </app-uni-status-badge>
                     </span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label"
-                          pTooltip="Resolución del Concejo que aprueba la beca.">No. Res. de Beca</span>
-                    <span class="detalle-valor">{{ becaResolucion || '–' }}</span>
+                    <span class="detalle-label">No. Res. de Beca</span>
+                    <span class="detalle-valor">{{ becaResolucion || '—' }}</span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label"
-                          pTooltip="Porcentaje de descuento aprobado por el Concejo.">% Beca</span>
-                    <span class="detalle-valor">{{ becaPorcentaje || '–' }}</span>
+                    <span class="detalle-label">% Beca</span>
+                    <span class="detalle-valor">{{ becaPorcentaje || '—' }}</span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label"
-                          pTooltip="Tipo de beca según la resolución del Concejo.">Tipo de beca</span>
-                    <span class="detalle-valor">{{ becaTipo || '–' }}</span>
+                    <span class="detalle-label">Tipo de beca</span>
+                    <span class="detalle-valor">{{ becaTipo || '—' }}</span>
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label"
-                          pTooltip="Estado de la solicitud de beca.">Estado Solicitud</span>
+                    <span class="detalle-label">Estado Solicitud</span>
                     <span class="detalle-valor">
-                        <p-tag *ngIf="tieneBeca; else noBecaStatus"
-                            [value]="becaEstado"
-                            [severity]="becaEstado === 'RESUELTA' || becaEstado === 'FINALIZADA' ? 'success' : 'info'">
-                        </p-tag>
-                        <ng-template #noBecaStatus>–</ng-template>
+                        <app-uni-status-badge *ngIf="tieneBeca; else noBecaStatus"
+                            [labelOverride]="becaEstado"
+                            [severity]="getBecaEstadoSeverity(becaEstado)">
+                        </app-uni-status-badge>
+                        <ng-template #noBecaStatus>—</ng-template>
                     </span>
 
                 </div>
             </div>
             <div class="col-12 md:col-6 lg:col-3">
                 <div class="detalle-campo">
-                    <span class="detalle-label"
-                          pTooltip="Indica si la beca fue aprobada por el Concejo.">¿Avalado por Concejo?</span>
+                    <span class="detalle-label">¿Avalado por Concejo?</span>
                     <span class="detalle-valor">
                         <ng-container *ngIf="tieneBeca; else noBecaAval">
-                            <p-tag *ngIf="becaAvalado === 'SI'" value="Avalada" severity="success"></p-tag>
-                            <p-tag *ngIf="becaAvalado === 'NO'" value="No Avalada" severity="danger"></p-tag>
-                            <span *ngIf="becaAvalado === null">–</span>
+                            <app-uni-status-badge *ngIf="becaAvalado === 'SI'" labelOverride="Avalada" [status]="true"></app-uni-status-badge>
+                            <app-uni-status-badge *ngIf="becaAvalado === 'NO'" labelOverride="No Avalada" [status]="false"></app-uni-status-badge>
+                            <span *ngIf="becaAvalado === null">—</span>
                         </ng-container>
 
 
-                        <ng-template #noBecaAval>–</ng-template>
+                        <ng-template #noBecaAval>—</ng-template>
                     </span>
                 </div>
             </div>
@@ -170,7 +158,7 @@
                         </td>
                         <td>
                             <span class="p-column-title">Docente</span>
-                            {{ materia.objDocente?.nombre || '–' }}
+                            {{ materia.objDocente?.nombre || '—' }}
                         </td>
                         <td>
                             <span class="p-column-title">Grupo Clase</span>

@@ -12,10 +12,10 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
 
     @Input() estudiante: Estudiante | null = null;
 
-    becaResolucion: string = '–';
+    becaResolucion: string = '-';
     becaPorcentaje: string = '';
-    becaTipo: string = '–';
-    becaEstado: string = '–';
+    becaTipo: string = '—';
+    becaEstado: string = '—';
     becaAvalado: string | null = null;
     descuentoVoto: string = 'NO';
     descuentoEgresado: string = 'NO';
@@ -33,10 +33,10 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
     private procesarDatosFinancieros(): void {
         if (!this.estudiante) return;
 
-        this.becaResolucion = '–';
+        this.becaResolucion = '-';
         this.becaPorcentaje = '';
-        this.becaTipo = '–';
-        this.becaEstado = '–';
+        this.becaTipo = '—';
+        this.becaEstado = '—';
         this.becaAvalado = null;
         
         // Usar los campos booleanos unificados del backend
@@ -53,17 +53,17 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
         if (listaBecas?.length) {
             this.tieneBeca = true;
             const beca = listaBecas[0];
-            this.becaResolucion = beca.resolucion || '–';
+            this.becaResolucion = beca.resolucion || '-';
             this.becaPorcentaje = beca.porcentaje ? `${beca.porcentaje}%` : '';
             this.becaTipo = beca.tipo || '';
-            this.becaEstado = beca.estado || '–';
+            this.becaEstado = beca.estado || '—';
             this.becaAvalado = beca.avaladoConcejo || null;
         } else {
             this.tieneBeca = false;
-            this.becaResolucion = '–';
+            this.becaResolucion = '-';
             this.becaPorcentaje = '';
-            this.becaTipo = '–';
-            this.becaEstado = '–';
+            this.becaTipo = '—';
+            this.becaEstado = '—';
             this.becaAvalado = null;
         }
         
@@ -79,10 +79,10 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
     }
 
     getBecaEstadoSeverity(estado: string): string {
-        const e = (estado || '').toLowerCase();
-        if (e === 'avalada') return 'success';
-        if (e === 'pendiente') return 'warning';
-        if (e === 'rechazada') return 'danger';
+        const e = (estado || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+        if (e === 'resuelta' || e === 'aprobada' || e === 'avalada') return 'success';
+        if (e === 'en comite' || e === 'en concejo' || e === 'radicada') return 'warning';
+        if (e === 'rechazada' || e === 'no aprobada' || e === 'no avalada') return 'danger';
         return 'info';
     }
 }

@@ -6,7 +6,7 @@ import { gestion_matricula_financiera } from 'src/environments/environment';
 
 interface PeriodoAcademico {
     id: number;
-    periodo: number; // tagPeriodo
+    tagPeriodo: number;
     anio: number;
     descripcion: string;
     estado: string;
@@ -63,7 +63,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                                 p.estado === 'CERRADO'
                         )
                         .sort(
-                            (a, b) => b.anio - a.anio || b.periodo - a.periodo
+                            (a, b) => b.anio - a.anio || b.tagPeriodo - a.tagPeriodo
                         );
                     this.cargando = false;
                 },
@@ -144,7 +144,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
         ];
 
         const p = this.periodoSeleccionado!;
-        const periodoLabel = `${p.anio}-${p.periodo}`;
+        const periodoLabel = `${p.anio}-${p.tagPeriodo}`;
 
         // --- HEADER ---
         // Row 1-2: Empty
@@ -162,7 +162,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
 
         // Row 4: Semester
         const r4 = ws.addRow([]);
-        r4.getCell(12).value = `Semestre: ____${p.periodo}______`;
+        r4.getCell(12).value = `Semestre: ____${p.tagPeriodo}______`;
         r4.getCell(12).font = { bold: true };
 
         // Row 5: Column headers
@@ -274,6 +274,6 @@ export class ReporteCentroPostgradosComponent implements OnInit {
 
     get periodoLabel(): string {
         if (!this.periodoSeleccionado) return '';
-        return `${this.periodoSeleccionado.anio}-${this.periodoSeleccionado.periodo} - ${this.periodoSeleccionado.descripcion}`;
+        return `${this.periodoSeleccionado.anio}-${this.periodoSeleccionado.tagPeriodo} - ${this.periodoSeleccionado.descripcion}`;
     }
 }

@@ -6,6 +6,7 @@ import { GestionInformacionPresupuestariaMapperService } from './mapper.service'
 import { ApiError } from '../dto/api-error';
 import { ConfiguracionReporteFinancieroDTOPeticion } from '../dto/configuracion-reporte-financiero.dto';
 import { ProyeccionEstudianteDTOPeticion } from '../dto/proyeccion-estudiante.dto';
+import { ProyectarPresupuestoDTOPeticion } from '../dto/proyectar-presupuesto.dto';
 import { PeriodoAcademicoDto } from '../dto/periodo-financiero.dto';
 import { ActualizarParticipacionDTOPeticion } from '../dto/porcentaje-grupo.dto';
 import { GastoGeneralDTOPeticion } from '../dto/gasto-general.dto';
@@ -115,6 +116,16 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._loading.next(true);
         this._error.next(null);
         return this.apiService.obtenerPeriodoProyeccion().pipe(
+            map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo })),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    proyectarPresupuesto(dto: ProyectarPresupuestoDTOPeticion): Observable<PeriodoAcademicoDto> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.proyectarPresupuesto(dto).pipe(
             map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo })),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))

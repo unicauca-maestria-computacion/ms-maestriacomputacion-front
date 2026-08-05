@@ -1,0 +1,45 @@
+<p-dialog header="Proyectar Presupuesto" [(visible)]="visible" [modal]="true" [closable]="false" [style]="{width: '500px'}" (onHide)="cancelar()">
+  <form [formGroup]="form" (ngSubmit)="proyectar()" class="p-fluid">
+    <div class="field mt-3">
+      <label class="campo-label">Fecha de inicio *</label>
+      <p-calendar formControlName="fechaInicio" dateFormat="yy-mm-dd" [showIcon]="true" appendTo="body"
+        [ngClass]="{'ng-invalid ng-dirty': form.get('fechaInicio')?.invalid && form.get('fechaInicio')?.touched}">
+      </p-calendar>
+      <small class="p-error" *ngIf="form.get('fechaInicio')?.invalid && form.get('fechaInicio')?.touched">La fecha de inicio es requerida</small>
+    </div>
+
+    <div class="field mt-3">
+      <label class="campo-label">Fecha de fin *</label>
+      <p-calendar formControlName="fechaFin" dateFormat="yy-mm-dd" [showIcon]="true" appendTo="body"
+        [ngClass]="{'ng-invalid ng-dirty': form.get('fechaFin')?.invalid && form.get('fechaFin')?.touched}">
+      </p-calendar>
+      <small class="p-error" *ngIf="form.get('fechaFin')?.invalid && form.get('fechaFin')?.touched">La fecha de fin es requerida</small>
+      <small class="p-error" *ngIf="fechaFinInvalida">La fecha de fin no puede ser anterior a la fecha de inicio</small>
+    </div>
+
+    <div class="field mt-3">
+      <label class="campo-label">Estado</label>
+      <p-inputText value="PROYECCION" [disabled]="true"></p-inputText>
+    </div>
+
+    <div class="field mt-3">
+      <label class="campo-label">Período (auto-detectado)</label>
+      <p-inputText [value]="tagPeriodoPreview.toString()" [disabled]="true"></p-inputText>
+    </div>
+
+    <div class="field mt-3">
+      <label class="campo-label">¿Cuántos estudiantes nuevos espera tener el periodo?</label>
+      <p-inputNumber formControlName="cantidadEstudiantesNuevos" [min]="0" [showButtons]="true" [maxFractionDigits]="0"
+        [ngClass]="{'ng-invalid ng-dirty': form.get('cantidadEstudiantesNuevos')?.invalid && form.get('cantidadEstudiantesNuevos')?.touched}">
+      </p-inputNumber>
+      <small class="p-error" *ngIf="form.get('cantidadEstudiantesNuevos')?.invalid && form.get('cantidadEstudiantesNuevos')?.touched">
+        El valor no puede ser negativo
+      </small>
+    </div>
+
+    <div class="flex justify-content-end gap-2 mt-4 pt-3" style="border-top: 1px solid #E5E2E1;">
+      <button pButton pRipple type="button" label="Cancelar" class="p-button-outlined btn-cancelar" (click)="cancelar()"></button>
+      <button pButton pRipple type="submit" label="Proyectar" class="btn-descargar" [disabled]="!form.valid || fechaFinInvalida" (click)="proyectar()"></button>
+    </div>
+  </form>
+</p-dialog>

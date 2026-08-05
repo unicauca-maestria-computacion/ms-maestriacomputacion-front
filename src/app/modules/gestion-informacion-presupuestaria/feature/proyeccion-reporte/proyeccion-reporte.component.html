@@ -3,7 +3,7 @@
     <p-card>
         <ng-container *ngIf="vm$ | async as vm">
             <div class="page-content">
-                <app-opciones-presupuesto [activeTab]="'proyeccion-reporte'" [currentPeriod]="vm.periodoSeleccionado" (onDescargar)="descargar()">
+                <app-opciones-presupuesto [activeTab]="'proyeccion-reporte'" [currentPeriod]="vm.periodoSeleccionado" (onDescargar)="descargar()" (onProyectarPresupuesto)="abrirDialogoProyectar()">
                 </app-opciones-presupuesto>
         
                 <!-- Selector de Periodo Académico -->
@@ -282,8 +282,10 @@
         </div>
         </ng-container>
     </p-card>
+
+    <app-proyectar-presupuesto-dialog
+        [(visible)]="displayProyectarDialog"
+        [ultimoPeriodo]="periodoSeleccionado"
+        (onProyectar)="proyectarPresupuesto($event)">
+    </app-proyectar-presupuesto-dialog>
 </div>
-
-
-
-

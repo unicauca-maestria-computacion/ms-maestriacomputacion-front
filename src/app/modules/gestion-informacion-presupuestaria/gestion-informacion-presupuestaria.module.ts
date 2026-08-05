@@ -9,6 +9,7 @@ import { ReportePorGruposComponent } from './feature/reporte-por-grupos/reporte-
 import { PeriodoFinancieroSelectorComponent } from './feature/periodo-financiero-selector/periodo-financiero-selector.component';
 import { GastosGeneralesDialogComponent } from './feature/gastos-generales-dialog/gastos-generales-dialog.component';
 import { DescargarReporteDialogComponent } from './feature/descargar-reporte-dialog/descargar-reporte-dialog.component';
+import { ProyectarPresupuestoDialogComponent } from './feature/proyectar-presupuesto-dialog/proyectar-presupuesto-dialog.component';
 
 import { OpcionesPresupuestoComponent } from './ui/opciones-presupuesto/opciones-presupuesto.component';
 import { PresupuestoFilterComponent } from './ui/presupuesto-filter/presupuesto-filter.component';
@@ -32,6 +33,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
         PeriodoFinancieroSelectorComponent,
         GastosGeneralesDialogComponent,
         DescargarReporteDialogComponent,
+        ProyectarPresupuestoDialogComponent,
         OpcionesPresupuestoComponent,
         PresupuestoFilterComponent,
         PresupuestoFormComponent,

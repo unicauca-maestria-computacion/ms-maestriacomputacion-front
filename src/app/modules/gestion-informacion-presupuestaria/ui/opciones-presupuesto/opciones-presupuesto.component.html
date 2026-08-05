@@ -10,7 +10,18 @@
         </p-selectButton>
     </div>
 
-    <div class="flex justify-content-start md:justify-content-end">
+    <div class="flex justify-content-start md:justify-content-end gap-2">
+        <button *ngIf="activeTab === 'proyeccion-reporte'"
+            pButton
+            pRipple
+            type="button"
+            label="Proyectar Presupuesto"
+            icon="pi pi-calendar-plus"
+            class="p-button-outlined"
+            pTooltip="Proyectar presupuesto para un nuevo período"
+            tooltipPosition="left"
+            (click)="proyectarPresupuesto()">
+        </button>
         <button
             pButton
             pRipple

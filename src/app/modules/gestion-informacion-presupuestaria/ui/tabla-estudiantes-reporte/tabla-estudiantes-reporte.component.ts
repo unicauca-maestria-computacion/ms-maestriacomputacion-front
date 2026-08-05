@@ -78,4 +78,16 @@ export class TablaEstudiantesReporteComponent {
             ? (this.configuracion.porcentajeEgresadoFijo * 100 | 0) + '%'
             : '5%';
     }
+
+    becaBloqueada(e: ReporteFinalVM): boolean {
+        return e.becaEstado?.toUpperCase() === 'RESUELTA';
+    }
+
+    votoBloqueado(e: ReporteFinalVM): boolean {
+        return e.estadoMatriculaFinanciera === true || e.estaPago === true;
+    }
+
+    egresadoBloqueado(e: ReporteFinalVM): boolean {
+        return e.aplicaEgresado === true;
+    }
 }

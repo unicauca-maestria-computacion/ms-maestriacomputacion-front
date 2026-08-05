@@ -17,6 +17,7 @@ export interface ProyeccionEstudianteDTORespuesta {
     valorEnSMLV: number;
     materias: MateriaDto[];
     estadoMatriculaFinanciera?: boolean;
+    becaEstado?: string;
 
     // Campos calculados recibidos del backend
     valorMatricula?: number;

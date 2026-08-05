@@ -43,16 +43,16 @@ if (initHref.includes('coordinador')) {
 } else if (initHref.includes('tutor') || initHref.includes('docente')) {
     isMock = true;
     mockUser = {
-        id: 3,
-        username: 'ctutor',
-        email: 'ctutor@unicauca.edu.co',
+        id: 1,
+        username: 'alberto',
+        email: 'alberto@unicauca.edu.co',
         role: ['ROLE_DOCENTE'],
-        phoneNumber: '3110000015',
-        academicCode: 'DOC003',
-        firstName: 'CARLOS',
-        lastName: 'TUTOR',
+        phoneNumber: '3110000000',
+        academicCode: 'DOC001',
+        firstName: 'ALBERTO',
+        lastName: 'DOCENTE',
         idType: 'CEDULA_CIUDADANIA',
-        idNumber: '1061700015'
+        idNumber: '12345678'
     };
     mockToken = 'mock-token-docente';
 }

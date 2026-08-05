@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { gestion_matricula_financiera } from 'src/environments/environment';
-import * as ExcelJS from 'exceljs';
+import * as XLSX from 'xlsx';
 
 interface PeriodoAcademico {
     id: number;
@@ -73,9 +73,9 @@ export class ReporteCentroPostgradosComponent implements OnInit {
         const periodoLabel = `${this.periodoSeleccionado.anio}-${this.periodoSeleccionado.tagPeriodo}`;
 
         this.http.get<ReporteRow[]>(`${this.financieraApi}reporte-centro-postgrados/${periodoId}`).subscribe({
-            next: async (data) => {
+            next: (data) => {
                 try {
-                    await this.generarExcel(data, periodoLabel);
+                    this.generarExcel(data, periodoLabel);
                     this.messageService.add({ severity: 'success', summary: 'Reporte generado', detail: 'Descarga iniciada' });
                 } catch (e) {
                     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo generar el Excel' });
@@ -89,28 +89,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
         });
     }
 
-    private async generarExcel(data: ReporteRow[], periodoLabel: string): Promise<void> {
-        const wb = new ExcelJS.Workbook();
-        const ws = wb.addWorksheet(`Matriculas ${periodoLabel}`);
-
-        // ── Column widths (A=col 1, B=col 2, …, O=col 15) ──
-        ws.getColumn(1).width = 1.73;    // A
-        ws.getColumn(2).width = 14;      // B
-        ws.getColumn(3).width = 35;      // C
-        ws.getColumn(4).width = 12;      // D
-        ws.getColumn(5).width = 10;      // E
-        ws.getColumn(6).width = 12;      // F
-        ws.getColumn(7).width = 12;      // G
-        ws.getColumn(8).width = 18;      // H
-        ws.getColumn(9).width = 8;       // I
-        ws.getColumn(10).width = 8;      // J
-        ws.getColumn(11).width = 10;     // K
-        ws.getColumn(12).width = 12;     // L
-        ws.getColumn(13).width = 29;     // M
-        ws.getColumn(14).width = 18;     // N
-        ws.getColumn(15).width = 12;     // O
-
-        // Agrupar estudiantes por semestreFinanciero
+    private generarExcel(data: ReporteRow[], periodoLabel: string): void {
         const grupos = new Map<number, ReporteRow[]>();
         for (const r of data) {
             const sem = r.semestreFinanciero ?? 0;
@@ -119,182 +98,133 @@ export class ReporteCentroPostgradosComponent implements OnInit {
         }
         const semestres = Array.from(grupos.keys()).sort((a, b) => b - a);
 
-        let currentRow = 1;
+        const rows: any[][] = [];
+        const merges: { s: { r: number; c: number }; e: { r: number; c: number } }[] = [];
 
         for (const semestre of semestres) {
             const estudiantes = grupos.get(semestre)!;
             estudiantes.sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
             const gruposClase = [...new Set(estudiantes.map(e => e.grupoClase).filter(Boolean))].sort();
 
-            // ── Fila 1: Título ──
+            // ── Fila: Título ──
+            const rTitulo = rows.length;
             const titulo = 'Matrícula Financiera-       ESTUDIANTES NUEVOS  SI  __  NO _X_ ( marcar con una x) \n\nMatrícula Financiera-       ESTUDIANTES REGULARES SI  _X_  NO __ ( marcar con una x) \n';
-            ws.mergeCells(currentRow, 2, currentRow, 10);
-            ws.getCell(currentRow, 2).value = titulo;
-            ws.getCell(currentRow, 2).alignment = { wrapText: true, vertical: 'top' };
-            ws.getRow(currentRow).height = 30.75;
+            rows.push(['', titulo, '', '', '', '', '', '', '', '', 'Matrícula Académica', '', '', '', '']);
+            merges.push({ s: { r: rTitulo, c: 1 }, e: { r: rTitulo, c: 9 } });
+            merges.push({ s: { r: rTitulo, c: 10 }, e: { r: rTitulo, c: 14 } });
 
-            ws.mergeCells(currentRow, 11, currentRow, 15);
-            ws.getCell(currentRow, 11).value = 'Matrícula Académica';
-            ws.getCell(currentRow, 11).alignment = { wrapText: true, vertical: 'top' };
-            currentRow++;
+            // ── Fila: Semestre ──
+            const rSem = rows.length;
+            rows.push(['', '', '', '', '', '', '', '', '', '', `Semestre: ____${semestre}____`, '', '', '', '']);
+            merges.push({ s: { r: rSem, c: 10 }, e: { r: rSem, c: 14 } });
 
-            // ── Fila 2: Semestre ──
-            ws.mergeCells(currentRow, 11, currentRow, 15);
-            ws.getCell(currentRow, 11).value = `Semestre: ____${semestre}____`;
-            ws.getCell(currentRow, 11).alignment = { wrapText: true, vertical: 'top' };
-            ws.getRow(currentRow).height = 21.75;
-            currentRow++;
-
-            // ── Filas 3-7: Cabeceras con celdas combinadas ──
-            const headerStart = currentRow;
-
-            const headers = [
-                '', '',
-                'Identificación', 'Nombres completos del estudiante',
+            // ── Cabeceras (4 filas) ──
+            const h0 = rows.length;
+            rows.push([
+                '', '', 'Identificación', 'Nombres completos del estudiante',
                 'Valor de Matrícula en SMMLV', 'SEM FINAN',
                 '¿Aplica Descuento de Voto? ', 'Descuento por Egresado (UNICAUCA) ',
                 'No. Res. de Beca', '% Beca', '', 'SEM ACAD',
                 'Materias a Matricular ', '',
                 'Nombre Completo de Docente encargado de subir notas al sistema SIMCA por cada una de las asignaturas.',
                 'Grupo Clase'
-            ];
-            headers.forEach((h, i) => { if (h) ws.getCell(currentRow, i + 1).value = h; });
-            ws.getRow(currentRow).height = 21.75;
-            currentRow++;
+            ]);
 
-            ws.getCell(currentRow, 12).value = '*(Listar las materias a matricular para cada uno de los estudiantes)';
-            ws.getRow(currentRow).height = 21.75;
-            currentRow++;
+            const h1 = rows.length;
+            rows.push(['', '', '', '', '', '', '', '', '', '', '', '', '*(Listar las materias a matricular para cada uno de los estudiantes)', '', '', '']);
 
-            ws.getCell(currentRow, 6).value = '(SI / NO)';
-            ws.getCell(currentRow, 7).value = '(SI / NO)';
-            ws.getCell(currentRow, 12).value = ' *(En caso de ser las mismas materias para todos los estudiantes combinar las celdas)';
-            ws.getCell(currentRow, 15).value = gruposClase.join('-');
-            ws.getRow(currentRow).height = 21.75;
-            currentRow++;
+            const h2 = rows.length;
+            rows.push(['', '', '', '', '', '(SI / NO)', '(SI / NO)', '', '', '', '', ' *(En caso de ser las mismas materias para todos los estudiantes combinar las celdas)', '', '', gruposClase.join('-')]);
 
-            ws.mergeCells(currentRow, 8, currentRow, 10);
-            ws.getCell(currentRow, 8).value = ' Pendiente: si aún no cuenta con No. Resolución';
-            ws.getCell(currentRow, 12).value = 'Código-OID';
-            ws.getCell(currentRow, 13).value = 'Materia';
-            ws.getRow(currentRow).height = 33.75;
-            currentRow++;
+            const h3 = rows.length;
+            rows.push(['', '', '', '', '', '', '', ' Pendiente: si aún no cuenta con No. Resolución', '', '', '', 'Código-OID', 'Materia', '', '']);
 
-            const headerEnd = currentRow - 1;
-            const firstH = headerStart;
-            const lastH = headerEnd;
-
-            // Merge vertical de cabeceras
-            [2, 3, 4, 5, 11].forEach(col => ws.mergeCells(firstH, col, lastH, col));
-            ws.mergeCells(headerStart, 6, headerStart + 2, 6);
-            ws.mergeCells(headerStart + 3, 6, headerEnd, 6);
-            ws.mergeCells(headerStart, 7, headerStart + 2, 7);
-            ws.mergeCells(headerStart + 3, 7, headerEnd, 7);
-            ws.mergeCells(headerStart, 8, headerStart + 3, 8);
-            ws.mergeCells(headerStart, 9, headerStart + 3, 10);
-            ws.mergeCells(headerStart, 12, headerStart, 13);
-            ws.mergeCells(headerStart + 1, 12, headerStart + 2, 13);
-            ws.mergeCells(firstH, 14, lastH, 14);
-            ws.mergeCells(headerStart, 15, headerStart + 1, 15);
-            ws.mergeCells(headerStart + 2, 15, headerEnd, 15);
-
-            for (let r = headerStart; r <= headerEnd; r++) {
-                for (let c = 2; c <= 15; c++) {
-                    const cell = ws.getCell(r, c);
-                    cell.alignment = { wrapText: true, vertical: 'middle', horizontal: 'center' };
-                    cell.font = { size: 9 };
-                }
-            }
+            // Merges verticales de cabeceras
+            [1, 2, 3, 4, 10].forEach(c => merges.push({ s: { r: h0, c }, e: { r: h3, c } }));
+            merges.push({ s: { r: h0, c: 5 }, e: { r: h1, c: 5 } });
+            merges.push({ s: { r: h2, c: 5 }, e: { r: h3, c: 5 } });
+            merges.push({ s: { r: h0, c: 6 }, e: { r: h1, c: 6 } });
+            merges.push({ s: { r: h2, c: 6 }, e: { r: h3, c: 6 } });
+            merges.push({ s: { r: h0, c: 7 }, e: { r: h2, c: 7 } });
+            merges.push({ s: { r: h3, c: 7 }, e: { r: h3, c: 9 } });
+            merges.push({ s: { r: h0, c: 8 }, e: { r: h2, c: 9 } });
+            merges.push({ s: { r: h0, c: 11 }, e: { r: h0, c: 12 } });
+            merges.push({ s: { r: h1, c: 11 }, e: { r: h2, c: 12 } });
+            merges.push({ s: { r: h0, c: 13 }, e: { r: h3, c: 13 } });
+            merges.push({ s: { r: h0, c: 14 }, e: { r: h1, c: 14 } });
+            merges.push({ s: { r: h2, c: 14 }, e: { r: h3, c: 14 } });
 
             // ── Filas de datos ──
             for (const est of estudiantes) {
                 const materias = est.materias || [];
                 const numMaterias = Math.max(materias.length, 1);
+                const d0 = rows.length;
 
-                ws.getCell(currentRow, 2).value = est.identificacion;
-                ws.getCell(currentRow, 3).value = est.nombreCompleto;
-                ws.getCell(currentRow, 4).value = est.valorMatriculaSMMLV != null ? est.valorMatriculaSMMLV : '';
-                ws.getCell(currentRow, 5).value = est.semestreFinanciero ?? '';
-                ws.getCell(currentRow, 6).value = est.aplicaDescuentoVoto ? 'SI' : 'NO';
-                ws.getCell(currentRow, 7).value = est.aplicaDescuentoEgresado ? 'SI' : 'NO';
-                ws.getCell(currentRow, 8).value = est.resolucionBeca || (est.porcentajeBeca != null ? '' : 'NO');
-                ws.getCell(currentRow, 11).value = est.semestreAcademico ?? '';
-
-                if (est.porcentajeBeca != null && est.porcentajeBeca > 0) {
-                    ws.getCell(currentRow, 9).value = est.porcentajeBeca + '%';
-                }
+                rows.push([
+                    '',
+                    est.identificacion,
+                    est.nombreCompleto,
+                    est.valorMatriculaSMMLV != null ? est.valorMatriculaSMMLV : '',
+                    est.semestreFinanciero ?? '',
+                    est.aplicaDescuentoVoto ? 'SI' : 'NO',
+                    est.aplicaDescuentoEgresado ? 'SI' : 'NO',
+                    est.resolucionBeca || (est.porcentajeBeca != null ? '' : 'NO'),
+                    est.porcentajeBeca != null && est.porcentajeBeca > 0 ? est.porcentajeBeca + '%' : '',
+                    '',
+                    est.semestreAcademico ?? '',
+                    materias.length > 0 ? (materias[0].codigoOid || '') : '',
+                    materias.length > 0 ? materias[0].materia : '',
+                    est.docenteEncargado || '',
+                    est.grupoClase || '',
+                ]);
 
                 if (numMaterias > 1) {
-                    const mergeEnd = currentRow + numMaterias - 1;
-                    [2, 3, 4, 5, 6, 7, 8, 9, 10, 11].forEach(col =>
-                        ws.mergeCells(currentRow, col, mergeEnd, col)
+                    const mergeEnd = d0 + numMaterias - 1;
+                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach(c =>
+                        merges.push({ s: { r: d0, c }, e: { r: mergeEnd, c } })
                     );
-                }
+                    merges.push({ s: { r: d0, c: 13 }, e: { r: mergeEnd, c: 13 } });
+                    merges.push({ s: { r: d0, c: 14 }, e: { r: mergeEnd, c: 14 } });
 
-                if (materias.length === 0) {
-                    ws.getCell(currentRow, 12).value = '';
-                    ws.getCell(currentRow, 13).value = '';
-                    ws.getCell(currentRow, 14).value = est.docenteEncargado || '';
-                    ws.getCell(currentRow, 15).value = est.grupoClase || '';
-                    currentRow++;
-                } else {
-                    for (let i = 0; i < materias.length; i++) {
-                        ws.getCell(currentRow, 12).value = materias[i].codigoOid || '';
-                        ws.getCell(currentRow, 13).value = materias[i].materia || '';
-                        if (i === 0) {
-                            ws.getCell(currentRow, 14).value = est.docenteEncargado || '';
-                            ws.getCell(currentRow, 15).value = est.grupoClase || '';
-                        }
-                        if (numMaterias > 1 && i === 0) {
-                            ws.mergeCells(currentRow, 14, currentRow + numMaterias - 1, 14);
-                            ws.mergeCells(currentRow, 15, currentRow + numMaterias - 1, 15);
-                        }
-                        currentRow++;
+                    for (let i = 1; i < materias.length; i++) {
+                        rows.push([
+                            '', '', '', '', '', '', '', '', '', '', '',
+                            materias[i].codigoOid || '',
+                            materias[i].materia,
+                            '', ''
+                        ]);
                     }
                 }
             }
 
             // ── Notas al pie ──
-            ws.mergeCells(currentRow, 2, currentRow, 15);
-            ws.getCell(currentRow, 2).value = '*Para aplicar descuento de voto se requiere en físico anexos certificados de votación vigente (29 de octubre de 2023) de lo contario no se efectuará el descuento de votación. ';
-            ws.getRow(currentRow).height = 10.5;
-            currentRow++;
+            const fn0 = rows.length;
+            rows.push(['', '*Para aplicar descuento de voto se requiere en físico anexos certificados de votación vigente (29 de octubre de 2023) de lo contario no se efectuará el descuento de votación. ', '', '', '', '', '', '', '', '', '', '', '', '', '']);
+            merges.push({ s: { r: fn0, c: 1 }, e: { r: fn0, c: 14 } });
 
-            ws.mergeCells(currentRow, 2, currentRow, 15);
-            ws.getCell(currentRow, 2).value = '* El descuento del 5% (Egresado) unicamente aplica para los estudiantes que hayan ejercido el derecho al voto y tengan el titulo profesional';
-            ws.getRow(currentRow).height = 10.5;
-            currentRow++;
+            const fn1 = rows.length;
+            rows.push(['', '* El descuento del 5% (Egresado) unicamente aplica para los estudiantes que hayan ejercido el derecho al voto y tengan el titulo profesional', '', '', '', '', '', '', '', '', '', '', '', '', '']);
+            merges.push({ s: { r: fn1, c: 1 }, e: { r: fn1, c: 14 } });
 
-            ws.getCell(currentRow, 2).value = 'SEM FINAN';
-            ws.getCell(currentRow, 3).value = ' Semestre financiero';
-            ws.getRow(currentRow).height = 10.5;
-            currentRow++;
+            rows.push(['', 'SEM FINAN', ' Semestre financiero', '', '', '', '', '', '', '', '', '', '', '', '']);
+            rows.push(['', 'SEM ACAD', 'Semestre Académico', '', '', '', '', '', '', '', '', '', '', '', '']);
 
-            ws.getCell(currentRow, 2).value = 'SEM ACAD';
-            ws.getCell(currentRow, 3).value = 'Semestre Académico';
-            ws.getRow(currentRow).height = 10.5;
-            currentRow++;
-
-            // ── 4 filas vacías de espaciado ──
-            currentRow += 4;
+            rows.push([], [], [], []);
         }
 
-        // ── Bordes ──
-        for (let r = 1; r < currentRow; r++) {
-            for (let c = 2; c <= 15; c++) {
-                const cell = ws.getCell(r, c);
-                if (!cell.value) continue;
-                cell.border = {
-                    top: { style: 'thin' },
-                    left: { style: 'thin' },
-                    bottom: { style: 'thin' },
-                    right: { style: 'thin' },
-                };
-            }
-        }
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!merges'] = merges;
+        ws['!cols'] = [
+            { wch: 1.73 }, { wch: 14 }, { wch: 35 }, { wch: 12 },
+            { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 18 },
+            { wch: 8 }, { wch: 8 }, { wch: 10 }, { wch: 12 },
+            { wch: 29 }, { wch: 18 }, { wch: 12 },
+        ];
 
-        // ── Descargar ──
-        const buffer = await wb.xlsx.writeBuffer();
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, `Matriculas ${periodoLabel}`);
+        const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');

@@ -45,6 +45,7 @@ export class GestionPeriodoAcademicoComponent implements OnInit, OnDestroy {
         { label: 'ACTIVO', value: 'ACTIVO' },
         { label: 'INACTIVO', value: 'INACTIVO' },
         { label: 'FINALIZADO', value: 'FINALIZADO' },
+        { label: 'PROYECCION', value: 'PROYECCION' },
     ];
 
     private readonly destroy$ = new Subject<void>();

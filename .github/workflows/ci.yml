@@ -21,7 +21,7 @@ jobs:
       - name: Build and push Docker image
         run: |
           TAG=$(date +%Y%m%d-%H%M%S)-${GITHUB_SHA::7}
-          docker build \
+          docker build --no-cache \
             --label "project=practica-u" \
             --label "service=lineamientos" \
             -t $DOCKER_USERNAME/practica-profesional-frontend:$TAG \

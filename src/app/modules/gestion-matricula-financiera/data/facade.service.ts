@@ -121,6 +121,7 @@ export class GestionMatriculaFinancieraFacadeService {
 
         return this.apiService.obtenerPeriodosAcademicos().pipe(
             map(dtos => this.mapper.mappearDeListaRespuestaAPeriodoAcademico(dtos)),
+            map(periodos => periodos.filter(p => p.estado !== 'INACTIVO')),
             tap(periodos => this._periodos.next(periodos)),
             catchError(error => {
                 this._error.next(error);

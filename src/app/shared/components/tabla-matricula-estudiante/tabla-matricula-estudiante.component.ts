@@ -79,10 +79,10 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
     }
 
     getBecaEstadoSeverity(estado: string): string {
-        const e = (estado || '').toLowerCase();
-        if (e === 'avalada') return 'success';
-        if (e === 'pendiente') return 'warning';
-        if (e === 'rechazada') return 'danger';
+        const e = (estado || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+        if (e === 'resuelta' || e === 'aprobada' || e === 'avalada') return 'success';
+        if (e === 'en comite' || e === 'en concejo' || e === 'radicada') return 'warning';
+        if (e === 'rechazada' || e === 'no aprobada' || e === 'no avalada') return 'danger';
         return 'info';
     }
 }

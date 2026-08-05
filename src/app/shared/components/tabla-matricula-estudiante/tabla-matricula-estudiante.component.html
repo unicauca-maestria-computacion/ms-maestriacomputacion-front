@@ -86,9 +86,9 @@
                 <div class="detalle-campo">
                     <span class="detalle-label">Estado Solicitud</span>
                     <span class="detalle-valor">
-                        <app-uni-status-badge *ngIf="tieneBeca; else noBecaStatus" 
+                        <app-uni-status-badge *ngIf="tieneBeca; else noBecaStatus"
                             [labelOverride]="becaEstado"
-                            [status]="becaEstado === 'RESUELTA' || becaEstado === 'FINALIZADA'">
+                            [severity]="getBecaEstadoSeverity(becaEstado)">
                         </app-uni-status-badge>
                         <ng-template #noBecaStatus>—</ng-template>
                     </span>

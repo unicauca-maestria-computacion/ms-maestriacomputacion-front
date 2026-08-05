@@ -6,7 +6,10 @@
     <div class="flex flex-column gap-3">
         <div class="flex align-items-center gap-2">
             <i class="pi pi-download text-primary text-lg"></i>
-            <span class="text-600">Selecciona un período finalizado y descarga el reporte en Excel.</span>
+            <span class="text-600"
+                >Selecciona un período finalizado y descarga el reporte en
+                Excel.</span
+            >
         </div>
 
         <div class="flex align-items-center gap-3">
@@ -17,12 +20,19 @@
                 placeholder="Selecciona un período"
                 [loading]="cargando"
                 styleClass="w-20rem"
-                [style]="{ minWidth: '300px' }">
+                [style]="{ minWidth: '300px' }"
+            >
                 <ng-template let-periodo pTemplate="item">
-                    <span>{{ periodo.anio }}-{{ periodo.periodo }} — {{ periodo.descripcion }}</span>
+                    <span
+                        >{{ periodo.anio }}-{{ periodo.tagPeriodo }} —
+                        {{ periodo.descripcion }}</span
+                    >
                 </ng-template>
                 <ng-template let-periodo pTemplate="selectedItem">
-                    <span>{{ periodo.anio }}-{{ periodo.periodo }} — {{ periodo.descripcion }}</span>
+                    <span
+                        >{{ periodo.anio }}-{{ periodo.tagPeriodo }} —
+                        {{ periodo.descripcion }}</span
+                    >
                 </ng-template>
             </p-dropdown>
 
@@ -35,8 +45,8 @@
                 class="p-button-primary"
                 [disabled]="!periodoSeleccionado"
                 [loading]="descargando"
-                (click)="descargarReporte()">
-            </button>
+                (click)="descargarReporte()"
+            ></button>
         </div>
     </div>
 </p-panel>

@@ -184,8 +184,8 @@ export class ReporteCentroPostgradosComponent implements OnInit {
         ];
 
         const wb = XLSX.utils.book_new();
-        utils.book_append_sheet(wb, ws, 'Matriculas');
-        const buffer = write(wb, { bookType: 'xlsx', type: 'array' });
+        XLSX.utils.book_append_sheet(wb, ws, 'Matriculas');
+        const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
 
         const blob = new Blob([buffer], {
             type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

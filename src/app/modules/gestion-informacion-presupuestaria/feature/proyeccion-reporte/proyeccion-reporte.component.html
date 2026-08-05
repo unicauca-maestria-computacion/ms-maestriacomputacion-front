@@ -5,7 +5,8 @@
     <app-opciones-presupuesto
         [activeTab]="'proyeccion-reporte'"
         [currentPeriod]="periodoSeleccionado"
-        (onDescargar)="descargar()">
+        (onDescargar)="descargar()"
+        (onProyectarPresupuesto)="abrirDialogoProyectar()">
     </app-opciones-presupuesto>
 
     <!-- Selector de Período -->
@@ -78,4 +79,10 @@
             </div>
         
     </ng-container>
+
+    <app-proyectar-presupuesto-dialog
+        [(visible)]="displayProyectarDialog"
+        [ultimoPeriodo]="periodoSeleccionado"
+        (onProyectar)="proyectarPresupuesto($event)">
+    </app-proyectar-presupuesto-dialog>
 </div>

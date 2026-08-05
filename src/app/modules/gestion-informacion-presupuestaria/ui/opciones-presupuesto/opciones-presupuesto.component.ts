@@ -23,6 +23,7 @@ export class OpcionesPresupuestoComponent implements OnInit, OnChanges {
   @Input() activeTab: string = 'reporte-final';
   @Input() currentPeriod: PeriodoFinancieroDTORespuesta | null = null;
   @Output() onDescargar = new EventEmitter<void>();
+  @Output() onProyectarPresupuesto = new EventEmitter<void>();
 
   displayDescargarModal: boolean = false;
 
@@ -54,6 +55,10 @@ export class OpcionesPresupuestoComponent implements OnInit, OnChanges {
   descargar(): void {
     this.displayDescargarModal = true;
     this.onDescargar.emit();
+  }
+
+  proyectarPresupuesto(): void {
+    this.onProyectarPresupuesto.emit();
   }
 
   trackByTabOption(index: number, tab: TabOption): string {

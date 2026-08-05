@@ -7,6 +7,7 @@ import { ConfiguracionReporteFinanciero, ProyeccionEstudiante, ReporteProyeccion
 import { PeriodoFinancieroDTORespuesta } from '../../dto/periodo-financiero.dto';
 import { ProyeccionEstudianteDTOPeticion } from '../../dto/proyeccion-estudiante.dto';
 import { ConfiguracionReporteFinancieroDTOPeticion } from '../../dto/configuracion-reporte-financiero.dto';
+import { ProyectarPresupuestoDTOPeticion } from '../../dto/proyectar-presupuesto.dto';
 import { TotalesReporteService } from '../../data/totales-reporte.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';
 
@@ -64,7 +65,28 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     return this.editingRowKey !== null;
   }
 
+  displayProyectarDialog = false;
+
   ngOnInit(): void {
+  }
+
+  abrirDialogoProyectar(): void {
+    this.displayProyectarDialog = true;
+  }
+
+  proyectarPresupuesto(dto: ProyectarPresupuestoDTOPeticion): void {
+    this.loadingService.show('Creando proyección de presupuesto...');
+    this.facadeService.proyectarPresupuesto(dto).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Período de proyección creado correctamente' });
+        this.loadingService.hide();
+        window.location.reload();
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'No se pudo crear la proyección' });
+        this.loadingService.hide();
+      }
+    });
   }
 
   onPeriodoChange(periodo: PeriodoFinancieroDTORespuesta): void {

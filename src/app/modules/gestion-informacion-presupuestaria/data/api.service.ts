@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { backendInfoPresupuestaria } from 'src/app/core/constants/api-url';
 import { ConfiguracionReporteFinancieroDTOPeticion } from '../dto/configuracion-reporte-financiero.dto';
 import { ProyeccionEstudianteDTOPeticion } from '../dto/proyeccion-estudiante.dto';
+import { ProyectarPresupuestoDTOPeticion } from '../dto/proyectar-presupuesto.dto';
 import { PeriodoAcademicoDto } from '../dto/periodo-financiero.dto';
 import { ReporteProyeccionEstudiantesDTORespuesta } from '../dto/reporte-proyeccion-estudiantes.dto';
 import { ReporteEstudiantesDTORespuesta } from '../dto/reporte-estudiantes.dto';
@@ -34,6 +35,10 @@ export class GestionInformacionPresupuestariaApiService {
 
     obtenerPeriodoProyeccion(): Observable<PeriodoAcademicoDto> {
         return this.http.get<PeriodoAcademicoDto>(backendInfoPresupuestaria('periodos/proyeccion'));
+    }
+
+    proyectarPresupuesto(dto: ProyectarPresupuestoDTOPeticion): Observable<PeriodoAcademicoDto> {
+        return this.http.post<PeriodoAcademicoDto>(backendInfoPresupuestaria('periodos/proyeccion'), dto);
     }
 
     obtenerProyeccionEstudiantes(tagPeriodo?: number, anio?: number): Observable<ReporteProyeccionEstudiantesDTORespuesta> {

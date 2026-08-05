@@ -14,18 +14,30 @@
         </button>
     </div>
 
-    <!-- Botón Descargar -->
-    <button
-        pButton pRipple
-        type="button"
-        label="Descargar"
-        class="p-button-rounded p-button-outlined descargar-btn"
-        pTooltip="Descargar reporte en Excel"
-        tooltipPosition="left"
-        aria-label="Descargar reporte en Excel"
-        (click)="descargar()">
-        <span class="material-symbols-rounded mr-2" aria-hidden="true" style="font-size: 18px;">download</span>
-    </button>
+    <!-- Botones de acción -->
+    <div class="flex gap-2">
+        <button *ngIf="activeTab === 'proyeccion-reporte'"
+            pButton pRipple
+            type="button"
+            label="Proyectar Presupuesto"
+            class="p-button-rounded p-button-outlined descargar-btn"
+            pTooltip="Proyectar presupuesto para un nuevo período"
+            tooltipPosition="left"
+            (click)="proyectarPresupuesto()">
+            <span class="material-symbols-rounded mr-2" aria-hidden="true" style="font-size: 18px;">add_circle</span>
+        </button>
+        <button
+            pButton pRipple
+            type="button"
+            label="Descargar"
+            class="p-button-rounded p-button-outlined descargar-btn"
+            pTooltip="Descargar reporte en Excel"
+            tooltipPosition="left"
+            aria-label="Descargar reporte en Excel"
+            (click)="descargar()">
+            <span class="material-symbols-rounded mr-2" aria-hidden="true" style="font-size: 18px;">download</span>
+        </button>
+    </div>
 </div>
 
 <app-descargar-reporte-dialog

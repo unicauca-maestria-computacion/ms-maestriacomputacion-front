@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { gestion_matricula_financiera } from 'src/environments/environment';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 
 interface PeriodoAcademico {
     id: number;
@@ -27,6 +27,16 @@ interface ReporteRow {
     grupoClase: string;
 }
 
+type MergeRange = { s: { r: number; c: number }; e: { r: number; c: number } };
+
+const BORDER_MEDIUM = { style: 'medium', color: { rgb: '000000' } };
+const BORDER_ALL = { top: BORDER_MEDIUM, bottom: BORDER_MEDIUM, left: BORDER_MEDIUM, right: BORDER_MEDIUM };
+const ALIGN_CENTER_WRAP = { wrapText: true, vertical: 'center', horizontal: 'center' };
+const ALIGN_LEFT_WRAP = { wrapText: true, vertical: 'center', horizontal: 'left' };
+const FONT_ARIAL_10 = { name: 'Arial', sz: 10 };
+const FONT_ARIAL_10_BOLD = { name: 'Arial', sz: 10, bold: true };
+const FONT_ARIAL_9 = { name: 'Arial', sz: 9 };
+
 @Component({
     selector: 'app-reporte-centro-postgrados',
     templateUrl: './reporte-centro-postgrados.component.html',
@@ -41,14 +51,9 @@ export class ReporteCentroPostgradosComponent implements OnInit {
 
     private readonly financieraApi = gestion_matricula_financiera.api_url;
 
-    constructor(
-        private http: HttpClient,
-        private messageService: MessageService
-    ) {}
+    constructor(private http: HttpClient, private messageService: MessageService) {}
 
-    ngOnInit(): void {
-        this.cargarPeriodos();
-    }
+    ngOnInit(): void { this.cargarPeriodos(); }
 
     cargarPeriodos(): void {
         this.cargando = true;
@@ -99,26 +104,37 @@ export class ReporteCentroPostgradosComponent implements OnInit {
         const semestres = Array.from(grupos.keys()).sort((a, b) => b - a);
 
         const rows: any[][] = [];
-        const merges: { s: { r: number; c: number }; e: { r: number; c: number } }[] = [];
+        const merges: MergeRange[] = [];
+        const cellStyles: Map<string, any> = new Map();
+        const styleKey = (r: number, c: number) => `${r},${c}`;
+
+        const setStyle = (r: number, c: number, s: any) => { cellStyles.set(styleKey(r, c), s); };
+        const setRangeStyle = (r1: number, c1: number, r2: number, c2: number, s: any) => {
+            for (let rr = r1; rr <= r2; rr++)
+                for (let cc = c1; cc <= c2; cc++)
+                    setStyle(rr, cc, s);
+        };
+
+        rows.push([], [], []);
 
         for (const semestre of semestres) {
             const estudiantes = grupos.get(semestre)!;
             estudiantes.sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
             const gruposClase = [...new Set(estudiantes.map(e => e.grupoClase).filter(Boolean))].sort();
 
-            // ── Fila: Título ──
             const rTitulo = rows.length;
             const titulo = 'Matrícula Financiera-       ESTUDIANTES NUEVOS  SI  __  NO _X_ ( marcar con una x) \n\nMatrícula Financiera-       ESTUDIANTES REGULARES SI  _X_  NO __ ( marcar con una x) \n';
             rows.push(['', titulo, '', '', '', '', '', '', '', '', 'Matrícula Académica', '', '', '', '']);
             merges.push({ s: { r: rTitulo, c: 1 }, e: { r: rTitulo, c: 9 } });
             merges.push({ s: { r: rTitulo, c: 10 }, e: { r: rTitulo, c: 14 } });
+            setStyle(rTitulo, 1, { ...BORDER_ALL, alignment: ALIGN_CENTER_WRAP, font: FONT_ARIAL_10_BOLD });
+            setStyle(rTitulo, 10, { ...BORDER_ALL, alignment: ALIGN_CENTER_WRAP, font: FONT_ARIAL_10_BOLD });
 
-            // ── Fila: Semestre ──
             const rSem = rows.length;
             rows.push(['', '', '', '', '', '', '', '', '', '', `Semestre: ____${semestre}____`, '', '', '', '']);
             merges.push({ s: { r: rSem, c: 10 }, e: { r: rSem, c: 14 } });
+            setStyle(rSem, 10, { ...BORDER_ALL, alignment: ALIGN_CENTER_WRAP, font: FONT_ARIAL_10_BOLD });
 
-            // ── Cabeceras (4 filas) ──
             const h0 = rows.length;
             rows.push([
                 '', '', 'Identificación', 'Nombres completos del estudiante',
@@ -139,7 +155,6 @@ export class ReporteCentroPostgradosComponent implements OnInit {
             const h3 = rows.length;
             rows.push(['', '', '', '', '', '', '', ' Pendiente: si aún no cuenta con No. Resolución', '', '', '', 'Código-OID', 'Materia', '', '']);
 
-            // Merges verticales de cabeceras
             [1, 2, 3, 4, 10].forEach(c => merges.push({ s: { r: h0, c }, e: { r: h3, c } }));
             merges.push({ s: { r: h0, c: 5 }, e: { r: h1, c: 5 } });
             merges.push({ s: { r: h2, c: 5 }, e: { r: h3, c: 5 } });
@@ -154,28 +169,29 @@ export class ReporteCentroPostgradosComponent implements OnInit {
             merges.push({ s: { r: h0, c: 14 }, e: { r: h1, c: 14 } });
             merges.push({ s: { r: h2, c: 14 }, e: { r: h3, c: 14 } });
 
-            // ── Filas de datos ──
+            setRangeStyle(h0, 1, h3, 14, { ...BORDER_ALL, alignment: ALIGN_CENTER_WRAP, font: FONT_ARIAL_10 });
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14].forEach(c => setStyle(h0, c, { ...BORDER_ALL, alignment: ALIGN_CENTER_WRAP, font: FONT_ARIAL_10_BOLD }));
+            setStyle(h3, 11, { ...BORDER_ALL, alignment: ALIGN_CENTER_WRAP, font: FONT_ARIAL_10_BOLD });
+            setStyle(h3, 12, { ...BORDER_ALL, alignment: ALIGN_CENTER_WRAP, font: FONT_ARIAL_10_BOLD });
+            setStyle(h3, 7, { ...BORDER_ALL, alignment: ALIGN_CENTER_WRAP, font: FONT_ARIAL_9 });
+
             for (const est of estudiantes) {
                 const materias = est.materias || [];
                 const numMaterias = Math.max(materias.length, 1);
                 const d0 = rows.length;
 
                 rows.push([
-                    '',
-                    est.identificacion,
-                    est.nombreCompleto,
+                    '', est.identificacion, est.nombreCompleto,
                     est.valorMatriculaSMMLV != null ? est.valorMatriculaSMMLV : '',
                     est.semestreFinanciero ?? '',
                     est.aplicaDescuentoVoto ? 'SI' : 'NO',
                     est.aplicaDescuentoEgresado ? 'SI' : 'NO',
                     est.resolucionBeca || (est.porcentajeBeca != null ? '' : 'NO'),
                     est.porcentajeBeca != null && est.porcentajeBeca > 0 ? est.porcentajeBeca + '%' : '',
-                    '',
-                    est.semestreAcademico ?? '',
+                    '', est.semestreAcademico ?? '',
                     materias.length > 0 ? (materias[0].codigoOid || '') : '',
                     materias.length > 0 ? materias[0].materia : '',
-                    est.docenteEncargado || '',
-                    est.grupoClase || '',
+                    est.docenteEncargado || '', est.grupoClase || '',
                 ]);
 
                 if (numMaterias > 1) {
@@ -185,31 +201,34 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                     );
                     merges.push({ s: { r: d0, c: 13 }, e: { r: mergeEnd, c: 13 } });
                     merges.push({ s: { r: d0, c: 14 }, e: { r: mergeEnd, c: 14 } });
-
                     for (let i = 1; i < materias.length; i++) {
-                        rows.push([
-                            '', '', '', '', '', '', '', '', '', '', '',
-                            materias[i].codigoOid || '',
-                            materias[i].materia,
-                            '', ''
-                        ]);
+                        rows.push(['', '', '', '', '', '', '', '', '', '', '', materias[i].codigoOid || '', materias[i].materia, '', '']);
                     }
                 }
+
+                setRangeStyle(d0, 1, d0 + numMaterias - 1, 14, { ...BORDER_ALL, alignment: ALIGN_CENTER_WRAP, font: FONT_ARIAL_10 });
+                setStyle(d0, 1, { ...BORDER_ALL, alignment: ALIGN_LEFT_WRAP, font: FONT_ARIAL_10 });
+                setStyle(d0, 2, { ...BORDER_ALL, alignment: ALIGN_LEFT_WRAP, font: FONT_ARIAL_10 });
             }
 
-            // ── Notas al pie ──
             const fn0 = rows.length;
             rows.push(['', '*Para aplicar descuento de voto se requiere en físico anexos certificados de votación vigente (29 de octubre de 2023) de lo contario no se efectuará el descuento de votación. ', '', '', '', '', '', '', '', '', '', '', '', '', '']);
             merges.push({ s: { r: fn0, c: 1 }, e: { r: fn0, c: 14 } });
+            setStyle(fn0, 1, { ...BORDER_ALL, alignment: ALIGN_LEFT_WRAP, font: FONT_ARIAL_10 });
 
             const fn1 = rows.length;
             rows.push(['', '* El descuento del 5% (Egresado) unicamente aplica para los estudiantes que hayan ejercido el derecho al voto y tengan el titulo profesional', '', '', '', '', '', '', '', '', '', '', '', '', '']);
             merges.push({ s: { r: fn1, c: 1 }, e: { r: fn1, c: 14 } });
+            setStyle(fn1, 1, { ...BORDER_ALL, alignment: ALIGN_LEFT_WRAP, font: FONT_ARIAL_10 });
 
             rows.push(['', 'SEM FINAN', ' Semestre financiero', '', '', '', '', '', '', '', '', '', '', '', '']);
+            setStyle(fn1 + 1, 1, { ...BORDER_ALL, alignment: { vertical: 'center' }, font: FONT_ARIAL_10_BOLD });
+            setStyle(fn1 + 1, 2, { ...BORDER_ALL, alignment: { vertical: 'center' }, font: FONT_ARIAL_10 });
             rows.push(['', 'SEM ACAD', 'Semestre Académico', '', '', '', '', '', '', '', '', '', '', '', '']);
+            setStyle(fn1 + 2, 1, { ...BORDER_ALL, alignment: { vertical: 'center' }, font: FONT_ARIAL_10_BOLD });
+            setStyle(fn1 + 2, 2, { ...BORDER_ALL, alignment: { vertical: 'center' }, font: FONT_ARIAL_10 });
 
-            rows.push([], [], [], []);
+            rows.push([], [], [], [], [], []);
         }
 
         const ws = XLSX.utils.aoa_to_sheet(rows);
@@ -220,6 +239,33 @@ export class ReporteCentroPostgradosComponent implements OnInit {
             { wch: 8 }, { wch: 8 }, { wch: 10 }, { wch: 12 },
             { wch: 29 }, { wch: 18 }, { wch: 12 },
         ];
+        ws['!rows'] = Array(rows.length).fill(null).map((_, i) => {
+            const r = rows[i];
+            const firstVal = r ? r.filter((c: any) => c !== '' && c != null)[0] : null;
+            if (firstVal && typeof firstVal === 'string' && firstVal.startsWith('Matrícula Financiera')) return { hpx: 30.75 };
+            if (firstVal && typeof firstVal === 'string' && firstVal.startsWith('Semestre:')) return { hpx: 21.75 };
+            if (firstVal && typeof firstVal === 'string' && firstVal.startsWith('Identificación')) return { hpx: 21.75 };
+            if (firstVal && typeof firstVal === 'string' && firstVal.startsWith('*(Listar')) return { hpx: 21.75 };
+            if (firstVal && typeof firstVal === 'string' && firstVal.startsWith('(SI / NO)')) return { hpx: 21.75 };
+            if (firstVal && typeof firstVal === 'string' && firstVal.includes('Pendiente')) return { hpx: 33.75 };
+            if (firstVal && typeof firstVal === 'string' && firstVal.startsWith('*Para aplicar')) return { hpx: 10.5 };
+            if (firstVal && typeof firstVal === 'string' && firstVal.startsWith('* El descuento')) return { hpx: 10.5 };
+            if (firstVal && typeof firstVal === 'string' && firstVal === 'SEM FINAN') return { hpx: 10.5 };
+            if (firstVal && typeof firstVal === 'string' && firstVal === 'SEM ACAD') return { hpx: 10.5 };
+            return { hpx: r && r.some((c: any) => c !== '' && c != null) ? 26.25 : 12 };
+        });
+
+        for (let rr = 0; rr < rows.length; rr++) {
+            for (let cc = 0; cc < 15; cc++) {
+                const key = styleKey(rr, cc);
+                if (cellStyles.has(key)) {
+                    const cellRef = XLSX.utils.encode_cell({ r: rr, c: cc });
+                    if (ws[cellRef]) {
+                        ws[cellRef].s = cellStyles.get(key);
+                    }
+                }
+            }
+        }
 
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, `Matriculas ${periodoLabel}`);

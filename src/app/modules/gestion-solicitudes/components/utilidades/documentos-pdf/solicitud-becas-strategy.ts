@@ -18,7 +18,7 @@ export class SolicitudDeBeca implements DocumentoPDFStrategy {
 
         // Obtener datos del formulario
         const tipoBeca = this.servicioRadicar.formSolicitudBecaDescuento.get('tipoBeca').value;
-        const justificacion = this.servicioRadicar.formSolicitudBecaDescuento.get('justificacion').value.toLowerCase();
+        const justificacion = (this.servicioRadicar.formSolicitudBecaDescuento.get('justificacion')?.value || '').toLowerCase();
 
         // Texto para el asunto
         const textAsunto = `Asunto: Solicitud de ${tipoBeca}\n`;
@@ -100,7 +100,7 @@ export class RespuestaComiteSolicitudDeBeca implements DocumentoPDFStrategy {
         const txtAsunto = `Asunto: Respuesta a Solicitud ${radicado} de ${tipoBeca}\n`;
         const txtCuerpo = `Reciba un cordial saludo. Por medio de la presente, me dirijo a usted para informarle que en sesión del día ${fechaComite[0]} de ${mesEnLetras} de ${fechaComite[2]}, el Comité de Programa revisó su solicitud con radicado ${radicado} referente a la ${tipoBeca}, decidiendo NO AVALAR la solicitud y emite el siguiente concepto:`;
         const txtConcepto = `\n${this.servicioGestor.conceptoComite.conceptoComite}`;
-        const txtRemitente = `${this.servicioGestor.InfoCoordinador.nombreCompleto.toUpperCase()}\n${
+        const txtRemitente = `${(this.servicioGestor.InfoCoordinador?.nombreCompleto || '').toUpperCase()}\n${
             this.servicioGestor.InfoCoordinador.tratamiento == 'sr.' ? 'Coordinador' : 'Coordinadora'
         } de la Maestría en Computación`;
 
@@ -138,16 +138,17 @@ export class OficioConcejoSolicitudDeBeca implements DocumentoPDFStrategy {
         const mesEnLetras = this.servicioUtilidades.obtenerMesEnLetras(Number(fechaComite[1]));
         const tipoBeca = this.servicioGestor.infoSolicitud.datoSolicitudBeca.tipo;
 
-        const textAsunto = `Asunto: Solicitud de ${tipoBeca} para el/la estudiante ${this.servicioGestor.infoSolicitud.datosComunSolicitud.nombreSolicitante} ${this.servicioGestor.infoSolicitud.datosComunSolicitud.apellidoSolicitante}\n`;
-        const textCuerpo = `${this.servicioGestor.InfoDecano.tratamiento == 'sr.' ? 'Estimado' : 'Estimada'} ${
-            this.servicioGestor.InfoDecano.nombreCompleto.split(' ')[0]
+        const textAsunto = `Asunto: Solicitud de ${tipoBeca} para el/la estudiante ${this.servicioGestor.infoSolicitud?.datosComunSolicitud?.nombreSolicitante || ''} ${this.servicioGestor.infoSolicitud?.datosComunSolicitud?.apellidoSolicitante || ''}\n`;
+        const nombreDecano = (this.servicioGestor.InfoDecano?.nombreCompleto || '').split(' ')[0];
+        const textCuerpo = `${this.servicioGestor.InfoDecano?.tratamiento == 'sr.' ? 'Estimado' : 'Estimada'} ${
+            nombreDecano
         },\n\nReciba un cordial saludo. Me dirijo a usted de manera respetuosa para informarle que, en sesión del día ${
             fechaComite[0]
         } de ${mesEnLetras} de ${
             fechaComite[2]
-        }, el Comité de Programa ha avalado la solicitud ${tipoBeca} realizada por ${this.servicioGestor.infoSolicitud.datosComunSolicitud.nombreSolicitante.toUpperCase()} ${this.servicioGestor.infoSolicitud.datosComunSolicitud.apellidoSolicitante.toUpperCase()}. Por lo tanto, solicito su colaboración para llevar a cabo las gestiones necesarias que permitan conceder la beca solicitada por el estudiante.`;
+        }, el Comité de Programa ha avalado la solicitud ${tipoBeca} realizada por ${(this.servicioGestor.infoSolicitud?.datosComunSolicitud?.nombreSolicitante || '').toUpperCase()} ${(this.servicioGestor.infoSolicitud?.datosComunSolicitud?.apellidoSolicitante || '').toUpperCase()}. Por lo tanto, solicito su colaboración para llevar a cabo las gestiones necesarias que permitan conceder la beca solicitada por el estudiante.`;
 
-        const txtRemitente = `${this.servicioGestor.InfoCoordinador.nombreCompleto.toUpperCase()}\n${
+        const txtRemitente = `${(this.servicioGestor.InfoCoordinador?.nombreCompleto || '').toUpperCase()}\n${
             this.servicioGestor.InfoCoordinador.tratamiento == 'sr.' ? 'Coordinador' : 'Coordinadora'
         } de la Maestría en Computación`;
 
@@ -192,7 +193,7 @@ export class RespuestaConcejoSolicitudDeBeca implements DocumentoPDFStrategy {
                 : 'El Consejo decide no aprobar su solicitud bajo el siguiente concepto:'
         }`;
         const txtConcepto = `${this.servicioGestor.conceptoConsejo.conceptoConcejo}`;
-        const txtRemitente = `${this.servicioGestor.InfoCoordinador.nombreCompleto.toUpperCase()}\n${
+        const txtRemitente = `${(this.servicioGestor.InfoCoordinador?.nombreCompleto || '').toUpperCase()}\n${
             this.servicioGestor.InfoCoordinador.tratamiento == 'sr.' ? 'Coordinador' : 'Coordinadora'
         } de la Maestría en Computación`;
 

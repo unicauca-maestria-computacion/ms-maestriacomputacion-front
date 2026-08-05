@@ -1,4 +1,4 @@
-<p-dialog header="Proyectar Presupuesto" [(visible)]="visible" [modal]="true" [closable]="false" [style]="{width: '500px'}" (onHide)="cancelar()">
+<p-dialog header="Nueva Proyección" [(visible)]="visible" [modal]="true" [closable]="false" [style]="{width: '500px'}" (onHide)="cancelar()">
   <form [formGroup]="form" (ngSubmit)="proyectar()" class="p-fluid">
     <div class="field mt-3">
       <label class="campo-label">Fecha de inicio *</label>
@@ -19,12 +19,12 @@
 
     <div class="field mt-3">
       <label class="campo-label">Estado</label>
-      <p-inputText value="PROYECCION" [disabled]="true"></p-inputText>
+      <input pInputText value="PROYECCION" [disabled]="true" />
     </div>
 
     <div class="field mt-3">
       <label class="campo-label">Período (auto-detectado)</label>
-      <p-inputText [value]="tagPeriodoPreview.toString()" [disabled]="true"></p-inputText>
+      <input pInputText [value]="tagPeriodoPreview.toString()" [disabled]="true" />
     </div>
 
     <div class="field mt-3">

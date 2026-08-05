@@ -83,6 +83,23 @@ export class AutenticacionService {
             };
             mockToken = 'mock-token-estudiante';
             console.log('[AutenticacionService] Detectado acceso directo de Estudiante:', mockUser);
+        } else if (href.includes('tutor')) {
+            isMock = true;
+            this.isMockSession = true;
+            mockUser = {
+                id: 1,
+                username: 'alberto',
+                email: 'alberto@unicauca.edu.co',
+                role: ['ROLE_TUTOR', 'ROLE_DOCENTE'],
+                phoneNumber: '3110000000',
+                academicCode: 'DOC001',
+                firstName: 'ALBERTO',
+                lastName: 'DOCENTE',
+                idType: 'CEDULA_CIUDADANIA',
+                idNumber: '12345678'
+            };
+            mockToken = 'mock-token-tutor';
+            console.log('[AutenticacionService] Detectado acceso directo de Tutor:', mockUser);
         }
 
         if (isMock && mockUser) {

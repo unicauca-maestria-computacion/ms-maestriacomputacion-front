@@ -17,6 +17,7 @@ import { HomeComponent } from './core/components/home/home.component';
                         { path: '', component: HomeComponent },
                         { path: 'coordinador', component: HomeComponent },
                         { path: 'estudiante', component: HomeComponent },
+                        { path: 'tutor', component: HomeComponent },
                         {
                             path: 'autenticacion',
                             loadChildren: () =>

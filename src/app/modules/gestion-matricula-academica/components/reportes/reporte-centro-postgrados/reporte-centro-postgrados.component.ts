@@ -53,7 +53,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
     cargarPeriodos(): void {
         this.cargando = true;
         this.http
-            .get<PeriodoAcademico[]>(`${this.financieraApi}/periodos`)
+            .get<PeriodoAcademico[]>(`${this.financieraApi}periodos`)
             .subscribe({
                 next: (data) => {
                     this.periodos = (data || [])
@@ -87,7 +87,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
 
         this.http
             .get<ReporteRow[]>(
-                `${this.financieraApi}/reporte-centro-postgrados/${periodoId}`
+                `${this.financieraApi}reporte-centro-postgrados/${periodoId}`
             )
             .subscribe({
                 next: (data) => {

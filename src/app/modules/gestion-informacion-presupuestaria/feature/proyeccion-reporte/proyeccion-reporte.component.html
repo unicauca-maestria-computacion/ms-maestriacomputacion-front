@@ -11,7 +11,7 @@
     <!-- Selector de Período -->
     <div class="flex justify-content-center mb-4">
         <app-periodo-financiero-selector
-            [modo]="'activos'"
+            [modo]="'activos-y-proyeccion'"
             [mensajeVacio]="'No hay períodos académicos activos para mostrar.'"
             (periodoSeleccionado)="onPeriodoChange($event)"
             (sinPeriodosChange)="sinPeriodos = $event"

@@ -96,6 +96,28 @@ export class GestionInformacionPresupuestariaFacadeService {
         );
     }
 
+    obtenerPeriodosActivosYProyeccion(): Observable<PeriodoAcademicoDto[]> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.obtenerPeriodos().pipe(
+            map(periodos => (periodos || [])
+                .filter(p => p.estado === 'ACTIVO' || p.estado === 'PROYECCION')
+                .map(p => ({ ...p, año: p.anio, periodo: p.tagPeriodo }))
+            ),
+            catchError(err => {
+                this._error.next({
+                    mensaje: 'No se pudieron cargar los períodos académicos.',
+                    codigoError: 'FE-PERIODOS-ACT-PROY',
+                    codigoHttp: err.status || 500,
+                    url: err.url || '',
+                    metodo: 'GET'
+                });
+                return throwError(() => err);
+            }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
     obtenerPeriodosActivosYFinalizados(): Observable<PeriodoAcademicoDto[]> {
         this._loading.next(true);
         this._error.next(null);

@@ -4,7 +4,7 @@ import { takeUntil } from 'rxjs/operators';
 import { GestionInformacionPresupuestariaFacadeService } from '../../data/facade.service';
 import { PeriodoFinancieroDTORespuesta } from '../../dto/periodo-financiero.dto';
 
-export type PeriodoSelectorModo = 'todos' | 'activos' | 'finalizados' | 'activos-y-finalizados' | 'anios-activos-y-finalizados';
+export type PeriodoSelectorModo = 'todos' | 'activos' | 'finalizados' | 'activos-y-finalizados' | 'activos-y-proyeccion' | 'anios-activos-y-finalizados';
 
 @Component({
   selector: 'app-periodo-financiero-selector',
@@ -49,6 +49,7 @@ export class PeriodoFinancieroSelectorComponent implements OnInit, OnDestroy {
       this.modo === 'activos'                    ? this.facadeService.obtenerPeriodosActivos() :
       this.modo === 'finalizados'                ? this.facadeService.obtenerPeriodosFinalizados() :
       this.modo === 'activos-y-finalizados'      ? this.facadeService.obtenerPeriodosActivosYFinalizados() :
+      this.modo === 'activos-y-proyeccion'        ? this.facadeService.obtenerPeriodosActivosYProyeccion() :
       this.modo === 'anios-activos-y-finalizados' ? this.facadeService.obtenerPeriodosActivosYFinalizados() :
                                                  this.facadeService.obtenerPeriodosFinancieros();
 

@@ -28,6 +28,7 @@ interface ReporteRow {
 }
 
 type MergeRange = { s: { r: number; c: number }; e: { r: number; c: number } };
+type CellValue = string | number | null | undefined;
 
 @Component({
     selector: 'app-reporte-centro-postgrados',
@@ -129,7 +130,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
         }
         const semestres = Array.from(grupos.keys()).sort((a, b) => b - a);
 
-        const rows: any[][] = [];
+        const rows: CellValue[][] = [];
         const merges: MergeRange[] = [];
 
         // 3 filas vacías iniciales
@@ -456,7 +457,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
             .map((_, i) => {
                 const r = rows[i];
                 const firstVal = r
-                    ? r.filter((c: any) => c !== '' && c != null)[0]
+                    ? r.filter((c: CellValue) => c !== '' && c != null)[0]
                     : null;
                 if (
                     firstVal &&
@@ -520,7 +521,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                     return { hpx: 11 };
                 return {
                     hpx:
-                        r && r.some((c: any) => c !== '' && c != null)
+                        r && r.some((c: CellValue) => c !== '' && c != null)
                             ? 26
                             : 12,
                 };

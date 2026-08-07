@@ -5,6 +5,8 @@ export interface MateriaDto {
 }
 
 export interface ProyeccionEstudianteDTORespuesta {
+    id?: number;
+    esSimulado?: boolean;
     codigoEstudiante: string;
     identificacion: number;
     nombre: string;
@@ -35,4 +37,21 @@ export interface ProyeccionEstudianteDTOPeticion {
     porcentajeBeca: number;
     aplicaEgresado: boolean;
     grupoInvestigacion?: string;
+}
+
+export interface CrearEstudianteSimuladoDTOPeticion {
+    periodoAcademicoId: number;
+    nombre: string;
+    apellido?: string;
+    identificacion?: number | null;
+}
+
+export interface ActualizarEstudianteSimuladoDTOPeticion {
+    nombre: string;
+    apellido?: string;
+    identificacion?: number | null;
+    estaPago: boolean;
+    aplicaVotacion: boolean;
+    porcentajeBeca: number;
+    aplicaEgresado: boolean;
 }

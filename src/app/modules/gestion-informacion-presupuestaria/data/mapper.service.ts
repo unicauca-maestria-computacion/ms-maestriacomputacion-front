@@ -54,6 +54,8 @@ export class GestionInformacionPresupuestariaMapperService {
 
     mappearDeRespuestaAProyeccionEstudiante(dto: ProyeccionEstudianteDTORespuesta): ProyeccionEstudiante {
         return {
+            id: dto.id,
+            esSimulado: dto.esSimulado ?? false,
             codigoEstudiante: dto.codigoEstudiante,
             nombre: dto?.nombre ?? '',
             apellido: dto?.apellido ?? '',

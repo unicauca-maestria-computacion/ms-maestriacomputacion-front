@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable, Subject, combineLatest, BehaviorSubject } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { GestionInformacionPresupuestariaFacadeService } from '../../data/facade.service';
 import { ConfiguracionReporteFinanciero, ProyeccionEstudiante, ReporteProyeccionEstudiantes } from '../../models/domain-models';
 import { PeriodoFinancieroDTORespuesta } from '../../dto/periodo-financiero.dto';
-import { ProyeccionEstudianteDTOPeticion } from '../../dto/proyeccion-estudiante.dto';
+import { ProyeccionEstudianteDTOPeticion, ActualizarEstudianteSimuladoDTOPeticion } from '../../dto/proyeccion-estudiante.dto';
 import { ConfiguracionReporteFinancieroDTOPeticion } from '../../dto/configuracion-reporte-financiero.dto';
 import { ProyectarPresupuestoDTOPeticion } from '../../dto/proyectar-presupuesto.dto';
 import { TotalesReporteService } from '../../data/totales-reporte.service';
@@ -44,7 +44,7 @@ interface ProyeccionReporteVM {
   templateUrl: './proyeccion-reporte.component.html',
   styleUrls: ['./proyeccion-reporte.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [MessageService]
+  providers: [MessageService, ConfirmationService]
 })
 export class ProyeccionReporteComponent implements OnInit, OnDestroy {
 
@@ -68,12 +68,14 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   clonedCabecera: Partial<ConfiguracionReporteFinanciero> = {};
   editandoCabecera: boolean = false;
   editingRowKey: string | null = null;
+  nuevoEstudianteSimulado: EstudianteProyeccion | null = null;
 
   constructor(
     private messageService: MessageService,
     private facadeService: GestionInformacionPresupuestariaFacadeService,
     private totalesService: TotalesReporteService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private confirmationService: ConfirmationService
   ) {
     this.vm$ = combineLatest({
       cargando: this.facadeService.loading$,
@@ -299,6 +301,11 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (estudiante.esSimulado) {
+      this.guardarEdicionSimulado(estudiante);
+      return;
+    }
+
     this.loadingService.show(`Guardando cambios de ${estudiante.nombreEstudiante}`);
     this.editingRowKey = null;
     this._editingRowKey.next(null);
@@ -339,6 +346,137 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     delete this.clonedEstudiantes[estudiante.codigoEstudiante];
     this.editingRowKey = null;
     this._editingRowKey.next(null);
+  }
+
+  agregarFilaSimulado(): void {
+    if (this.nuevoEstudianteSimulado !== null || this.isAnyEditActive) return;
+
+    const config = this._configuracion.value;
+    this.nuevoEstudianteSimulado = {
+      id: -1,
+      esSimulado: true,
+      codigoEstudiante: '__nuevo_simulado__',
+      nombre: '',
+      apellido: '',
+      identificacion: 0,
+      estaPago: false,
+      aplicaVotacion: false,
+      porcentajeBeca: 0,
+      aplicaEgresado: false,
+      grupoInvestigacion: '',
+      nombreEstudiante: '',
+      matricula: 0,
+      valorBeca: 0,
+      valorEgresado: 0,
+      valorVotacion: 0,
+      recursosComputacionales: config?.recursosComputacionales || 0,
+      biblioteca: config?.biblioteca || 0,
+      grupoDescuentos: 0,
+      totalNeto: 0
+    } as EstudianteProyeccion;
+
+    this._estudiantes.next([...this._estudiantes.value, this.nuevoEstudianteSimulado]);
+
+    setTimeout(() => {
+      document.getElementById('nuevo-estudiante-simulado-row')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  }
+
+  guardarNuevoSimulado(): void {
+    if (!this.nuevoEstudianteSimulado || !this.periodoSeleccionado?.id) return;
+
+    if (!this.nuevoEstudianteSimulado.nombre || !this.nuevoEstudianteSimulado.nombre.trim()) {
+      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'El nombre del estudiante simulado es requerido.' });
+      return;
+    }
+
+    this.loadingService.show('Agregando estudiante simulado...');
+    this.facadeService.crearEstudianteSimulado({
+      periodoAcademicoId: this.periodoSeleccionado.id,
+      nombre: this.nuevoEstudianteSimulado.nombre,
+      apellido: this.nuevoEstudianteSimulado.apellido,
+      identificacion: this.nuevoEstudianteSimulado.identificacion || null
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (data) => {
+        this.procesarRespuesta(data);
+        this.nuevoEstudianteSimulado = null;
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estudiante simulado agregado.' });
+        this.loadingService.hide();
+      },
+      error: (_err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo agregar el estudiante simulado.' });
+        this.loadingService.hide();
+      }
+    });
+  }
+
+  cancelarNuevoSimulado(): void {
+    this._estudiantes.next(this._estudiantes.value.filter(e => e.id !== -1));
+    this.nuevoEstudianteSimulado = null;
+  }
+
+  private guardarEdicionSimulado(estudiante: EstudianteProyeccion): void {
+    if (!estudiante.id || estudiante.id < 0) return;
+    if (!estudiante.nombre || !estudiante.nombre.trim()) {
+      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'El nombre del estudiante simulado es requerido.' });
+      this.onRowEditCancel(estudiante, this.findIndexById(estudiante.codigoEstudiante));
+      return;
+    }
+
+    this.loadingService.show(`Guardando cambios de ${estudiante.nombreEstudiante}`);
+    this.editingRowKey = null;
+    this._editingRowKey.next(null);
+
+    const dto: ActualizarEstudianteSimuladoDTOPeticion = {
+      nombre: estudiante.nombre,
+      apellido: estudiante.apellido,
+      identificacion: estudiante.identificacion || null,
+      estaPago: estudiante.estaPago,
+      aplicaVotacion: estudiante.aplicaVotacion ?? false,
+      porcentajeBeca: this.toRatio(estudiante.porcentajeBeca),
+      aplicaEgresado: estudiante.aplicaEgresado ?? false
+    };
+
+    this.facadeService.actualizarEstudianteSimulado(estudiante.id, dto)
+      .pipe(takeUntil(this.destroy$)).subscribe({
+        next: (data) => {
+          this.procesarRespuesta(data);
+          delete this.clonedEstudiantes[estudiante.codigoEstudiante];
+          this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estudiante simulado actualizado.' });
+          this.loadingService.hide();
+        },
+        error: (_err) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar el estudiante simulado.' });
+          this.onRowEditCancel(estudiante, this.findIndexById(estudiante.codigoEstudiante));
+          this.loadingService.hide();
+        }
+      });
+  }
+
+  confirmarEliminarSimulado(estudiante: EstudianteProyeccion): void {
+    this.confirmationService.confirm({
+      message: `¿Está seguro de que desea eliminar a ${estudiante.nombreEstudiante || 'este estudiante simulado'}?`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => this.eliminarSimulado(estudiante)
+    });
+  }
+
+  private eliminarSimulado(estudiante: EstudianteProyeccion): void {
+    if (!estudiante.id || estudiante.id < 0) return;
+    this.loadingService.show('Eliminando estudiante simulado...');
+    this.facadeService.eliminarEstudianteSimulado(estudiante.id)
+      .pipe(takeUntil(this.destroy$)).subscribe({
+        next: (data) => {
+          this.procesarRespuesta(data);
+          this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estudiante simulado eliminado.' });
+          this.loadingService.hide();
+        },
+        error: (_err) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el estudiante simulado.' });
+          this.loadingService.hide();
+        }
+      });
   }
 
   findIndexById(id: string): number {

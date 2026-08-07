@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
+import { firstValueFrom } from 'rxjs';
+import * as ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 import { gestion_matricula_financiera } from 'src/environments/environment';
-import * as XLSX from 'xlsx';
 
 interface PeriodoAcademico {
     id: number;
@@ -27,8 +29,90 @@ interface ReporteRow {
     grupoClase: string;
 }
 
-type MergeRange = { s: { r: number; c: number }; e: { r: number; c: number } };
-type CellValue = string | number | null | undefined;
+// Layout de la plantilla "plantilla-centro-postgrados.xlsx" (columnas 1-indexadas, A=1).
+// La columna I está oculta en la plantilla original: el encabezado "% Beca" y el valor
+// de cada estudiante se combinan I:J para que el contenido sea visible pese a la columna oculta.
+const TEMPLATE_URL = 'assets/reportes/plantilla-centro-postgrados.xlsx';
+const NUM_COLS = 15; // A..O
+const COLUMN_WIDTHS = [1.73, 14, 25, 6.18, 6.54, 6.45, 7.82, 8.54, 3, 8.18, 5.45, 11.54, 29, 17.73, 11.45];
+const HIDDEN_COLUMN = 9; // columna I
+
+const COL = {
+    ID: 2,
+    NOMBRE: 3,
+    VALOR: 4,
+    SEM_FIN: 5,
+    DESC_VOTO: 6,
+    DESC_EGR: 7,
+    RES_BECA: 8,
+    PCT_BECA: 9,
+    PCT_BECA_FIN: 10,
+    SEM_ACAD: 11,
+    COD_OID: 12,
+    MATERIA: 13,
+    DOCENTE: 14,
+    GRUPO: 15,
+};
+
+// Filas de la plantilla que forman cada bloque repetible por semestre.
+const TPL_TITULO_INICIO = 4;
+const TPL_CABECERA_FIN = 10;
+const TPL_FILA_DATOS = 13; // fila con bordes completos, usada como estilo base de cada fila de estudiante
+const TPL_NOTAS_INICIO = 15;
+const TPL_NOTAS_FIN = 18;
+
+const TITULO_MATRICULA =
+    'Matrícula Financiera-       ESTUDIANTES NUEVOS  SI  __  NO _X_ ( marcar con una x) \n\nMatrícula Financiera-       ESTUDIANTES REGULARES SI  _X_  NO __ ( marcar con una x) \n';
+
+function colLetraANumero(letras: string): number {
+    let n = 0;
+    for (const ch of letras) n = n * 26 + (ch.charCodeAt(0) - 64);
+    return n;
+}
+
+function parsearRango(rango: string): { c1: number; r1: number; c2: number; r2: number } {
+    const [inicio, fin] = rango.split(':');
+    const m1 = inicio.match(/^([A-Z]+)(\d+)$/)!;
+    const m2 = fin.match(/^([A-Z]+)(\d+)$/)!;
+    return { c1: colLetraANumero(m1[1]), r1: +m1[2], c2: colLetraANumero(m2[1]), r2: +m2[2] };
+}
+
+function clonarEstiloCeldas(origen: ExcelJS.Row, destino: ExcelJS.Row): void {
+    destino.height = origen.height;
+    for (let c = 1; c <= NUM_COLS; c++) {
+        destino.getCell(c).style = JSON.parse(JSON.stringify(origen.getCell(c).style));
+    }
+}
+
+// Copia un bloque de filas (valores, estilos, alturas y merges) de la plantilla al destino,
+// desplazando todo por (destinoInicio - origenInicio) filas.
+function clonarBloque(
+    origenWs: ExcelJS.Worksheet,
+    destinoWs: ExcelJS.Worksheet,
+    origenInicio: number,
+    origenFin: number,
+    destinoInicio: number
+): void {
+    const offset = destinoInicio - origenInicio;
+    for (let r = origenInicio; r <= origenFin; r++) {
+        const filaOrigen = origenWs.getRow(r);
+        const filaDestino = destinoWs.getRow(r + offset);
+        filaDestino.height = filaOrigen.height;
+        for (let c = 1; c <= NUM_COLS; c++) {
+            const celdaOrigen = filaOrigen.getCell(c);
+            const celdaDestino = filaDestino.getCell(c);
+            celdaDestino.value = celdaOrigen.value;
+            celdaDestino.style = JSON.parse(JSON.stringify(celdaOrigen.style));
+        }
+    }
+    const merges: string[] = (origenWs as unknown as { model: { merges: string[] } }).model.merges || [];
+    merges.forEach((rango) => {
+        const { c1, r1, c2, r2 } = parsearRango(rango);
+        if (r1 >= origenInicio && r2 <= origenFin) {
+            destinoWs.mergeCells(r1 + offset, c1, r2 + offset, c2);
+        }
+    });
+}
 
 @Component({
     selector: 'app-reporte-centro-postgrados',
@@ -93,9 +177,9 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                 `${this.financieraApi}reporte-centro-postgrados/${periodoId}`
             )
             .subscribe({
-                next: (data) => {
+                next: async (data) => {
                     try {
-                        this.generarExcel(data, periodoLabel);
+                        await this.generarExcel(data, periodoLabel);
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Reporte generado',
@@ -121,7 +205,21 @@ export class ReporteCentroPostgradosComponent implements OnInit {
             });
     }
 
-    private generarExcel(data: ReporteRow[], periodoLabel: string): void {
+    private async generarExcel(data: ReporteRow[], periodoLabel: string): Promise<void> {
+        const buffer = await firstValueFrom(
+            this.http.get(TEMPLATE_URL, { responseType: 'arraybuffer' })
+        );
+        const plantillaWb = new ExcelJS.Workbook();
+        await plantillaWb.xlsx.load(buffer);
+        const plantillaWs = plantillaWb.worksheets[0];
+
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet(`Matriculas ${periodoLabel}`);
+
+        COLUMN_WIDTHS.forEach((w, i) => (ws.getColumn(i + 1).width = w));
+        ws.getColumn(HIDDEN_COLUMN).hidden = true;
+        ws.pageSetup = { ...plantillaWs.pageSetup };
+
         const grupos = new Map<number, ReporteRow[]>();
         for (const r of data) {
             const sem = r.semestreFinanciero ?? 0;
@@ -130,406 +228,75 @@ export class ReporteCentroPostgradosComponent implements OnInit {
         }
         const semestres = Array.from(grupos.keys()).sort((a, b) => b - a);
 
-        const rows: CellValue[][] = [];
-        const merges: MergeRange[] = [];
-
-        rows.push([], [], []);
+        let cursor = 3; // deja 2 filas de margen superior, igual que en la plantilla original
 
         for (const semestre of semestres) {
-            const estudiantes = grupos.get(semestre)!;
-            estudiantes.sort((a, b) =>
+            const estudiantes = [...grupos.get(semestre)!].sort((a, b) =>
                 a.nombreCompleto.localeCompare(b.nombreCompleto)
             );
             const gruposClase = [
-                ...new Set(
-                    estudiantes.map((e) => e.grupoClase).filter(Boolean)
-                ),
-            ].sort();
+                ...new Set(estudiantes.map((e) => e.grupoClase).filter(Boolean)),
+            ].sort().join('-');
 
-            const rTitulo = rows.length;
-            const titulo =
-                'Matrícula Financiera-       ESTUDIANTES NUEVOS  SI  __  NO _X_ ( marcar con una x) \n\nMatrícula Financiera-       ESTUDIANTES REGULARES SI  _X_  NO __ ( marcar con una x) \n';
-            rows.push([
-                '',
-                titulo,
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                'Matrícula Académica',
-                '',
-                '',
-                '',
-                '',
-            ]);
-            merges.push({ s: { r: rTitulo, c: 1 }, e: { r: rTitulo, c: 9 } });
-            merges.push({ s: { r: rTitulo, c: 10 }, e: { r: rTitulo, c: 14 } });
+            // Título + cabecera (filas 4 a 10 de la plantilla)
+            const blockStart = cursor;
+            clonarBloque(plantillaWs, ws, TPL_TITULO_INICIO, TPL_CABECERA_FIN, blockStart);
+            ws.getCell(blockStart, COL.ID).value = TITULO_MATRICULA;
+            ws.getCell(blockStart + 1, COL.SEM_ACAD).value = `Semestre: ____${semestre}____`;
+            ws.getCell(blockStart + 4, COL.GRUPO).value = gruposClase;
+            cursor += TPL_CABECERA_FIN - TPL_TITULO_INICIO + 1;
 
-            const rSem = rows.length;
-            rows.push([
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                `Semestre: ____${semestre}____`,
-                '',
-                '',
-                '',
-                '',
-            ]);
-            merges.push({ s: { r: rSem, c: 10 }, e: { r: rSem, c: 14 } });
-
-            const h0 = rows.length;
-            rows.push([
-                '',
-                '',
-                'Identificación',
-                'Nombres completos del estudiante',
-                'Valor de Matrícula en SMMLV',
-                'SEM FINAN',
-                '¿Aplica Descuento de Voto? ',
-                'Descuento por Egresado (UNICAUCA) ',
-                'No. Res. de Beca',
-                '% Beca',
-                '',
-                'SEM ACAD',
-                'Materias a Matricular ',
-                '',
-                'Nombre Completo de Docente encargado de subir notas al sistema SIMCA por cada una de las asignaturas.',
-                'Grupo Clase',
-            ]);
-
-            const h1 = rows.length;
-            rows.push([
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '*(Listar las materias a matricular para cada uno de los estudiantes)',
-                '',
-                '',
-                '',
-            ]);
-
-            const h2 = rows.length;
-            rows.push([
-                '',
-                '',
-                '',
-                '',
-                '',
-                '(SI / NO)',
-                '(SI / NO)',
-                '',
-                '',
-                '',
-                '',
-                ' *(En caso de ser las mismas materias para todos los estudiantes combinar las celdas)',
-                '',
-                '',
-                gruposClase.join('-'),
-            ]);
-
-            const h3 = rows.length;
-            rows.push([
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                ' Pendiente: si aún no cuenta con No. Resolución',
-                '',
-                '',
-                '',
-                'Código-OID',
-                'Materia',
-                '',
-                '',
-            ]);
-
-            [1, 2, 3, 4, 10].forEach((c) =>
-                merges.push({ s: { r: h0, c }, e: { r: h3, c } })
-            );
-            merges.push({ s: { r: h0, c: 5 }, e: { r: h1, c: 5 } });
-            merges.push({ s: { r: h2, c: 5 }, e: { r: h3, c: 5 } });
-            merges.push({ s: { r: h0, c: 6 }, e: { r: h1, c: 6 } });
-            merges.push({ s: { r: h2, c: 6 }, e: { r: h3, c: 6 } });
-            merges.push({ s: { r: h0, c: 7 }, e: { r: h2, c: 7 } });
-            merges.push({ s: { r: h3, c: 7 }, e: { r: h3, c: 9 } });
-            merges.push({ s: { r: h0, c: 8 }, e: { r: h2, c: 9 } });
-            merges.push({ s: { r: h0, c: 11 }, e: { r: h0, c: 12 } });
-            merges.push({ s: { r: h1, c: 11 }, e: { r: h2, c: 12 } });
-            merges.push({ s: { r: h0, c: 13 }, e: { r: h3, c: 13 } });
-            merges.push({ s: { r: h0, c: 14 }, e: { r: h1, c: 14 } });
-            merges.push({ s: { r: h2, c: 14 }, e: { r: h3, c: 14 } });
-
+            // Filas de estudiantes
             for (const est of estudiantes) {
-                const materias = est.materias || [];
-                const numMaterias = Math.max(materias.length, 1);
-                const d0 = rows.length;
+                const materias = est.materias?.length ? est.materias : [{ codigoOid: '', materia: '' }];
+                const rowStart = cursor;
 
-                rows.push([
-                    '',
-                    est.identificacion,
-                    est.nombreCompleto,
-                    est.valorMatriculaSMMLV != null
-                        ? est.valorMatriculaSMMLV
-                        : '',
-                    est.semestreFinanciero ?? '',
-                    est.aplicaDescuentoVoto ? 'SI' : 'NO',
-                    est.aplicaDescuentoEgresado ? 'SI' : 'NO',
-                    est.resolucionBeca ||
-                        (est.porcentajeBeca != null ? '' : 'NO'),
-                    est.porcentajeBeca != null && est.porcentajeBeca > 0
-                        ? est.porcentajeBeca + '%'
-                        : '',
-                    '',
-                    est.semestreAcademico ?? '',
-                    materias.length > 0 ? materias[0].codigoOid || '' : '',
-                    materias.length > 0 ? materias[0].materia : '',
-                    est.docenteEncargado || '',
-                    est.grupoClase || '',
-                ]);
-
-                if (numMaterias > 1) {
-                    const mergeEnd = d0 + numMaterias - 1;
-                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach((c) =>
-                        merges.push({ s: { r: d0, c }, e: { r: mergeEnd, c } })
-                    );
-                    merges.push({
-                        s: { r: d0, c: 13 },
-                        e: { r: mergeEnd, c: 13 },
-                    });
-                    merges.push({
-                        s: { r: d0, c: 14 },
-                        e: { r: mergeEnd, c: 14 },
-                    });
-                    for (let i = 1; i < materias.length; i++) {
-                        rows.push([
-                            '',
-                            '',
-                            '',
-                            '',
-                            '',
-                            '',
-                            '',
-                            '',
-                            '',
-                            '',
-                            '',
-                            materias[i].codigoOid || '',
-                            materias[i].materia,
-                            '',
-                            '',
-                        ]);
+                materias.forEach((m, i) => {
+                    const fila = ws.getRow(cursor);
+                    clonarEstiloCeldas(plantillaWs.getRow(TPL_FILA_DATOS), fila);
+                    if (i === 0) {
+                        fila.getCell(COL.ID).value = est.identificacion;
+                        fila.getCell(COL.NOMBRE).value = est.nombreCompleto;
+                        fila.getCell(COL.VALOR).value = est.valorMatriculaSMMLV ?? '';
+                        fila.getCell(COL.SEM_FIN).value = est.semestreFinanciero ?? '';
+                        fila.getCell(COL.DESC_VOTO).value = est.aplicaDescuentoVoto ? 'SI' : 'NO';
+                        fila.getCell(COL.DESC_EGR).value = est.aplicaDescuentoEgresado ? 'SI' : 'NO';
+                        fila.getCell(COL.RES_BECA).value =
+                            est.resolucionBeca || (est.porcentajeBeca != null ? '' : 'NO');
+                        fila.getCell(COL.PCT_BECA).value =
+                            est.porcentajeBeca != null && est.porcentajeBeca > 0
+                                ? `${est.porcentajeBeca}%`
+                                : '';
+                        fila.getCell(COL.SEM_ACAD).value = est.semestreAcademico ?? '';
+                        fila.getCell(COL.DOCENTE).value = est.docenteEncargado || '';
+                        fila.getCell(COL.GRUPO).value = est.grupoClase || '';
                     }
+                    fila.getCell(COL.COD_OID).value = m.codigoOid || '';
+                    fila.getCell(COL.MATERIA).value = m.materia || '';
+                    cursor++;
+                });
+
+                const rowEnd = cursor - 1;
+                ws.mergeCells(rowStart, COL.PCT_BECA, rowEnd, COL.PCT_BECA_FIN);
+                if (rowEnd > rowStart) {
+                    [
+                        COL.ID, COL.NOMBRE, COL.VALOR, COL.SEM_FIN, COL.DESC_VOTO,
+                        COL.DESC_EGR, COL.RES_BECA, COL.SEM_ACAD, COL.DOCENTE, COL.GRUPO,
+                    ].forEach((c) => ws.mergeCells(rowStart, c, rowEnd, c));
                 }
             }
 
-            const fn0 = rows.length;
-            rows.push([
-                '',
-                '*Para aplicar descuento de voto se requiere en físico anexos certificados de votación vigente (29 de octubre de 2023) de lo contario no se efectuará el descuento de votación. ',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-            ]);
-            merges.push({ s: { r: fn0, c: 1 }, e: { r: fn0, c: 14 } });
+            // Notas + leyendas (filas 15 a 18 de la plantilla)
+            clonarBloque(plantillaWs, ws, TPL_NOTAS_INICIO, TPL_NOTAS_FIN, cursor);
+            cursor += TPL_NOTAS_FIN - TPL_NOTAS_INICIO + 1;
 
-            const fn1 = rows.length;
-            rows.push([
-                '',
-                '* El descuento del 5% (Egresado) unicamente aplica para los estudiantes que hayan ejercido el derecho al voto y tengan el titulo profesional',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-            ]);
-            merges.push({ s: { r: fn1, c: 1 }, e: { r: fn1, c: 14 } });
-
-            rows.push([
-                '',
-                'SEM FINAN',
-                ' Semestre financiero',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-            ]);
-            rows.push([
-                '',
-                'SEM ACAD',
-                'Semestre Académico',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-            ]);
-
-            rows.push([], [], [], [], [], []);
+            cursor += 3; // espacio entre tablas de semestre
         }
 
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        ws['!merges'] = merges;
-        ws['!cols'] = [
-            { wch: 1.73 },
-            { wch: 14 },
-            { wch: 35 },
-            { wch: 12 },
-            { wch: 10 },
-            { wch: 12 },
-            { wch: 12 },
-            { wch: 18 },
-            { wch: 8 },
-            { wch: 8 },
-            { wch: 10 },
-            { wch: 12 },
-            { wch: 29 },
-            { wch: 18 },
-            { wch: 12 },
-        ];
-        ws['!rows'] = Array(rows.length)
-            .fill(null)
-            .map((_, i) => {
-                const r = rows[i];
-                const firstVal = r
-                    ? r.filter((c: CellValue) => c !== '' && c != null)[0]
-                    : null;
-                if (
-                    firstVal &&
-                    typeof firstVal === 'string' &&
-                    firstVal.startsWith('Matrícula Financiera')
-                )
-                    return { hpx: 31 };
-                if (
-                    firstVal &&
-                    typeof firstVal === 'string' &&
-                    firstVal.startsWith('Semestre:')
-                )
-                    return { hpx: 22 };
-                if (
-                    firstVal &&
-                    typeof firstVal === 'string' &&
-                    firstVal.startsWith('Identificación')
-                )
-                    return { hpx: 22 };
-                if (
-                    firstVal &&
-                    typeof firstVal === 'string' &&
-                    firstVal.startsWith('*(Listar')
-                )
-                    return { hpx: 22 };
-                if (
-                    firstVal &&
-                    typeof firstVal === 'string' &&
-                    firstVal.startsWith('(SI / NO)')
-                )
-                    return { hpx: 22 };
-                if (
-                    firstVal &&
-                    typeof firstVal === 'string' &&
-                    firstVal.includes('Pendiente')
-                )
-                    return { hpx: 34 };
-                if (
-                    firstVal &&
-                    typeof firstVal === 'string' &&
-                    firstVal.startsWith('*Para aplicar')
-                )
-                    return { hpx: 11 };
-                if (
-                    firstVal &&
-                    typeof firstVal === 'string' &&
-                    firstVal.startsWith('* El descuento')
-                )
-                    return { hpx: 11 };
-                if (
-                    firstVal &&
-                    typeof firstVal === 'string' &&
-                    firstVal === 'SEM FINAN'
-                )
-                    return { hpx: 11 };
-                if (
-                    firstVal &&
-                    typeof firstVal === 'string' &&
-                    firstVal === 'SEM ACAD'
-                )
-                    return { hpx: 11 };
-                return {
-                    hpx:
-                        r && r.some((c: CellValue) => c !== '' && c != null)
-                            ? 26
-                            : 12,
-                };
-            });
-
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, `Matriculas ${periodoLabel}`);
-        const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-
-        const blob = new Blob([buffer], {
+        const outBuffer = await wb.xlsx.writeBuffer();
+        const blob = new Blob([outBuffer], {
             type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Matriculas_${periodoLabel}.xlsx`;
-        a.click();
-        window.URL.revokeObjectURL(url);
+        saveAs(blob, `Matriculas_${periodoLabel}.xlsx`);
     }
 }

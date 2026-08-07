@@ -24,6 +24,8 @@ export interface ConfiguracionReporteFinanciero {
 }
 
 export interface ProyeccionEstudiante {
+    id?: number;
+    esSimulado?: boolean;
     codigoEstudiante: string;
     nombre: string;
     identificacion: number;

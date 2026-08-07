@@ -5,7 +5,7 @@ import { GestionInformacionPresupuestariaApiService } from './api.service';
 import { GestionInformacionPresupuestariaMapperService } from './mapper.service';
 import { ApiError } from '../dto/api-error';
 import { ConfiguracionReporteFinancieroDTOPeticion } from '../dto/configuracion-reporte-financiero.dto';
-import { ProyeccionEstudianteDTOPeticion } from '../dto/proyeccion-estudiante.dto';
+import { ProyeccionEstudianteDTOPeticion, CrearEstudianteSimuladoDTOPeticion, ActualizarEstudianteSimuladoDTOPeticion } from '../dto/proyeccion-estudiante.dto';
 import { ProyectarPresupuestoDTOPeticion } from '../dto/proyectar-presupuesto.dto';
 import { PeriodoAcademicoDto } from '../dto/periodo-financiero.dto';
 import { ActualizarParticipacionDTOPeticion } from '../dto/porcentaje-grupo.dto';
@@ -148,6 +148,39 @@ export class GestionInformacionPresupuestariaFacadeService {
         this._error.next(null);
         return this.apiService.actualizarProyeccionEstudiante(proyeccion, tagPeriodo, anio).pipe(
             map(dto => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(dto)),
+            tap(data => this._reporteProyeccionEstudiantes.next(data)),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    crearEstudianteSimulado(dto: CrearEstudianteSimuladoDTOPeticion): Observable<ReporteProyeccionEstudiantes> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.crearEstudianteSimulado(dto).pipe(
+            map(d => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(d)),
+            tap(data => this._reporteProyeccionEstudiantes.next(data)),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    actualizarEstudianteSimulado(id: number, dto: ActualizarEstudianteSimuladoDTOPeticion): Observable<ReporteProyeccionEstudiantes> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.actualizarEstudianteSimulado(id, dto).pipe(
+            map(d => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(d)),
+            tap(data => this._reporteProyeccionEstudiantes.next(data)),
+            catchError(err => { this._error.next(err); return throwError(() => err); }),
+            finalize(() => this._loading.next(false))
+        );
+    }
+
+    eliminarEstudianteSimulado(id: number): Observable<ReporteProyeccionEstudiantes> {
+        this._loading.next(true);
+        this._error.next(null);
+        return this.apiService.eliminarEstudianteSimulado(id).pipe(
+            map(d => this.mapper.mappearDeRespuestaAReporteProyeccionEstudiantes(d)),
             tap(data => this._reporteProyeccionEstudiantes.next(data)),
             catchError(err => { this._error.next(err); return throwError(() => err); }),
             finalize(() => this._loading.next(false))

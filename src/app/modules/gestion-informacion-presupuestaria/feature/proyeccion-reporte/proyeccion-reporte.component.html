@@ -1,5 +1,6 @@
 <div class="col-12">
     <p-toast position="top-right"></p-toast>
+    <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
     <p-card>
         <ng-container *ngIf="vm$ | async as vm">
             <div class="page-content">
@@ -91,6 +92,19 @@
 
             </div>
 
+            <!-- Encabezado de tabla + botón para agregar estudiante simulado -->
+            <div class="flex justify-content-between align-items-center mb-2">
+                <span class="text-700 font-semibold">Estudiantes de la Proyección</span>
+                <button pButton pRipple type="button"
+                    label="Agregar Estudiante Simulado"
+                    icon="pi pi-plus"
+                    class="p-button-outlined"
+                    (click)="agregarFilaSimulado()"
+                    [disabled]="isAnyEditActive || nuevoEstudianteSimulado !== null"
+                    pTooltip="Agregar un estudiante simulado (ficticio) a la proyección">
+                </button>
+            </div>
+
             <!-- Tabla de estudiantes editable -->
             <div class="table-responsive-wrapper">
                 <p-table [value]="vm.estudiantes" dataKey="codigoEstudiante" editMode="row"
@@ -117,7 +131,7 @@
                     </ng-template>
 
                     <ng-template pTemplate="body" let-estudiante let-editing="editing" let-ri="rowIndex">
-                        <tr [pEditableRow]="estudiante">
+                        <tr [pEditableRow]="estudiante" [id]="estudiante.id === -1 ? 'nuevo-estudiante-simulado-row' : null">
                             <td class="text-center">
                                 <span class="p-column-title font-bold">Pago</span>
                                 <p-cellEditor>
@@ -138,12 +152,45 @@
 
                             <td class="text-center">
                                 <span class="p-column-title font-bold">Cédula</span>
-                                {{ estudiante.codigoEstudiante }}
+                                <ng-container *ngIf="estudiante.id === -1; else cedulaNoNueva">
+                                    <input pInputText type="number" [(ngModel)]="estudiante.identificacion" placeholder="Cédula">
+                                </ng-container>
+                                <ng-template #cedulaNoNueva>
+                                    <p-cellEditor *ngIf="estudiante.esSimulado; else cedulaSoloLectura">
+                                        <ng-template pTemplate="input">
+                                            <input pInputText type="number" [(ngModel)]="estudiante.identificacion" placeholder="Cédula">
+                                        </ng-template>
+                                        <ng-template pTemplate="output">
+                                            {{ estudiante.identificacion || estudiante.codigoEstudiante }}
+                                        </ng-template>
+                                    </p-cellEditor>
+                                    <ng-template #cedulaSoloLectura>{{ estudiante.codigoEstudiante }}</ng-template>
+                                </ng-template>
                             </td>
 
                             <td>
                                 <span class="p-column-title font-bold">Nombre</span>
-                                {{ estudiante.nombreEstudiante }}
+                                <ng-container *ngIf="estudiante.id === -1; else nombreNoNueva">
+                                    <div class="flex flex-column gap-1">
+                                        <input pInputText type="text" [(ngModel)]="estudiante.nombre" placeholder="Nombre">
+                                        <input pInputText type="text" [(ngModel)]="estudiante.apellido" placeholder="Apellido">
+                                    </div>
+                                </ng-container>
+                                <ng-template #nombreNoNueva>
+                                    <p-cellEditor *ngIf="estudiante.esSimulado; else nombreSoloLectura">
+                                        <ng-template pTemplate="input">
+                                            <div class="flex flex-column gap-1">
+                                                <input pInputText type="text" [(ngModel)]="estudiante.nombre" placeholder="Nombre">
+                                                <input pInputText type="text" [(ngModel)]="estudiante.apellido" placeholder="Apellido">
+                                            </div>
+                                        </ng-template>
+                                        <ng-template pTemplate="output">
+                                            {{ estudiante.nombreEstudiante }}
+                                            <span class="uni-badge-simulado">Simulado</span>
+                                        </ng-template>
+                                    </p-cellEditor>
+                                    <ng-template #nombreSoloLectura>{{ estudiante.nombreEstudiante }}</ng-template>
+                                </ng-template>
                             </td>
 
                             <td class="text-right">
@@ -232,24 +279,49 @@
 
                             <td class="text-center">
                                 <span class="p-column-title font-bold">Acciones</span>
-                                <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
-                                    (click)="onRowEditInit(estudiante)"
-                                    class="p-button-rounded p-button-text p-button-secondary"
-                                    pTooltip="Editar fila" tooltipPosition="top"
-                                    [disabled]="isAnyEditActive">
-                                </button>
-                                <div *ngIf="editing" class="flex justify-content-center gap-1">
-                                    <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
-                                        (click)="onRowEditSave(estudiante)"
+
+                                <!-- Fila nueva de estudiante simulado (aún no guardada) -->
+                                <div *ngIf="estudiante.id === -1" class="flex justify-content-center gap-1">
+                                    <button pButton pRipple type="button" icon="pi pi-check"
+                                        (click)="guardarNuevoSimulado()"
                                         class="p-button-rounded p-button-text p-button-success"
                                         pTooltip="Guardar" tooltipPosition="top">
                                     </button>
-                                    <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
-                                        (click)="onRowEditCancel(estudiante, ri)"
+                                    <button pButton pRipple type="button" icon="pi pi-times"
+                                        (click)="cancelarNuevoSimulado()"
                                         class="p-button-rounded p-button-text p-button-danger"
                                         pTooltip="Cancelar" tooltipPosition="top">
                                     </button>
                                 </div>
+
+                                <ng-container *ngIf="estudiante.id !== -1">
+                                    <div *ngIf="!editing" class="flex justify-content-center gap-1">
+                                        <button pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+                                            (click)="onRowEditInit(estudiante)"
+                                            class="p-button-rounded p-button-text p-button-secondary"
+                                            pTooltip="Editar fila" tooltipPosition="top"
+                                            [disabled]="isAnyEditActive">
+                                        </button>
+                                        <button *ngIf="estudiante.esSimulado" pButton pRipple type="button" icon="pi pi-trash"
+                                            (click)="confirmarEliminarSimulado(estudiante)"
+                                            class="p-button-rounded p-button-text p-button-danger"
+                                            pTooltip="Eliminar estudiante simulado" tooltipPosition="top"
+                                            [disabled]="isAnyEditActive">
+                                        </button>
+                                    </div>
+                                    <div *ngIf="editing" class="flex justify-content-center gap-1">
+                                        <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                                            (click)="onRowEditSave(estudiante)"
+                                            class="p-button-rounded p-button-text p-button-success"
+                                            pTooltip="Guardar" tooltipPosition="top">
+                                        </button>
+                                        <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                                            (click)="onRowEditCancel(estudiante, ri)"
+                                            class="p-button-rounded p-button-text p-button-danger"
+                                            pTooltip="Cancelar" tooltipPosition="top">
+                                        </button>
+                                    </div>
+                                </ng-container>
                             </td>
                         </tr>
                     </ng-template>

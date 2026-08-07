@@ -28,7 +28,7 @@
         <ng-template pTemplate="body" let-estudiante let-editing="editing" let-ri="rowIndex">
             <tr [pEditableRow]="editable ? estudiante : null">                <!-- Pago (Triple Estado: True=Pagado, De resto=Simulable) -->
                 <td class="text-center">
-                    <ng-container *ngIf="editable; else pagoReadonly">
+                    <ng-container *ngIf="editable; else pagoFinal">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <!-- Si el pago es Real True, mostramos el badge PAGADO -->
@@ -45,11 +45,13 @@
                                 </p-checkbox>
                             </ng-template>
                             <ng-template pTemplate="output">
-                                <ng-container *ngTemplateOutlet="pagoReadonly"></ng-container>
+                                <ng-container *ngTemplateOutlet="pagoProyeccion"></ng-container>
                             </ng-template>
                         </p-cellEditor>
                     </ng-container>
-                    <ng-template #pagoReadonly>
+
+                    <!-- Vista de solo lectura dentro de la proyección (fila no en edición) -->
+                    <ng-template #pagoProyeccion>
                         <!-- Visualización de prioridad: Real (MF) > Simulado (estaPago) -->
                         <ng-container *ngIf="estudiante.estadoMatriculaFinanciera === true; else simulableCheckbox">
                             <app-uni-status-badge [status]="true"
@@ -64,6 +66,14 @@
                                 pTooltip="No registra pago.">
                             </p-checkbox>
                         </ng-template>
+                    </ng-template>
+
+                    <!-- Reporte final: estado real de pago, sin checkbox simulable -->
+                    <ng-template #pagoFinal>
+                        <app-uni-status-badge
+                            [status]="estudiante.estadoMatriculaFinanciera === true"
+                            [tooltip]="estudiante.estadoMatriculaFinanciera === true ? 'Pago registrado.' : 'Sin pago registrado.'">
+                        </app-uni-status-badge>
                     </ng-template>
                 </td>
 

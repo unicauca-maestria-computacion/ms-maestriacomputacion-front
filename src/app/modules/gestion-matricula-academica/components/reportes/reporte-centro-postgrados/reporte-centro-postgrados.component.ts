@@ -34,8 +34,16 @@ interface ReporteRow {
 // de cada estudiante se combinan I:J para que el contenido sea visible pese a la columna oculta.
 const TEMPLATE_URL = 'assets/reportes/plantilla-centro-postgrados.xlsx';
 const NUM_COLS = 15; // A..O
-const COLUMN_WIDTHS = [1.73, 14, 25, 6.18, 6.54, 6.45, 7.82, 8.54, 3, 8.18, 5.45, 11.54, 29, 17.73, 11.45];
+const COLUMN_WIDTHS = [
+    1.73, 14, 25, 12, 6.54, 6.45, 7.82, 8.54, 3, 8.18, 5.45, 11.54, 29, 17.73,
+    11.45,
+];
 const HIDDEN_COLUMN = 9; // columna I
+
+// La fila 10 de la plantilla (Código-OID/Materia + nota "Pendiente...") y la fila
+// de datos base quedan muy bajas para el contenido real; se les da más alto a mano.
+const ALTO_FILA_NOTA_PENDIENTE = 30;
+const ALTO_FILA_ESTUDIANTE = 22;
 
 const COL = {
     ID: 2,
@@ -70,17 +78,29 @@ function colLetraANumero(letras: string): number {
     return n;
 }
 
-function parsearRango(rango: string): { c1: number; r1: number; c2: number; r2: number } {
+function parsearRango(rango: string): {
+    c1: number;
+    r1: number;
+    c2: number;
+    r2: number;
+} {
     const [inicio, fin] = rango.split(':');
     const m1 = inicio.match(/^([A-Z]+)(\d+)$/)!;
     const m2 = fin.match(/^([A-Z]+)(\d+)$/)!;
-    return { c1: colLetraANumero(m1[1]), r1: +m1[2], c2: colLetraANumero(m2[1]), r2: +m2[2] };
+    return {
+        c1: colLetraANumero(m1[1]),
+        r1: +m1[2],
+        c2: colLetraANumero(m2[1]),
+        r2: +m2[2],
+    };
 }
 
 function clonarEstiloCeldas(origen: ExcelJS.Row, destino: ExcelJS.Row): void {
     destino.height = origen.height;
     for (let c = 1; c <= NUM_COLS; c++) {
-        destino.getCell(c).style = JSON.parse(JSON.stringify(origen.getCell(c).style));
+        destino.getCell(c).style = JSON.parse(
+            JSON.stringify(origen.getCell(c).style)
+        );
     }
 }
 
@@ -105,7 +125,9 @@ function clonarBloque(
             celdaDestino.style = JSON.parse(JSON.stringify(celdaOrigen.style));
         }
     }
-    const merges: string[] = (origenWs as unknown as { model: { merges: string[] } }).model.merges || [];
+    const merges: string[] =
+        (origenWs as unknown as { model: { merges: string[] } }).model.merges ||
+        [];
     merges.forEach((rango) => {
         const { c1, r1, c2, r2 } = parsearRango(rango);
         if (r1 >= origenInicio && r2 <= origenFin) {
@@ -205,7 +227,10 @@ export class ReporteCentroPostgradosComponent implements OnInit {
             });
     }
 
-    private async generarExcel(data: ReporteRow[], periodoLabel: string): Promise<void> {
+    private async generarExcel(
+        data: ReporteRow[],
+        periodoLabel: string
+    ): Promise<void> {
         const buffer = await firstValueFrom(
             this.http.get(TEMPLATE_URL, { responseType: 'arraybuffer' })
         );
@@ -235,40 +260,69 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                 a.nombreCompleto.localeCompare(b.nombreCompleto)
             );
             const gruposClase = [
-                ...new Set(estudiantes.map((e) => e.grupoClase).filter(Boolean)),
-            ].sort().join('-');
+                ...new Set(
+                    estudiantes.map((e) => e.grupoClase).filter(Boolean)
+                ),
+            ]
+                .sort()
+                .join('-');
 
             // Título + cabecera (filas 4 a 10 de la plantilla)
             const blockStart = cursor;
-            clonarBloque(plantillaWs, ws, TPL_TITULO_INICIO, TPL_CABECERA_FIN, blockStart);
+            clonarBloque(
+                plantillaWs,
+                ws,
+                TPL_TITULO_INICIO,
+                TPL_CABECERA_FIN,
+                blockStart
+            );
             ws.getCell(blockStart, COL.ID).value = TITULO_MATRICULA;
-            ws.getCell(blockStart + 1, COL.SEM_ACAD).value = `Semestre: ____${semestre}____`;
+            const semestreAcadDelGrupo =
+                estudiantes[0]?.semestreAcademico ?? Math.min(semestre, 4);
+            ws.getCell(blockStart + 1, COL.SEM_ACAD).value =
+                `Semestre: ____${semestreAcadDelGrupo}____`;
             ws.getCell(blockStart + 4, COL.GRUPO).value = gruposClase;
+            // La fila 10 de la plantilla (Código-OID/Materia + nota "Pendiente...")
+            // queda demasiado baja para su contenido real.
+            ws.getRow(blockStart + 6).height = ALTO_FILA_NOTA_PENDIENTE;
             cursor += TPL_CABECERA_FIN - TPL_TITULO_INICIO + 1;
 
             // Filas de estudiantes
             for (const est of estudiantes) {
-                const materias = est.materias?.length ? est.materias : [{ codigoOid: '', materia: '' }];
+                const materias = est.materias?.length
+                    ? est.materias
+                    : [{ codigoOid: '', materia: '' }];
                 const rowStart = cursor;
 
                 materias.forEach((m, i) => {
                     const fila = ws.getRow(cursor);
-                    clonarEstiloCeldas(plantillaWs.getRow(TPL_FILA_DATOS), fila);
+                    clonarEstiloCeldas(
+                        plantillaWs.getRow(TPL_FILA_DATOS),
+                        fila
+                    );
+                    fila.height = ALTO_FILA_ESTUDIANTE;
                     if (i === 0) {
                         fila.getCell(COL.ID).value = est.identificacion;
                         fila.getCell(COL.NOMBRE).value = est.nombreCompleto;
-                        fila.getCell(COL.VALOR).value = est.valorMatriculaSMMLV ?? '';
-                        fila.getCell(COL.SEM_FIN).value = est.semestreFinanciero ?? '';
-                        fila.getCell(COL.DESC_VOTO).value = est.aplicaDescuentoVoto ? 'SI' : 'NO';
-                        fila.getCell(COL.DESC_EGR).value = est.aplicaDescuentoEgresado ? 'SI' : 'NO';
+                        fila.getCell(COL.VALOR).value =
+                            est.valorMatriculaSMMLV ?? '';
+                        fila.getCell(COL.SEM_FIN).value =
+                            est.semestreFinanciero ?? '';
+                        fila.getCell(COL.DESC_VOTO).value =
+                            est.aplicaDescuentoVoto ? 'SI' : 'NO';
+                        fila.getCell(COL.DESC_EGR).value =
+                            est.aplicaDescuentoEgresado ? 'SI' : 'NO';
                         fila.getCell(COL.RES_BECA).value =
-                            est.resolucionBeca || (est.porcentajeBeca != null ? '' : 'NO');
+                            est.resolucionBeca ||
+                            (est.porcentajeBeca != null ? '' : 'NO');
                         fila.getCell(COL.PCT_BECA).value =
                             est.porcentajeBeca != null && est.porcentajeBeca > 0
                                 ? `${est.porcentajeBeca}%`
                                 : '';
-                        fila.getCell(COL.SEM_ACAD).value = est.semestreAcademico ?? '';
-                        fila.getCell(COL.DOCENTE).value = est.docenteEncargado || '';
+                        fila.getCell(COL.SEM_ACAD).value =
+                            est.semestreAcademico ?? '';
+                        fila.getCell(COL.DOCENTE).value =
+                            est.docenteEncargado || '';
                         fila.getCell(COL.GRUPO).value = est.grupoClase || '';
                     }
                     fila.getCell(COL.COD_OID).value = m.codigoOid || '';
@@ -280,14 +334,28 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                 ws.mergeCells(rowStart, COL.PCT_BECA, rowEnd, COL.PCT_BECA_FIN);
                 if (rowEnd > rowStart) {
                     [
-                        COL.ID, COL.NOMBRE, COL.VALOR, COL.SEM_FIN, COL.DESC_VOTO,
-                        COL.DESC_EGR, COL.RES_BECA, COL.SEM_ACAD, COL.DOCENTE, COL.GRUPO,
+                        COL.ID,
+                        COL.NOMBRE,
+                        COL.VALOR,
+                        COL.SEM_FIN,
+                        COL.DESC_VOTO,
+                        COL.DESC_EGR,
+                        COL.RES_BECA,
+                        COL.SEM_ACAD,
+                        COL.DOCENTE,
+                        COL.GRUPO,
                     ].forEach((c) => ws.mergeCells(rowStart, c, rowEnd, c));
                 }
             }
 
             // Notas + leyendas (filas 15 a 18 de la plantilla)
-            clonarBloque(plantillaWs, ws, TPL_NOTAS_INICIO, TPL_NOTAS_FIN, cursor);
+            clonarBloque(
+                plantillaWs,
+                ws,
+                TPL_NOTAS_INICIO,
+                TPL_NOTAS_FIN,
+                cursor
+            );
             cursor += TPL_NOTAS_FIN - TPL_NOTAS_INICIO + 1;
 
             cursor += 3; // espacio entre tablas de semestre

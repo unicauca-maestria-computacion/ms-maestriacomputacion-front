@@ -68,6 +68,7 @@
 
                     <ng-template pTemplate="header">
                         <tr>
+                            <th class="text-center white-space-nowrap">Pago</th>
                             <th class="text-center white-space-nowrap">Cédula</th>
                             <th class="white-space-nowrap">Nombre</th>
                             <th class="text-right white-space-nowrap">Matrícula</th>
@@ -85,6 +86,12 @@
 
                     <ng-template pTemplate="body" let-estudiante>
                         <tr>
+                            <td class="text-center">
+                                <span class="p-column-title font-bold">Pago</span>
+                                <p-checkbox [ngModel]="estudiante.estadoMatriculaFinanciera === true" [binary]="true" [disabled]="true"
+                                    [pTooltip]="estudiante.estadoMatriculaFinanciera === true ? 'Pago registrado.' : 'Sin pago registrado.'">
+                                </p-checkbox>
+                            </td>
                             <td class="text-center">
                                 <span class="p-column-title font-bold">Cédula</span>
                                 {{ estudiante.identificacion }}
@@ -138,7 +145,7 @@
 
                     <ng-template pTemplate="emptymessage">
                         <tr>
-                            <td colspan="12" class="text-center p-4 text-600">
+                            <td colspan="13" class="text-center p-4 text-600">
                                 <i class="pi pi-inbox mr-2"></i>No hay datos disponibles para el período seleccionado.
                             </td>
                         </tr>

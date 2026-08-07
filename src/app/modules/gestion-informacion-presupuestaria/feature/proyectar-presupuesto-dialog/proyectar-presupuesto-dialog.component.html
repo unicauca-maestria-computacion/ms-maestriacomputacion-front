@@ -1,4 +1,22 @@
-<p-dialog header="Nueva Proyección" [(visible)]="visible" [modal]="true" [closable]="false" [style]="{width: '500px'}" (onHide)="cancelar()">
+<p-dialog
+    [(visible)]="visible"
+    [modal]="true"
+    [style]="{ width: '500px', 'min-width': '320px', 'border-radius': '28px' }"
+    [draggable]="false"
+    [resizable]="false"
+    (onHide)="cancelar()"
+    [closable]="true">
+
+    <!-- Título del diálogo con estilo institucional -->
+    <ng-template pTemplate="header">
+        <div class="flex align-items-center gap-2">
+            <span class="material-symbols-rounded" style="font-size: 24px; color: #000066;" aria-hidden="true">add_circle</span>
+            <span style="font-family: 'Titillium Web', sans-serif; font-size: 18px; color: #000066; font-weight: 700;">
+                Nueva Proyección
+            </span>
+        </div>
+    </ng-template>
+
   <form [formGroup]="form" (ngSubmit)="proyectar()" class="p-fluid">
     <div class="field mt-3">
       <label class="campo-label">Fecha de inicio *</label>
@@ -37,9 +55,26 @@
       </small>
     </div>
 
-    <div class="flex justify-content-end gap-2 mt-4 pt-3" style="border-top: 1px solid #E5E2E1;">
-      <button pButton pRipple type="button" label="Cancelar" class="p-button-outlined btn-cancelar" (click)="cancelar()"></button>
-      <button pButton pRipple type="submit" label="Proyectar" class="btn-descargar" [disabled]="!form.valid || fechaFinInvalida"></button>
-    </div>
   </form>
+
+    <!-- Footer con botones -->
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <button pButton pRipple type="button"
+                label="Cancelar"
+                class="p-button-rounded p-button-outlined btn-cancelar"
+                aria-label="Cancelar proyección"
+                (click)="cancelar()">
+                <span class="material-symbols-rounded mr-2" style="font-size: 16px;" aria-hidden="true">close</span>
+            </button>
+            <button pButton pRipple type="button"
+                label="Proyectar"
+                class="p-button-rounded btn-descargar"
+                aria-label="Crear proyección"
+                (click)="proyectar()"
+                [disabled]="!form.valid || fechaFinInvalida">
+                <span class="material-symbols-rounded mr-2" style="font-size: 16px;" aria-hidden="true">add_circle</span>
+            </button>
+        </div>
+    </ng-template>
 </p-dialog>

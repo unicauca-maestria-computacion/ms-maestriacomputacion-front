@@ -1,4 +1,7 @@
-<p-dialog header="Nueva Proyección" [(visible)]="visible" [modal]="true" [closable]="false" [style]="{width: '500px'}" (onHide)="cancelar()">
+<p-dialog header="Nueva Proyección" [(visible)]="visible" [modal]="true"
+    [style]="{width: '500px', 'min-width': '320px'}"
+    [draggable]="false" [resizable]="false"
+    (onHide)="cancelar()" [closable]="true">
   <form [formGroup]="form" (ngSubmit)="proyectar()" class="p-fluid">
     <div class="field mt-3">
       <label class="campo-label">Fecha de inicio *</label>
@@ -37,9 +40,20 @@
       </small>
     </div>
 
-    <div class="flex justify-content-end gap-2 mt-4 pt-3" style="border-top: 1px solid #E5E2E1;">
-      <button pButton pRipple type="button" label="Cancelar" class="p-button-outlined btn-cancelar" (click)="cancelar()"></button>
-      <button pButton pRipple type="submit" label="Proyectar" class="btn-descargar" [disabled]="!form.valid || fechaFinInvalida"></button>
-    </div>
   </form>
+
+    <!-- Footer con botones Cancelar / Proyectar -->
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <button pButton pRipple type="button" label="Cancelar" icon="pi pi-times"
+                class="p-button-text p-button-secondary"
+                (click)="cancelar()">
+            </button>
+            <button pButton pRipple type="button" label="Proyectar" icon="pi pi-check"
+                class="p-button-primary"
+                (click)="proyectar()"
+                [disabled]="!form.valid || fechaFinInvalida">
+            </button>
+        </div>
+    </ng-template>
 </p-dialog>

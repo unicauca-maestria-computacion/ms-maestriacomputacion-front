@@ -68,6 +68,13 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     return this.editingRowKey !== null;
   }
 
+  get tituloSeccionEstudiantes(): string {
+    const estado = this.periodoSeleccionado?.estado;
+    if (estado === 'ACTIVO') return 'Proyección de Estudiantes — Período Activo';
+    if (estado === 'PROYECCION') return 'Proyección de Estudiantes — Período en Proyección';
+    return 'Proyección de Estudiantes';
+  }
+
   displayProyectarDialog = false;
 
   ngOnInit(): void {

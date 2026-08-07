@@ -97,6 +97,13 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     return this.editandoCabecera || this.editingRowKey !== null;
   }
 
+  tituloProyeccion(periodo: PeriodoFinancieroDTORespuesta | null): string {
+    const estado = periodo?.estado;
+    if (estado === 'ACTIVO') return 'Proyección Reporte Financiero — Período Activo';
+    if (estado === 'PROYECCION') return 'Proyección Reporte Financiero — Período en Proyección';
+    return 'Proyección Reporte Financiero';
+  }
+
   displayProyectarDialog = false;
 
   ngOnInit(): void {

@@ -53,7 +53,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
 
   editingRowKey: string | null = null;
 
-  nuevoEstudianteSimulado: EstudianteProyeccion | null = null;
+  creandoSimulado: boolean = false;
 
   constructor(
     private messageService: MessageService,
@@ -164,6 +164,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   private mapearEstudianteProyeccion(e: ProyeccionEstudiante): EstudianteProyeccion {
     return {
       ...e,
+      porcentajeBeca: this.toPercent(e.porcentajeBeca),
       nombreEstudiante: `${e.nombre ?? ''} ${e.apellido ?? ''}`.trim() || e.codigoEstudiante,
       matricula: e.valorMatricula || 0,
       valorBeca: e.valorDescuentoBeca || 0,
@@ -238,7 +239,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       codigoEstudiante: estudiante.codigoEstudiante,
       estaPago: estudiante.estaPago,
       aplicaVotacion: estudiante.aplicaVotacion ?? false,
-      porcentajeBeca: estudiante.porcentajeBeca,
+      porcentajeBeca: this.toRatio(estudiante.porcentajeBeca),
       aplicaEgresado: estudiante.aplicaEgresado ?? false
     };
 
@@ -271,73 +272,29 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   }
 
   agregarFilaSimulado(): void {
-    if (this.nuevoEstudianteSimulado !== null || this.isAnyEditActive) return;
+    if (this.creandoSimulado || this.isAnyEditActive || !this.periodoSeleccionado?.id) return;
 
-    this.nuevoEstudianteSimulado = {
-      id: -1,
-      esSimulado: true,
-      codigoEstudiante: '__nuevo_simulado__',
-      nombre: '',
-      apellido: '',
-      identificacion: 0,
-      estaPago: false,
-      aplicaVotacion: false,
-      porcentajeBeca: 0,
-      aplicaEgresado: false,
-      grupoInvestigacion: '',
-      nombreEstudiante: '',
-      matricula: 0,
-      valorBeca: 0,
-      valorEgresado: 0,
-      valorVotacion: 0,
-      recursosComputacionales: this.configuracion?.recursosComputacionales || 0,
-      biblioteca: this.configuracion?.biblioteca || 0,
-      grupoDescuentos: 0,
-      totalNeto: 0
-    } as EstudianteProyeccion;
+    this.creandoSimulado = true;
+    const numero = this.estudiantes.filter(e => e.esSimulado).length + 1;
 
-    this.estudiantes = [...this.estudiantes, this.nuevoEstudianteSimulado];
-    this.cdr.markForCheck();
-
-    setTimeout(() => {
-      document.getElementById('nuevo-estudiante-simulado-row')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 50);
-  }
-
-  guardarNuevoSimulado(): void {
-    if (!this.nuevoEstudianteSimulado || !this.periodoSeleccionado?.id) return;
-
-    if (!this.nuevoEstudianteSimulado.nombre || !this.nuevoEstudianteSimulado.nombre.trim()) {
-      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'El nombre del estudiante simulado es requerido.' });
-      return;
-    }
-
-    this.loadingService.show('Agregando estudiante simulado...');
     this.facadeService.crearEstudianteSimulado({
       periodoAcademicoId: this.periodoSeleccionado.id,
-      nombre: this.nuevoEstudianteSimulado.nombre,
-      apellido: this.nuevoEstudianteSimulado.apellido,
-      identificacion: this.nuevoEstudianteSimulado.identificacion || null
+      nombre: 'Estudiante nuevo ' + numero,
+      apellido: '',
+      identificacion: null
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.procesarRespuesta(data);
-        this.nuevoEstudianteSimulado = null;
-        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estudiante simulado agregado.' });
-        this.loadingService.hide();
+        this.creandoSimulado = false;
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estudiante simulado agregado. Edítalo para completar sus datos.' });
         this.cdr.markForCheck();
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo agregar el estudiante simulado.' });
-        this.loadingService.hide();
+        this.creandoSimulado = false;
         this.cdr.markForCheck();
       }
     });
-  }
-
-  cancelarNuevoSimulado(): void {
-    this.estudiantes = this.estudiantes.filter(e => e.id !== -1);
-    this.nuevoEstudianteSimulado = null;
-    this.cdr.markForCheck();
   }
 
   private guardarEdicionSimulado(estudiante: EstudianteProyeccion): void {
@@ -357,7 +314,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       identificacion: estudiante.identificacion || null,
       estaPago: estudiante.estaPago,
       aplicaVotacion: estudiante.aplicaVotacion ?? false,
-      porcentajeBeca: estudiante.porcentajeBeca,
+      porcentajeBeca: this.toRatio(estudiante.porcentajeBeca),
       aplicaEgresado: estudiante.aplicaEgresado ?? false
     };
 
@@ -434,6 +391,17 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  private toRatio(value: number | null | undefined): number {
+    if (value == null) return 0;
+    return value / 100;
+  }
+
+  private toPercent(value: number | null | undefined): number {
+    if (value == null) return 0;
+    const percent = value <= 1 ? value * 100 : value;
+    return Math.round(percent * 100) / 100;
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();

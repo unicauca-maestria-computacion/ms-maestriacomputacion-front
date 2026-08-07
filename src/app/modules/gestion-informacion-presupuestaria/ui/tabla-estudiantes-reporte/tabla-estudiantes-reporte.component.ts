@@ -41,21 +41,11 @@ export class TablaEstudiantesReporteComponent {
     /** Emite cambios en el input de porcentaje de beca */
     @Output() percentInput = new EventEmitter<{ event: Event; estudiante: ReporteFinalVM; campo: string }>();
 
-    /** Emite cuando se confirma la fila nueva de estudiante simulado (id === -1) */
-    @Output() guardarSimulado = new EventEmitter<void>();
-
-    /** Emite cuando se cancela la fila nueva de estudiante simulado */
-    @Output() cancelarSimulado = new EventEmitter<void>();
-
     /** Emite cuando se pide eliminar un estudiante simulado existente */
     @Output() eliminarSimulado = new EventEmitter<ReporteFinalVM>();
 
     trackByEstudiante(index: number, e: ReporteFinalVM): string {
         return e.codigoEstudiante;
-    }
-
-    esFilaNuevaSimulado(e: ReporteFinalVM): boolean {
-        return e.id === -1;
     }
 
     esSimulado(e: ReporteFinalVM): boolean {

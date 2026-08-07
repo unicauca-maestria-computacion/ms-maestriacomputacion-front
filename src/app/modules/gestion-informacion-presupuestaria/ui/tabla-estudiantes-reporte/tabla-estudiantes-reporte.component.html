@@ -71,10 +71,7 @@
 
                 <!-- Cédula -->
                 <td class="col-monetaria">
-                    <ng-container *ngIf="esFilaNuevaSimulado(estudiante)">
-                        <input pInputText type="number" [(ngModel)]="estudiante.identificacion" placeholder="Cédula" style="width: 100%;">
-                    </ng-container>
-                    <ng-container *ngIf="!esFilaNuevaSimulado(estudiante) && esSimulado(estudiante)">
+                    <ng-container *ngIf="esSimulado(estudiante); else cedulaSoloLectura">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <input pInputText type="number" [(ngModel)]="estudiante.identificacion" style="width: 100%;">
@@ -82,15 +79,12 @@
                             <ng-template pTemplate="output">{{ estudiante.identificacion }}</ng-template>
                         </p-cellEditor>
                     </ng-container>
-                    <ng-container *ngIf="!esSimulado(estudiante)">{{ estudiante.identificacion }}</ng-container>
+                    <ng-template #cedulaSoloLectura>{{ estudiante.identificacion }}</ng-template>
                 </td>
 
                 <!-- Nombre -->
                 <td class="col-nombre">
-                    <ng-container *ngIf="esFilaNuevaSimulado(estudiante)">
-                        <input pInputText type="text" [(ngModel)]="estudiante.nombre" placeholder="Nombre completo" style="width: 100%;">
-                    </ng-container>
-                    <ng-container *ngIf="!esFilaNuevaSimulado(estudiante) && esSimulado(estudiante)">
+                    <ng-container *ngIf="esSimulado(estudiante); else nombreSoloLectura">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <input pInputText type="text" [(ngModel)]="estudiante.nombre" style="width: 100%;">
@@ -99,7 +93,7 @@
                         </p-cellEditor>
                     </ng-container>
                     <span *ngIf="esSimulado(estudiante)" class="uni-badge-simulado" pTooltip="Estudiante simulado, no existe en el sistema académico">Simulado</span>
-                    <ng-container *ngIf="!esSimulado(estudiante)">{{ estudiante.nombreEstudiante }}</ng-container>
+                    <ng-template #nombreSoloLectura>{{ estudiante.nombreEstudiante }}</ng-template>
                 </td>
 
                 <!-- Grupo -->
@@ -206,68 +200,45 @@
 
                 <!-- Acciones (solo si editable) -->
                 <td *ngIf="editable" class="text-center">
-
-                    <!-- Fila nueva de estudiante simulado (aún no guardada) -->
-                    <div *ngIf="esFilaNuevaSimulado(estudiante)" class="flex justify-content-center gap-1">
+                    <div *ngIf="!editing" class="flex justify-content-center gap-1">
                         <button pButton pRipple type="button"
-                            (click)="guardarSimulado.emit()"
+                            pInitEditableRow
+                            (click)="rowEditInit.emit(estudiante)"
                             class="p-button-rounded p-button-text"
-                            style="color: #5BAE40; width:36px; height:36px; padding:0;"
-                            pTooltip="Guardar" tooltipPosition="top"
-                            aria-label="Guardar estudiante simulado">
-                            <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">check_circle</span>
+                            style="color: #000066; width:36px; height:36px; padding:0;"
+                            [pTooltip]="(estudiante.estadoMatriculaFinanciera === null || estudiante.estadoMatriculaFinanciera === undefined) ? 'Editar fila' : 'Editar fila (El estado de pago no se puede modificar)'"
+                            tooltipPosition="top"
+                            [attr.aria-label]="'Editar ' + estudiante.nombreEstudiante">
+                            <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">edit</span>
                         </button>
-                        <button pButton pRipple type="button"
-                            (click)="cancelarSimulado.emit()"
+                        <button *ngIf="esSimulado(estudiante)" pButton pRipple type="button"
+                            (click)="eliminarSimulado.emit(estudiante)"
                             class="p-button-rounded p-button-text"
-                            style="color: #FF6D0A; width:36px; height:36px; padding:0;"
-                            pTooltip="Cancelar" tooltipPosition="top"
-                            aria-label="Cancelar estudiante simulado">
-                            <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">cancel</span>
+                            style="color: #D32F2F; width:36px; height:36px; padding:0;"
+                            pTooltip="Eliminar estudiante simulado" tooltipPosition="top"
+                            [attr.aria-label]="'Eliminar ' + estudiante.nombreEstudiante">
+                            <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">delete</span>
                         </button>
                     </div>
 
-                    <ng-container *ngIf="!esFilaNuevaSimulado(estudiante)">
-                        <div *ngIf="!editing" class="flex justify-content-center gap-1">
-                            <button pButton pRipple type="button"
-                                pInitEditableRow
-                                (click)="rowEditInit.emit(estudiante)"
-                                class="p-button-rounded p-button-text"
-                                style="color: #000066; width:36px; height:36px; padding:0;"
-                                [pTooltip]="(estudiante.estadoMatriculaFinanciera === null || estudiante.estadoMatriculaFinanciera === undefined) ? 'Editar fila' : 'Editar fila (El estado de pago no se puede modificar)'"
-                                tooltipPosition="top"
-                                [attr.aria-label]="'Editar ' + estudiante.nombreEstudiante">
-                                <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">edit</span>
-                            </button>
-                            <button *ngIf="esSimulado(estudiante)" pButton pRipple type="button"
-                                (click)="eliminarSimulado.emit(estudiante)"
-                                class="p-button-rounded p-button-text"
-                                style="color: #D32F2F; width:36px; height:36px; padding:0;"
-                                pTooltip="Eliminar estudiante simulado" tooltipPosition="top"
-                                [attr.aria-label]="'Eliminar ' + estudiante.nombreEstudiante">
-                                <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">delete</span>
-                            </button>
-                        </div>
-
-                        <div *ngIf="editing" class="flex justify-content-center gap-1">
-                            <button pButton pRipple type="button" pSaveEditableRow
-                                (click)="rowEditSave.emit(estudiante)"
-                                class="p-button-rounded p-button-text"
-                                style="color: #5BAE40; width:36px; height:36px; padding:0;"
-                                pTooltip="Guardar" tooltipPosition="top"
-                                aria-label="Guardar cambios">
-                                <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">check_circle</span>
-                            </button>
-                            <button pButton pRipple type="button" pCancelEditableRow
-                                (click)="rowEditCancel.emit({ estudiante: estudiante, index: ri })"
-                                class="p-button-rounded p-button-text"
-                                style="color: #FF6D0A; width:36px; height:36px; padding:0;"
-                                pTooltip="Cancelar" tooltipPosition="top"
-                                aria-label="Cancelar edición">
-                                <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">cancel</span>
-                            </button>
-                        </div>
-                    </ng-container>
+                    <div *ngIf="editing" class="flex justify-content-center gap-1">
+                        <button pButton pRipple type="button" pSaveEditableRow
+                            (click)="rowEditSave.emit(estudiante)"
+                            class="p-button-rounded p-button-text"
+                            style="color: #5BAE40; width:36px; height:36px; padding:0;"
+                            pTooltip="Guardar" tooltipPosition="top"
+                            aria-label="Guardar cambios">
+                            <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">check_circle</span>
+                        </button>
+                        <button pButton pRipple type="button" pCancelEditableRow
+                            (click)="rowEditCancel.emit({ estudiante: estudiante, index: ri })"
+                            class="p-button-rounded p-button-text"
+                            style="color: #FF6D0A; width:36px; height:36px; padding:0;"
+                            pTooltip="Cancelar" tooltipPosition="top"
+                            aria-label="Cancelar edición">
+                            <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">cancel</span>
+                        </button>
+                    </div>
                 </td>
             </tr>
         </ng-template>

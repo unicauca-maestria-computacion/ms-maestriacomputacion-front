@@ -68,7 +68,7 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   clonedCabecera: Partial<ConfiguracionReporteFinanciero> = {};
   editandoCabecera: boolean = false;
   editingRowKey: string | null = null;
-  nuevoEstudianteSimulado: EstudianteProyeccion | null = null;
+  creandoSimulado: boolean = false;
 
   constructor(
     private messageService: MessageService,
@@ -349,70 +349,27 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
   }
 
   agregarFilaSimulado(): void {
-    if (this.nuevoEstudianteSimulado !== null || this.isAnyEditActive) return;
+    if (this.creandoSimulado || this.isAnyEditActive || !this.periodoSeleccionado?.id) return;
 
-    const config = this._configuracion.value;
-    this.nuevoEstudianteSimulado = {
-      id: -1,
-      esSimulado: true,
-      codigoEstudiante: '__nuevo_simulado__',
-      nombre: '',
-      apellido: '',
-      identificacion: 0,
-      estaPago: false,
-      aplicaVotacion: false,
-      porcentajeBeca: 0,
-      aplicaEgresado: false,
-      grupoInvestigacion: '',
-      nombreEstudiante: '',
-      matricula: 0,
-      valorBeca: 0,
-      valorEgresado: 0,
-      valorVotacion: 0,
-      recursosComputacionales: config?.recursosComputacionales || 0,
-      biblioteca: config?.biblioteca || 0,
-      grupoDescuentos: 0,
-      totalNeto: 0
-    } as EstudianteProyeccion;
+    this.creandoSimulado = true;
+    const numero = this._estudiantes.value.filter(e => e.esSimulado).length + 1;
 
-    this._estudiantes.next([...this._estudiantes.value, this.nuevoEstudianteSimulado]);
-
-    setTimeout(() => {
-      document.getElementById('nuevo-estudiante-simulado-row')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 50);
-  }
-
-  guardarNuevoSimulado(): void {
-    if (!this.nuevoEstudianteSimulado || !this.periodoSeleccionado?.id) return;
-
-    if (!this.nuevoEstudianteSimulado.nombre || !this.nuevoEstudianteSimulado.nombre.trim()) {
-      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'El nombre del estudiante simulado es requerido.' });
-      return;
-    }
-
-    this.loadingService.show('Agregando estudiante simulado...');
     this.facadeService.crearEstudianteSimulado({
       periodoAcademicoId: this.periodoSeleccionado.id,
-      nombre: this.nuevoEstudianteSimulado.nombre,
-      apellido: this.nuevoEstudianteSimulado.apellido,
-      identificacion: this.nuevoEstudianteSimulado.identificacion || null
+      nombre: 'Estudiante nuevo ' + numero,
+      apellido: '',
+      identificacion: null
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.procesarRespuesta(data);
-        this.nuevoEstudianteSimulado = null;
-        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estudiante simulado agregado.' });
-        this.loadingService.hide();
+        this.creandoSimulado = false;
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estudiante simulado agregado. Edítalo para completar sus datos.' });
       },
       error: (_err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo agregar el estudiante simulado.' });
-        this.loadingService.hide();
+        this.creandoSimulado = false;
       }
     });
-  }
-
-  cancelarNuevoSimulado(): void {
-    this._estudiantes.next(this._estudiantes.value.filter(e => e.id !== -1));
-    this.nuevoEstudianteSimulado = null;
   }
 
   private guardarEdicionSimulado(estudiante: EstudianteProyeccion): void {

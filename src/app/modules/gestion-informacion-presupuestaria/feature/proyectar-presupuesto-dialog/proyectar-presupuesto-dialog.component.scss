@@ -86,6 +86,34 @@
         }
     }
 
+    // Calendario con ícono: el input y el botón deben verse como un solo control
+    // (redondear solo las esquinas "externas" de cada uno, sin duplicar el borde
+    // en la unión), en vez de que el input quede completamente redondeado y el
+    // botón completamente cuadrado uno junto al otro.
+    .p-calendar.p-calendar-w-btn {
+        .p-inputtext {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+        }
+
+        .p-datepicker-trigger {
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+            border-top-right-radius: 8px !important;
+            border-bottom-right-radius: 8px !important;
+            border: 1px solid #C9C8CC !important;
+            border-left: none !important;
+            background: #ffffff !important;
+            color: #000066 !important;
+
+            &:enabled:hover {
+                background: #F8F9FA !important;
+                border-color: #C9C8CC !important;
+                color: #000066 !important;
+            }
+        }
+    }
+
     .p-dropdown {
         border-radius: 8px !important;
         border: 1px solid #C9C8CC !important;

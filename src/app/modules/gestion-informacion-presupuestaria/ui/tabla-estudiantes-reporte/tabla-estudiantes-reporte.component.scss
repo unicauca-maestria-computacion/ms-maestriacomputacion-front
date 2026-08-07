@@ -104,5 +104,23 @@
 
         // Los estilos de .estado-badge ahora se manejan de forma global en styles.scss
         // para garantizar paridad absoluta con el módulo de Matrícula Financiera.
+
+        // Badge que marca estudiantes simulados/ficticios para que nunca se confundan con reales
+        .uni-badge-simulado {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 1px 7px;
+            border-radius: 10px;
+            background-color: #FFF1E0;
+            color: #B36B00;
+            border: 1px solid #FFD9A0;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
     }
 }

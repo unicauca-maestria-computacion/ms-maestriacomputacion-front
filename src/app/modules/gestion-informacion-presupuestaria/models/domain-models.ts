@@ -24,6 +24,7 @@ export interface ConfiguracionReporteFinanciero {
 }
 
 export interface ProyeccionEstudiante {
+    id?: number;
     codigoEstudiante: string;
     nombre: string;
     identificacion: number;
@@ -36,6 +37,7 @@ export interface ProyeccionEstudiante {
     valorEnSMLV?: number;
     estadoMatriculaFinanciera?: boolean;
     becaEstado?: string;
+    esSimulado?: boolean;
     materias?: Materia[];
 
     // Campos calculados recibidos del backend

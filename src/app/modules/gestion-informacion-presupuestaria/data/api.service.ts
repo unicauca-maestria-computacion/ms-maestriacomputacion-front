@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { backendInfoPresupuestaria } from 'src/app/core/constants/api-url';
 import { ConfiguracionReporteFinancieroDTOPeticion } from '../dto/configuracion-reporte-financiero.dto';
-import { ProyeccionEstudianteDTOPeticion } from '../dto/proyeccion-estudiante.dto';
+import { ProyeccionEstudianteDTOPeticion, CrearEstudianteSimuladoDTOPeticion, ActualizarEstudianteSimuladoDTOPeticion } from '../dto/proyeccion-estudiante.dto';
 import { ProyectarPresupuestoDTOPeticion } from '../dto/proyectar-presupuesto.dto';
 import { PeriodoAcademicoDto } from '../dto/periodo-financiero.dto';
 import { ReporteProyeccionEstudiantesDTORespuesta } from '../dto/reporte-proyeccion-estudiantes.dto';
@@ -56,6 +56,24 @@ export class GestionInformacionPresupuestariaApiService {
         if (anio != null) params = params.set('anio', anio.toString());
         return this.http.put<ReporteEstudiantesDTORespuesta>(
             backendInfoPresupuestaria('proyeccion-estudiantes'), dto, { params }
+        );
+    }
+
+    crearEstudianteSimulado(dto: CrearEstudianteSimuladoDTOPeticion): Observable<ReporteProyeccionEstudiantesDTORespuesta> {
+        return this.http.post<ReporteProyeccionEstudiantesDTORespuesta>(
+            backendInfoPresupuestaria('proyeccion-estudiantes/simulados'), dto
+        );
+    }
+
+    actualizarEstudianteSimulado(id: number, dto: ActualizarEstudianteSimuladoDTOPeticion): Observable<ReporteProyeccionEstudiantesDTORespuesta> {
+        return this.http.put<ReporteProyeccionEstudiantesDTORespuesta>(
+            backendInfoPresupuestaria(`proyeccion-estudiantes/simulados/${id}`), dto
+        );
+    }
+
+    eliminarEstudianteSimulado(id: number): Observable<ReporteProyeccionEstudiantesDTORespuesta> {
+        return this.http.delete<ReporteProyeccionEstudiantesDTORespuesta>(
+            backendInfoPresupuestaria(`proyeccion-estudiantes/simulados/${id}`)
         );
     }
 

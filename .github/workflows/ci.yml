@@ -105,8 +105,9 @@ jobs:
             --network-alias "frontend-sin-lineamientos" \
             -p 82:82 \
             --restart "always" \
-            --memory "192m" \
-            --memory-swap "192m" \
+            --cpus "0.25" \
+            --memory "64m" \
+            --memory-swap "64m" \
             --label project="practica-u" \
             --label service="sin-lineamientos" \
             -e API_URL="https://api.contrerasdaniel.com/api/" \

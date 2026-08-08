@@ -128,9 +128,9 @@ jobs:
             --network-alias "frontend" \
             -p 81:80 \
             --restart "always" \
-            --cpus "0.5" \
-            --memory "192m" \
-            --memory-swap "192m" \
+            --cpus "0.25" \
+            --memory "64m" \
+            --memory-swap "64m" \
             --label project="practica-u" \
             --label service="lineamientos" \
             -e API_URL="http://localhost:8081/api/" \

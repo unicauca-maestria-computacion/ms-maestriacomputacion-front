@@ -50,7 +50,7 @@
             <h2 class="text-xl font-semibold m-0" style="color: #000066; font-family: 'Titillium Web', sans-serif;">
                 {{ tituloSeccionEstudiantes }}
             </h2>
-            <button *ngIf="esEditable" pButton pRipple type="button"
+            <button *ngIf="puedeAgregarSimulado" pButton pRipple type="button"
                 class="p-button-rounded p-button-outlined"
                 (click)="agregarFilaSimulado()"
                 [disabled]="isAnyEditActive || creandoSimulado"

@@ -45,6 +45,7 @@ export interface CrearEstudianteSimuladoDTOPeticion {
     nombre: string;
     apellido?: string;
     identificacion?: number | null;
+    grupoInvestigacion?: string | null;
 }
 
 export interface ActualizarEstudianteSimuladoDTOPeticion {
@@ -55,4 +56,5 @@ export interface ActualizarEstudianteSimuladoDTOPeticion {
     aplicaVotacion: boolean;
     porcentajeBeca: number;
     aplicaEgresado: boolean;
+    grupoInvestigacion?: string | null;
 }

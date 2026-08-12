@@ -168,6 +168,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                     this.periodos = (data || [])
                         .filter(
                             (p) =>
+                                p.estado === 'ACTIVO' ||
                                 p.estado === 'FINALIZADO' ||
                                 p.estado === 'CERRADO'
                         )

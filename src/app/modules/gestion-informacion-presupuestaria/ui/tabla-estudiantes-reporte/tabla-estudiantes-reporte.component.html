@@ -107,7 +107,24 @@
                 </td>
 
                 <!-- Grupo -->
-                <td class="text-center">{{ estudiante.grupoInvestigacion }}</td>
+                <td class="text-center">
+                    <ng-container *ngIf="editable && esSimulado(estudiante); else grupoSoloLectura">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <p-dropdown
+                                    [options]="gruposDisponibles"
+                                    [(ngModel)]="estudiante.grupoInvestigacion"
+                                    placeholder="Grupo"
+                                    styleClass="w-full">
+                                </p-dropdown>
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                <ng-container *ngTemplateOutlet="grupoSoloLectura"></ng-container>
+                            </ng-template>
+                        </p-cellEditor>
+                    </ng-container>
+                    <ng-template #grupoSoloLectura>{{ estudiante.grupoInvestigacion }}</ng-template>
+                </td>
 
                 <!-- Matrícula -->
                 <td class="text-right col-monetaria">{{ estudiante.matricula | formatCurrency }}</td>

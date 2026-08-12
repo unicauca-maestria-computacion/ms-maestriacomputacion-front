@@ -48,6 +48,8 @@ export class TablaEstudiantesReporteComponent {
         return e.codigoEstudiante;
     }
 
+    readonly gruposDisponibles: string[] = ['GTI', 'IDIS', 'GICO'];
+
     esSimulado(e: ReporteFinalVM): boolean {
         return !!e.esSimulado;
     }

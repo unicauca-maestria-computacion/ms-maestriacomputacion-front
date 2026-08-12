@@ -68,6 +68,10 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     return this.editingRowKey !== null;
   }
 
+  get puedeAgregarSimulado(): boolean {
+    return this.esEditable && this.periodoSeleccionado?.estado !== 'ACTIVO';
+  }
+
   get tituloSeccionEstudiantes(): string {
     const estado = this.periodoSeleccionado?.estado;
     if (estado === 'ACTIVO') return 'Proyección de Estudiantes — Período Activo';
@@ -322,7 +326,8 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       estaPago: estudiante.estaPago,
       aplicaVotacion: estudiante.aplicaVotacion ?? false,
       porcentajeBeca: this.toRatio(estudiante.porcentajeBeca),
-      aplicaEgresado: estudiante.aplicaEgresado ?? false
+      aplicaEgresado: estudiante.aplicaEgresado ?? false,
+      grupoInvestigacion: estudiante.grupoInvestigacion || null
     };
 
     this.facadeService.actualizarEstudianteSimulado(estudiante.id, dto)

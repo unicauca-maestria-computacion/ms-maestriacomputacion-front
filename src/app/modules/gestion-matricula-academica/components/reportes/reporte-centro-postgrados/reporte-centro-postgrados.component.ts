@@ -40,10 +40,8 @@ const COLUMN_WIDTHS = [
 ];
 const HIDDEN_COLUMN = 9; // columna I
 
-// La fila 10 de la plantilla (Código-OID/Materia + nota "Pendiente...") y la fila
-// de datos base quedan muy bajas para el contenido real; se les da más alto a mano.
-const ALTO_FILA_NOTA_PENDIENTE = 30;
-const ALTO_FILA_ESTUDIANTE = 22;
+// Alto uniforme para todas las filas generadas (encabezados, estudiantes y notas).
+const ALTO_FILA = 30;
 
 const COL = {
     ID: 2,
@@ -96,12 +94,22 @@ function parsearRango(rango: string): {
 }
 
 function clonarEstiloCeldas(origen: ExcelJS.Row, destino: ExcelJS.Row): void {
-    destino.height = origen.height;
+    destino.height = ALTO_FILA;
     for (let c = 1; c <= NUM_COLS; c++) {
         destino.getCell(c).style = JSON.parse(
             JSON.stringify(origen.getCell(c).style)
         );
     }
+    asegurarBordeDerecho(destino);
+}
+
+// La columna O (última, 15) queda sin borde derecho en algunas filas de la plantilla
+// (encabezados de Matrícula Académica/Financiera). Se fuerza aquí para que el marco
+// de la tabla quede completo sin depender de que la plantilla lo tenga bien definido.
+function asegurarBordeDerecho(fila: ExcelJS.Row): void {
+    const celda = fila.getCell(NUM_COLS);
+    const bordeActual = celda.border || {};
+    celda.border = { ...bordeActual, right: { style: 'thin' } };
 }
 
 // Copia un bloque de filas (valores, estilos, alturas y merges) de la plantilla al destino,
@@ -117,13 +125,14 @@ function clonarBloque(
     for (let r = origenInicio; r <= origenFin; r++) {
         const filaOrigen = origenWs.getRow(r);
         const filaDestino = destinoWs.getRow(r + offset);
-        filaDestino.height = filaOrigen.height;
+        filaDestino.height = ALTO_FILA;
         for (let c = 1; c <= NUM_COLS; c++) {
             const celdaOrigen = filaOrigen.getCell(c);
             const celdaDestino = filaDestino.getCell(c);
             celdaDestino.value = celdaOrigen.value;
             celdaDestino.style = JSON.parse(JSON.stringify(celdaOrigen.style));
         }
+        asegurarBordeDerecho(filaDestino);
     }
     const merges: string[] =
         (origenWs as unknown as { model: { merges: string[] } }).model.merges ||
@@ -278,14 +287,19 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                 blockStart
             );
             ws.getCell(blockStart, COL.ID).value = TITULO_MATRICULA;
-            const semestreAcadDelGrupo =
-                estudiantes[0]?.semestreAcademico ?? Math.min(semestre, 4);
+            // El semestre académico reportado en el título nunca supera 4 (duración
+            // oficial del programa), aunque el valor real del estudiante en BD sea mayor
+            // (p. ej. por matrículas repetidas). Se limita aquí para el rótulo del bloque.
+            const semestreAcadDelGrupo = Math.min(
+                estudiantes[0]?.semestreAcademico ?? semestre,
+                4
+            );
             ws.getCell(blockStart + 1, COL.SEM_ACAD).value =
                 `Semestre: ____${semestreAcadDelGrupo}____`;
             ws.getCell(blockStart + 4, COL.GRUPO).value = gruposClase;
             // La fila 10 de la plantilla (Código-OID/Materia + nota "Pendiente...")
             // queda demasiado baja para su contenido real.
-            ws.getRow(blockStart + 6).height = ALTO_FILA_NOTA_PENDIENTE;
+            ws.getRow(blockStart + 6).height = ALTO_FILA;
             cursor += TPL_CABECERA_FIN - TPL_TITULO_INICIO + 1;
 
             // Filas de estudiantes
@@ -301,7 +315,7 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                         plantillaWs.getRow(TPL_FILA_DATOS),
                         fila
                     );
-                    fila.height = ALTO_FILA_ESTUDIANTE;
+                    fila.height = ALTO_FILA;
                     if (i === 0) {
                         fila.getCell(COL.ID).value = est.identificacion;
                         fila.getCell(COL.NOMBRE).value = est.nombreCompleto;

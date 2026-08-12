@@ -411,6 +411,23 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                 NUM_COLS
             );
 
+            // Leyenda SEM FINAN / SEM ACAD (últimas 2 filas del bloque de notas): también
+            // lleva su propio recuadro completo, con una línea separando ambas filas.
+            const leyendaInicio = notasInicio + 2;
+            const leyendaFin = notasInicio + 3;
+            dibujarBordePerimetro(
+                ws,
+                leyendaInicio,
+                leyendaFin,
+                COL_IZQUIERDA,
+                NUM_COLS
+            );
+            for (let c = COL_IZQUIERDA; c <= NUM_COLS; c++) {
+                agregarBorde(ws.getCell(leyendaInicio, c), {
+                    bottom: { style: 'thin' },
+                });
+            }
+
             cursor += 3; // espacio entre tablas de semestre
         }
 

@@ -50,6 +50,8 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  readonly gruposDisponibles: string[] = ['GTI', 'IDIS', 'GICO'];
+
   vm$: Observable<ProyeccionReporteVM>;
 
   // Local state for component-specific UI state
@@ -398,7 +400,8 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       estaPago: estudiante.estaPago,
       aplicaVotacion: estudiante.aplicaVotacion ?? false,
       porcentajeBeca: this.toRatio(estudiante.porcentajeBeca),
-      aplicaEgresado: estudiante.aplicaEgresado ?? false
+      aplicaEgresado: estudiante.aplicaEgresado ?? false,
+      grupoInvestigacion: estudiante.grupoInvestigacion || null
     };
 
     this.facadeService.actualizarEstudianteSimulado(estudiante.id, dto)

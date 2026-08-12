@@ -6,7 +6,6 @@ export interface MateriaDto {
 
 export interface ProyeccionEstudianteDTORespuesta {
     id?: number;
-    esSimulado?: boolean;
     codigoEstudiante: string;
     identificacion: number;
     nombre: string;
@@ -19,6 +18,8 @@ export interface ProyeccionEstudianteDTORespuesta {
     valorEnSMLV: number;
     materias: MateriaDto[];
     estadoMatriculaFinanciera?: boolean;
+    becaEstado?: string;
+    esSimulado?: boolean;
 
     // Campos calculados recibidos del backend
     valorMatricula?: number;
@@ -44,6 +45,7 @@ export interface CrearEstudianteSimuladoDTOPeticion {
     nombre: string;
     apellido?: string;
     identificacion?: number | null;
+    grupoInvestigacion?: string | null;
 }
 
 export interface ActualizarEstudianteSimuladoDTOPeticion {
@@ -54,4 +56,5 @@ export interface ActualizarEstudianteSimuladoDTOPeticion {
     aplicaVotacion: boolean;
     porcentajeBeca: number;
     aplicaEgresado: boolean;
+    grupoInvestigacion?: string | null;
 }

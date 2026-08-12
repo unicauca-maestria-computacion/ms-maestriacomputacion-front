@@ -95,7 +95,7 @@
             <!-- Encabezado de tabla + botón para agregar estudiante simulado -->
             <div class="flex justify-content-between align-items-center mb-2">
                 <span class="text-700 font-semibold">Estudiantes de la Proyección</span>
-                <button pButton pRipple type="button"
+                <button *ngIf="vm.periodoSeleccionado?.estado !== 'ACTIVO'" pButton pRipple type="button"
                     label="Agregar Estudiante Simulado"
                     icon="pi pi-plus"
                     class="p-button-outlined"
@@ -251,7 +251,17 @@
 
                             <td class="text-center">
                                 <span class="p-column-title font-bold">Grupo Inv.</span>
-                                {{ estudiante.grupoInvestigacion }}
+                                <p-cellEditor *ngIf="estudiante.esSimulado; else grupoSoloLectura">
+                                    <ng-template pTemplate="input">
+                                        <p-dropdown [options]="gruposDisponibles" [(ngModel)]="estudiante.grupoInvestigacion"
+                                            placeholder="Grupo" styleClass="w-full">
+                                        </p-dropdown>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ estudiante.grupoInvestigacion }}
+                                    </ng-template>
+                                </p-cellEditor>
+                                <ng-template #grupoSoloLectura>{{ estudiante.grupoInvestigacion }}</ng-template>
                             </td>
 
                             <td class="text-right">

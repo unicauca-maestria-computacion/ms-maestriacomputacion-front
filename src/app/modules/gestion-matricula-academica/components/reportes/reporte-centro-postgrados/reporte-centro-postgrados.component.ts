@@ -41,7 +41,8 @@ const COLUMN_WIDTHS = [
 const HIDDEN_COLUMN = 9; // columna I
 
 // Alto uniforme para todas las filas generadas (encabezados, estudiantes y notas).
-const ALTO_FILA = 30;
+const ALTO_FILA = 40;
+const COL_IZQUIERDA = 2; // columna B: la A es un margen angosto sin contenido
 
 const COL = {
     ID: 2,
@@ -107,9 +108,34 @@ function clonarEstiloCeldas(origen: ExcelJS.Row, destino: ExcelJS.Row): void {
 // (encabezados de Matrícula Académica/Financiera). Se fuerza aquí para que el marco
 // de la tabla quede completo sin depender de que la plantilla lo tenga bien definido.
 function asegurarBordeDerecho(fila: ExcelJS.Row): void {
-    const celda = fila.getCell(NUM_COLS);
-    const bordeActual = celda.border || {};
-    celda.border = { ...bordeActual, right: { style: 'thin' } };
+    agregarBorde(fila.getCell(NUM_COLS), { right: { style: 'thin' } });
+}
+
+function agregarBorde(
+    celda: ExcelJS.Cell,
+    lados: Partial<ExcelJS.Borders>
+): void {
+    celda.border = { ...(celda.border || {}), ...lados };
+}
+
+// Dibuja el marco completo (arriba, abajo, izquierda, derecha) alrededor del bloque
+// de filas/columnas indicado. La plantilla original no trae bordes consistentes en
+// todo el perímetro, así que se fuerza aquí para que la tabla quede cerrada.
+function dibujarBordePerimetro(
+    ws: ExcelJS.Worksheet,
+    filaInicio: number,
+    filaFin: number,
+    colInicio: number,
+    colFin: number
+): void {
+    for (let c = colInicio; c <= colFin; c++) {
+        agregarBorde(ws.getCell(filaInicio, c), { top: { style: 'thin' } });
+        agregarBorde(ws.getCell(filaFin, c), { bottom: { style: 'thin' } });
+    }
+    for (let r = filaInicio; r <= filaFin; r++) {
+        agregarBorde(ws.getCell(r, colInicio), { left: { style: 'thin' } });
+        agregarBorde(ws.getCell(r, colFin), { right: { style: 'thin' } });
+    }
 }
 
 // Copia un bloque de filas (valores, estilos, alturas y merges) de la plantilla al destino,
@@ -363,7 +389,10 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                 }
             }
 
-            // Notas + leyendas (filas 15 a 18 de la plantilla)
+            // Notas + leyendas (filas 15 a 18 de la plantilla). Las primeras 2 filas son
+            // las notas con asterisco (van dentro del recuadro); las últimas 2 son la
+            // leyenda SEM FINAN/SEM ACAD, fuera del recuadro (sin bordes, como en la plantilla).
+            const notasInicio = cursor;
             clonarBloque(
                 plantillaWs,
                 ws,
@@ -372,6 +401,15 @@ export class ReporteCentroPostgradosComponent implements OnInit {
                 cursor
             );
             cursor += TPL_NOTAS_FIN - TPL_NOTAS_INICIO + 1;
+
+            const finRecuadro = notasInicio + 1;
+            dibujarBordePerimetro(
+                ws,
+                blockStart,
+                finRecuadro,
+                COL_IZQUIERDA,
+                NUM_COLS
+            );
 
             cursor += 3; // espacio entre tablas de semestre
         }

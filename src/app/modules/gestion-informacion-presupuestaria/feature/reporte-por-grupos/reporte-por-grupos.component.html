@@ -56,12 +56,7 @@
             <div class="config-panel no-radius-bottom">
                 <div class="config-row">
                     <span class="p-float-label">
-                        <p-inputNumber id="float-ingresos"
-                            *ngIf="editandoIngresos" [(ngModel)]="clonedIngresos"
-                            mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
-                            styleClass="config-input">
-                        </p-inputNumber>
-                        <p-inputNumber *ngIf="!editandoIngresos"
+                        <p-inputNumber
                             [ngModel]="configuracion.totalIngresos"
                             mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                             [readonly]="true" [disabled]="true" styleClass="config-input">
@@ -77,35 +72,6 @@
                         </p-inputNumber>
                         <label for="float-unicauca">Transferencia Unicauca (Der. Comp.)</label>
                     </span>
-
-                    <div class="config-row-actions" *ngIf="esEditable">
-                        <button *ngIf="!editandoIngresos" pButton pRipple type="button"
-                            class="p-button-rounded p-button-text"
-                            style="color: #000066; width:36px; height:36px; padding:0;"
-                            pTooltip="Editar ingresos" tooltipPosition="top"
-                            aria-label="Editar ingresos"
-                            (click)="onIngresosEditInit()" [disabled]="isAnyEditActive">
-                            <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">edit</span>
-                        </button>
-                        <ng-container *ngIf="editandoIngresos">
-                            <button pButton pRipple type="button"
-                                class="p-button-rounded p-button-text"
-                                style="color: #5BAE40; width:36px; height:36px; padding:0;"
-                                pTooltip="Guardar" tooltipPosition="top"
-                                aria-label="Guardar ingresos"
-                                (click)="onIngresosEditSave()">
-                                <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">check_circle</span>
-                            </button>
-                            <button pButton pRipple type="button"
-                                class="p-button-rounded p-button-text"
-                                style="color: #FF6D0A; width:36px; height:36px; padding:0;"
-                                pTooltip="Cancelar" tooltipPosition="top"
-                                aria-label="Cancelar edición de ingresos"
-                                (click)="onIngresosEditCancel()">
-                                <span class="material-symbols-rounded" style="font-size:20px;" aria-hidden="true">cancel</span>
-                            </button>
-                        </ng-container>
-                    </div>
                 </div>
             </div>
 

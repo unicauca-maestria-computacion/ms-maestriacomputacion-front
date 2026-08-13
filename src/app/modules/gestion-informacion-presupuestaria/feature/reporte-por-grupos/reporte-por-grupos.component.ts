@@ -59,10 +59,6 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   clonedCabecera: Partial<ConfiguracionReporteGrupos> = {};
   guardandoCabecera: boolean = false;
 
-  editandoIngresos: boolean = false;
-  clonedIngresos: number = 0;
-  guardandoIngresos: boolean = false;
-
   displayGastosModal: boolean = false;
   guardandoGastos: boolean = false;
 
@@ -75,8 +71,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   guardandoImprevistos: boolean = false;
 
   get isAnyEditActive(): boolean {
-    return this.editandoIngresos ||
-           this.editandoCabecera ||
+    return this.editandoCabecera ||
            this.editandoItems ||
            this.editandoImprevistos ||
            this.editingRowKey !== null ||
@@ -526,24 +521,6 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   onHeaderEditCancel() {
     this.editandoCabecera = false;
     this.clonedCabecera = {};
-  }
-
-  onIngresosEditInit() {
-    if (this.isAnyEditActive) return;
-    this.editandoIngresos = true;
-    this.clonedIngresos = this.configuracion!.totalIngresos;
-  }
-
-  onIngresosEditSave() {
-    this.guardandoIngresos = true;
-    this.editandoIngresos = false;
-    this.configuracion!.totalIngresos = this.clonedIngresos;
-    this.guardandoIngresos = false;
-  }
-
-  onIngresosEditCancel() {
-    this.editandoIngresos = false;
-    this.clonedIngresos = 0;
   }
 
   onItemsEditInit() {

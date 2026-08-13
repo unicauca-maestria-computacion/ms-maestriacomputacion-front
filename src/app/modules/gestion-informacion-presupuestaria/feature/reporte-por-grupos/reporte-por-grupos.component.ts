@@ -321,28 +321,20 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     };
   }
 
+  // No se manipula input.value directamente: escribir el DOM a mano (como se hacía
+  // antes para truncar decimales o forzar el tope de 100) desincroniza el estado interno
+  // de NgModel del valor real de clonedItems, y en ediciones posteriores dentro de la
+  // misma sesión Angular puede "creer" que el DOM ya refleja el valor y no repintarlo —
+  // por eso el ajuste dinámico (onItemBlur) solo se veía la primera vez. Ahora todo pasa
+  // por [(ngModel)], que es quien sincroniza el DOM de forma confiable en cada cambio.
   onConfigPercentInput(event: Event, field: string): void {
     const input = event.target as HTMLInputElement;
-    let raw = input.value;
-
-    const dot = raw.indexOf('.');
-    if (dot !== -1 && raw.length - dot - 1 > 2) {
-      raw = raw.substring(0, dot + 3);
-      input.value = raw;
-    }
-
-    // Item 1 y Item 2 se dejan escribir libremente hasta 100 mientras se escribe; el
-    // ajuste para que la suma de ambos no pase de 100 se hace en onItemBlur al salir
-    // del campo (recorta el OTRO item), no aquí mientras se está tecleando.
-    const maxAllowed = 100;
-
-    const parsed = parseFloat(raw);
+    const parsed = parseFloat(input.value);
     let v = 0;
     if (!isNaN(parsed) && parsed > 0) {
       v = Math.round(parsed * 100) / 100;
-      if (v > maxAllowed) {
-        v = Math.round(maxAllowed * 100) / 100;
-        input.value = String(v);
+      if (v > 100) {
+        v = 100;
       }
     }
 

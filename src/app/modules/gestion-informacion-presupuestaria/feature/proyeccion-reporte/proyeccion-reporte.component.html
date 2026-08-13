@@ -124,6 +124,7 @@
                             <th class="text-right white-space-nowrap">Rec. Comp.</th>
                             <th class="text-right white-space-nowrap">Biblioteca</th>
                             <th class="text-center white-space-nowrap">Grupo Inv.</th>
+                            <th class="text-center white-space-nowrap">SMLV</th>
                             <th class="text-right white-space-nowrap">Descuentos</th>
                             <th class="text-right white-space-nowrap">Total Neto</th>
                             <th style="width:8rem"></th>
@@ -264,6 +265,20 @@
                                 <ng-template #grupoSoloLectura>{{ estudiante.grupoInvestigacion }}</ng-template>
                             </td>
 
+                            <td class="text-center">
+                                <span class="p-column-title font-bold">SMLV</span>
+                                <p-cellEditor *ngIf="vm.periodoSeleccionado?.estado === 'PROYECCION'; else smlvSoloLectura">
+                                    <ng-template pTemplate="input">
+                                        <input pInputText type="number" min="1" step="1"
+                                            [(ngModel)]="estudiante.valorEnSMLV" style="width: 100%;">
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ estudiante.valorEnSMLV }}
+                                    </ng-template>
+                                </p-cellEditor>
+                                <ng-template #smlvSoloLectura>{{ estudiante.valorEnSMLV }}</ng-template>
+                            </td>
+
                             <td class="text-right">
                                 <span class="p-column-title font-bold">Descuentos</span>
                                 {{ estudiante.grupoDescuentos | formatCurrency }}
@@ -308,7 +323,7 @@
 
                     <ng-template pTemplate="emptymessage">
                         <tr>
-                            <td colspan="14" class="text-center p-4 text-600">
+                            <td colspan="15" class="text-center p-4 text-600">
                                 <i class="pi pi-inbox mr-2"></i>No hay datos disponibles para el período seleccionado.
                             </td>
                         </tr>

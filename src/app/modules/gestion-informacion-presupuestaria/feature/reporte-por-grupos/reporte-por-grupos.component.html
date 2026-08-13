@@ -247,7 +247,8 @@
                         <span class="p-float-label">
                             <input pInputText id="float-item1" *ngIf="editandoItems" type="number"
                                 [ngModel]="clonedItems.item1"
-                                min="0" max="100" step="0.01"
+                                min="0" [attr.max]="maxItem1" step="0.01"
+                                [pTooltip]="'Máximo ' + maxItem1 + '% (Item 1 + Item 2 no puede superar 100%)'"
                                 (keydown)="onPercentKeyDown($event)"
                                 (input)="onConfigPercentInput($event, 'item1')"
                                 class="config-input-percent">
@@ -261,7 +262,8 @@
                         <span class="p-float-label">
                             <input pInputText id="float-item2" *ngIf="editandoItems" type="number"
                                 [ngModel]="clonedItems.item2"
-                                min="0" max="100" step="0.01"
+                                min="0" [attr.max]="maxItem2" step="0.01"
+                                [pTooltip]="'Máximo ' + maxItem2 + '% (Item 1 + Item 2 no puede superar 100%)'"
                                 (keydown)="onPercentKeyDown($event)"
                                 (input)="onConfigPercentInput($event, 'item2')"
                                 class="config-input-percent">

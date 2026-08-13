@@ -324,7 +324,8 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       estaPago: estudiante.estaPago,
       aplicaVotacion: estudiante.aplicaVotacion ?? false,
       porcentajeBeca: this.toRatio(estudiante.porcentajeBeca),
-      aplicaEgresado: estudiante.aplicaEgresado ?? false
+      aplicaEgresado: estudiante.aplicaEgresado ?? false,
+      valorEnSMLV: estudiante.valorEnSMLV ?? null
     };
 
     this.facadeService.actualizarProyeccionEstudiante(
@@ -401,7 +402,8 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
       aplicaVotacion: estudiante.aplicaVotacion ?? false,
       porcentajeBeca: this.toRatio(estudiante.porcentajeBeca),
       aplicaEgresado: estudiante.aplicaEgresado ?? false,
-      grupoInvestigacion: estudiante.grupoInvestigacion || null
+      grupoInvestigacion: estudiante.grupoInvestigacion || null,
+      valorEnSMLV: estudiante.valorEnSMLV ?? null
     };
 
     this.facadeService.actualizarEstudianteSimulado(estudiante.id, dto)

@@ -263,11 +263,14 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
     this.facadeService.actualizarConfiguracionProyeccion(configUpdate)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
+        next: () => {
           this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Configuración actualizada correctamente' });
-          this.procesarRespuesta(data);
-          this.loadingService.hide();
           this.clonedCabecera = {};
+          // La respuesta del PUT viene de un endpoint distinto (configuracion-reporte-financiero)
+          // que no tiene el fallback para periodos en PROYECCION sin matricula-financiera real,
+          // y devuelve la lista de estudiantes vacia. Se vuelve a consultar el endpoint de
+          // proyeccion (el correcto) para repintar la tabla con los valores ya recalculados.
+          this.cargarProyeccion(this.periodoSeleccionado ?? undefined);
         },
         error: (_err) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar configuración.' });

@@ -347,18 +347,15 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Al salir de Item 1 o Item 2, si la suma de ambos supera 100%, se recorta
-   * automáticamente el OTRO item para que la suma quede exactamente en 100%.
+   * Al salir de Item 1 o Item 2, el OTRO item siempre se ajusta al complemento
+   * exacto para que la suma de ambos sea 100% (ej. si Item 1 = 30, Item 2 = 70).
    */
   onItemBlur(field: 'item1' | 'item2'): void {
-    const item1 = this.clonedItems.item1 ?? 0;
-    const item2 = this.clonedItems.item2 ?? 0;
-    const suma = Math.round((item1 + item2) * 100) / 100;
-    if (suma <= 100) return;
-
     if (field === 'item1') {
+      const item1 = this.clonedItems.item1 ?? 0;
       this.clonedItems.item2 = Math.round(Math.max(0, 100 - item1) * 100) / 100;
     } else {
+      const item2 = this.clonedItems.item2 ?? 0;
       this.clonedItems.item1 = Math.round(Math.max(0, 100 - item2) * 100) / 100;
     }
   }

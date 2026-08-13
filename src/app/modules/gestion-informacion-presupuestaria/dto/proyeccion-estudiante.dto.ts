@@ -38,6 +38,7 @@ export interface ProyeccionEstudianteDTOPeticion {
     porcentajeBeca: number;
     aplicaEgresado: boolean;
     grupoInvestigacion?: string;
+    valorEnSMLV?: number | null;
 }
 
 export interface CrearEstudianteSimuladoDTOPeticion {
@@ -46,6 +47,7 @@ export interface CrearEstudianteSimuladoDTOPeticion {
     apellido?: string;
     identificacion?: number | null;
     grupoInvestigacion?: string | null;
+    valorEnSMLV?: number | null;
 }
 
 export interface ActualizarEstudianteSimuladoDTOPeticion {
@@ -57,4 +59,5 @@ export interface ActualizarEstudianteSimuladoDTOPeticion {
     porcentajeBeca: number;
     aplicaEgresado: boolean;
     grupoInvestigacion?: string | null;
+    valorEnSMLV?: number | null;
 }

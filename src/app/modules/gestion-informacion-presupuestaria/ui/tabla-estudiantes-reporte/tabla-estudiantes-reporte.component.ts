@@ -26,6 +26,13 @@ export class TablaEstudiantesReporteComponent {
     /** Si es true, muestra botones de edición por fila. Si es false, solo lectura. */
     @Input() editable: boolean = false;
 
+    /**
+     * Si es true, el período mostrado está en PROYECCION. El valor en SMLV (matrícula
+     * simulada del estudiante) solo se puede editar en proyección, nunca en un período
+     * ACTIVO: ahí la matrícula ya es real y viene de matricula-financiera.
+     */
+    @Input() esProyeccion: boolean = false;
+
     /** Clave de la fila actualmente en edición (codigoEstudiante) */
     @Input() editingRowKey: string | null = null;
 

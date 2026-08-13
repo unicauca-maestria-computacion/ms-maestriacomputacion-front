@@ -12,6 +12,7 @@
                 <th style="width: 95px; min-width: 95px;">Cédula</th>
                 <th style="min-width: 160px;">Nombre</th>
                 <th class="text-center" style="width: 80px; min-width: 80px;">Grupo Inv.</th>
+                <th class="text-center" style="width: 65px; min-width: 65px;">SMLV</th>
                 <th class="text-right" style="width: 95px; min-width: 95px;">Matrícula</th>
                 <th class="text-center" style="width: 75px; min-width: 75px;">Votación</th>
                 <th class="text-center" style="width: 70px; min-width: 70px;">% Beca</th>
@@ -124,6 +125,22 @@
                         </p-cellEditor>
                     </ng-container>
                     <ng-template #grupoSoloLectura>{{ estudiante.grupoInvestigacion }}</ng-template>
+                </td>
+
+                <!-- SMLV (salarios minimos legales vigentes que se le cobran al estudiante) -->
+                <td class="text-center">
+                    <ng-container *ngIf="editable && esProyeccion; else smlvSoloLectura">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input pInputText type="number" min="1" step="1"
+                                    [(ngModel)]="estudiante.valorEnSMLV" style="width: 100%;">
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                <ng-container *ngTemplateOutlet="smlvSoloLectura"></ng-container>
+                            </ng-template>
+                        </p-cellEditor>
+                    </ng-container>
+                    <ng-template #smlvSoloLectura>{{ estudiante.valorEnSMLV }}</ng-template>
                 </td>
 
                 <!-- Matrícula -->
@@ -272,7 +289,7 @@
 
         <ng-template pTemplate="emptymessage">
             <tr>
-                <td [attr.colspan]="editable ? 14 : 13">
+                <td [attr.colspan]="editable ? 15 : 14">
                     <app-estado-vacio
                         icono="inbox"
                         mensaje="No hay datos disponibles para el período seleccionado.">

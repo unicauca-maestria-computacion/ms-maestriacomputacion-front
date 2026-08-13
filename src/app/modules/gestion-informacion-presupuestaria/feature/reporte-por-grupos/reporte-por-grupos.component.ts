@@ -82,6 +82,18 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     return this.configuracion?.objConfiguracionReporteGrupos.totalGastosGenerales ?? 0;
   }
 
+  // Item 1 y Item 2 deben sumar máximo 100%: el tope de cada uno se reduce dinámicamente
+  // según el valor actual del otro (ej. si item2 quedó en 40, item1 solo llega a 60).
+  // onConfigPercentInput ya recorta el valor al guardarlo; estos getters solo alimentan
+  // el atributo [max] del input para que el tope se vea reflejado mientras se escribe.
+  get maxItem1(): number {
+    return Math.round((100 - (this.clonedItems.item2 ?? 0)) * 100) / 100;
+  }
+
+  get maxItem2(): number {
+    return Math.round((100 - (this.clonedItems.item1 ?? 0)) * 100) / 100;
+  }
+
 
   constructor(
     private facadeService: GestionInformacionPresupuestariaFacadeService,
@@ -332,12 +344,10 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       input.value = raw;
     }
 
-    let maxAllowed = 100;
-    if (field === 'item1') {
-      maxAllowed = Math.round((100 - (this.clonedItems.item2 ?? 0)) * 100) / 100;
-    } else if (field === 'item2') {
-      maxAllowed = Math.round((100 - (this.clonedItems.item1 ?? 0)) * 100) / 100;
-    }
+    // Item 1 y Item 2 se dejan escribir libremente hasta 100 mientras se escribe; el
+    // ajuste para que la suma de ambos no pase de 100 se hace en onItemBlur al salir
+    // del campo (recorta el OTRO item), no aquí mientras se está tecleando.
+    const maxAllowed = 100;
 
     const parsed = parseFloat(raw);
     let v = 0;
@@ -354,6 +364,23 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       case 'item1': this.clonedItems.item1 = v; break;
       case 'item2': this.clonedItems.item2 = v; break;
       case 'imprevistos': this.clonedImprevistos = v; break;
+    }
+  }
+
+  /**
+   * Al salir de Item 1 o Item 2, si la suma de ambos supera 100%, se recorta
+   * automáticamente el OTRO item para que la suma quede exactamente en 100%.
+   */
+  onItemBlur(field: 'item1' | 'item2'): void {
+    const item1 = this.clonedItems.item1 ?? 0;
+    const item2 = this.clonedItems.item2 ?? 0;
+    const suma = Math.round((item1 + item2) * 100) / 100;
+    if (suma <= 100) return;
+
+    if (field === 'item1') {
+      this.clonedItems.item2 = Math.round(Math.max(0, 100 - item1) * 100) / 100;
+    } else {
+      this.clonedItems.item1 = Math.round(Math.max(0, 100 - item2) * 100) / 100;
     }
   }
 

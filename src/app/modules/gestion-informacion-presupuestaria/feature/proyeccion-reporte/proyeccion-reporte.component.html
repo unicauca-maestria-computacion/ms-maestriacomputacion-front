@@ -64,6 +64,7 @@
             [estudiantes]="estudiantes"
             [configuracion]="configuracion"
             [editable]="true"
+            [esProyeccion]="periodoSeleccionado?.estado === 'PROYECCION'"
             [editingRowKey]="editingRowKey"
             (rowEditInit)="onRowEditInit($event)"
             (rowEditSave)="onRowEditSave($event)"

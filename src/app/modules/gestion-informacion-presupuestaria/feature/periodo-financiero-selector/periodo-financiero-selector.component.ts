@@ -4,7 +4,7 @@ import { takeUntil } from 'rxjs/operators';
 import { GestionInformacionPresupuestariaFacadeService } from '../../data/facade.service';
 import { PeriodoFinancieroDTORespuesta } from '../../dto/periodo-financiero.dto';
 
-export type PeriodoSelectorModo = 'todos' | 'activos' | 'finalizados' | 'activos-y-finalizados' | 'activos-y-proyeccion' | 'anios-activos-y-finalizados';
+export type PeriodoSelectorModo = 'todos' | 'activos' | 'finalizados' | 'activos-y-finalizados' | 'activos-y-proyeccion' | 'anios-activos-y-finalizados' | 'anios-para-reporte-grupos';
 
 @Component({
   selector: 'app-periodo-financiero-selector',
@@ -51,11 +51,12 @@ export class PeriodoFinancieroSelectorComponent implements OnInit, OnDestroy {
       this.modo === 'activos-y-finalizados'      ? this.facadeService.obtenerPeriodosActivosYFinalizados() :
       this.modo === 'activos-y-proyeccion'        ? this.facadeService.obtenerPeriodosActivosYProyeccion() :
       this.modo === 'anios-activos-y-finalizados' ? this.facadeService.obtenerPeriodosActivosYFinalizados() :
+      this.modo === 'anios-para-reporte-grupos'   ? this.facadeService.obtenerAniosParaReportePorGrupos() :
                                                  this.facadeService.obtenerPeriodosFinancieros();
 
     fuente$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (periodos) => {
-        if (this.modo === 'anios-activos-y-finalizados') {
+        if (this.modo === 'anios-activos-y-finalizados' || this.modo === 'anios-para-reporte-grupos') {
           const vistos = new Set<number>();
           this.periodos = periodos.filter(p => {
             const anio = p.anio ?? p.año ?? 0;
@@ -87,7 +88,7 @@ export class PeriodoFinancieroSelectorComponent implements OnInit, OnDestroy {
 
   actualizarPeriodoActual(): void {
     const periodo = this.periodos[this.currentIndex];
-    if (this.modo === 'anios-activos-y-finalizados') {
+    if (this.modo === 'anios-activos-y-finalizados' || this.modo === 'anios-para-reporte-grupos') {
       this.periodoActualTexto = `${periodo.año ?? periodo.anio}`;
     } else {
       this.periodoActualTexto = `${periodo.año ?? periodo.anio} - ${periodo.periodo ?? periodo.tagPeriodo}`;

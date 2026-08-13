@@ -44,10 +44,7 @@
                     </div>
                     <div class="config-row">
                         <span class="p-float-label">
-                            <p-inputNumber id="float-ingresos" *ngIf="editandoIngresos" [(ngModel)]="clonedIngresos"
-                                mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" styleClass="config-input">
-                            </p-inputNumber>
-                            <p-inputNumber *ngIf="!editandoIngresos" [ngModel]="configuracion?.totalIngresos"
+                            <p-inputNumber [ngModel]="configuracion?.totalIngresos"
                                 mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0"
                                 [readonly]="true" [disabled]="true" styleClass="config-input">
                             </p-inputNumber>
@@ -61,26 +58,6 @@
                             </p-inputNumber>
                             <label for="float-unicauca">Transferencia Unicauca (Der. Comp.)</label>
                         </span>
-
-                        <div class="config-row-actions" *ngIf="esEditable">
-                            <button *ngIf="!editandoIngresos" pButton pRipple type="button" icon="pi pi-pencil"
-                                class="p-button-rounded p-button-text p-button-secondary"
-                                pTooltip="Editar ingresos" tooltipPosition="top"
-                                (click)="onIngresosEditInit()" [disabled]="isAnyEditActive">
-                            </button>
-                            <ng-container *ngIf="editandoIngresos">
-                                <button pButton pRipple type="button" icon="pi pi-check"
-                                    class="p-button-rounded p-button-text p-button-success"
-                                    pTooltip="Guardar" tooltipPosition="top"
-                                    (click)="onIngresosEditSave()">
-                                </button>
-                                <button pButton pRipple type="button" icon="pi pi-times"
-                                    class="p-button-rounded p-button-text p-button-danger"
-                                    pTooltip="Cancelar" tooltipPosition="top"
-                                    (click)="onIngresosEditCancel()">
-                                </button>
-                            </ng-container>
-                        </div>
                     </div>
 
                 </div>

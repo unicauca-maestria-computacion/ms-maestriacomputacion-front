@@ -324,6 +324,31 @@ p-menubarsub {
     }
 }
 
+// ──────── Accesibilidad global (menú flotante en app-footer) ────────
+// Estas reglas deben vivir en el stylesheet global: las clases se agregan a <html>,
+// pero los estilos definidos dentro de un componente Angular quedan encapsulados
+// (ViewEncapsulation.Emulated) y solo afectarían al propio template del footer.
+html.acc-font-override body, html.acc-font-override body * {
+    font-size: var(--acc-font-size) !important;
+}
+
+html.acc-letter-spacing-override body, html.acc-letter-spacing-override body * {
+    letter-spacing: var(--acc-letter-spacing) !important;
+}
+
+html.dislexia-font body, html.dislexia-font body * {
+    font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+html.cursor-grande body, html.cursor-grande body * {
+    cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMzIgMzIiPjxwYXRoIGQ9Im0yLjk3LC0yLjE3bDE5LjA3LDE1LjA3bC05LjIyLDAuNjhsNS4yNCw5LjgzbC0zLjUsMS4zNWwtNS4wOCwtOS45NWwtNi41Miw1LjI1bDAsLTIyLjIiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSIxIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTIuNzEzNyAxMi41MDczIDExLjI5MzIpIi8+PC9zdmc+'), auto !important;
+}
+
+html.acc-resaltar-enlaces a {
+    color: blue !important;
+    background-color: yellow !important;
+}
+
 // === SISTEMA DE ICONOS INSTITUCIONAL EN NAVBAR (Material Symbols Rounded) ===
 // Transforma las clases pi de la barra de navegación para que utilicen ligaduras de Material Symbols.
 .p-menubar {

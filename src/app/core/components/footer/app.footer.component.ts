@@ -287,15 +287,6 @@ import { Component, OnInit, Renderer2 } from '@angular/core';
             height: 24px;
         }
 
-        /* ═══ Accessibility Global Classes ═══ */
-        :host-context(.dislexia-font) * {
-            font-family: 'OpenDyslexic', sans-serif !important;
-        }
-
-        :host-context(.cursor-grande) * {
-            cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMzIgMzIiPjxwYXRoIGQ9Im0yLjk3LC0yLjE3bDE5LjA3LDE1LjA3bC05LjIyLDAuNjhsNS4yNCw5LjgzbC0zLjUsMS4zNWwtNS4wOCwtOS45NWwtNi41Miw1LjI1bDAsLTIyLjIiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSIxIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTIuNzEzNyAxMi41MDczIDExLjI5MzIpIi8+PC9zdmc+'), auto !important;
-        }
-
         @media (max-width: 768px) {
             .uni-footer__container {
                 flex-direction: column;
@@ -311,11 +302,6 @@ import { Component, OnInit, Renderer2 } from '@angular/core';
 export class AppFooterComponent implements OnInit {
     showAccMenu = false;
     private config: any = {};
-    private idsExcluidos = [
-        "titleaumentarespaciado", "titledisminuirespaciado", "titleescaladegrises",
-        'titlecontraste', 'titledisminuir', 'titleaumentar', 'titlecentro',
-        'titlerestablecer', 'titleFuenteDislexia', "titleAgrandarCursor", "titleResaltarEnlaces"
-    ];
 
     constructor(private renderer: Renderer2) {}
 
@@ -343,7 +329,7 @@ export class AppFooterComponent implements OnInit {
     private aplicarConfiguraciones(): void {
         if (this.config.tamanioFuente) this.aplicarTamanio(this.config.tamanioFuente);
         if (this.config.espaciado !== undefined) this.aplicarEspaciado(this.config.espaciado);
-        if (this.config.filtro) this.renderer.setStyle(document.documentElement, 'filter', this.config.filtro);
+        this.aplicarFiltro();
         if (this.config.fuenteDislexia) this.renderer.addClass(document.documentElement, 'dislexia-font');
         if (this.config.cursorGrande) this.renderer.addClass(document.documentElement, 'cursor-grande');
         if (this.config.enlacesResaltados) this.aplicarResaltadoEnlaces(true);
@@ -364,13 +350,14 @@ export class AppFooterComponent implements OnInit {
         return parseFloat(window.getComputedStyle(el).fontSize) || 16;
     }
 
+    // Se usa una variable CSS + clase global en <html> en lugar de recorrer el DOM con
+    // querySelectorAll('*'), porque este componente solo se inicializa una vez: los
+    // elementos que Angular renderiza después (al navegar entre rutas, tablas que cargan
+    // datos, diálogos, etc.) nunca recibían el estilo inline y la opción parecía dejar
+    // de funcionar tras el primer cambio de página.
     private aplicarTamanio(nuevoTam: number): void {
-        const elements = document.body.querySelectorAll('*');
-        elements.forEach(el => {
-            if (!this.idsExcluidos.includes(el.id)) {
-                this.renderer.setStyle(el, 'font-size', `${nuevoTam}px`);
-            }
-        });
+        document.documentElement.style.setProperty('--acc-font-size', `${nuevoTam}px`);
+        this.renderer.addClass(document.documentElement, 'acc-font-override');
     }
 
     ajustarEspaciado(operador: 'aumentar' | 'disminuir'): void {
@@ -389,26 +376,30 @@ export class AppFooterComponent implements OnInit {
     }
 
     private aplicarEspaciado(nuevoEsp: number): void {
-        const elements = document.body.querySelectorAll('*');
-        elements.forEach(el => {
-            if (!this.idsExcluidos.includes(el.id)) {
-                this.renderer.setStyle(el, 'letter-spacing', `${nuevoEsp}px`);
-            }
-        });
+        document.documentElement.style.setProperty('--acc-letter-spacing', `${nuevoEsp}px`);
+        this.renderer.addClass(document.documentElement, 'acc-letter-spacing-override');
     }
 
+    // Contraste y escala de grises se combinan en un solo `filter` en <html>: antes cada
+    // toggle sobrescribía el filtro completo comprobando solo si contenía 'invert' o
+    // 'grayscale', así que activar uno apagaba el otro en vez de sumarse.
     toggleContraste(): void {
-        const currentFilter = document.documentElement.style.filter;
-        const nuevoFiltro = currentFilter.includes('invert') ? '' : 'invert(80%)';
-        this.renderer.setStyle(document.documentElement, 'filter', nuevoFiltro);
-        this.guardarConfiguracion('filtro', nuevoFiltro);
+        this.config.contraste = !this.config.contraste;
+        this.aplicarFiltro();
+        this.guardarConfiguracion('contraste', this.config.contraste);
     }
 
     toggleGrayscale(): void {
-        const currentFilter = document.documentElement.style.filter;
-        const nuevoFiltro = currentFilter.includes('grayscale') ? '' : 'grayscale(100%)';
-        this.renderer.setStyle(document.documentElement, 'filter', nuevoFiltro);
-        this.guardarConfiguracion('filtro', nuevoFiltro);
+        this.config.grayscale = !this.config.grayscale;
+        this.aplicarFiltro();
+        this.guardarConfiguracion('grayscale', this.config.grayscale);
+    }
+
+    private aplicarFiltro(): void {
+        const filtros: string[] = [];
+        if (this.config.contraste) filtros.push('invert(80%)');
+        if (this.config.grayscale) filtros.push('grayscale(100%)');
+        this.renderer.setStyle(document.documentElement, 'filter', filtros.join(' '));
     }
 
     toggleDislexia(): void {
@@ -438,11 +429,11 @@ export class AppFooterComponent implements OnInit {
     }
 
     private aplicarResaltadoEnlaces(resaltar: boolean): void {
-        const links = document.querySelectorAll('a');
-        links.forEach(link => {
-            this.renderer.setStyle(link, 'color', resaltar ? 'blue' : '');
-            this.renderer.setStyle(link, 'background-color', resaltar ? 'yellow' : '');
-        });
+        if (resaltar) {
+            this.renderer.addClass(document.documentElement, 'acc-resaltar-enlaces');
+        } else {
+            this.renderer.removeClass(document.documentElement, 'acc-resaltar-enlaces');
+        }
     }
 
     restablecer(): void {
@@ -452,14 +443,11 @@ export class AppFooterComponent implements OnInit {
         this.renderer.removeClass(document.documentElement, 'dislexia-font');
         this.renderer.removeClass(document.documentElement, 'cursor-grande');
         this.aplicarResaltadoEnlaces(false);
-        
-        const elements = document.body.querySelectorAll('*');
-        elements.forEach(el => {
-            if (!this.idsExcluidos.includes(el.id)) {
-                this.renderer.removeStyle(el, 'font-size');
-                this.renderer.removeStyle(el, 'letter-spacing');
-            }
-        });
+
+        this.renderer.removeClass(document.documentElement, 'acc-font-override');
+        document.documentElement.style.removeProperty('--acc-font-size');
+        this.renderer.removeClass(document.documentElement, 'acc-letter-spacing-override');
+        document.documentElement.style.removeProperty('--acc-letter-spacing');
     }
 
     openCentroRelevo(): void {

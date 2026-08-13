@@ -206,10 +206,12 @@ export class ProyeccionReporteComponent implements OnInit, OnDestroy {
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Configuración actualizada correctamente' });
         this.procesarRespuesta(data);
         this.loadingService.hide();
+        this.cdr.markForCheck();
       },
       error: (_err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar configuración.' });
         this.loadingService.hide();
+        this.cdr.markForCheck();
       }
     });
   }

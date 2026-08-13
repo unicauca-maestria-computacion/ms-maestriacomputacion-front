@@ -41,7 +41,7 @@ const COLUMN_WIDTHS = [
 const HIDDEN_COLUMN = 9; // columna I
 
 // Alto uniforme para todas las filas generadas (encabezados, estudiantes y notas).
-const ALTO_FILA = 40;
+const ALTO_FILA = 50;
 const COL_IZQUIERDA = 2; // columna B: la A es un margen angosto sin contenido
 
 const COL = {

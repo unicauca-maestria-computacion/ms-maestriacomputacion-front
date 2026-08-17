@@ -28,6 +28,32 @@
                 </div>
             </div>
 
+            <!-- Fila 1b: Código, Cohorte, Período de ingreso y Grupo -->
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="detalle-campo">
+                    <span class="detalle-label">Código</span>
+                    <span class="detalle-valor">{{ estudiante.codigo }}</span>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="detalle-campo">
+                    <span class="detalle-label">Cohorte</span>
+                    <span class="detalle-valor">{{ estudiante.cohorte }}</span>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 lg:col-3">
+                <div class="detalle-campo">
+                    <span class="detalle-label">Período de ingreso</span>
+                    <span class="detalle-valor">{{ estudiante.periodoIngreso }}</span>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 lg:col-3" *ngIf="estudiante.grupoNombre">
+                <div class="detalle-campo">
+                    <span class="detalle-label">Grupo</span>
+                    <span class="detalle-valor">{{ estudiante.grupoNombre }}</span>
+                </div>
+            </div>
+
             <!-- Fila 2: Valor Matrícula y Semestre Financiero -->
             <div class="col-12 md:col-6">
                 <div class="detalle-campo">

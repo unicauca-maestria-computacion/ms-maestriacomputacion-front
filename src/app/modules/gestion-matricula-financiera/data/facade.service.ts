@@ -97,6 +97,10 @@ export class GestionMatriculaFinancieraFacadeService {
         return this._periodoSeleccionadoFiltro.value;
     }
 
+    getPeriodosSync(): PeriodoAcademico[] {
+        return this._periodos.value;
+    }
+
     setSemestreFiltro(semestre: number | null): void {
         this._semestreSeleccionadoFiltro.next(semestre);
     }

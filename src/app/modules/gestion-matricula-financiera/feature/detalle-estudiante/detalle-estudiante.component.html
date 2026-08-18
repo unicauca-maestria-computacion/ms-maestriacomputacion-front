@@ -6,25 +6,25 @@
         <ng-container *ngIf="vm$ | async as vm">
             <div *ngIf="vm.estudiante">
 
-                <!-- Header: Título + Botón Volver -->
+                <!-- Botón volver (arriba a la izquierda, como en la versión con lineamientos) -->
+                <button pButton pRipple
+                    type="button"
+                    label="Volver al listado"
+                    icon="pi pi-arrow-left"
+                    class="p-button-text p-button-rounded mb-3"
+                    (click)="volver()">
+                </button>
+
+                <!-- Header: Título + Periodo Académico (a la derecha) -->
                 <div class="flex flex-column md:flex-row align-items-start md:align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom-1 surface-border">
                     <div>
                         <h2 class="m-0 text-700">Detalles de Matrícula</h2>
                         <span class="text-500 text-sm">Información completa del estudiante</span>
                     </div>
-                    <div class="flex flex-column md:flex-row align-items-center gap-3">
-                        <div *ngIf="getPeriodoLabel(vm.periodo, vm.periodos) as periodoLabel" class="text-right">
-                            <p-tag severity="info" [value]="periodoLabel" icon="pi pi-calendar"
-                                   pTooltip="Período académico al que pertenece el detalle."></p-tag>
-                            <div class="text-500 text-xs mt-1">Periodo Académico</div>
-                        </div>
-                        <button pButton pRipple
-                            type="button"
-                            label="Volver"
-                            icon="pi pi-arrow-left"
-                            class="p-button-outlined p-button-secondary"
-                            (click)="volver()">
-                        </button>
+                    <div *ngIf="getPeriodoLabel(vm.periodo, vm.periodos) as periodoLabel" class="text-right">
+                        <p-tag severity="info" [value]="periodoLabel" icon="pi pi-calendar"
+                               pTooltip="Período académico al que pertenece el detalle."></p-tag>
+                        <div class="text-500 text-xs mt-1">Periodo Académico</div>
                     </div>
                 </div>
 

@@ -109,6 +109,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         if (data) {
           this.configuracion = data;
+          this.normalizarPorcentajesParaDisplay(this.configuracion);
           this.procesarDatosTabla(this.configuracion);
           this.procesarDistribucion(this.configuracion);
           this.cdr.markForCheck();
@@ -129,6 +130,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     this.facadeService.obtenerReporteGrupos(anio!).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
+        this.normalizarPorcentajesParaDisplay(this.configuracion);
         this.procesarDatosTabla(this.configuracion);
         this.procesarDistribucion(this.configuracion);
         this.loadingService.hide();
@@ -147,6 +149,51 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     });
   }
 
+
+  /** Convierte un porcentaje de display (0-100) al ratio que espera el backend (0-1, DECIMAL 5,4) */
+  private toRatio(value: number | null | undefined): number {
+    if (value == null) return 0;
+    return Math.round((value / 100) * 10000) / 10000;
+  }
+
+  /** El backend entrega los porcentajes como fracción (0.45 = 45%): los normaliza a display (0-100) */
+  private normalizarPorcentajesParaDisplay(data: ReportePorGrupos): void {
+    const config = data.objConfiguracionReporteGrupos;
+    if (config.aUIPorcentaje != null && config.aUIPorcentaje <= 1) config.aUIPorcentaje = config.aUIPorcentaje * 100;
+    if (config.item1 != null && config.item1 <= 1) config.item1 = config.item1 * 100;
+    if (config.item2 != null && config.item2 <= 1) config.item2 = config.item2 * 100;
+    if (config.imprevistos != null && config.imprevistos <= 1) config.imprevistos = config.imprevistos * 100;
+
+    if (data.porcentajePrimerSemestre != null && data.porcentajePrimerSemestre <= 1) {
+      data.porcentajePrimerSemestre = Math.round(data.porcentajePrimerSemestre * 10000) / 100;
+    }
+    if (data.porcentajeSegundoSemestre != null && data.porcentajeSegundoSemestre <= 1) {
+      data.porcentajeSegundoSemestre = Math.round(data.porcentajeSegundoSemestre * 10000) / 100;
+    }
+    if (data.participacionPrimerSemestre != null && data.participacionPrimerSemestre <= 1) {
+      data.participacionPrimerSemestre = Math.round(data.participacionPrimerSemestre * 10000) / 100;
+    }
+    if (data.participacionSegundoSemestre != null && data.participacionSegundoSemestre <= 1) {
+      data.participacionSegundoSemestre = Math.round(data.participacionSegundoSemestre * 10000) / 100;
+    }
+    if (data.participacionPorAnio != null && data.participacionPorAnio <= 1) {
+      data.participacionPorAnio = Math.round(data.participacionPorAnio * 10000) / 100;
+    }
+
+    if (data.filasPorGrupo) {
+      for (const fila of data.filasPorGrupo) {
+        if (fila.porcentajePrimerSemestre != null && fila.porcentajePrimerSemestre <= 1) {
+          fila.porcentajePrimerSemestre = Math.round(fila.porcentajePrimerSemestre * 10000) / 100;
+        }
+        if (fila.porcentajeSegundoSemestre != null && fila.porcentajeSegundoSemestre <= 1) {
+          fila.porcentajeSegundoSemestre = Math.round(fila.porcentajeSegundoSemestre * 10000) / 100;
+        }
+        if (fila.participacionPorAnio != null && fila.participacionPorAnio <= 1) {
+          fila.participacionPorAnio = Math.round(fila.participacionPorAnio * 10000) / 100;
+        }
+      }
+    }
+  }
 
   get aUIPorcentajeDisplay(): number | null {
     const c = this.configuracion?.objConfiguracionReporteGrupos as unknown as Record<string, unknown> | undefined;
@@ -437,7 +484,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
 
     const valoresPorGrupo = this.groupColumns.map(grupo => ({
       grupoId: grupo.grupoId,
-      porcentaje: row.values[grupo.nombre] ?? 0,
+      porcentaje: this.toRatio(row.values[grupo.nombre] ?? 0),
       semestre
     }));
 
@@ -506,8 +553,8 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     };
 
     if (aui !== undefined) {
-      this.configuracion!.objConfiguracionReporteGrupos.aUIPorcentaje = aui;
-      this.facadeService.actualizarPorcentajeAUIUniversidad(this.periodoAcademicoId, aui).pipe(takeUntil(this.destroy$)).subscribe({
+      this.configuracion!.objConfiguracionReporteGrupos.aUIPorcentaje = this.toRatio(aui);
+      this.facadeService.actualizarPorcentajeAUIUniversidad(this.periodoAcademicoId, this.toRatio(aui)).pipe(takeUntil(this.destroy$)).subscribe({
         next: (data) => {
           if (excedentes !== undefined) {
             this.configuracion!.objConfiguracionReporteGrupos.excedentesMaestria = excedentes;
@@ -554,8 +601,8 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     const item1 = this.clonedItems.item1 ?? 0;
     const item2 = this.clonedItems.item2 ?? 0;
     this.facadeService.actualizarPorcentajeItems({
-      item1: item1,
-      item2: item2
+      item1: this.toRatio(item1),
+      item2: this.toRatio(item2)
     }, this.periodoAcademicoId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
@@ -613,7 +660,7 @@ export class ReportePorGruposComponent implements OnInit, OnDestroy {
     this.loadingService.show('Actualizando imprevistos');
     this.editandoImprevistos = false;
     const valor = this.clonedImprevistos;
-    this.facadeService.actualizarPorcentajeImprevistos(this.periodoAcademicoId, valor).pipe(takeUntil(this.destroy$)).subscribe({
+    this.facadeService.actualizarPorcentajeImprevistos(this.periodoAcademicoId, this.toRatio(valor)).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.configuracion = data;
   

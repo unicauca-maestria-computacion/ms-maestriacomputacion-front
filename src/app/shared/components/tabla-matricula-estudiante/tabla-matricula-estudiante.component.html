@@ -114,7 +114,7 @@
                     <span class="detalle-valor">
                         <app-uni-status-badge *ngIf="tieneBeca; else noBecaStatus"
                             [labelOverride]="becaEstado"
-                            [severity]="getBecaEstadoSeverity(becaEstado)">
+                            [status]="getBecaEstadoStatus(becaEstado)">
                         </app-uni-status-badge>
                         <ng-template #noBecaStatus>—</ng-template>
                     </span>

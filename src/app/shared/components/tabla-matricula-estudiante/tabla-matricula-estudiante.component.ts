@@ -78,11 +78,12 @@ export class TablaMatriculaEstudianteComponent implements OnChanges {
         return materia.codigo_oid;
     }
 
-    getBecaEstadoSeverity(estado: string): string {
+    /** Mapea el estado de la solicitud al input [status] del badge (success/danger/warning):
+     *  true → verde (aprobada), false → naranja (negada), null → amarillo (en trámite). */
+    getBecaEstadoStatus(estado: string): boolean | null {
         const e = (estado || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-        if (e === 'resuelta' || e === 'aprobada' || e === 'avalada') return 'success';
-        if (e === 'en comite' || e === 'en concejo' || e === 'radicada') return 'warning';
-        if (e === 'rechazada' || e === 'no aprobada' || e === 'no avalada') return 'danger';
-        return 'info';
+        if (e === 'resuelta' || e === 'finalizada' || e === 'aprobada' || e === 'avalada') return true;
+        if (e === 'rechazada' || e === 'no aprobada' || e === 'no avalada' || e === 'negada') return false;
+        return null;
     }
 }
